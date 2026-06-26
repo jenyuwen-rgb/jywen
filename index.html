@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全台五大游泳賽事整合下載平台</title>
+    <title>JYWEN 全台游泳賽事整合下載平台</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;700&display=swap');
         
@@ -121,19 +121,42 @@
         /* 頂部控制面板行 */
         .controls-row {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
             gap: 1.5rem;
+            flex-wrap: wrap;
         }
 
-        .query-system-btn {
+        .db-status-bar {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid #232326;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #4CD964;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px #4CD964;
+        }
+
+        .btn-action {
             background: linear-gradient(135deg, #1C1C1E 0%, #0A0A0B 100%);
             border: 1.5px solid #232326;
-            padding: 12px 28px;
+            padding: 12px 24px;
             border-radius: 12px;
             font-weight: 700;
-            font-size: 1.05rem;
+            font-size: 1rem;
+            color: #FFF;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
@@ -142,11 +165,175 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        .query-system-btn:hover {
+        .btn-action:hover {
             border-color: var(--primary);
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(212, 175, 55, 0.15);
         }
+
+        .btn-export {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: #0A0A0B;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-export:hover {
+            opacity: 0.9;
+        }
+
+        /* 說明指南看板 */
+        .guide-banner {
+            background: linear-gradient(135deg, rgba(212,175,55,0.05) 0%, rgba(0,0,0,0) 100%);
+            border: 1.5px solid rgba(212, 175, 55, 0.15);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .guide-banner h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .guide-banner p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--text-gray);
+        }
+
+        /* 賽事更新下載面板 */
+        .update-section {
+            background-color: var(--bg-card);
+            border: 1.5px solid #232326;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .update-section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0 0 1.5rem 0;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .update-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            font-weight: 600;
+        }
+
+        .form-select {
+            background-color: #1C1C1E;
+            border: 1.5px solid #2C2C2E;
+            color: #FFF;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-update-action {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: #000;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            height: 48px;
+            font-size: 0.95rem;
+        }
+
+        .btn-update-action:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-update-action:disabled {
+            background: #2C2C2E;
+            color: #8E8E93;
+            cursor: not-allowed;
+        }
+
+        /* 下載控制與日誌區 */
+        .download-status-container {
+            background-color: #09090A;
+            border: 1px solid #232326;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .progress-bar-wrapper {
+            width: 100%;
+            background-color: #232326;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar-fill {
+            background-color: var(--primary);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .log-console {
+            max-height: 180px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #8E8E93;
+            line-height: 1.6;
+            padding: 10px;
+            border-top: 1px solid #232326;
+            margin-top: 10px;
+        }
+
+        .log-item {
+            margin-bottom: 4px;
+        }
+
+        .log-item.success { color: #4CD964; }
+        .log-item.error { color: #FF3B30; }
 
         /* 卡片格線 */
         .cards-grid {
@@ -225,32 +412,6 @@
         .btn-link-portal:hover {
             border-color: var(--primary);
             color: var(--primary);
-        }
-
-        /* 說明指南看板 */
-        .guide-banner {
-            background: linear-gradient(135deg, rgba(212,175,55,0.05) 0%, rgba(0,0,0,0) 100%);
-            border: 1.5px solid rgba(212, 175, 55, 0.15);
-            border-radius: 16px;
-            padding: 1.5rem 2rem;
-            margin-bottom: 3rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .guide-content h3 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.25rem;
-            color: var(--primary);
-        }
-
-        .guide-content p {
-            margin: 0;
-            font-size: 0.95rem;
-            color: var(--text-gray);
-            line-height: 1.6;
         }
 
         /* 游泳行事曆區段 */
@@ -350,6 +511,85 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* 全螢幕鎖定畫面樣式 */
+        #dbLockOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 10, 11, 0.97);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            padding: 20px;
+        }
+
+        .lock-box {
+            max-width: 460px;
+            width: 100%;
+            background: var(--bg-card);
+            border: 1.5px solid rgba(212, 175, 55, 0.2);
+            border-radius: 24px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+
+        .lock-icon {
+            font-size: 3.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            animation: lockPulse 2s infinite ease-in-out;
+        }
+
+        .lock-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 0 0.75rem 0;
+            color: #FFF;
+        }
+
+        .lock-desc {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .btn-upload-db {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: #0A0A0B;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-upload-db:hover {
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .upload-progress-container {
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+
+        .upload-status-text {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            margin-bottom: 8px;
+        }
+
+        @keyframes lockPulse {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
         @media (max-width: 1200px) {
             .cards-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -364,17 +604,17 @@
                 flex-direction: column;
                 align-items: stretch;
             }
+            .db-status-bar {
+                justify-content: space-between;
+            }
             .guide-banner {
-                flex-direction: column;
-                align-items: flex-start;
                 padding: 1.5rem;
             }
-            /* 行事曆表格 RWD 轉成卡片式 */
             .calendar-table, .calendar-table thead, .calendar-table tbody, .calendar-table th, .calendar-table td, .calendar-table tr {
                 display: block;
             }
             .calendar-table thead {
-                display: none; /* 隱藏表頭 */
+                display: none;
             }
             .calendar-table tr {
                 border-bottom: 2px solid #232326;
@@ -399,7 +639,6 @@
                 width: 65px;
                 flex-shrink: 0;
             }
-            /* 針對漸層高亮的當月賽事處理，在 RWD 卡片中讓文字也套用漸層 */
             .current-month-row td::before {
                 background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%);
                 -webkit-background-clip: text;
@@ -422,9 +661,11 @@
             .subtitle {
                 font-size: 0.95rem;
             }
-            .query-system-btn {
+            .btn-action {
                 padding: 10px 20px;
                 font-size: 0.95rem;
+                width: 100%;
+                justify-content: center;
             }
             .calendar-section-title {
                 font-size: 1.4rem;
@@ -433,6 +674,27 @@
     </style>
 </head>
 <body>
+
+    <!-- 全螢幕本地資料庫鎖定遮罩 -->
+    <div id="dbLockOverlay">
+        <div class="lock-box">
+            <div class="lock-icon">🔒</div>
+            <h2 class="lock-title">地端資料庫尚未載入</h2>
+            <p class="lock-desc">
+                本游泳平台為純前端靜態系統，所有數據均儲存在您的本地裝置中。<br>
+                請選擇您的 <strong>swim_results_birthday.db</strong> 檔案以啟用系統。
+            </p>
+            <input type="file" id="lockDbFileInput" class="hidden" style="display: none;" onchange="handleDBUpload(this.files)">
+            <button onclick="document.getElementById('lockDbFileInput').click()" class="btn-upload-db">📂 載入地端資料庫 (.db)</button>
+            
+            <div id="uploadProgressContainer" class="upload-progress-container" style="display: none;">
+                <div id="uploadStatusText" class="upload-status-text">正在初始化系統...</div>
+                <div class="progress-bar-wrapper">
+                    <div id="uploadProgressBar" class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="container">
         <!-- 頂部標題區 -->
@@ -452,18 +714,56 @@
         <main>
             <!-- 頂部控制面板行 -->
             <div class="controls-row">
-                <button class="query-system-btn" onclick="window.open('query.html', '_blank')">
+                <div class="db-status-bar">
+                    <span class="status-dot"></span>
+                    <span id="db-status-text" class="text-white">資料庫已載入</span>
+                    <button class="btn-export" onclick="exportDatabase()">💾 匯出最新資料庫 (.db)</button>
+                </div>
+                
+                <button class="btn-action" onclick="window.open('query.html', '_blank')">
                     🔍 <span class="gold-gradient-text">進入成績查詢系統</span>
                 </button>
             </div>
 
             <!-- 說明指南看板 -->
             <div class="guide-banner">
-                <div class="guide-content">
-                    <h3>💡 靜態網頁版操作指引</h3>
-                    <p>本線上網頁已在 Vercel 雲端部署。下方行事曆為預存的 115年/2026年 賽事數據；若您需要查詢選手個人成績 (PB)，請點擊右上角「進入成績查詢系統」按鈕，並於網頁中載入您的 <strong>swim_results_birthday.db</strong> 資料庫檔案。</p>
-                </div>
+                <h3>💡 靜態網頁版操作指引</h3>
+                <p>本平台已轉換為完全去中心化的靜態離線版本。下方行事曆是自您載入的本地資料庫動態讀取。您可以使用下方的「更新下載專區」爬取最新成績並寫入資料庫，完成後點選右上角的「匯出最新資料庫」按鈕存回您的本機硬碟即可。</p>
             </div>
+
+            <!-- 賽事更新下載專區 -->
+            <section class="update-section">
+                <h3 class="update-section-title">🔄 成績更新下載專區 (前端 CORS 代理模式)</h3>
+                
+                <div class="update-row">
+                    <div class="form-group">
+                        <label for="update-source">1. 選擇賽事來源</label>
+                        <select id="update-source" class="form-select" onchange="handleSourceChange()">
+                            <option value="">-- 請選擇來源 --</option>
+                            <option value="site_a">台中市游泳委員會 (Swim8)</option>
+                            <option value="site_e">高雄水上</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="update-game">2. 選擇賽事項目</label>
+                        <select id="update-game" class="form-select" disabled>
+                            <option value="">請先選擇賽事來源...</option>
+                        </select>
+                    </div>
+
+                    <button id="btn-start-update" class="btn-update-action" onclick="startRaceUpdate()" disabled>📥 下載並更新</button>
+                </div>
+
+                <!-- 下載進度與日誌 -->
+                <div id="download-progress-container" class="download-status-container" style="display: none;">
+                    <div id="download-status-title" style="font-weight: bold; margin-bottom: 10px;">下載中...</div>
+                    <div class="progress-bar-wrapper">
+                        <div id="download-progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <div id="log-console" class="log-console"></div>
+                </div>
+            </section>
 
             <!-- 卡片入口 (五大平台官網) -->
             <section class="cards-grid" aria-label="賽事網站官網入口">
@@ -538,7 +838,7 @@
                     <tbody id="calendar-tbody">
                         <tr>
                             <td colspan="5" class="loading-cell">
-                                <div class="spinner inline-spinner"></div> 正在載入雲端行事曆數據...
+                                <div class="spinner inline-spinner"></div> 正在等待載入資料庫...
                             </td>
                         </tr>
                     </tbody>
@@ -547,9 +847,403 @@
         </main>
     </div>
 
-    <!-- 交互邏輯 Script -->
+    <!-- Web Worker JavaScript -->
+    <script id="worker-script" type="text/javascript-worker">
+        importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
+        let db = null;
+        self.onmessage = async function(e) {
+            const { type, data, query, id, params } = e.data;
+            
+            if (type === 'INIT') {
+                try {
+                    const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
+                    db = new SQL.Database(data);
+                    
+                    // 初始化必要的 calendar 及 scores 表結構
+                    db.run(`
+                        CREATE TABLE IF NOT EXISTS ctsa_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+                        CREATE TABLE IF NOT EXISTS swim8_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+                        CREATE TABLE IF NOT EXISTS tainan_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+                        CREATE TABLE IF NOT EXISTS kcc_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+                        CREATE TABLE IF NOT EXISTS swim_kcsat_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+                        CREATE TABLE IF NOT EXISTS tpesa_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+                        CREATE TABLE IF NOT EXISTS ctusf_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+                        CREATE TABLE IF NOT EXISTS swimming_scores (年份 TEXT, 賽事名稱 TEXT, 項目 TEXT, 組別 TEXT, 水道 TEXT, 單位 TEXT, 姓名 TEXT, 出生年 TEXT, 性別 TEXT, 成績 TEXT, 名次 TEXT, 積分 TEXT, 備註 TEXT, 成績報告網址 TEXT);
+                        CREATE INDEX IF NOT EXISTS idx_swimming_scores_name ON swimming_scores(姓名);
+                    `);
+                    
+                    // 檢查行事曆是否為空
+                    const checkStmt = db.prepare("SELECT COUNT(*) as count FROM swim8_news_calendar");
+                    checkStmt.step();
+                    const count = checkStmt.getAsObject().count;
+                    checkStmt.free();
+                    
+                    self.postMessage({ type: 'READY', needPopulate: (count === 0) });
+                } catch(err) {
+                    self.postMessage({ type: 'ERROR', id, error: err.message });
+                }
+            } else if (type === 'POPULATE_CALENDAR') {
+                try {
+                    const events = data;
+                    const stmtCtsa = db.prepare("INSERT INTO ctsa_news_calendar (news_id, event_name, event_date, location, pdf_url) VALUES (?, ?, ?, ?, ?)");
+                    const stmtSwim8 = db.prepare("INSERT INTO swim8_news_calendar (news_id, event_name, event_date, location, pdf_url, source_url) VALUES (?, ?, ?, ?, ?, ?)");
+                    const stmtTainan = db.prepare("INSERT INTO tainan_news_calendar (news_id, event_name, event_date, location, pdf_url, source_url) VALUES (?, ?, ?, ?, ?, ?)");
+                    const stmtKcc = db.prepare("INSERT INTO kcc_news_calendar (news_id, event_name, event_date, location, pdf_url, source_url) VALUES (?, ?, ?, ?, ?, ?)");
+                    const stmtKcsat = db.prepare("INSERT INTO swim_kcsat_news_calendar (news_id, event_name, event_date, location, pdf_url, source_url) VALUES (?, ?, ?, ?, ?, ?)");
+                    const stmtTpesa = db.prepare("INSERT INTO tpesa_news_calendar (news_id, event_name, event_date, location, pdf_url, source_url) VALUES (?, ?, ?, ?, ?, ?)");
+                    const stmtCtusf = db.prepare("INSERT INTO ctusf_news_calendar (news_id, event_name, event_date, location, pdf_url, source_url) VALUES (?, ?, ?, ?, ?, ?)");
+                    
+                    for (const ev of events) {
+                        const id = ev.id || "";
+                        const remarkMatch = (ev.remark || "").match(/href="([^"]+)"/);
+                        const pdfUrl = remarkMatch ? remarkMatch[1] : "";
+                        
+                        if (id.startsWith("台中-") || ev.organizer?.includes("台中")) {
+                            stmtSwim8.run([id.replace("台中-",""), ev.name, ev.date, ev.location || "台中市", pdfUrl, ""]);
+                        } else if (id.startsWith("台南-") || ev.organizer?.includes("台南")) {
+                            stmtTainan.run([id.replace("台南-",""), ev.name, ev.date, ev.location || "台南市", pdfUrl, ""]);
+                        } else if (id.startsWith("高雄-") || ev.organizer?.includes("體育總會")) {
+                            stmtKcc.run([id.replace("高雄-",""), ev.name, ev.date, ev.location || "高雄市", pdfUrl, ""]);
+                        } else if (id.startsWith("高雄水上-") || ev.organizer?.includes("高雄水上")) {
+                            stmtKcsat.run([id.replace("高雄水上-",""), ev.name, ev.date, ev.location || "高雄市", pdfUrl, ""]);
+                        } else if (id.startsWith("台北-") || ev.organizer?.includes("台北")) {
+                            stmtTpesa.run([id.replace("台北-",""), ev.name, ev.date, ev.location || "台北市", pdfUrl, ""]);
+                        } else if (id.startsWith("大專體總-") || ev.organizer?.includes("大專體總")) {
+                            stmtCtusf.run([id.replace("大專體總-",""), ev.name, ev.date, ev.location || "全國", pdfUrl, ""]);
+                        } else {
+                            stmtCtsa.run([id, ev.name, ev.date, ev.location || "全國", pdfUrl]);
+                        }
+                    }
+                    
+                    stmtCtsa.free();
+                    stmtSwim8.free();
+                    stmtTainan.free();
+                    stmtKcc.free();
+                    stmtKcsat.free();
+                    stmtTpesa.free();
+                    stmtCtusf.free();
+                    self.postMessage({ type: 'POPULATE_DONE' });
+                } catch(err) {
+                    self.postMessage({ type: 'ERROR', id, error: err.message });
+                }
+            } else if (type === 'QUERY') {
+                try {
+                    const stmt = db.prepare(query);
+                    const rows = [];
+                    while (stmt.step()) rows.push(stmt.getAsObject());
+                    stmt.free();
+                    self.postMessage({ type: 'RESULT', id, data: rows });
+                } catch (err) {
+                    self.postMessage({ type: 'ERROR', id, error: err.message });
+                }
+            } else if (type === 'DEDUCE_AND_INSERT') {
+                try {
+                    const scores = data;
+                    const stmtInsert = db.prepare(`
+                        INSERT INTO swimming_scores (年份, 賽事名稱, 項目, 組別, 水道, 單位, 姓名, 出生年, 性別, 成績, 名次, 積分, 備註, 成績報告網址) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    `);
+                    
+                    const stmtDeduce = db.prepare(`
+                        SELECT DISTINCT 出生年, 性別 FROM swimming_scores WHERE 姓名=? AND 單位=? AND 出生年 IS NOT NULL AND 出生年 != '' LIMIT 1
+                    `);
+                    
+                    for (const sc of scores) {
+                        let deducedBirth = "";
+                        let deducedGender = sc.性別 || "";
+                        
+                        stmtDeduce.bind([sc.姓名, sc.單位]);
+                        if (stmtDeduce.step()) {
+                            const resObj = stmtDeduce.getAsObject();
+                            deducedBirth = resObj.出生年 || "";
+                            if (!deducedGender) deducedGender = resObj.性別 || "";
+                        }
+                        stmtDeduce.reset();
+                        
+                        stmtInsert.run([
+                            sc.年份, sc.賽事名稱, sc.項目, sc.組別, sc.水道, sc.單位, sc.姓名,
+                            deducedBirth, deducedGender, sc.成績, sc.名次, sc.積分, sc.備註, sc.成績報告網址
+                        ]);
+                    }
+                    
+                    stmtInsert.free();
+                    stmtDeduce.free();
+                    
+                    // 去重清理
+                    db.run(`
+                        DELETE FROM swimming_scores
+                        WHERE rowid NOT IN (
+                            SELECT MIN(rowid)
+                            FROM swimming_scores
+                            GROUP BY "年份", "賽事名稱", "項目", "組別", "姓名", "出生年", "性別", "單位", "成績", "名次"
+                        )
+                    `);
+                    
+                    self.postMessage({ type: 'DEDUCE_AND_INSERT_DONE' });
+                } catch (err) {
+                    self.postMessage({ type: 'ERROR', id, error: err.message });
+                }
+            } else if (type === 'EXPORT') {
+                try {
+                    const binary = db.export();
+                    self.postMessage({ type: 'EXPORT_RESULT', id, data: binary }, [binary.buffer]);
+                } catch (err) {
+                    self.postMessage({ type: 'ERROR', id, error: err.message });
+                }
+            }
+        };
+    </script>
+
     <script>
-        let calendarEvents = [];
+        // 初始化 Worker
+        const blob = new Blob([document.getElementById('worker-script').textContent], { type: 'application/javascript' });
+        const worker = new Worker(URL.createObjectURL(blob));
+        const callbacks = {};
+        let queryId = 0;
+        let dbFileName = "swim_results_birthday.db";
+        let isDBLoaded = false;
+
+        worker.onmessage = async function(e) {
+            const { type, id, data, error, needPopulate } = e.data;
+            if (type === 'READY') {
+                document.getElementById('dbLockOverlay').style.display = 'none';
+                isDBLoaded = true;
+                
+                if (needPopulate) {
+                    addLog("檢測到資料庫中行事曆為空，正在從 calendar.json 載入初始行事曆資料...");
+                    try {
+                        const resp = await fetch('calendar.json');
+                        if (resp.ok) {
+                            const events = await resp.json();
+                            worker.postMessage({ type: 'POPULATE_CALENDAR', data: events });
+                        }
+                    } catch(err) {
+                        console.error("無法加載 calendar.json", err);
+                    }
+                } else {
+                    loadCalendarFromDB();
+                }
+            } else if (type === 'POPULATE_DONE') {
+                addLog("成功導入行事曆至您的資料庫。");
+                loadCalendarFromDB();
+            } else if (type === 'RESULT') {
+                if (callbacks[id]) { callbacks[id].resolve(data); delete callbacks[id]; }
+            } else if (type === 'EXPORT_RESULT') {
+                if (callbacks[id]) { callbacks[id].resolve(data); delete callbacks[id]; }
+            } else if (type === 'DEDUCE_AND_INSERT_DONE') {
+                if (callbacks[id]) { callbacks[id].resolve(); delete callbacks[id]; }
+            } else if (type === 'ERROR') {
+                if (callbacks[id]) { callbacks[id].reject(new Error(error)); delete callbacks[id]; }
+            }
+        };
+
+        function remoteQuery(query) {
+            return new Promise((resolve, reject) => {
+                const id = queryId++;
+                callbacks[id] = { resolve, reject };
+                worker.postMessage({ type: 'QUERY', id, query });
+            });
+        }
+
+        function remoteExport() {
+            return new Promise((resolve, reject) => {
+                const id = queryId++;
+                callbacks[id] = { resolve, reject };
+                worker.postMessage({ type: 'EXPORT', id });
+            });
+        }
+
+        function remoteInsertScores(scores) {
+            return new Promise((resolve, reject) => {
+                const id = queryId++;
+                callbacks[id] = { resolve, reject };
+                worker.postMessage({ type: 'DEDUCE_AND_INSERT', id, data: scores });
+            });
+        }
+
+        // 偵測 IndexedDB 載入資料庫
+        async function startSystem() {
+            const openReq = indexedDB.open("SwimSQL", 1);
+            openReq.onupgradeneeded = e => {
+                if (!e.target.result.objectStoreNames.contains("files")) {
+                    e.target.result.createObjectStore("files");
+                }
+            };
+            openReq.onsuccess = e => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains("files")) {
+                    showLockOverlay();
+                    return;
+                }
+                const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db");
+                getReq.onsuccess = async () => {
+                    if (getReq.result) {
+                        const fileBlob = getReq.result;
+                        document.getElementById('db-status-text').textContent = `資料庫已載入 (${(fileBlob.size / (1024 * 1024)).toFixed(1)} MB)`;
+                        document.getElementById('uploadProgressContainer').style.display = 'block';
+                        document.getElementById('uploadStatusText').textContent = "正在載入 WebAssembly SQL.js 引擎並啟動資料庫...";
+                        document.getElementById('uploadProgressBar').style.width = '70%';
+                        
+                        const buf = await (fileBlob instanceof Blob ? fileBlob.arrayBuffer() : fileBlob);
+                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buf) });
+                    } else {
+                        showLockOverlay();
+                    }
+                };
+                getReq.onerror = () => { showLockOverlay(); };
+            };
+            openReq.onerror = () => { showLockOverlay(); };
+        }
+
+        function showLockOverlay() {
+            document.getElementById('dbLockOverlay').style.display = 'flex';
+        }
+
+        // 上傳本機檔案
+        async function handleDBUpload(files) {
+            if(!files[0]) return;
+            const file = files[0];
+            dbFileName = file.name;
+            document.getElementById('uploadProgressContainer').style.display = 'block';
+            const statusEl = document.getElementById('uploadStatusText');
+            const progressBar = document.getElementById('uploadProgressBar');
+            
+            progressBar.style.width = '40%';
+            statusEl.textContent = "讀取本機資料庫檔案中...";
+            
+            try {
+                const buffer = await file.arrayBuffer();
+                progressBar.style.width = '60%';
+                statusEl.textContent = "儲存至瀏覽器快取 (IndexedDB)...";
+                
+                const openReq = indexedDB.open("SwimSQL", 1);
+                openReq.onsuccess = e => {
+                    const db = e.target.result;
+                    const tx = db.transaction("files", "readwrite");
+                    tx.objectStore("files").put(file, "current_db");
+                    tx.oncomplete = () => {
+                        progressBar.style.width = '85%';
+                        statusEl.textContent = "載入完畢，正在喚醒 SQL.js 引擎...";
+                        document.getElementById('db-status-text').textContent = `資料庫已載入 (${(file.size / (1024 * 1024)).toFixed(1)} MB)`;
+                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buffer) });
+                    };
+                };
+            } catch (err) {
+                statusEl.textContent = `載入失敗: ${err.message}`;
+            }
+        }
+
+        // 匯出資料庫 (下載 Blob)
+        async function exportDatabase() {
+            if (!isDBLoaded) return;
+            try {
+                addLog("正在生成 SQLite 二進位檔案並打包匯出...");
+                const binary = await remoteExport();
+                const blob = new Blob([binary], { type: "application/x-sqlite3" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = dbFileName || "swim_results_birthday.db";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                addLog("✅ 資料庫匯出成功！請將該檔案覆蓋您地端的資料庫檔案。");
+                alert("資料庫已成功匯出至您的下載資料夾，請覆蓋您原先的資料庫檔案。");
+            } catch(err) {
+                alert("匯出失敗: " + err.message);
+            }
+        }
+
+        // 從資料庫加載行事曆
+        async function loadCalendarFromDB() {
+            const tbody = document.getElementById('calendar-tbody');
+            try {
+                // 連接各個行事曆表
+                const queryStr = `
+                    SELECT 'ctsa' as src, event_name as name, event_date as date, location, '中華泳協' as organizer, pdf_url as remark FROM ctsa_news_calendar
+                    UNION ALL
+                    SELECT 'swim8' as src, event_name as name, event_date as date, location, '台中市體育總會游泳委員會' as organizer, pdf_url as remark FROM swim8_news_calendar WHERE event_date != '非賽事公告'
+                    UNION ALL
+                    SELECT 'tainan' as src, event_name as name, event_date as date, location, '台南市體育總會游泳委員會' as organizer, pdf_url as remark FROM tainan_news_calendar WHERE event_date != '非賽事公告'
+                    UNION ALL
+                    SELECT 'kcc' as src, event_name as name, event_date as date, location, '高雄市體育總會游泳委員會' as organizer, pdf_url as remark FROM kcc_news_calendar WHERE event_date != '非賽事公告'
+                    UNION ALL
+                    SELECT 'swim_kcsat' as src, event_name as name, event_date as date, location, '高雄水上' as organizer, pdf_url as remark FROM swim_kcsat_news_calendar WHERE event_date != '非賽事公告'
+                    UNION ALL
+                    SELECT 'tpesa' as src, event_name as name, event_date as date, location, '台北體育總會游泳協會' as organizer, pdf_url as remark FROM tpesa_news_calendar WHERE event_date != '非賽事公告'
+                    UNION ALL
+                    SELECT 'ctusf' as src, event_name as name, event_date as date, location, '大專體總' as organizer, pdf_url as remark FROM ctusf_news_calendar WHERE event_date != '非賽事公告'
+                `;
+                
+                const res = await remoteQuery(queryStr);
+                let events = [];
+                
+                if (res && res.length > 0) {
+                    events = res;
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" class="loading-cell text-gray-500">📭 行事曆為空，請點選上方更新專區進行同步。</td></tr>`;
+                    return;
+                }
+
+                // 排序日期
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth() + 1;
+
+                events.forEach(ev => {
+                    ev._parsedDate = parseEventDate(ev.date);
+                });
+
+                // 照日期排序，無效日期排在最下面
+                events.sort((a, b) => {
+                    if (!a._parsedDate) return 1;
+                    if (!b._parsedDate) return -1;
+                    return a._parsedDate - b._parsedDate;
+                });
+
+                let html = "";
+                let hasMarkedFirst = false;
+
+                events.forEach(ev => {
+                    let isCurrentMonth = false;
+                    let isFirstOfCurrent = false;
+
+                    if (ev._parsedDate) {
+                        const evYear = ev._parsedDate.getFullYear();
+                        const evMonth = ev._parsedDate.getMonth() + 1;
+                        if (evYear === currentYear && evMonth === currentMonth) {
+                            isCurrentMonth = true;
+                            if (!hasMarkedFirst) {
+                                isFirstOfCurrent = true;
+                                hasMarkedFirst = true;
+                            }
+                        }
+                    }
+
+                    const rowClass = isCurrentMonth ? 'current-month-row' : '';
+                    const firstClass = isFirstOfCurrent ? 'current-month-first' : '';
+                    const remarkHtml = ev.remark ? `<a href="${ev.remark}" target="_blank">下載規程</a>` : '來源：資料庫';
+
+                    html += `
+                        <tr class="${rowClass} ${firstClass}">
+                            <td data-label="日期">${ev.date || '未定'}</td>
+                            <td data-label="賽事" style="font-weight: 600;">${ev.name}</td>
+                            <td data-label="地點">${ev.location || '-'}</td>
+                            <td data-label="主辦">${ev.organizer || '-'}</td>
+                            <td data-label="備註">${remarkHtml}</td>
+                        </tr>
+                    `;
+                });
+
+                tbody.innerHTML = html;
+                updateMarquee(events);
+                scrollToCurrentMonth();
+
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="loading-cell text-red-500">❌ 載入失敗: ${err.message}</td></tr>`;
+            }
+        }
 
         // 自動將行事曆滾動到當月首筆賽事
         function scrollToCurrentMonth() {
@@ -567,20 +1261,16 @@
             const now = new Date();
             const currentYear = now.getFullYear();
 
-            // 1. 優先精準匹配 4 位年份 YYYY/MM/DD
             let m = dateStr.match(/(\d{4})[/\.](\d{1,2})[/\.](\d{1,2})/);
             if (m) {
                 return new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
             }
 
-            // 2. 匹配 MM/DD 格式 (排除年份尾數被誤判的可能性)
-            // 尋找非斜線或非數字開頭的 \d{1,2}/\d{1,2}，或者確保它不是 YYYY 的一部份
             m = dateStr.match(/(?:^|[^/0-9])(\d{1,2})\/(\d{1,2})/);
             if (m) {
                 return new Date(currentYear, parseInt(m[1]) - 1, parseInt(m[2]));
             }
 
-            // 3. 匹配中文 "X月Y日"
             m = dateStr.match(/(\d{1,2})\s*月\s*(\d{1,2})\s*日/);
             if (m) {
                 return new Date(currentYear, parseInt(m[1]) - 1, parseInt(m[2]));
@@ -589,32 +1279,26 @@
             return null;
         }
 
-        // 更新跑馬燈 (即將舉辦的賽事，排除已舉辦)
+        // 更新跑馬燈
         function updateMarquee(events) {
             const track = document.getElementById('marquee-track');
             const marqueeBar = document.getElementById('marquee-bar');
             const now = new Date();
-            // 設定為今天凌晨以防誤判今天正在舉辦的比賽
             now.setHours(0, 0, 0, 0);
 
             const upcoming = [];
-            const seenNames = new Set(); // 用於去重相同賽事
+            const seenNames = new Set();
 
             events.forEach(ev => {
                 const name = ev.name;
-                if (seenNames.has(name)) return; // 已經加入過相同名稱的賽事則跳過
+                if (seenNames.has(name)) return;
 
                 const evDate = parseEventDate(ev.date);
                 if (evDate && evDate >= now) {
-                    // 計算距離天數
                     const diffTime = evDate - now;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    let countdownText = "";
-                    if (diffDays === 0) {
-                        countdownText = "今天舉辦";
-                    } else {
-                        countdownText = `${diffDays} 天後`;
-                    }
+                    let countdownText = diffDays === 0 ? "今天舉辦" : `${diffDays} 天後`;
+                    
                     upcoming.push({
                         name: name,
                         date: ev.date,
@@ -635,75 +1319,289 @@
             }
         }
 
-        // 載入並渲染行事曆
-        async function loadCalendar() {
-            const tbody = document.getElementById('calendar-tbody');
+        // CORS 代理請求輔助工具
+        const CORS_PROXY = "https://corsproxy.io/?";
+
+        async function fetchHtmlWithProxy(url) {
+            const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
+            if (!resp.ok) throw new Error(`HTTP 錯誤: ${resp.status}`);
+            return await resp.text();
+        }
+
+        async function postJsonWithProxy(url, postData) {
+            const proxyUrl = CORS_PROXY + encodeURIComponent(url);
+            const formData = new URLSearchParams();
+            for (const key in postData) {
+                formData.append(key, postData[key]);
+            }
+            const resp = await fetch(proxyUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+            if (!resp.ok) throw new Error(`HTTP 錯誤: ${resp.status}`);
+            return await resp.json();
+        }
+
+        // 更新選擇來源事件
+        async function handleSourceChange() {
+            const source = document.getElementById('update-source').value;
+            const gameSelect = document.getElementById('update-game');
+            const startBtn = document.getElementById('btn-start-update');
+            
+            gameSelect.innerHTML = '<option value="">獲取網頁賽事清單中...</option>';
+            gameSelect.disabled = true;
+            startBtn.disabled = true;
+
+            if (!source) {
+                gameSelect.innerHTML = '<option value="">請先選擇賽事來源...</option>';
+                return;
+            }
+
             try {
-                // 讀取本地打包好的 calendar.json
-                const response = await fetch('calendar.json');
-                if (!response.ok) throw new Error("無法讀取行事曆數據檔案 calendar.json");
-                
-                calendarEvents = await response.json();
-                
-                if (calendarEvents.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="loading-cell text-gray-500">📭 目前暫無行事曆賽事資訊。</td></tr>`;
-                    return;
+                let targetUrl = "";
+                if (source === "site_a") {
+                    targetUrl = "https://swim8.kcsat.org/score_search";
+                } else if (source === "site_e") {
+                    targetUrl = "https://swim.kcsat.org/score_search";
                 }
 
-                const now = new Date();
-                const currentYear = now.getFullYear();
-                const currentMonth = now.getMonth() + 1; // 1-indexed
-
-                let html = "";
-                let hasMarkedFirst = false;
-
-                calendarEvents.forEach(ev => {
-                    let isCurrentMonth = false;
-                    let isFirstOfCurrent = false;
-
-                    // 解析日期以判定是否為當月賽事
-                    const evDate = parseEventDate(ev.date);
-                    if (evDate) {
-                        const evYear = evDate.getFullYear();
-                        const evMonth = evDate.getMonth() + 1;
-                        if (evYear === currentYear && evMonth === currentMonth) {
-                            isCurrentMonth = true;
-                            if (!hasMarkedFirst) {
-                                isFirstOfCurrent = true;
-                                hasMarkedFirst = true; // 標記為首筆
-                            }
+                const html = await fetchHtmlWithProxy(targetUrl);
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const selectTag = doc.querySelector('select[name="search_game_filter"]');
+                
+                if (selectTag) {
+                    let optionsHtml = '<option value="">-- 選擇要下載的賽事 --</option>';
+                    const seen = new Set();
+                    const options = selectTag.querySelectorAll('option');
+                    
+                    options.forEach(opt => {
+                        const val = opt.value.trim();
+                        const text = opt.textContent.trim();
+                        if (val && val !== '0' && !seen.has(val)) {
+                            seen.add(val);
+                            optionsHtml += `<option value="${val}">${text}</option>`;
                         }
-                    }
-
-                    const rowClass = isCurrentMonth ? 'current-month-row' : '';
-                    const firstClass = isFirstOfCurrent ? 'current-month-first' : '';
-
-                    html += `
-                        <tr class="${rowClass} ${firstClass}">
-                            <td data-label="日期">${ev.date}</td>
-                            <td data-label="賽事" style="font-weight: 600;">${ev.name}</td>
-                            <td data-label="地點">${ev.location || '-'}</td>
-                            <td data-label="主辦">${ev.organizer || '-'}</td>
-                            <td data-label="備註">${ev.remark || '-'}</td>
-                        </tr>
-                    `;
-                });
-
-                tbody.innerHTML = html;
-                
-                // 更新頂部跑馬燈
-                updateMarquee(calendarEvents);
-                
-                // 自動定位滾動
-                scrollToCurrentMonth();
-
+                    });
+                    
+                    gameSelect.innerHTML = optionsHtml;
+                    gameSelect.disabled = false;
+                    startBtn.disabled = false;
+                } else {
+                    gameSelect.innerHTML = '<option value="">無法解析網頁賽事選單。</option>';
+                }
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="5" class="loading-cell text-red-500">❌ 載入失敗: ${err.message}</td></tr>`;
+                gameSelect.innerHTML = `<option value="">獲取失敗: ${err.message}</option>`;
             }
         }
 
-        // 頁面載入時執行
-        window.addEventListener('DOMContentLoaded', loadCalendar);
+        // 開始賽事下載更新主程序
+        async function startRaceUpdate() {
+            const source = document.getElementById('update-source').value;
+            const gameSelect = document.getElementById('update-game');
+            const gameId = gameSelect.value;
+            const gameName = gameSelect.options[gameSelect.selectedIndex].text;
+            
+            if (!gameId) {
+                alert("請選擇一場賽事！");
+                return;
+            }
+
+            const progressContainer = document.getElementById('download-progress-container');
+            const titleEl = document.getElementById('download-status-title');
+            const progressBar = document.getElementById('download-progress-bar');
+            const consoleEl = document.getElementById('log-console');
+            
+            progressContainer.style.display = 'block';
+            consoleEl.innerHTML = '';
+            progressBar.style.width = '5%';
+            titleEl.textContent = `下載賽事: ${gameName}`;
+            
+            addLog(`📡 [CORS] 連接至 ${source === 'site_a' ? 'Swim8' : '高雄水上'} 伺服器中...`);
+
+            try {
+                const baseUrl = source === 'site_a' ? 'https://swim8.kcsat.org/' : 'https://swim.kcsat.org/';
+                
+                // 1. 取得所有組別
+                addLog("正在獲取所有組別 (Game Levels)...");
+                const levelsData = await postJsonWithProxy(baseUrl + "game/get_game_level", { i: gameId });
+                const selectHtml = levelsData.select || "";
+                
+                const parser = new DOMParser();
+                const lvlDoc = parser.parseFromString(selectHtml, 'text/html');
+                const lvlOpts = lvlDoc.querySelectorAll('option');
+                const levels = [];
+                
+                lvlOpts.forEach(opt => {
+                    const val = opt.value.trim();
+                    if (val && val !== '0') {
+                        levels.push({ id: val, name: opt.textContent.trim() });
+                    }
+                });
+
+                if (levels.length === 0) {
+                    throw new Error("未找到任何比賽組別。");
+                }
+
+                addLog(`🎯 成功解析 ${levels.length} 個組別。開始獲取各組別項目...`);
+                progressBar.style.width = '15%';
+
+                // 2. 獲取項目
+                const allQueries = [];
+                for (let i = 0; i < levels.length; i++) {
+                    const lvl = levels[i];
+                    addLog(`正在獲取組別 [${lvl.name}] 的項目...`);
+                    const eventsData = await postJsonWithProxy(baseUrl + "game/get_game_event", { i: gameId, ei: lvl.id });
+                    const evDoc = parser.parseFromString(eventsData.select || "", 'text/html');
+                    const evOpts = evDoc.querySelectorAll('option');
+                    
+                    evOpts.forEach(opt => {
+                        const val = opt.value.trim();
+                        if (val && val !== '0') {
+                            allQueries.push({
+                                level_id: lvl.id,
+                                level_name: lvl.name,
+                                event_id: val,
+                                event_name: opt.textContent.trim()
+                            });
+                        }
+                    });
+                    
+                    progressBar.style.width = `${15 + Math.round((i / levels.length) * 15)}%`;
+                }
+
+                addLog(`📋 解析出總共 ${allQueries.length} 個成績項目。開始併發下載成績資料...`);
+                
+                // 3. 下載與解析成績
+                const allScores = [];
+                const concurrencyLimit = 5; // 控制併發，避免 CORS proxy 被拒
+                let completedCount = 0;
+
+                // 估算年份
+                let yearStr = new Date().getFullYear().toString() + "0101";
+                const yrMatch = gameName.match(/(\d{4})/);
+                if (yrMatch) {
+                    yearStr = yrMatch[1] + "0101";
+                } else {
+                    const rocMatch = gameName.match(/(\d{3})年/);
+                    if (rocMatch) {
+                        yearStr = (parseInt(rocMatch[1]) + 1911).toString() + "0101";
+                    }
+                }
+
+                // 分批下載
+                for (let i = 0; i < allQueries.length; i += concurrencyLimit) {
+                    const batch = allQueries.slice(i, i + concurrencyLimit);
+                    const batchPromises = batch.map(async (q) => {
+                        try {
+                            const resData = await postJsonWithProxy(baseUrl + "game/get_search_result", {
+                                i: gameId,
+                                li: q.level_id,
+                                ei: q.event_id
+                            });
+                            
+                            const html = resData.html || "";
+                            if (!html) return;
+                            
+                            const scoreDoc = parser.parseFromString(html, 'text/html');
+                            const table = scoreDoc.querySelector('table.result_list');
+                            if (!table) return;
+                            
+                            const rows = table.querySelectorAll('tr');
+                            if (rows.length <= 1) return;
+                            
+                            // 標題列
+                            const headers = Array.from(rows[0].querySelectorAll('th, td')).map(x => x.textContent.trim());
+                            
+                            for (let rIdx = 1; rIdx < rows.length; rIdx++) {
+                                const cells = rows[rIdx].querySelectorAll('td, th');
+                                if (cells.length !== headers.length) continue;
+                                
+                                const rowData = {};
+                                headers.forEach((h, cIdx) => {
+                                    rowData[h] = cells[cIdx].textContent.trim();
+                                });
+                                
+                                const name = rowData["運動員"] || "";
+                                const timeVal = rowData["比賽成績"] || "";
+                                if (!name || !timeVal) continue;
+                                
+                                allScores.push({
+                                    年份: yearStr,
+                                    賽事名稱: gameName,
+                                    項目: q.event_name,
+                                    組別: q.level_name,
+                                    水道: "",
+                                    單位: rowData["泳隊名稱"] || "",
+                                    姓名: name,
+                                    性別: q.level_name.includes("女") ? "女" : (q.level_name.includes("男") ? "男" : ""),
+                                    成績: timeVal.replace("：", ":"),
+                                    名次: rowData["名次"] || "",
+                                    積分: "",
+                                    備註: rowData["備註"] || "",
+                                    成績報告網址: `${baseUrl}score_search#game=${gameId}&level=${q.level_id}&event=${q.event_id}`
+                                });
+                            }
+                        } catch(err) {
+                            console.error(`項目下載失敗 (${q.event_name}):`, err);
+                        } finally {
+                            completedCount++;
+                            const progressVal = 30 + Math.round((completedCount / allQueries.length) * 55);
+                            progressBar.style.width = `${progressVal}%`;
+                            titleEl.textContent = `下載進度: ${completedCount}/${allQueries.length}`;
+                        }
+                    });
+                    
+                    await Promise.all(batchPromises);
+                }
+
+                addLog(`💾 爬取完成！成功抓取 ${allScores.length} 筆原始成績數據。`);
+                addLog("正在進行地端資料庫推算與寫入作業...");
+                progressBar.style.width = '90%';
+
+                // 4. WASM 推算並寫入庫
+                await remoteInsertScores(allScores);
+                
+                progressBar.style.width = '100%';
+                titleEl.textContent = "✅ 更新入庫成功！";
+                addLog("🎉 資料庫已快取更新至 IndexedDB。", "success");
+                addLog("👉 請點選右上角『💾 匯出最新資料庫 (.db)』存回您的本機，以便保留資料。", "success");
+
+                // 更新 IndexedDB
+                const openReq = indexedDB.open("SwimSQL", 1);
+                openReq.onsuccess = async (e) => {
+                    const idb = e.target.result;
+                    const tx = idb.transaction("files", "readwrite");
+                    const binary = await remoteExport();
+                    const updatedBlob = new Blob([binary], { type: "application/x-sqlite3" });
+                    tx.objectStore("files").put(updatedBlob, "current_db");
+                    tx.oncomplete = () => {
+                        document.getElementById('db-status-text').textContent = `資料庫已載入 (${(updatedBlob.size / (1024 * 1024)).toFixed(1)} MB)`;
+                        loadCalendarFromDB(); // 刷新行事曆表
+                    };
+                };
+
+            } catch (err) {
+                progressBar.style.width = '100%';
+                titleEl.textContent = "❌ 更新失敗";
+                addLog(`錯誤原因: ${err.message}`, "error");
+            }
+        }
+
+        function addLog(msg, type = "") {
+            const consoleEl = document.getElementById('log-console');
+            const item = document.createElement('div');
+            item.className = `log-item ${type}`;
+            item.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            consoleEl.appendChild(item);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        window.addEventListener('DOMContentLoaded', startSystem);
     </script>
 </body>
 </html>

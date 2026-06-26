@@ -195,7 +195,7 @@
 <body class="pb-10">
 
     <!-- 全域載入狀態遮罩 -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col justify-center items-center">
+    <div id="loadingOverlay" class="fixed inset-0 bg-[#0A0A0B] bg-opacity-95 z-50 flex flex-col justify-center items-center">
         <div class="spinner mb-4"></div>
         <div class="text-[#D4AF37] font-bold tracking-widest text-lg">正在啟動查詢系統...</div>
     </div>
@@ -206,14 +206,22 @@
         <span class="text-xs text-gray-500">PWA Offline Capable</span>
     </div>
 
-    <!-- 資料庫載入區塊 (使用者上傳本機資料庫) -->
-    <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E] rounded-xl text-center border border-[#38383A]">
-        <input type="file" id="dbFileInput" hidden onchange="handleDBUpload(this.files)">
-        <button onclick="document.getElementById('dbFileInput').click()" class="bg-[#D4AF37] text-black px-8 py-3 rounded-full font-bold transition hover:bg-[#F3D078]">📂 載入本機成績資料庫 (swim_results_birthday.db)</button>
-        <div id="progressContainer" class="mt-6 hidden">
-            <div id="loaderStatus" class="text-sm text-gray-400 mb-2">準備中...</div>
-            <div class="w-full bg-[#333] rounded-full h-2 overflow-hidden">
-                <div id="progressBar" class="bg-[#D4AF37] h-full" style="width: 0%"></div>
+    <!-- 資料庫載入區塊 (全螢幕鎖定畫面) -->
+    <div id="dbLoaderArea" class="fixed inset-0 bg-[#0A0A0B] bg-opacity-95 z-40 flex justify-center items-center p-4 backdrop-blur-md" style="display: none;">
+        <div class="max-w-md w-full p-8 rounded-2xl bg-[#141416] border-2 border-[#D4AF37]/20 shadow-2xl text-center">
+            <div class="text-5xl text-[#D4AF37] mb-4">🔒</div>
+            <h2 class="text-2xl font-bold mb-2 text-white">地端資料庫尚未載入</h2>
+            <p class="text-sm text-gray-400 mb-6 leading-relaxed">
+                本系統為純前端靜態查詢網頁。所有數據皆儲存於您的本地裝置中。<br>
+                請載入您的 <strong>swim_results_birthday.db</strong> 檔案以啟用成績查詢系統。
+            </p>
+            <input type="file" id="dbFileInput" class="hidden" onchange="handleDBUpload(this.files)">
+            <button onclick="document.getElementById('dbFileInput').click()" class="w-full py-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F3D078] text-black font-bold hover:shadow-lg transition-all transform hover:-translate-y-0.5">📂 載入地端資料庫 (.db)</button>
+            <div id="progressContainer" class="mt-6 text-left hidden">
+                <div id="loaderStatus" class="text-xs text-gray-400 mb-2">準備中...</div>
+                <div class="w-full bg-[#232326] h-1.5 rounded-full overflow-hidden">
+                    <div id="progressBar" class="bg-[#D4AF37] h-full" style="width: 0%"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -595,10 +603,10 @@
         // 手動載入本機 DB
         function showUploadPrompt() {
             document.getElementById('loadingOverlay').style.display = 'none';
-            document.getElementById('dbLoaderArea').style.display = 'block';
+            document.getElementById('dbLoaderArea').style.display = 'flex';
             document.getElementById('progressContainer').classList.remove('hidden');
             const statusEl = document.getElementById('loaderStatus');
-            statusEl.textContent = "未偵測到本機快取資料庫。請點擊上方按鈕，選取您的 swim_results_birthday.db 檔案進行載入。";
+            statusEl.textContent = "未偵測到本機快取資料庫。請選取您的 swim_results_birthday.db 檔案進行載入。";
             document.getElementById('progressBar').style.width = '0%';
         }
 
