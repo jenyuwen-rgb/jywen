@@ -269,11 +269,11 @@
                 }
             } else if (type === 'QUERY') {
                 try {
-                    const stmt = db.prepare(query);
-                    const rows = [];
-                    while (stmt.step()) rows.push(stmt.getAsObject());
-                    stmt.free();
-                    self.postMessage({ type: 'RESULT', id, data: rows });
+                    // [Auditor 根本修正] db.exec() 回傳 [{columns:[...], values:[[...],...]}]
+                    // 與主執行緒所有 res[0].values 存取方式完全吻合
+                    // 舊版 getAsObject() 回傳 plain objects，導致 .values 永遠 undefined（查無資料根因）
+                    const result = db.exec(query);
+                    self.postMessage({ type: 'RESULT', id, data: result });
                 } catch (err) {
                     self.postMessage({ type: 'ERROR', id, error: err.message });
                 }
