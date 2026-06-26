@@ -369,14 +369,65 @@
                 align-items: flex-start;
                 padding: 1.5rem;
             }
+            /* 行事曆表格 RWD 轉成卡片式 */
+            .calendar-table, .calendar-table thead, .calendar-table tbody, .calendar-table th, .calendar-table td, .calendar-table tr {
+                display: block;
+            }
+            .calendar-table thead {
+                display: none; /* 隱藏表頭 */
+            }
+            .calendar-table tr {
+                border-bottom: 2px solid #232326;
+                padding: 1rem 0.5rem;
+                margin-bottom: 0.8rem;
+                border-radius: 12px;
+                background-color: var(--bg-card);
+            }
+            .calendar-table td {
+                border-bottom: none;
+                padding: 0.35rem 0.5rem;
+                text-align: left;
+                font-size: 0.9rem;
+                display: flex;
+                align-items: flex-start;
+            }
+            .calendar-table td::before {
+                content: attr(data-label) "：";
+                font-weight: bold;
+                color: var(--primary);
+                display: inline-block;
+                width: 65px;
+                flex-shrink: 0;
+            }
+            /* 針對漸層高亮的當月賽事處理，在 RWD 卡片中讓文字也套用漸層 */
+            .current-month-row td::before {
+                background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
         }
 
         @media (max-width: 550px) {
+            .container {
+                padding: 1rem 0.75rem;
+            }
             .cards-grid {
                 grid-template-columns: 1fr;
+                gap: 1rem;
             }
             h1 {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
+                line-height: 1.3;
+            }
+            .subtitle {
+                font-size: 0.95rem;
+            }
+            .query-system-btn {
+                padding: 10px 20px;
+                font-size: 0.95rem;
+            }
+            .calendar-section-title {
+                font-size: 1.4rem;
             }
         }
     </style>
@@ -629,11 +680,11 @@
 
                     html += `
                         <tr class="${rowClass} ${firstClass}">
-                            <td>${ev.date}</td>
-                            <td style="font-weight: 600;">${ev.name}</td>
-                            <td>${ev.location || '-'}</td>
-                            <td>${ev.organizer || '-'}</td>
-                            <td>${ev.remark || '-'}</td>
+                            <td data-label="日期">${ev.date}</td>
+                            <td data-label="賽事" style="font-weight: 600;">${ev.name}</td>
+                            <td data-label="地點">${ev.location || '-'}</td>
+                            <td data-label="主辦">${ev.organizer || '-'}</td>
+                            <td data-label="備註">${ev.remark || '-'}</td>
                         </tr>
                     `;
                 });
