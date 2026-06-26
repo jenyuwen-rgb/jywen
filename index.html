@@ -683,7 +683,6 @@
                 <div class="db-status-bar">
                     <span class="status-dot"></span>
                     <span id="db-status-text" class="text-white">資料庫已載入</span>
-                    <button class="btn-export" onclick="exportDatabase()">💾 匯出最新資料庫 (.db)</button>
                 </div>
                 
                 <button class="btn-action" onclick="window.open('query.html', '_blank')">
@@ -691,11 +690,7 @@
                 </button>
             </div>
 
-            <!-- 說明指南看板 -->
-            <div class="guide-banner">
-                <h3>💡 靜態網頁版操作指引</h3>
-                <p>本平台已轉換為完全去中心化的靜態離線版本。下方行事曆是自您載入的本地資料庫動態讀取。您可以使用各委員會方塊中的「選擇賽事」選單進行更新下載，完成後點選右上角的「匯出最新資料庫」按鈕存回您的本機硬碟即可。</p>
-            </div>
+
 
             <!-- 卡片入口 (五大平台與前端更新功能) -->
             <section class="cards-grid" aria-label="賽事網站官網入口與下載">
@@ -1290,15 +1285,17 @@
                 if (evDate && evDate >= now) {
                     const diffTime = evDate - now;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    let countdownText = diffDays === 0 ? "今天舉辦" : `${diffDays} 天後`;
-                    
-                    upcoming.push({
-                        name: name,
-                        date: ev.date,
-                        loc: ev.location,
-                        countdown: countdownText
-                    });
-                    seenNames.add(name);
+                    if (diffDays <= 30) {
+                        let countdownText = diffDays === 0 ? "今天舉辦" : `${diffDays} 天後`;
+                        
+                        upcoming.push({
+                            name: name,
+                            date: ev.date,
+                            loc: ev.location,
+                            countdown: countdownText
+                        });
+                        seenNames.add(name);
+                    }
                 }
             });
 
@@ -1316,12 +1313,47 @@
         const CORS_PROXY = "https://corsproxy.io/?";
 
         async function fetchHtmlWithProxy(url) {
+            // First try allorigins GET wrapper which is extremely reliable for scraping
+            try {
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                const resp = await fetch(proxyUrl);
+                if (resp.ok) {
+                    const json = await resp.json();
+                    if (json.contents) {
+                        return json.contents;
+                    }
+                }
+            } catch (e) {
+                console.warn("AllOrigins GET failed, falling back to corsproxy.io:", e);
+            }
+
+            // Fallback to corsproxy.io
             const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
             if (!resp.ok) throw new Error(`HTTP 錯誤: ${resp.status}`);
             return await resp.text();
         }
 
         async function postJsonWithProxy(url, postData) {
+            // Convert to GET parameters and fetch via allorigins GET wrapper first to bypass CORS/403
+            const query = new URLSearchParams();
+            for (const key in postData) {
+                query.append(key, postData[key]);
+            }
+            const targetUrl = url + "?" + query.toString();
+            try {
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+                const resp = await fetch(proxyUrl);
+                if (resp.ok) {
+                    const json = await resp.json();
+                    if (json.contents) {
+                        return JSON.parse(json.contents);
+                    }
+                }
+            } catch (e) {
+                console.warn("AllOrigins POST fallback failed, trying corsproxy.io POST:", e);
+            }
+
+            // Fallback to corsproxy.io POST
             const proxyUrl = CORS_PROXY + encodeURIComponent(url);
             const formData = new URLSearchParams();
             for (const key in postData) {
