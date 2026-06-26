@@ -209,44 +209,17 @@
             color: var(--text-gray);
         }
 
-        /* 賽事更新下載面板 */
-        .update-section {
-            background-color: var(--bg-card);
-            border: 1.5px solid #232326;
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 3rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-
-        .update-section-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin: 0 0 1.5rem 0;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .update-row {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-            align-items: flex-end;
-            flex-wrap: wrap;
-        }
-
+        /* 下拉選單樣式 */
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            flex: 1;
-            min-width: 250px;
+            gap: 6px;
+            margin-top: 12px;
+            width: 100%;
         }
 
         .form-group label {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--text-gray);
             font-weight: 600;
         }
@@ -254,86 +227,60 @@
         .form-select {
             background-color: #1C1C1E;
             border: 1.5px solid #2C2C2E;
-            color: #FFF;
-            padding: 12px;
+            color: #8E8E93;
+            padding: 8px 10px;
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             outline: none;
             cursor: pointer;
-            transition: border-color 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.2s;
         }
 
         .form-select:focus {
             border-color: var(--primary);
         }
 
-        .btn-update-action {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: #000;
-            font-weight: bold;
-            padding: 12px 30px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-            height: 48px;
-            font-size: 0.95rem;
+        .form-select.selected-gold {
+            color: var(--primary) !important;
+            border-color: var(--primary) !important;
         }
 
-        .btn-update-action:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-        }
-
-        .btn-update-action:disabled {
-            background: #2C2C2E;
+        /* 下載按鈕樣式 */
+        .btn-download {
+            display: block;
+            text-align: center;
+            background: linear-gradient(135deg, #222 0%, #111 100%);
+            border: 1px solid #333;
             color: #8E8E93;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+
+        .btn-download:hover:not(:disabled) {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15);
+        }
+
+        .btn-download:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
         }
 
-        /* 下載控制與日誌區 */
-        .download-status-container {
-            background-color: #09090A;
-            border: 1px solid #232326;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-top: 1rem;
+        .btn-download.active-gold {
+            background: linear-gradient(135deg, #2A2415 0%, #14110B 100%) !important;
+            color: var(--primary) !important;
+            border-color: var(--primary) !important;
         }
-
-        .progress-bar-wrapper {
-            width: 100%;
-            background-color: #232326;
-            height: 6px;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-
-        .progress-bar-fill {
-            background-color: var(--primary);
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        .log-console {
-            max-height: 180px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.8rem;
-            color: #8E8E93;
-            line-height: 1.6;
-            padding: 10px;
-            border-top: 1px solid #232326;
-            margin-top: 10px;
-        }
-
-        .log-item {
-            margin-bottom: 4px;
-        }
-
-        .log-item.success { color: #4CD964; }
-        .log-item.error { color: #FF3B30; }
 
         /* 卡片格線 */
         .cards-grid {
@@ -353,7 +300,7 @@
             justify-content: space-between;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            min-height: 200px;
+            min-height: 260px;
         }
 
         .card:hover {
@@ -363,7 +310,7 @@
         }
 
         .card-header {
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
 
         .card-title {
@@ -390,28 +337,47 @@
         .card-desc {
             font-size: 0.85rem;
             color: #8E8E93;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
             flex-grow: 1;
         }
 
-        .btn-link-portal {
-            display: block;
-            text-align: center;
-            background: linear-gradient(135deg, #222 0%, #111 100%);
-            border: 1px solid #333;
-            color: #FFF;
-            padding: 10px;
+        /* 下載進度條與日誌區 */
+        .download-progress-card-wrapper {
+            background-color: #09090A;
+            border: 1px solid #232326;
             border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-decoration: none;
-            transition: all 0.2s;
+            padding: 10px;
+            margin-top: 12px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .btn-link-portal:hover {
-            border-color: var(--primary);
-            color: var(--primary);
+        .progress-bar-wrapper {
+            width: 100%;
+            background-color: #232326;
+            height: 5px;
+            border-radius: 2.5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background-color: var(--primary);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .log-console {
+            max-height: 80px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #8E8E93;
+            line-height: 1.4;
+            margin-top: 6px;
+            border-top: 1px solid #232326;
+            padding-top: 6px;
         }
 
         /* 游泳行事曆區段 */
@@ -728,93 +694,112 @@
             <!-- 說明指南看板 -->
             <div class="guide-banner">
                 <h3>💡 靜態網頁版操作指引</h3>
-                <p>本平台已轉換為完全去中心化的靜態離線版本。下方行事曆是自您載入的本地資料庫動態讀取。您可以使用下方的「更新下載專區」爬取最新成績並寫入資料庫，完成後點選右上角的「匯出最新資料庫」按鈕存回您的本機硬碟即可。</p>
+                <p>本平台已轉換為完全去中心化的靜態離線版本。下方行事曆是自您載入的本地資料庫動態讀取。您可以使用各委員會方塊中的「選擇賽事」選單進行更新下載，完成後點選右上角的「匯出最新資料庫」按鈕存回您的本機硬碟即可。</p>
             </div>
 
-            <!-- 賽事更新下載專區 -->
-            <section class="update-section">
-                <h3 class="update-section-title">🔄 成績更新下載專區 (前端 CORS 代理模式)</h3>
-                
-                <div class="update-row">
-                    <div class="form-group">
-                        <label for="update-source">1. 選擇賽事來源</label>
-                        <select id="update-source" class="form-select" onchange="handleSourceChange()">
-                            <option value="">-- 請選擇來源 --</option>
-                            <option value="site_a">台中市游泳委員會 (Swim8)</option>
-                            <option value="site_e">高雄水上</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="update-game">2. 選擇賽事項目</label>
-                        <select id="update-game" class="form-select" disabled>
-                            <option value="">請先選擇賽事來源...</option>
-                        </select>
-                    </div>
-
-                    <button id="btn-start-update" class="btn-update-action" onclick="startRaceUpdate()" disabled>📥 下載並更新</button>
-                </div>
-
-                <!-- 下載進度與日誌 -->
-                <div id="download-progress-container" class="download-status-container" style="display: none;">
-                    <div id="download-status-title" style="font-weight: bold; margin-bottom: 10px;">下載中...</div>
-                    <div class="progress-bar-wrapper">
-                        <div id="download-progress-bar" class="progress-bar-fill" style="width: 0%"></div>
-                    </div>
-                    <div id="log-console" class="log-console"></div>
-                </div>
-            </section>
-
-            <!-- 卡片入口 (五大平台官網) -->
-            <section class="cards-grid" aria-label="賽事網站官網入口">
+            <!-- 卡片入口 (五大平台與前端更新功能) -->
+            <section class="cards-grid" aria-label="賽事網站官網入口與下載">
                 <!-- 中華泳協 -->
-                <div class="card">
+                <div class="card" id="card-site_d">
                     <div class="card-header">
                         <h2 class="card-title">中華泳協 CTSA</h2>
                         <a href="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" target="_blank" rel="noopener noreferrer" class="card-url">https://ctsa.utk.com.tw/...</a>
                     </div>
-                    <div class="card-desc">提供全國性游泳賽事、分齡賽、中正盃及國手選拔賽之最新消息與成績公告入口。</div>
-                    <a href="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" target="_blank" class="btn-link-portal">前往官網 ↗</a>
+                    <div class="card-desc">提供全國性游泳賽事、分齡賽、中正盃及國手選拔賽之最新消息與成績公告。</div>
+                    
+                    <div class="form-group">
+                        <label>選擇賽事項目</label>
+                        <select class="form-select" disabled>
+                            <option value="">開發中...</option>
+                        </select>
+                    </div>
+                    <button class="btn-download" disabled>下載賽事</button>
                 </div>
 
                 <!-- 台中泳協 -->
-                <div class="card">
+                <div class="card" id="card-site_a">
                     <div class="card-header">
                         <h2 class="card-title">台中市游泳委員會</h2>
                         <a href="https://swim8.kcsat.org/score_search" target="_blank" rel="noopener noreferrer" class="card-url">https://swim8.kcsat.org/...</a>
                     </div>
-                    <div class="card-desc">中部地區重要游泳賽事公告平台，使用 Swim8 系統提供成績檢索與簡章下載。</div>
-                    <a href="https://swim8.kcsat.org/score_search" target="_blank" class="btn-link-portal">前往官網 ↗</a>
+                    <div class="card-desc">中部地區重要游泳賽事公告平台，使用 Swim8 提供成績檢索。</div>
+                    
+                    <div class="form-group">
+                        <label for="select-site_a">選擇賽事項目</label>
+                        <select id="select-site_a" class="form-select" onchange="handleSelectChange('site_a')" disabled>
+                            <option value="">獲取網頁賽事清單中...</option>
+                        </select>
+                    </div>
+                    <button id="btn-site_a" class="btn-download" onclick="startRaceUpdate('site_a')" disabled>下載賽事</button>
+
+                    <!-- 下載進度與日誌 -->
+                    <div id="progress-container-site_a" class="download-progress-card-wrapper" style="display: none;">
+                        <div id="status-site_a" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
+                        <div class="progress-bar-wrapper">
+                            <div id="bar-site_a" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="log-site_a" class="log-console"></div>
+                    </div>
                 </div>
 
                 <!-- 台南泳協 -->
-                <div class="card">
+                <div class="card" id="card-site_b">
                     <div class="card-header">
                         <h2 class="card-title">台南市游泳委員會</h2>
                         <a href="https://www.tainanswim.com.tw/history.asp" target="_blank" rel="noopener noreferrer" class="card-url">https://www.tainanswim.com.tw/...</a>
                     </div>
-                    <div class="card-desc">南部地區游泳賽事發佈平台，提供台南主辦之分齡賽與錦標賽歷史成績簡章。</div>
-                    <a href="https://www.tainanswim.com.tw/history.asp" target="_blank" class="btn-link-portal">前往官網 ↗</a>
+                    <div class="card-desc">南部地區游泳賽事發佈平台，提供台南主辦之分齡賽與錦標賽歷史成績。</div>
+                    
+                    <div class="form-group">
+                        <label>選擇賽事項目</label>
+                        <select class="form-select" disabled>
+                            <option value="">開發中...</option>
+                        </select>
+                    </div>
+                    <button class="btn-download" disabled>下載賽事</button>
                 </div>
 
                 <!-- 高雄泳協 -->
-                <div class="card">
+                <div class="card" id="card-site_c">
                     <div class="card-header">
                         <h2 class="card-title">高雄市游泳委員會</h2>
                         <a href="http://kcc.nowforyou.com/register/gameeventqry.asp" target="_blank" rel="noopener noreferrer" class="card-url">http://kcc.nowforyou.com/...</a>
                     </div>
-                    <div class="card-desc">高雄地區港都盃等主要游泳比賽報名與成績公告專區，提供歷屆成績下載。</div>
-                    <a href="http://kcc.nowforyou.com/register/gameeventqry.asp" target="_blank" class="btn-link-portal">前往官網 ↗</a>
+                    <div class="card-desc">高雄地區港都盃等主要游泳比賽報名與成績公告專區。</div>
+                    
+                    <div class="form-group">
+                        <label>選擇賽事項目</label>
+                        <select class="form-select" disabled>
+                            <option value="">開發中...</option>
+                        </select>
+                    </div>
+                    <button class="btn-download" disabled>下載賽事</button>
                 </div>
 
                 <!-- 高雄水上 -->
-                <div class="card">
+                <div class="card" id="card-site_e">
                     <div class="card-header">
                         <h2 class="card-title">高雄水上</h2>
                         <a href="https://swim.kcsat.org/score_search" target="_blank" rel="noopener noreferrer" class="card-url">https://swim.kcsat.org/...</a>
                     </div>
-                    <div class="card-desc">南台灣重要青少年及分齡游泳錦標賽的官方成績查詢平台與簡章入口。</div>
-                    <a href="https://swim.kcsat.org/score_search" target="_blank" class="btn-link-portal">前往官網 ↗</a>
+                    <div class="card-desc">南台灣重要青少年及分齡游泳錦標賽的官方成績查詢平台。</div>
+                    
+                    <div class="form-group">
+                        <label for="select-site_e">選擇賽事項目</label>
+                        <select id="select-site_e" class="form-select" onchange="handleSelectChange('site_e')" disabled>
+                            <option value="">獲取網頁賽事清單中...</option>
+                        </select>
+                    </div>
+                    <button id="btn-site_e" class="btn-download" onclick="startRaceUpdate('site_e')" disabled>下載賽事</button>
+
+                    <!-- 下載進度與日誌 -->
+                    <div id="progress-container-site_e" class="download-progress-card-wrapper" style="display: none;">
+                        <div id="status-site_e" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
+                        <div class="progress-bar-wrapper">
+                            <div id="bar-site_e" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="log-site_e" class="log-console"></div>
+                    </div>
                 </div>
             </section>
 
@@ -852,7 +837,7 @@
         importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
         let db = null;
         self.onmessage = async function(e) {
-            const { type, data, query, id, params } = e.data;
+            const { type, data, query, id } = e.data;
             
             if (type === 'INIT') {
                 try {
@@ -995,9 +980,6 @@
     </script>
 
     <script>
-        // 初始化 Worker
-        const blob = new Blob([document.getElementById('worker-script').textContent], { type: 'application/javascript' });
-        const worker = new Worker(URL.createObjectURL(blob));
         const callbacks = {};
         let queryId = 0;
         let dbFileName = "swim_results_birthday.db";
@@ -1009,8 +991,12 @@
                 document.getElementById('dbLockOverlay').style.display = 'none';
                 isDBLoaded = true;
                 
+                // 載入賽事來源下拉清單
+                loadRecentGamesList('site_a');
+                loadRecentGamesList('site_e');
+
                 if (needPopulate) {
-                    addLog("檢測到資料庫中行事曆為空，正在從 calendar.json 載入初始行事曆資料...");
+                    console.log("正在從 calendar.json 載入初始行事曆資料...");
                     try {
                         const resp = await fetch('calendar.json');
                         if (resp.ok) {
@@ -1024,7 +1010,6 @@
                     loadCalendarFromDB();
                 }
             } else if (type === 'POPULATE_DONE') {
-                addLog("成功導入行事曆至您的資料庫。");
                 loadCalendarFromDB();
             } else if (type === 'RESULT') {
                 if (callbacks[id]) { callbacks[id].resolve(data); delete callbacks[id]; }
@@ -1137,7 +1122,6 @@
         async function exportDatabase() {
             if (!isDBLoaded) return;
             try {
-                addLog("正在生成 SQLite 二進位檔案並打包匯出...");
                 const binary = await remoteExport();
                 const blob = new Blob([binary], { type: "application/x-sqlite3" });
                 const url = URL.createObjectURL(blob);
@@ -1148,7 +1132,6 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                addLog("✅ 資料庫匯出成功！請將該檔案覆蓋您地端的資料庫檔案。");
                 alert("資料庫已成功匯出至您的下載資料夾，請覆蓋您原先的資料庫檔案。");
             } catch(err) {
                 alert("匯出失敗: " + err.message);
@@ -1159,7 +1142,6 @@
         async function loadCalendarFromDB() {
             const tbody = document.getElementById('calendar-tbody');
             try {
-                // 連接各個行事曆表
                 const queryStr = `
                     SELECT 'ctsa' as src, event_name as name, event_date as date, location, '中華泳協' as organizer, pdf_url as remark FROM ctsa_news_calendar
                     UNION ALL
@@ -1186,7 +1168,6 @@
                     return;
                 }
 
-                // 排序日期
                 const now = new Date();
                 const currentYear = now.getFullYear();
                 const currentMonth = now.getMonth() + 1;
@@ -1195,7 +1176,6 @@
                     ev._parsedDate = parseEventDate(ev.date);
                 });
 
-                // 照日期排序，無效日期排在最下面
                 events.sort((a, b) => {
                     if (!a._parsedDate) return 1;
                     if (!b._parsedDate) return -1;
@@ -1245,7 +1225,6 @@
             }
         }
 
-        // 自動將行事曆滾動到當月首筆賽事
         function scrollToCurrentMonth() {
             setTimeout(() => {
                 const firstRow = document.querySelector('.current-month-first');
@@ -1255,7 +1234,6 @@
             }, 100);
         }
 
-        // 解析賽事日期以判斷是否即將舉辦
         function parseEventDate(dateStr) {
             if (!dateStr) return null;
             const now = new Date();
@@ -1279,7 +1257,6 @@
             return null;
         }
 
-        // 更新跑馬燈
         function updateMarquee(events) {
             const track = document.getElementById('marquee-track');
             const marqueeBar = document.getElementById('marquee-bar');
@@ -1346,26 +1323,15 @@
             return await resp.json();
         }
 
-        // 更新選擇來源事件
-        async function handleSourceChange() {
-            const source = document.getElementById('update-source').value;
-            const gameSelect = document.getElementById('update-game');
-            const startBtn = document.getElementById('btn-start-update');
+        // 加載賽事列表到對應卡片下拉選單
+        async function loadRecentGamesList(siteId) {
+            const gameSelect = document.getElementById(`select-${siteId}`);
             
-            gameSelect.innerHTML = '<option value="">獲取網頁賽事清單中...</option>';
-            gameSelect.disabled = true;
-            startBtn.disabled = true;
-
-            if (!source) {
-                gameSelect.innerHTML = '<option value="">請先選擇賽事來源...</option>';
-                return;
-            }
-
             try {
                 let targetUrl = "";
-                if (source === "site_a") {
+                if (siteId === "site_a") {
                     targetUrl = "https://swim8.kcsat.org/score_search";
-                } else if (source === "site_e") {
+                } else if (siteId === "site_e") {
                     targetUrl = "https://swim.kcsat.org/score_search";
                 }
 
@@ -1390,7 +1356,6 @@
                     
                     gameSelect.innerHTML = optionsHtml;
                     gameSelect.disabled = false;
-                    startBtn.disabled = false;
                 } else {
                     gameSelect.innerHTML = '<option value="">無法解析網頁賽事選單。</option>';
                 }
@@ -1399,35 +1364,60 @@
             }
         }
 
+        // 下拉選單選取狀態改變
+        function handleSelectChange(siteId) {
+            const selectEl = document.getElementById(`select-${siteId}`);
+            const btnEl = document.getElementById(`btn-${siteId}`);
+            if (selectEl.value !== "") {
+                selectEl.classList.add('selected-gold');
+                btnEl.disabled = false;
+                btnEl.classList.add('active-gold');
+            } else {
+                selectEl.classList.remove('selected-gold');
+                btnEl.disabled = true;
+                btnEl.classList.remove('active-gold');
+            }
+        }
+
         // 開始賽事下載更新主程序
-        async function startRaceUpdate() {
-            const source = document.getElementById('update-source').value;
-            const gameSelect = document.getElementById('update-game');
-            const gameId = gameSelect.value;
-            const gameName = gameSelect.options[gameSelect.selectedIndex].text;
+        async function startRaceUpdate(siteId) {
+            const selectEl = document.getElementById(`select-${siteId}`);
+            const gameId = selectEl.value;
+            const gameName = selectEl.options[selectEl.selectedIndex].text;
             
             if (!gameId) {
                 alert("請選擇一場賽事！");
                 return;
             }
 
-            const progressContainer = document.getElementById('download-progress-container');
-            const titleEl = document.getElementById('download-status-title');
-            const progressBar = document.getElementById('download-progress-bar');
-            const consoleEl = document.getElementById('log-console');
+            const progressContainer = document.getElementById(`progress-container-${siteId}`);
+            const statusEl = document.getElementById(`status-${siteId}`);
+            const progressBar = document.getElementById(`bar-${siteId}`);
+            const consoleEl = document.getElementById(`log-${siteId}`);
             
             progressContainer.style.display = 'block';
             consoleEl.innerHTML = '';
             progressBar.style.width = '5%';
-            titleEl.textContent = `下載賽事: ${gameName}`;
+            statusEl.textContent = `下載中: 5%`;
             
-            addLog(`📡 [CORS] 連接至 ${source === 'site_a' ? 'Swim8' : '高雄水上'} 伺服器中...`);
+            function addCardLog(msg, type = "") {
+                const item = document.createElement('div');
+                item.className = `log-item ${type}`;
+                item.style.marginBottom = '2px';
+                if (type === 'success') item.style.color = '#4CD964';
+                if (type === 'error') item.style.color = '#FF3B30';
+                item.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+                consoleEl.appendChild(item);
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            }
+
+            addCardLog(`📡 [CORS] 連接至 ${siteId === 'site_a' ? 'Swim8' : '高雄水上'} 伺服器中...`);
 
             try {
-                const baseUrl = source === 'site_a' ? 'https://swim8.kcsat.org/' : 'https://swim.kcsat.org/';
+                const baseUrl = siteId === 'site_a' ? 'https://swim8.kcsat.org/' : 'https://swim.kcsat.org/';
                 
                 // 1. 取得所有組別
-                addLog("正在獲取所有組別 (Game Levels)...");
+                addCardLog("正在獲取所有組別 (Game Levels)...");
                 const levelsData = await postJsonWithProxy(baseUrl + "game/get_game_level", { i: gameId });
                 const selectHtml = levelsData.select || "";
                 
@@ -1447,14 +1437,13 @@
                     throw new Error("未找到任何比賽組別。");
                 }
 
-                addLog(`🎯 成功解析 ${levels.length} 個組別。開始獲取各組別項目...`);
+                addCardLog(`🎯 成功解析 ${levels.length} 個組別。開始獲取各組別項目...`);
                 progressBar.style.width = '15%';
 
                 // 2. 獲取項目
                 const allQueries = [];
                 for (let i = 0; i < levels.length; i++) {
                     const lvl = levels[i];
-                    addLog(`正在獲取組別 [${lvl.name}] 的項目...`);
                     const eventsData = await postJsonWithProxy(baseUrl + "game/get_game_event", { i: gameId, ei: lvl.id });
                     const evDoc = parser.parseFromString(eventsData.select || "", 'text/html');
                     const evOpts = evDoc.querySelectorAll('option');
@@ -1474,14 +1463,13 @@
                     progressBar.style.width = `${15 + Math.round((i / levels.length) * 15)}%`;
                 }
 
-                addLog(`📋 解析出總共 ${allQueries.length} 個成績項目。開始併發下載成績資料...`);
+                addCardLog(`📋 解析出總共 ${allQueries.length} 個成績項目。開始併發下載成績資料...`);
                 
                 // 3. 下載與解析成績
                 const allScores = [];
-                const concurrencyLimit = 5; // 控制併發，避免 CORS proxy 被拒
+                const concurrencyLimit = 5; 
                 let completedCount = 0;
 
-                // 估算年份
                 let yearStr = new Date().getFullYear().toString() + "0101";
                 const yrMatch = gameName.match(/(\d{4})/);
                 if (yrMatch) {
@@ -1493,7 +1481,6 @@
                     }
                 }
 
-                // 分批下載
                 for (let i = 0; i < allQueries.length; i += concurrencyLimit) {
                     const batch = allQueries.slice(i, i + concurrencyLimit);
                     const batchPromises = batch.map(async (q) => {
@@ -1514,7 +1501,6 @@
                             const rows = table.querySelectorAll('tr');
                             if (rows.length <= 1) return;
                             
-                            // 標題列
                             const headers = Array.from(rows[0].querySelectorAll('th, td')).map(x => x.textContent.trim());
                             
                             for (let rIdx = 1; rIdx < rows.length; rIdx++) {
@@ -1552,26 +1538,26 @@
                             completedCount++;
                             const progressVal = 30 + Math.round((completedCount / allQueries.length) * 55);
                             progressBar.style.width = `${progressVal}%`;
-                            titleEl.textContent = `下載進度: ${completedCount}/${allQueries.length}`;
+                            statusEl.textContent = `下載進度: ${completedCount}/${allQueries.length}`;
                         }
                     });
                     
                     await Promise.all(batchPromises);
                 }
 
-                addLog(`💾 爬取完成！成功抓取 ${allScores.length} 筆原始成績數據。`);
-                addLog("正在進行地端資料庫推算與寫入作業...");
+                addCardLog(`💾 爬取完成！成功抓取 ${allScores.length} 筆原始成績數據。`);
+                addCardLog("正在進行地端資料庫推算與寫入作業...");
                 progressBar.style.width = '90%';
 
                 // 4. WASM 推算並寫入庫
                 await remoteInsertScores(allScores);
                 
                 progressBar.style.width = '100%';
-                titleEl.textContent = "✅ 更新入庫成功！";
-                addLog("🎉 資料庫已快取更新至 IndexedDB。", "success");
-                addLog("👉 請點選右上角『💾 匯出最新資料庫 (.db)』存回您的本機，以便保留資料。", "success");
+                statusEl.textContent = "✅ 更新入庫成功！";
+                addCardLog("🎉 資料庫已快取更新至 IndexedDB。", "success");
+                addCardLog("👉 請點選上方『💾 匯出最新資料庫 (.db)』存回您的本機，以便保留資料。", "success");
 
-                // 更新 IndexedDB
+                // 更新 IndexedDB 中的資料庫大小
                 const openReq = indexedDB.open("SwimSQL", 1);
                 openReq.onsuccess = async (e) => {
                     const idb = e.target.result;
@@ -1587,18 +1573,9 @@
 
             } catch (err) {
                 progressBar.style.width = '100%';
-                titleEl.textContent = "❌ 更新失敗";
-                addLog(`錯誤原因: ${err.message}`, "error");
+                statusEl.textContent = "❌ 更新失敗";
+                addCardLog(`錯誤原因: ${err.message}`, "error");
             }
-        }
-
-        function addLog(msg, type = "") {
-            const consoleEl = document.getElementById('log-console');
-            const item = document.createElement('div');
-            item.className = `log-item ${type}`;
-            item.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            consoleEl.appendChild(item);
-            consoleEl.scrollTop = consoleEl.scrollHeight;
         }
 
         window.addEventListener('DOMContentLoaded', startSystem);
