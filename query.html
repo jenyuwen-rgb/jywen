@@ -227,6 +227,13 @@
     </div>
 
     <div class="header-title">游泳成績查詢</div>
+    
+    <!-- 資料庫狀態顯示列 -->
+    <div id="db-info-bar" class="text-center text-xs text-gray-400 mb-3 flex justify-center items-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" id="db-info-dot"></span>
+        <span id="db-info-text">連線中...</span>
+    </div>
+
     <div class="nav-header">
         <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()">🕒</span>
         <div style="position: relative; flex: 1; min-width: 0; display: flex; align-items: center;">
@@ -293,6 +300,7 @@
             if (type === 'READY') {
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('dbLoaderArea').style.display = 'none';
+                updateDbStatusInfo();
                 doSearch();
             } else if (type === 'RESULT') {
                 if (callbacks[id]) { callbacks[id].resolve(data); delete callbacks[id]; }
@@ -321,10 +329,34 @@
             const parts = str.split(':');
             return parts.length === 2 ? parseInt(parts[0], 10)*60 + parseFloat(parts[1]) : parseFloat(parts[0]);
         };
-        const getStrokeSymbol = stroke => {
-            const syms = { '自由式':'🐬', '仰式':'🐠', '蛙式':'🐸', '蝶式':'🦋', '混合式':'🌀' };
-            return syms[stroke] || '🏊';
-        };
+        // 查詢並顯示資料庫詳細資訊
+        async function updateDbStatusInfo() {
+            try {
+                const countRes = await remoteQuery("SELECT COUNT(*) as cnt FROM swimming_scores");
+                const count = (countRes[0] && countRes[0].values) ? countRes[0].values[0][0] : 0;
+                
+                const openReq = indexedDB.open("SwimSQL", 1);
+                openReq.onsuccess = e => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains("files")) return;
+                    const getReq = db.transaction("files", "readonly").objectStore("files").get("db_info");
+                    getReq.onsuccess = () => {
+                        const info = getReq.result || { name: "swim_results_birthday.db", size: 0 };
+                        const sizeMB = info.size ? `${(info.size / (1024 * 1024)).toFixed(1)} MB` : "已載入";
+                        
+                        const dot = document.getElementById('db-info-dot');
+                        dot.className = "inline-block w-2.5 h-2.5 rounded-full bg-green-500";
+                        document.getElementById('db-info-text').innerHTML = `
+                            📁 <b>${info.name}</b> (${sizeMB}) · 
+                            📊 <b>${count.toLocaleString()}</b> 筆成績
+                        `;
+                    };
+                };
+            } catch (err) {
+                console.error("無法更新資料庫資訊:", err);
+                document.getElementById('db-info-text').textContent = "讀取資料庫資訊失敗";
+            }
+        }
 
         // 過濾接力或非法出生年
         const LC_FILTER = `出生年 IS NOT NULL AND 出生年 != '' AND LENGTH(出生年) >= 3 AND LENGTH(姓名) >= 2`;
@@ -676,6 +708,9 @@
                     const db = e.target.result;
                     const tx = db.transaction("files", "readwrite");
                     tx.objectStore("files").put(files[0], "current_db");
+                    // 儲存資料庫元數據，供狀態列讀取
+                    const info = { name: files[0].name, size: files[0].size, loadedAt: new Date().toISOString() };
+                    tx.objectStore("files").put(info, "db_info");
                     tx.oncomplete = () => {
                         progressBar.style.width = '100%';
                         statusEl.textContent = "載入完成！正在重啟系統...";

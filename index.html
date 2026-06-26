@@ -1116,6 +1116,9 @@
                     const db = e.target.result;
                     const tx = db.transaction("files", "readwrite");
                     tx.objectStore("files").put(file, "current_db");
+                    // 儲存資料庫元數據，供查詢頁面顯示
+                    const info = { name: file.name, size: file.size, loadedAt: new Date().toISOString() };
+                    tx.objectStore("files").put(info, "db_info");
                     tx.oncomplete = () => {
                         progressBar.style.width = '85%';
                         statusEl.textContent = "載入完畢，正在喚醒 SQL.js 引擎...";
@@ -1613,6 +1616,11 @@
                     const binary = await remoteExport();
                     const updatedBlob = new Blob([binary], { type: "application/x-sqlite3" });
                     tx.objectStore("files").put(updatedBlob, "current_db");
+                    
+                    // 儲存資料庫元數據，供查詢頁面顯示
+                    const info = { name: dbFileName || "swim_results_birthday.db", size: updatedBlob.size, loadedAt: new Date().toISOString() };
+                    tx.objectStore("files").put(info, "db_info");
+                    
                     tx.oncomplete = () => {
                         document.getElementById('db-status-text').textContent = `資料庫已載入 (${(updatedBlob.size / (1024 * 1024)).toFixed(1)} MB)`;
                         loadCalendarFromDB(); // 刷新行事曆表
