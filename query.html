@@ -482,56 +482,45 @@
                     
                     html += `<div class="year-center p-4 m-3 bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl flex justify-between items-center"><div class="font-bold text-lg"><span class="gold-gradient-text">${toAD(birthYear)} 年出生 (${genderLabel})</span></div></div>`;
                     
-                    // 2. [QA+Auditor] PB 查詢、推入 SQL：SQLite 端解析距離+泳式，消除 Main Thread Regex
+                    // 2. 取得該選手的個人最佳 (PB) 列表（原本查詢方式）
                     const safeName   = sanitizeSql(dbName);
                     const safeBirth  = sanitizeSql(String(birthYear));
                     const safeGender = sanitizeSql(gender);
                     const pbsRes = await remoteQuery(`
-                        SELECT
-                            CAST(TRIM(SUBSTR(項目, MAX(1, INSTR(項目,'公尺')-4), 4)) AS INTEGER) AS dist_m,
-                            CASE
-                                WHEN 項目 LIKE '%個人混合式%' THEN '混合式'
-                                WHEN 項目 LIKE '%自由式%'   THEN '自由式'
-                                WHEN 項目 LIKE '%仰式%'     THEN '仰式'
-                                WHEN 項目 LIKE '%蛙式%'     THEN '蛙式'
-                                WHEN 項目 LIKE '%蝶式%'     THEN '蝶式'
-                                WHEN 項目 LIKE '%混合式%'   THEN '混合式'
-                                ELSE NULL
-                            END AS stroke_type,
-                            MIN(成績) as PB_sec
-                        FROM swimming_scores
-                        WHERE 姓名='${safeName}'
-                          AND 出生年='${safeBirth}'
-                          AND 性別='${safeGender}'
-                          AND 項目 NOT LIKE '%接力%'
-                          AND 項目 NOT LIKE '%×%'
-                        GROUP BY dist_m, stroke_type
-                        HAVING stroke_type IS NOT NULL AND dist_m > 0
-                        ORDER BY stroke_type, dist_m
+                        SELECT 項目, MIN(成績) as PB_sec, COUNT(*) as 參賽次數
+                        FROM (
+                            SELECT 項目, 成績, 單位, 賽事名稱, 年份
+                            FROM swimming_scores
+                            WHERE 姓名='${safeName}' AND 出生年='${safeBirth}' AND 性別='${safeGender}'
+                        )
+                        GROUP BY 項目
                     `);
-                    
+
                     if (pbsRes[0] && pbsRes[0].values) {
                         const strokeOrder = ["自由式", "仰式", "蛙式", "蝶式", "混合式"];
                         const strokeGroups = {};
-                        
-                        // [Auditor] SQL 已返回 dist_m 和 stroke_type，Main Thread 零 Regex
+
                         pbsRes[0].values.forEach(val => {
-                            const dist   = val[0]; // SQL CAST 整數
-                            const stroke = val[1]; // SQL CASE 正規化
-                            const pb     = val[2];
-                            if (!dist || !stroke) return;
-                            if (!strokeGroups[stroke]) strokeGroups[stroke] = [];
-                            strokeGroups[stroke].push({ dist, pb });
+                            const event = val[0];
+                            const pb    = val[1];
+                            const count = val[2];
+
+                            const match = event.match(/(\d+)公尺(自由式|仰式|蛙式|蝶式|個人混合式|混合式)/);
+                            if (match) {
+                                const dist = parseInt(match[1]);
+                                let stroke = match[2];
+                                if (stroke === "個人混合式") stroke = "混合式";
+                                if (!strokeGroups[stroke]) strokeGroups[stroke] = [];
+                                strokeGroups[stroke].push({ dist, pb, count });
+                            }
                         });
-                        
+
                         strokeOrder.forEach(stroke => {
                             const items = strokeGroups[stroke];
                             if (items && items.length > 0) {
-                                items.sort((a,b) => a.dist - b.dist);
+                                items.sort((a, b) => a.dist - b.dist);
                                 const sym = getStrokeSymbol(stroke);
-                                
                                 html += `<div class="p-3 mx-3 text-sm font-semibold text-gray-400 tracking-wider">${sym} ${stroke}</div>`;
-                                
                                 items.forEach(it => {
                                     const cardId = `c-${birthYear}-${gender}-${it.dist}-${stroke}`;
                                     html += `
