@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全台五大游泳賽事整合下載平台</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;700&display=swap');
+        
+        :root {
+            --primary: #D4AF37;
+            --primary-light: #F3D078;
+            --bg-dark: #0A0A0B;
+            --bg-card: #141416;
+            --text-gray: #A1A1A6;
+            --text-white: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* 漸層字體樣式 */
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            letter-spacing: 0.05em;
+        }
+
+        .subtitle {
+            color: var(--text-gray);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        /* 跑馬燈樣式 */
+        .marquee-container {
+            background: rgba(20, 20, 22, 0.6);
+            border: 1.5px solid #232326;
+            border-radius: 12px;
+            padding: 10px 20px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .marquee-label {
+            color: var(--primary);
+            font-weight: 700;
+            margin-right: 20px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .marquee-content {
+            overflow: hidden;
+            white-space: nowrap;
+            flex-grow: 1;
+            position: relative;
+            height: 22px;
+        }
+
+        .marquee-track {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 25s linear infinite;
+            color: #FFF;
+        }
+
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
+
+        .marquee-item {
+            display: inline-block;
+            margin-right: 40px;
+            color: #E5E5EA;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .marquee-item:hover {
+            color: var(--primary-light);
+        }
+
+        @keyframes marquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* 頂部控制面板行 */
+        .controls-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1.5rem;
+        }
+
+        .query-system-btn {
+            background: linear-gradient(135deg, #1C1C1E 0%, #0A0A0B 100%);
+            border: 1.5px solid #232326;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .query-system-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.15);
+        }
+
+        /* 卡片格線 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1.5px solid #232326;
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            min-height: 200px;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.08);
+        }
+
+        .card-header {
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            color: #FFF;
+        }
+
+        .card-url {
+            color: var(--text-gray);
+            font-size: 0.8rem;
+            word-break: break-all;
+            text-decoration: none;
+            transition: color 0.2s;
+            line-height: 1.4;
+            display: inline-block;
+        }
+
+        .card-url:hover {
+            color: var(--primary-light);
+        }
+
+        .card-desc {
+            font-size: 0.85rem;
+            color: #8E8E93;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .btn-link-portal {
+            display: block;
+            text-align: center;
+            background: linear-gradient(135deg, #222 0%, #111 100%);
+            border: 1px solid #333;
+            color: #FFF;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-link-portal:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* 說明指南看板 */
+        .guide-banner {
+            background: linear-gradient(135deg, rgba(212,175,55,0.05) 0%, rgba(0,0,0,0) 100%);
+            border: 1.5px solid rgba(212, 175, 55, 0.15);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .guide-content h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .guide-content p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        /* 游泳行事曆區段 */
+        .calendar-section-header {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #232326;
+            padding-bottom: 0.75rem;
+        }
+
+        .calendar-section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+            color: #FFFFFF;
+        }
+
+        .calendar-table-container {
+            background-color: var(--bg-card);
+            border: 1.5px solid #232326;
+            border-radius: 16px;
+            overflow-x: auto;
+            max-height: 700px;
+            overflow-y: auto;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .calendar-table th {
+            padding: 1rem;
+            font-weight: 700;
+            border-bottom: 1px solid #232326;
+            position: sticky;
+            top: 0;
+            background-color: var(--bg-card);
+            z-index: 10;
+        }
+
+        .calendar-table td {
+            padding: 1rem;
+            border-bottom: 0.5px solid #222;
+            color: #FFFFFF;
+            transition: background-color 0.2s;
+        }
+
+        .calendar-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .calendar-table tbody tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        /* 當月賽事高亮樣式：整列套用金黃漸層 */
+        .current-month-row td {
+            background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+        }
+        
+        .current-month-row a {
+            background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: underline;
+        }
+
+        .loading-cell {
+            text-align: center;
+            padding: 3rem !important;
+            color: var(--text-gray);
+        }
+
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.1);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border-left-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        .inline-spinner {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1200px) {
+            .cards-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 800px) {
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .guide-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 頂部標題區 -->
+        <header>
+            <h1 class="gold-gradient-text">JYWEN 全台游泳賽事整合平台</h1>
+            <p class="subtitle">五大游泳協會賽事日程與成績查詢</p>
+        </header>
+
+        <!-- 跑馬燈 (即將舉辦的賽事) -->
+        <div class="marquee-container" id="marquee-bar" style="display: none;">
+            <div class="marquee-label">🔥 即將舉辦</div>
+            <div class="marquee-content">
+                <div class="marquee-track" id="marquee-track"></div>
+            </div>
+        </div>
+
+        <main>
+            <!-- 頂部控制面板行 -->
+            <div class="controls-row">
+                <button class="query-system-btn" onclick="window.open('query.html', '_blank')">
+                    🔍 <span class="gold-gradient-text">進入成績查詢系統</span>
+                </button>
+            </div>
+
+            <!-- 說明指南看板 -->
+            <div class="guide-banner">
+                <div class="guide-content">
+                    <h3>💡 靜態網頁版操作指引</h3>
+                    <p>本線上網頁已在 Vercel 雲端部署。下方行事曆為預存的 115年/2026年 賽事數據；若您需要查詢選手個人成績 (PB)，請點擊右上角「進入成績查詢系統」按鈕，並於網頁中載入您的 <strong>swim_results_birthday.db</strong> 資料庫檔案。</p>
+                </div>
+            </div>
+
+            <!-- 卡片入口 (五大平台官網) -->
+            <section class="cards-grid" aria-label="賽事網站官網入口">
+                <!-- 中華泳協 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">中華泳協 CTSA</h2>
+                        <a href="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" target="_blank" rel="noopener noreferrer" class="card-url">https://ctsa.utk.com.tw/...</a>
+                    </div>
+                    <div class="card-desc">提供全國性游泳賽事、分齡賽、中正盃及國手選拔賽之最新消息與成績公告入口。</div>
+                    <a href="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" target="_blank" class="btn-link-portal">前往官網 ↗</a>
+                </div>
+
+                <!-- 台中泳協 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">台中市游泳委員會</h2>
+                        <a href="https://swim8.kcsat.org/score_search" target="_blank" rel="noopener noreferrer" class="card-url">https://swim8.kcsat.org/...</a>
+                    </div>
+                    <div class="card-desc">中部地區重要游泳賽事公告平台，使用 Swim8 系統提供成績檢索與簡章下載。</div>
+                    <a href="https://swim8.kcsat.org/score_search" target="_blank" class="btn-link-portal">前往官網 ↗</a>
+                </div>
+
+                <!-- 台南泳協 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">台南市游泳委員會</h2>
+                        <a href="https://www.tainanswim.com.tw/history.asp" target="_blank" rel="noopener noreferrer" class="card-url">https://www.tainanswim.com.tw/...</a>
+                    </div>
+                    <div class="card-desc">南部地區游泳賽事發佈平台，提供台南主辦之分齡賽與錦標賽歷史成績簡章。</div>
+                    <a href="https://www.tainanswim.com.tw/history.asp" target="_blank" class="btn-link-portal">前往官網 ↗</a>
+                </div>
+
+                <!-- 高雄泳協 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">高雄市游泳委員會</h2>
+                        <a href="http://kcc.nowforyou.com/register/gameeventqry.asp" target="_blank" rel="noopener noreferrer" class="card-url">http://kcc.nowforyou.com/...</a>
+                    </div>
+                    <div class="card-desc">高雄地區港都盃等主要游泳比賽報名與成績公告專區，提供歷屆成績下載。</div>
+                    <a href="http://kcc.nowforyou.com/register/gameeventqry.asp" target="_blank" class="btn-link-portal">前往官網 ↗</a>
+                </div>
+
+                <!-- 高雄水上 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">高雄水上</h2>
+                        <a href="https://swim.kcsat.org/score_search" target="_blank" rel="noopener noreferrer" class="card-url">https://swim.kcsat.org/...</a>
+                    </div>
+                    <div class="card-desc">南台灣重要青少年及分齡游泳錦標賽的官方成績查詢平台與簡章入口。</div>
+                    <a href="https://swim.kcsat.org/score_search" target="_blank" class="btn-link-portal">前往官網 ↗</a>
+                </div>
+            </section>
+
+            <!-- 游泳行事曆區段 -->
+            <div class="calendar-section-header">
+                <h1 class="calendar-section-title">📅 游泳行事曆</h1>
+            </div>
+
+            <!-- 行事曆表格 -->
+            <div class="calendar-table-container">
+                <table class="calendar-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;"><span class="gold-gradient-text">日期</span></th>
+                            <th style="width: 50%;"><span class="gold-gradient-text">賽事名稱</span></th>
+                            <th style="width: 15%;"><span class="gold-gradient-text">地點</span></th>
+                            <th style="width: 10%;"><span class="gold-gradient-text">主辦單位</span></th>
+                            <th style="width: 10%;"><span class="gold-gradient-text">備註</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="calendar-tbody">
+                        <tr>
+                            <td colspan="5" class="loading-cell">
+                                <div class="spinner inline-spinner"></div> 正在載入雲端行事曆數據...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- 交互邏輯 Script -->
+    <script>
+        let calendarEvents = [];
+
+        // 自動將行事曆滾動到當月首筆賽事
+        function scrollToCurrentMonth() {
+            setTimeout(() => {
+                const firstRow = document.querySelector('.current-month-first');
+                if (firstRow) {
+                    firstRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        }
+
+        // 解析賽事日期以判斷是否即將舉辦
+        function parseEventDate(dateStr) {
+            if (!dateStr) return null;
+            const now = new Date();
+            const currentYear = now.getFullYear();
+
+            // 1. 優先精準匹配 4 位年份 YYYY/MM/DD
+            let m = dateStr.match(/(\d{4})[/\.](\d{1,2})[/\.](\d{1,2})/);
+            if (m) {
+                return new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
+            }
+
+            // 2. 匹配 MM/DD 格式 (排除年份尾數被誤判的可能性)
+            // 尋找非斜線或非數字開頭的 \d{1,2}/\d{1,2}，或者確保它不是 YYYY 的一部份
+            m = dateStr.match(/(?:^|[^/0-9])(\d{1,2})\/(\d{1,2})/);
+            if (m) {
+                return new Date(currentYear, parseInt(m[1]) - 1, parseInt(m[2]));
+            }
+
+            // 3. 匹配中文 "X月Y日"
+            m = dateStr.match(/(\d{1,2})\s*月\s*(\d{1,2})\s*日/);
+            if (m) {
+                return new Date(currentYear, parseInt(m[1]) - 1, parseInt(m[2]));
+            }
+
+            return null;
+        }
+
+        // 更新跑馬燈 (即將舉辦的賽事，排除已舉辦)
+        function updateMarquee(events) {
+            const track = document.getElementById('marquee-track');
+            const marqueeBar = document.getElementById('marquee-bar');
+            const now = new Date();
+            // 設定為今天凌晨以防誤判今天正在舉辦的比賽
+            now.setHours(0, 0, 0, 0);
+
+            const upcoming = [];
+            const seenNames = new Set(); // 用於去重相同賽事
+
+            events.forEach(ev => {
+                const name = ev.name;
+                if (seenNames.has(name)) return; // 已經加入過相同名稱的賽事則跳過
+
+                const evDate = parseEventDate(ev.date);
+                if (evDate && evDate >= now) {
+                    // 計算距離天數
+                    const diffTime = evDate - now;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    let countdownText = "";
+                    if (diffDays === 0) {
+                        countdownText = "今天舉辦";
+                    } else {
+                        countdownText = `${diffDays} 天後`;
+                    }
+                    upcoming.push({
+                        name: name,
+                        date: ev.date,
+                        loc: ev.location,
+                        countdown: countdownText
+                    });
+                    seenNames.add(name);
+                }
+            });
+
+            if (upcoming.length > 0) {
+                track.innerHTML = upcoming.map(ev => 
+                    `<span class="marquee-item">🏆 <strong>${ev.name}</strong> (${ev.date} · ${ev.loc}) <span style="color:#FFD933; margin-left:6px;">[${ev.countdown}]</span></span>`
+                ).join('');
+                marqueeBar.style.display = 'flex';
+            } else {
+                marqueeBar.style.display = 'none';
+            }
+        }
+
+        // 載入並渲染行事曆
+        async function loadCalendar() {
+            const tbody = document.getElementById('calendar-tbody');
+            try {
+                // 讀取本地打包好的 calendar.json
+                const response = await fetch('calendar.json');
+                if (!response.ok) throw new Error("無法讀取行事曆數據檔案 calendar.json");
+                
+                calendarEvents = await response.json();
+                
+                if (calendarEvents.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="loading-cell text-gray-500">📭 目前暫無行事曆賽事資訊。</td></tr>`;
+                    return;
+                }
+
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth() + 1; // 1-indexed
+
+                let html = "";
+                let hasMarkedFirst = false;
+
+                calendarEvents.forEach(ev => {
+                    let isCurrentMonth = false;
+                    let isFirstOfCurrent = false;
+
+                    // 解析日期以判定是否為當月賽事
+                    const evDate = parseEventDate(ev.date);
+                    if (evDate) {
+                        const evYear = evDate.getFullYear();
+                        const evMonth = evDate.getMonth() + 1;
+                        if (evYear === currentYear && evMonth === currentMonth) {
+                            isCurrentMonth = true;
+                            if (!hasMarkedFirst) {
+                                isFirstOfCurrent = true;
+                                hasMarkedFirst = true; // 標記為首筆
+                            }
+                        }
+                    }
+
+                    const rowClass = isCurrentMonth ? 'current-month-row' : '';
+                    const firstClass = isFirstOfCurrent ? 'current-month-first' : '';
+
+                    html += `
+                        <tr class="${rowClass} ${firstClass}">
+                            <td>${ev.date}</td>
+                            <td style="font-weight: 600;">${ev.name}</td>
+                            <td>${ev.location || '-'}</td>
+                            <td>${ev.organizer || '-'}</td>
+                            <td>${ev.remark || '-'}</td>
+                        </tr>
+                    `;
+                });
+
+                tbody.innerHTML = html;
+                
+                // 更新頂部跑馬燈
+                updateMarquee(calendarEvents);
+                
+                // 自動定位滾動
+                scrollToCurrentMonth();
+
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="loading-cell text-red-500">❌ 載入失敗: ${err.message}</td></tr>`;
+            }
+        }
+
+        // 頁面載入時執行
+        window.addEventListener('DOMContentLoaded', loadCalendar);
+    </script>
+</body>
+</html>

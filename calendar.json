@@ -1,0 +1,650 @@
+[
+  {
+    "id": "1",
+    "date": "2026/01/10(六) ~ 01/11(日)",
+    "location": "高雄市立國際游泳池",
+    "name": "115年全國南區游泳錦標賽(1)",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "2",
+    "date": "2026/01/23(五) ~ 01/25(日)",
+    "location": "臺北市立大學詩欣館",
+    "name": "115年全國北區A游泳錦標賽(1)",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "3",
+    "date": "2026/01/26(一) ~ 01/28(三)",
+    "location": "臺北市立大學詩欣館",
+    "name": "115年全國北區B游泳錦標賽(1)",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "台中-335_1",
+    "date": "2026/01/29(四) ~ 01/30(五)",
+    "location": "臺中市北區運動中心泳池",
+    "name": "115 年臺中市中等學校運動會(游泳賽)",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/臺中市體育總會游泳委員會115年度活動計畫總表.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "4",
+    "date": "2026/02/06(五) ~ 02/08(日)",
+    "location": "台中市北區國民運動中心",
+    "name": "115年全國中區游泳錦標賽(1)",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "5",
+    "date": "2026/03/06(五) ~ 03/09(一)",
+    "location": "台中市北區國民運動中心",
+    "name": "115年全國春季游泳錦標賽",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "高雄-高雄市體育總會游泳委員會115年度活動行事曆.pdf_1",
+    "date": "2026/03/07(六) ~ 03/09(一)",
+    "location": "⾼雄市國際游泳池",
+    "name": "⾼雄市C級裁判講習會",
+    "organizer": "高雄市體育總會游泳委員會",
+    "remark": "<a href=\"http://kcc.nowforyou.com/mizunop2/doc/2025/高雄市體育總會游泳委員會115年度活動行事曆.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "高雄-高雄市體育總會游泳委員會115年度活動行事曆.pdf_2",
+    "date": "2026/03/13(五) ~ 03/16(一)",
+    "location": "⾼雄市國際游泳池",
+    "name": "⾼雄市B級裁判講習會",
+    "organizer": "高雄市體育總會游泳委員會",
+    "remark": "<a href=\"http://kcc.nowforyou.com/mizunop2/doc/2025/高雄市體育總會游泳委員會115年度活動行事曆.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "高雄-高雄市體育總會游泳委員會115年度活動行事曆.pdf_3",
+    "date": "2026/03/13(五) ~ 03/16(一)",
+    "location": "⾼雄市國際游泳池",
+    "name": "115年全國美津濃盃分齡游泳錦標賽",
+    "organizer": "高雄市體育總會游泳委員會",
+    "remark": "<a href=\"http://kcc.nowforyou.com/mizunop2/doc/2025/高雄市體育總會游泳委員會115年度活動行事曆.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "高雄-115年美津濃盃全國分齡游泳錦標賽(競賽規程)V2.pdf",
+    "date": "2026/03/13(五) ~ 03/16(一)",
+    "location": "高雄市",
+    "name": "115年美津濃盃全國分齡游泳錦標賽（競賽規程）(有文號)",
+    "organizer": "高雄市體育總會游泳委員會",
+    "remark": "<a href=\"http://kcc.nowforyou.com/mizunop2/doc/2026/115年美津濃盃全國分齡游泳錦標賽(競賽規程)V2.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "高雄-115年美津濃盃全國分齡游泳錦標賽(成績總表).pdf",
+    "date": "2026/03/13(五) ~ 03/16(一)",
+    "location": "高雄市",
+    "name": "115年美津濃盃全國分齡游泳錦標賽(成績總表)",
+    "organizer": "高雄市體育總會游泳委員會",
+    "remark": "<a href=\"http://kcc.nowforyou.com/mizunop2/doc/2026/115年美津濃盃全國分齡游泳錦標賽(成績總表).pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "6",
+    "date": "2026/03/15(日) ~ 03/19(四)",
+    "location": "馬來西亞吉隆坡",
+    "name": "2026 亞洲U18水球錦標賽暨世界水總 U18資格賽 Asia Aquatics",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "7",
+    "date": "2026/03/19(四) ~ 03/22(日)",
+    "location": "日本東京",
+    "name": "第101回日本選手権水泳競技大會",
+    "organizer": "Japan",
+    "remark": "Aquatics"
+  },
+  {
+    "id": "台中-335_2",
+    "date": "2026/03/20(五) ~ 03/21(六)",
+    "location": "三信游泳池",
+    "name": "115 年臺中市游泳裁判暨複訓講習會",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/臺中市體育總會游泳委員會115年度活動計畫總表.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "8",
+    "date": "2026/03/27(五) ~ 03/28(六)",
+    "location": "埃及索馬灣",
+    "name": "2026 World Aquatics 世界盃公開水 域游泳-埃及站 World Aquatics",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "台中-335_3",
+    "date": "2026/03/27(五) ~ 03/28(六)",
+    "location": "三信游泳池",
+    "name": "115 年臺中市游泳教練暨複訓講習會",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/臺中市體育總會游泳委員會115年度活動計畫總表.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "9",
+    "date": "2026/04/02(四)",
+    "location": "台中市北區國民運動中心",
+    "name": "115年全國小學游泳錦標賽",
+    "organizer": "本會",
+    "remark": "3.5天"
+  },
+  {
+    "id": "10",
+    "date": "2026/04/11(六)",
+    "location": "運動部",
+    "name": "第十四屆理事長、理事及監事選舉",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "11",
+    "date": "2026/04/18(六) ~ 04/22(三)",
+    "location": "高雄市立國際游泳池",
+    "name": "115年全國中等學校運動會",
+    "organizer": "教育部",
+    "remark": ""
+  },
+  {
+    "id": "台中-335_4",
+    "date": "2026/04/19(日) ~ 04/23(四)",
+    "location": "雲林縣政府",
+    "name": "115 年全國中等學校運動會(游泳賽)",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/臺中市體育總會游泳委員會115年度活動計畫總表.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "12",
+    "date": "2026/04/22(三) ~ 04/30(四)",
+    "location": "中國三亞",
+    "name": "2026年第6屆三亞亞洲沙灘運動會",
+    "organizer": "亞洲奧林匹克",
+    "remark": "委員會"
+  },
+  {
+    "id": "13",
+    "date": "2026/04/25(六) ~ 04/26(日)",
+    "location": "高雄市立國際游泳池",
+    "name": "115年全國總統盃跳水錦標賽",
+    "organizer": "本會跳水",
+    "remark": "委員會"
+  },
+  {
+    "id": "14",
+    "date": "2026/05/01(五) ~ 05/02(六)",
+    "location": "義大利阿蘭奇灣城",
+    "name": "2026 World Aquatics 世界盃公開水 域游泳-義大利站 World Aquatics",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "15",
+    "date": "2026/05/02(六) ~ 05/06(三)",
+    "location": "臺北市立大學詩欣館",
+    "name": "115年全國大專校院運動會",
+    "organizer": "教育部",
+    "remark": ""
+  },
+  {
+    "id": "台中-335_5",
+    "date": "2026/05/02(六) ~ 05/06(三)",
+    "location": "中央大學",
+    "name": "115 年全國大專院校運動會(游泳賽)",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/臺中市體育總會游泳委員會115年度活動計畫總表.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "台中-335_6",
+    "date": "2026/05/22(五) ~ 05/24(日)",
+    "location": "臺中市北區運動中心泳池",
+    "name": "115 年臺中市市長盃游泳錦標賽",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/臺中市體育總會游泳委員會115年度活動計畫總表.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "台中-336",
+    "date": "2026/05/22(五) ~ 05/24(日)",
+    "location": "台中市",
+    "name": "115年臺中市市長盃游泳錦標賽",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/115年臺中市市長盃游泳錦標賽競賽規程.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "16",
+    "date": "2026/05/23(六) ~ 05/24(日)",
+    "location": "新北市微風運河廣場",
+    "name": "2026中華台北公開水域游泳錦標賽",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "17",
+    "date": "2026/05/29(五) ~ 06/01(一)",
+    "location": "台中市北區國民運動中心",
+    "name": "115年全國青年盃游泳錦標賽",
+    "organizer": "本會",
+    "remark": "115/6/16 115/6/16"
+  },
+  {
+    "id": "18",
+    "date": "2026/06/11(四)",
+    "location": "臺北市立大學詩欣館",
+    "name": "115年全國中正盃游泳錦標賽",
+    "organizer": "本會",
+    "remark": "4.5天"
+  },
+  {
+    "id": "19",
+    "date": "2026/06/13(六) ~ 06/15(一)",
+    "location": "印尼峇厘島",
+    "name": "2026 亞洲公開水域游泳錦標賽 Asia Aquatics",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "20",
+    "date": "2026/06/20(六) ~ 06/21(日)",
+    "location": "葡萄牙賽圖巴爾",
+    "name": "2026 World Aquatics 世界盃公開水 域游泳-葡萄牙站 World Aquatics",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "高雄-高雄市體育總會游泳委員會115年度活動行事曆.pdf_4",
+    "date": "2026/06/26(五) ~ 06/28(日)",
+    "location": "⾼雄市國際游泳池",
+    "name": "2026第⼋屆港都盃全國分級游泳錦標賽 (暫定)",
+    "organizer": "高雄市體育總會游泳委員會",
+    "remark": "<a href=\"http://kcc.nowforyou.com/mizunop2/doc/2025/高雄市體育總會游泳委員會115年度活動行事曆.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "21",
+    "date": "2026/06/27(六) ~ 06/28(日)",
+    "location": "高雄市立國際游泳池",
+    "name": "115年全國總統盃水球錦標賽",
+    "organizer": "本會水球",
+    "remark": "委員會"
+  },
+  {
+    "id": "22",
+    "date": "2026/07/17(五) ~ 07/19(日)",
+    "location": "高雄市立國際游泳池",
+    "name": "2026全國青少年游泳錦標賽",
+    "organizer": "高雄市水上運",
+    "remark": "動發展協會"
+  },
+  {
+    "id": "23",
+    "date": "2026/07/17(五) ~ 07/25(六)",
+    "location": "泰國曼谷",
+    "name": "2026 第12屆亞洲分齡錦標賽 Asia Aquatics",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "高雄水上-332",
+    "date": "2026/07/17(五) ~ 07/19(日)",
+    "location": "高雄市",
+    "name": "2026全國青少年游泳錦標賽競賽規程",
+    "organizer": "高雄水上",
+    "remark": "<a href=\"https://swim.kcsat.org/files/attachment/2026全青秩序冊_1__競賽規程_4.9核准1版.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "台南-357",
+    "date": "2026/08/01(六) ~ 08/06(四)",
+    "location": "台南市",
+    "name": "臺南市參加2026年國際少年運動會代表隊",
+    "organizer": "台南市體育總會游泳委員會",
+    "remark": "<a href=\"https://www.tainanswim.com.tw/manager/uploadfile/news-260213-011064.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "台南-367",
+    "date": "2026/08/01(六) ~ 08/02(日)",
+    "location": "台南市",
+    "name": "115年度主委盃",
+    "organizer": "台南市體育總會游泳委員會",
+    "remark": "來源：台南泳協"
+  },
+  {
+    "id": "25",
+    "date": "2026/08/12(三) ~ 08/15(六)",
+    "location": "美國加州",
+    "name": "2026 泛太平洋游泳錦標賽",
+    "organizer": "泛太平洋",
+    "remark": "游泳協會"
+  },
+  {
+    "id": "26",
+    "date": "2026/08/21(五) ~ 08/28(五)",
+    "location": "克羅埃西亞里耶卡 2026 World Aquatics世界青少年",
+    "name": "跳水錦標賽 World Aquatics",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "27",
+    "date": "2026/09/03(四) ~ 09/08(二)",
+    "location": "台中市北區國民運動中心",
+    "name": "115年全國總統盃暨美津濃游泳錦標賽",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "28",
+    "date": "2026/09/03(四) ~ 09/06(日)",
+    "location": "阿根廷聖塔菲 2026 World Aquatics世界青少年公",
+    "name": "開水域錦標賽 World Aquatics",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "29",
+    "date": "2026/09/09(三) ~ 10/04(日)",
+    "location": "日本名古屋",
+    "name": "第二十屆亞洲運動會",
+    "organizer": "亞洲奧林匹克",
+    "remark": "委員會"
+  },
+  {
+    "id": "高雄-高雄市體育總會游泳委員會115年度活動行事曆.pdf_5",
+    "date": "2026/09/11(五) ~ 09/13(日)",
+    "location": "⾼雄市國際游泳池",
+    "name": "⾼雄市議會115年議長盃全國分齡游泳錦標賽 (暫定)",
+    "organizer": "高雄市體育總會游泳委員會",
+    "remark": "<a href=\"http://kcc.nowforyou.com/mizunop2/doc/2025/高雄市體育總會游泳委員會115年度活動行事曆.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "高雄-高雄市議會115年議長盃全國分齡游泳錦標賽競賽規程.pdf",
+    "date": "2026/09/11(五) ~ 09/13(日)",
+    "location": "高雄市",
+    "name": "高雄市議會115年議長盃全國分齡游泳錦標賽（競賽規程）",
+    "organizer": "高雄市體育總會游泳委員會",
+    "remark": "<a href=\"http://kcc.nowforyou.com/mizunop2/doc/2026/高雄市議會115年議長盃全國分齡游泳錦標賽競賽規程.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "30",
+    "date": "2026/09/18(五) ~ 09/20(日)",
+    "location": "台中市北區國民運動中心",
+    "name": "115年全國中區游泳錦標賽(2)",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "台北-tpesa_73de74a53bc8",
+    "date": "2026/09/19(六) ~ 09/20(日)",
+    "location": "台北市",
+    "name": "115年臺北市中正盃游泳錦標賽比賽日期115/09/19-09/20",
+    "organizer": "台北體育總會游泳協會",
+    "remark": "<a href=\"https://drive.google.com/file/d/1HG44OfspfHKgGEDSNGw6EeGPpVYGuoUi/view?usp=sharing\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "37",
+    "date": "2026/10/01(四) ~ 10/03(六)",
+    "location": "亞塞拜然巴庫",
+    "name": "2026 World Aquatics 世界盃巡迴賽 -亞塞拜然站 World Aquatics",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "31",
+    "date": "2026/10/02(五) ~ 10/04(日)",
+    "location": "臺北市立大學詩欣館",
+    "name": "115年全國北區A游泳錦標賽(2)",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "台中-335_8",
+    "date": "2026/10/02(五) ~ 10/04(日)",
+    "location": "臺中市北區運動中心泳池",
+    "name": "115 年臺中市議長盃游泳錦標賽",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/臺中市體育總會游泳委員會115年度活動計畫總表.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "38",
+    "date": "2026/10/08(四) ~ 10/10(六)",
+    "location": "烏茲別克塔什干",
+    "name": "2026 World Aquatics 世界盃巡迴賽 -烏茲別克站 World Aquatics",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "39",
+    "date": "2026/10/15(四) ~ 10/17(六)",
+    "location": "哈薩克阿斯塔納",
+    "name": "2026 World Aquatics 世界盃巡迴賽 -哈薩克站 World Aquatics",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "32",
+    "date": "2026/10/16(五) ~ 10/18(日)",
+    "location": "臺北市立大學詩欣館",
+    "name": "115年全國北區B游泳錦標賽(2)",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "33",
+    "date": "2026/10/31(六) ~ 11/01(日)",
+    "location": "高雄市立國際游泳池",
+    "name": "115年全國南區游泳錦標賽(2)",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "34",
+    "date": "2026/10/31(六) ~ 11/01(日)",
+    "location": "馬來西亞吉隆坡",
+    "name": "2026 馬來西亞跳水公開賽 World Aquatics 認證賽事",
+    "organizer": "115/6/16",
+    "remark": ""
+  },
+  {
+    "id": "40",
+    "date": "2026/11/19(四) ~ 11/23(一)",
+    "location": "高雄市立國際游泳池",
+    "name": "115年全國冬季短水道游泳錦標賽",
+    "organizer": "本會",
+    "remark": ""
+  },
+  {
+    "id": "41",
+    "date": "2026/12/01(二) ~ 12/06(日)",
+    "location": "中國北京",
+    "name": "2026 World Aquatics",
+    "organizer": "世界游泳錦標",
+    "remark": "賽(25M) World Aquatics"
+  },
+  {
+    "id": "高雄-高雄市體育總會游泳委員會115年度活動行事曆.pdf_6",
+    "date": "2026/12/04(五) ~ 12/06(日)",
+    "location": "⾼雄市國際游泳池",
+    "name": "第五屆⾼雄市理事長盃冬季全國分齡游泳錦標賽 (暫定)",
+    "organizer": "高雄市體育總會游泳委員會",
+    "remark": "<a href=\"http://kcc.nowforyou.com/mizunop2/doc/2025/高雄市體育總會游泳委員會115年度活動行事曆.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "42",
+    "date": "2026/12/05(六) ~ 12/06(日)",
+    "location": "臺北市立大學詩欣館",
+    "name": "115年中華泳協排名賽",
+    "organizer": "本會",
+    "remark": "2/14-2/22 春節連假9天 2/27-3/1 228連假3天 4/3-4/6 清明節連假4天 6/19-6/21 端午節連假3天 9/25-9/28 中秋連假4天 10/9-10/11 國慶連假3天 10/24-10/26 光復節連假3天"
+  },
+  {
+    "id": "24",
+    "date": "8月",
+    "location": "香港",
+    "name": "香港公開賽",
+    "organizer": "香港業餘游泳",
+    "remark": "協會"
+  },
+  {
+    "id": "35",
+    "date": "10月",
+    "location": "台中市北區國民運動中心",
+    "name": "115年全國分齡跳水錦標賽",
+    "organizer": "本會跳水",
+    "remark": "委員會"
+  },
+  {
+    "id": "36",
+    "date": "10月",
+    "location": "台中市北區國民運動中心",
+    "name": "115年全國分齡水球錦標賽",
+    "organizer": "本會水球",
+    "remark": "委員會"
+  },
+  {
+    "id": "台中-335_7",
+    "date": "08 月未定",
+    "location": "臺中市北區運動中心泳池",
+    "name": "115 年臺中市全市運動會游泳賽",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/臺中市體育總會游泳委員會115年度活動計畫總表.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "台中-335_9",
+    "date": "12 月份",
+    "location": "三信游泳池",
+    "name": "115 臺中市體育總會游泳委員年度會議",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/臺中市體育總會游泳委員會115年度活動計畫總表.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "台中-337",
+    "date": "詳見公告說明",
+    "location": "台中市",
+    "name": "幼兒組50公尺浮板打水報名及比賽",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "來源：台中泳協"
+  },
+  {
+    "id": "台中-342",
+    "date": "詳見公告說明",
+    "location": "台中市",
+    "name": "115年臺中市市長盃游泳錦標賽",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/115年臺中市市長盃游泳錦標賽秩序冊.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "台中-343",
+    "date": "詳見公告說明",
+    "location": "台中市",
+    "name": "115年臺中市市長盃游泳錦標賽賽前",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/115年臺中市市長盃游泳錦標賽賽前公告0519.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "台中-345",
+    "date": "詳見公告說明",
+    "location": "台中市",
+    "name": "115年臺中市市長盃游泳錦標賽團體總錦標及",
+    "organizer": "台中市體育總會游泳委員會",
+    "remark": "<a href=\"https://swim8.kcsat.org/files/attachment/115年臺中市市長盃游泳錦標賽成績總表.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "台南-356",
+    "date": "詳見公告說明",
+    "location": "台南市",
+    "name": "115年度台南市C級游泳裁判教練講習會",
+    "organizer": "台南市體育總會游泳委員會",
+    "remark": "來源：台南泳協"
+  },
+  {
+    "id": "台南-358",
+    "date": "詳見公告說明",
+    "location": "台南市",
+    "name": "115台南市C級講習",
+    "organizer": "台南市體育總會游泳委員會",
+    "remark": "來源：台南泳協"
+  },
+  {
+    "id": "台南-359",
+    "date": "詳見公告說明",
+    "location": "台南市",
+    "name": "2026年國際少年運動會",
+    "organizer": "台南市體育總會游泳委員會",
+    "remark": "來源：台南泳協"
+  },
+  {
+    "id": "台南-360",
+    "date": "08:00-17:00",
+    "location": "台南市",
+    "name": "招募賽事志工",
+    "organizer": "台南市體育總會游泳委員會",
+    "remark": "來源：台南泳協"
+  },
+  {
+    "id": "台南-363",
+    "date": "詳見公告說明",
+    "location": "台南市",
+    "name": "賽事休息區登記",
+    "organizer": "台南市體育總會游泳委員會",
+    "remark": "來源：台南泳協"
+  },
+  {
+    "id": "台南-366",
+    "date": "詳見公告說明",
+    "location": "台南市",
+    "name": "115年臺南市游泳教練講習學員",
+    "organizer": "台南市體育總會游泳委員會",
+    "remark": "來源：台南泳協"
+  },
+  {
+    "id": "高雄-115美津濃盃_秩序冊_有封面.pdf",
+    "date": "詳見規程說明",
+    "location": "高雄市",
+    "name": "115年美津濃盃全國分齡游泳錦標賽（秩序冊）",
+    "organizer": "高雄市體育總會游泳委員會",
+    "remark": "<a href=\"http://kcc.nowforyou.com/mizunop2/doc/2026/115美津濃盃_秩序冊_有封面.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "高雄水上-340",
+    "date": "2026年舉辦",
+    "location": "高雄市",
+    "name": "5-公告-6.18更新1",
+    "organizer": "高雄水上",
+    "remark": "<a href=\"https://swim.kcsat.org/files/attachment/5_公告_6.18更新1.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "高雄水上-343",
+    "date": "2026年舉辦",
+    "location": "高雄市",
+    "name": "2026全青秩序冊-6-競賽分組表-6.24更新4",
+    "organizer": "高雄水上",
+    "remark": "<a href=\"https://swim.kcsat.org/files/attachment/2026全青秩序冊_6_競賽分組表_6.24更新4.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "高雄水上-344",
+    "date": "2026年舉辦",
+    "location": "高雄市",
+    "name": "2026全青秩序冊-5-競賽時程預定表-6.24更新4",
+    "organizer": "高雄水上",
+    "remark": "<a href=\"https://swim.kcsat.org/files/attachment/2026全青秩序冊_5_競賽時程預定表_6.24更新4.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "高雄水上-345",
+    "date": "2026年舉辦",
+    "location": "高雄市",
+    "name": "2026全青秩序冊-4-競賽程序表-6.24更新4",
+    "organizer": "高雄水上",
+    "remark": "<a href=\"https://swim.kcsat.org/files/attachment/2026全青秩序冊_4_競賽程序表_6.24更新4.pdf\" target=\"_blank\">下載規程</a>"
+  },
+  {
+    "id": "高雄水上-346",
+    "date": "2026年舉辦",
+    "location": "高雄市",
+    "name": "2026全青秩序冊-3-隊職員名單-6.24更新4",
+    "organizer": "高雄水上",
+    "remark": "<a href=\"https://swim.kcsat.org/files/attachment/2026全青秩序冊_3_隊職員名單_6.24更新4.pdf\" target=\"_blank\">下載規程</a>"
+  }
+]
