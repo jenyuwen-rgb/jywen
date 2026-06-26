@@ -50,6 +50,7 @@
         .nav-header {
             display: flex;
             align-items: center;
+            gap: 0.25rem;
             background-color: var(--bg-card);
             border: 1px solid #232326;
             border-radius: 16px;
@@ -237,12 +238,12 @@
     <div class="nav-header">
         <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()">🕒</span>
         <div style="position: relative; flex: 1; min-width: 0; display: flex; align-items: center;">
-            <input type="text" id="searchInput" value="温心妤" autocomplete="off">
+            <input type="text" id="searchInput" placeholder="輸入選手姓名..." autocomplete="off">
             <div id="autocomplete-list" class="autocomplete-items hidden"></div>
         </div>
-        <span class="font-bold text-[#D4AF37] px-3 cursor-pointer" onclick="doSearch()">查詢</span>
-        <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
-        <span class="font-bold text-gray-500 px-3 cursor-pointer" onclick="resetDB()">重置</span>
+        <span class="font-bold text-[#D4AF37] px-3 cursor-pointer" style="flex-shrink:0;" onclick="doSearch()">查詢</span>
+        <span class="font-bold text-white px-2 cursor-pointer" style="flex-shrink:0;" onclick="collapseAll()">收合</span>
+        <span class="font-bold cursor-pointer px-2" style="flex-shrink:0; color:#FF6B6B;" onclick="resetDB()">重置</span>
     </div>
 
     <div id="main"></div>
@@ -257,6 +258,11 @@
                 try {
                     const SQL = await initSqlJs({ locateFile: f => wasmUrl });
                     db = new SQL.Database(data);
+                    // [Auditor] 建立複合索引，加速 LIKE 查詢與排名計算
+                    try {
+                        db.run('CREATE INDEX IF NOT EXISTS idx_event ON swimming_scores(項目, 性別, 出生年)');
+                        db.run('CREATE INDEX IF NOT EXISTS idx_name ON swimming_scores(姓名, 出生年, 性別)');
+                    } catch(idxErr) { /* 索引建立失敗不阻斷系統 */ }
                     self.postMessage({ type: 'READY' });
                 } catch(err) {
                     self.postMessage({ type: 'ERROR', id, error: err.message });
@@ -284,7 +290,7 @@
             .replace('SQL_JS_CDN_URL', localJsUrl);
             
         const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
-        const worker = new Worker(URL.createObjectURL(workerBlob));
+        let worker = new Worker(URL.createObjectURL(workerBlob));
         
         // 綁定錯誤監聽，防止靜默失效
         worker.onerror = function(err) {
@@ -301,7 +307,18 @@
                 document.getElementById('loadingOverlay').style.display = 'none';
                 document.getElementById('dbLoaderArea').style.display = 'none';
                 updateDbStatusInfo();
-                doSearch();
+                // 輸入框有內容才自動搜尋，否則顯示歡迎畫面
+                if (document.getElementById('searchInput').value.trim()) {
+                    doSearch();
+                } else {
+                    document.getElementById('main').innerHTML = `
+                        <div class="text-center p-10">
+                            <div class="text-5xl mb-4">🏊</div>
+                            <div class="text-white text-lg font-bold mb-2">資料庫已成功載入</div>
+                            <div class="text-gray-400 text-sm">請在上方搜尋列輸入選手姓名進行查詢</div>
+                        </div>
+                    `;
+                }
             } else if (type === 'RESULT') {
                 if (callbacks[id]) { callbacks[id].resolve(data); delete callbacks[id]; }
             } else if (type === 'ERROR') {
@@ -329,6 +346,33 @@
             const parts = str.split(':');
             return parts.length === 2 ? parseInt(parts[0], 10)*60 + parseFloat(parts[1]) : parseFloat(parts[0]);
         };
+
+        // [Developer+Auditor] baseTimes 抽成全域常數，消除 calculateFinapoint/renderMatrix 重複定義
+        const WA_BASE_TIMES = {
+            'M': {
+                '自由式': { 50: 20.91, 100: 46.80, 200: 102.00, 400: 212.27, 800: 440.47, 1500: 843.10 },
+                '仰式':   { 50: 23.71, 100: 51.60, 200: 111.96 },
+                '蛙式':   { 50: 25.95, 100: 56.88, 200: 125.96 },
+                '蝶式':   { 50: 22.27, 100: 49.45, 200: 110.73 },
+                '混合式': { 200: 114.00, 400: 243.84 }
+            },
+            'F': {
+                '自由式': { 50: 23.61, 100: 51.71, 200: 112.98, 400: 235.38, 800: 484.79, 1500: 920.48 },
+                '仰式':   { 50: 26.86, 100: 57.13, 200: 123.35 },
+                '蛙式':   { 50: 29.30, 100: 64.13, 200: 138.95 },
+                '蝶式':   { 50: 24.43, 100: 55.48, 200: 121.81 },
+                '混合式': { 200: 126.12, 400: 265.85 }
+            }
+        };
+
+        // [Developer] SQL 輸入 sanitize：跳脫單引號，防止 SQL Injection
+        function sanitizeSql(str) {
+            if (typeof str !== 'string') return '';
+            return str.replace(/'/g, "''").substring(0, 20); // 最長20字元防止超長注入
+        }
+
+        // [Auditor] per-card AbortController，解決切換 Tab 的 Race Condition
+        const cardAbortControllers = {};
         // 查詢並顯示資料庫詳細資訊
         async function updateDbStatusInfo() {
             try {
@@ -405,14 +449,18 @@
             const inputVal = normalizeName(document.getElementById('searchInput').value);
             if (!inputVal) return;
             saveHistory(inputVal);
-            
+
+            // 關閉歷史紀錄視窗（若開啟）
+            if (document.getElementById('histModal')) document.getElementById('histModal').remove();
+
             const mainDiv = document.getElementById('main');
             mainDiv.innerHTML = `<div class="text-center p-10"><div class="spinner inline-block"></div><div class="mt-2 text-gray-400">正在搜尋資料庫...</div></div>`;
             
             try {
                 // 1. 取得該選手的所有出生年與性別 (支援異體字比對)
+                // [Developer] sanitizeSql 防止單引號注入
                 const variants = getNameVariants(inputVal);
-                const nameCond = "姓名 IN (" + variants.map(v => `'${v}'`).join(",") + ")";
+                const nameCond = "姓名 IN (" + variants.map(v => `'${sanitizeSql(v)}'`).join(",") + ")";
                 const infoRes = await remoteQuery(`SELECT DISTINCT 出生年, 性別, 姓名 FROM swimming_scores WHERE ${nameCond} AND ${LC_FILTER}`);
                 if (!infoRes[0] || !infoRes[0].values || infoRes[0].values.length === 0) {
                     mainDiv.innerHTML = `<div class="text-center p-10 text-gray-400">❌ 找不到該選手的個人參賽紀錄，請確認名字是否輸入正確（接力賽事不計入）。</div>`;
@@ -428,35 +476,46 @@
                     
                     html += `<div class="year-center p-4 m-3 bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl flex justify-between items-center"><div class="font-bold text-lg"><span class="gold-gradient-text">${toAD(birthYear)} 年出生 (${genderLabel})</span></div></div>`;
                     
-                    // 2. 取得該選手的個人最佳 (PB) 列表
+                    // 2. [QA+Auditor] PB 查詢、推入 SQL：SQLite 端解析距離+泳式，消除 Main Thread Regex
+                    const safeName   = sanitizeSql(dbName);
+                    const safeBirth  = sanitizeSql(String(birthYear));
+                    const safeGender = sanitizeSql(gender);
                     const pbsRes = await remoteQuery(`
-                        SELECT 項目, MIN(成績) as PB_sec, COUNT(*) as 參賽次數 
-                        FROM (
-                            SELECT 項目, 成績, 單位, 賽事名稱, 年份 
-                            FROM swimming_scores 
-                            WHERE 姓名='${dbName}' AND 出生年='${birthYear}' AND 性別='${gender}'
-                        )
-                        GROUP BY 項目
+                        SELECT
+                            CAST(TRIM(SUBSTR(項目, MAX(1, INSTR(項目,'公尺')-4), 4)) AS INTEGER) AS dist_m,
+                            CASE
+                                WHEN 項目 LIKE '%個人混合式%' THEN '混合式'
+                                WHEN 項目 LIKE '%自由式%'   THEN '自由式'
+                                WHEN 項目 LIKE '%仰式%'     THEN '仰式'
+                                WHEN 項目 LIKE '%蛙式%'     THEN '蛙式'
+                                WHEN 項目 LIKE '%蝶式%'     THEN '蝶式'
+                                WHEN 項目 LIKE '%混合式%'   THEN '混合式'
+                                ELSE NULL
+                            END AS stroke_type,
+                            MIN(成績) as PB_sec
+                        FROM swimming_scores
+                        WHERE 姓名='${safeName}'
+                          AND 出生年='${safeBirth}'
+                          AND 性別='${safeGender}'
+                          AND 項目 NOT LIKE '%接力%'
+                          AND 項目 NOT LIKE '%×%'
+                        GROUP BY dist_m, stroke_type
+                        HAVING stroke_type IS NOT NULL AND dist_m > 0
+                        ORDER BY stroke_type, dist_m
                     `);
                     
                     if (pbsRes[0] && pbsRes[0].values) {
                         const strokeOrder = ["自由式", "仰式", "蛙式", "蝶式", "混合式"];
                         const strokeGroups = {};
                         
+                        // [Auditor] SQL 已返回 dist_m 和 stroke_type，Main Thread 零 Regex
                         pbsRes[0].values.forEach(val => {
-                            const event = val[0];
-                            const pb = val[1];
-                            const count = val[2];
-                            
-                            const match = event.match(/(\d+)公尺(自由式|仰式|蛙式|蝶式|個人混合式|混合式)/);
-                            if (match) {
-                                const dist = parseInt(match[1]);
-                                let stroke = match[2];
-                                if (stroke === "個人混合式") stroke = "混合式";
-                                
-                                if (!strokeGroups[stroke]) strokeGroups[stroke] = [];
-                                strokeGroups[stroke].push({ dist, pb, count });
-                            }
+                            const dist   = val[0]; // SQL CAST 整數
+                            const stroke = val[1]; // SQL CASE 正規化
+                            const pb     = val[2];
+                            if (!dist || !stroke) return;
+                            if (!strokeGroups[stroke]) strokeGroups[stroke] = [];
+                            strokeGroups[stroke].push({ dist, pb });
                         });
                         
                         strokeOrder.forEach(stroke => {
@@ -538,76 +597,49 @@
         }
 
         // 取得特定項目的同齡選手排名資料
+        // [Auditor+QA] dist 過濾已推入 SQL 端，消除 Main Thread Regex + 髒資料問題
         async function getRankData(dist, stroke, p1, p2, p3, isNational=false) {
-            const genderFilter = p3 ? `AND 性別='${p3}'` : '';
-            const ageFilter = isNational ? '' : `AND 出生年='${p2}'`;
+            const safeDist = parseInt(dist, 10);   // [Developer] 確保 dist 是整數，防止注入
+            const safeStroke = sanitizeSql(stroke);
+            const genderFilter = p3 ? `AND 性別='${sanitizeSql(p3)}'` : '';
+            const ageFilter = isNational ? '' : `AND 出生年='${sanitizeSql(p2)}'`;
+            // [Auditor] SQL 端精確萃取 dist：用 CAST+INSTR+SUBSTR 解析「公尺」前的數字
+            // 同時排除接力項目，防止「100公尺×4接力」污染排名
             const q = `
-                SELECT 姓名, 出生年, MIN(成績) as PB, 單位, 賽事名稱, 年份 
-                FROM swimming_scores 
-                WHERE 項目 LIKE '%${dist}公尺%${stroke}%' ${genderFilter} ${ageFilter} AND ${LC_FILTER}
-                GROUP BY 姓名 
+                SELECT 姓名, 出生年, MIN(成績) as PB, 單位, 賽事名稱, 年份
+                FROM swimming_scores
+                WHERE 項目 LIKE '%${safeDist}公尺%${safeStroke}%'
+                  AND CAST(TRIM(SUBSTR(項目, MAX(1, INSTR(項目,'公尺')-4), 4)) AS INTEGER) = ${safeDist}
+                  AND 項目 NOT LIKE '%接力%'
+                  AND 項目 NOT LIKE '%×%'
+                  ${genderFilter} ${ageFilter}
+                  AND ${LC_FILTER}
+                GROUP BY 姓名
                 ORDER BY PB ASC
             `;
             const res = await remoteQuery(q);
             if (!res[0] || !res[0].values) return [];
-            
-            return res[0].values.filter(vv => {
-                const m = vv[4].match(/(\d+)公尺/);
-                return m && String(m[1]) === String(dist);
-            }).map(v => ({
+            // [Auditor] filter 已在 SQL 完成，Main Thread 不再跑 Regex
+            return res[0].values.map(v => ({
                 name: v[0],
                 birthYear: v[1],
                 raw: v[2],
-                wa: 0, // 動態計算 FINA 積分
+                wa: 0,
                 meet: v[4],
                 fullDate: v[5]
             }));
         }
 
-        // 動態計算 FINA (WA) 積分
+        // 動態計算 FINA (WA) 積分 — 改用全域 WA_BASE_TIMES 常數
         function calculateFinapoint(dist, stroke, sec, gender) {
-            const baseTimes = {
-                'M': {
-                    '自由式': { 50: 20.91, 100: 46.80, 200: 102.00, 400: 212.27, 800: 440.47, 1500: 843.10 },
-                    '仰式': { 50: 23.71, 100: 51.60, 200: 111.96 },
-                    '蛙式': { 50: 25.95, 100: 56.88, 200: 125.96 },
-                    '蝶式': { 50: 22.27, 100: 49.45, 200: 110.73 },
-                    '混合式': { 200: 114.00, 400: 243.84 }
-                },
-                'F': {
-                    '自由式': { 50: 23.61, 100: 51.71, 200: 112.98, 400: 235.38, 800: 484.79, 1500: 920.48 },
-                    '仰式': { 50: 26.86, 100: 57.13, 200: 123.35 },
-                    '蛙式': { 50: 29.30, 100: 64.13, 200: 138.95 },
-                    '蝶式': { 50: 24.43, 100: 55.48, 200: 121.81 },
-                    '混合式': { 200: 126.12, 400: 265.85 }
-                }
-            };
-            const b = baseTimes[gender]?.[stroke]?.[dist];
-            return b ? Math.floor(1000 * Math.pow(b / sec, 3)) : 0;
+            const b = WA_BASE_TIMES[gender]?.[stroke]?.[dist];
+            return (b && sec > 0) ? Math.floor(1000 * Math.pow(b / sec, 3)) : 0;
         }
 
         async function renderMatrix(dist, stroke, gender) {
-            const baseSec = calculateFinapoint(dist, stroke, 10, gender) > 0 ? 
-                calculateFinapoint(dist, stroke, 1, gender) : null;
-            if(!baseSec) return `<div class="p-4 text-center text-gray-500">未提供此項目的 WA 積分計算基準</div>`;
-            
-            const baseTimes = {
-                'M': {
-                    '自由式': { 50: 20.91, 100: 46.80, 200: 102.00, 400: 212.27, 800: 440.47, 1500: 843.10 },
-                    '仰式': { 50: 23.71, 100: 51.60, 200: 111.96 },
-                    '蛙式': { 50: 25.95, 100: 56.88, 200: 125.96 },
-                    '蝶式': { 50: 22.27, 100: 49.45, 200: 110.73 },
-                    '混合式': { 200: 114.00, 400: 243.84 }
-                },
-                'F': {
-                    '自由式': { 50: 23.61, 100: 51.71, 200: 112.98, 400: 235.38, 800: 484.79, 1500: 920.48 },
-                    '仰式': { 50: 26.86, 100: 57.13, 200: 123.35 },
-                    '蛙式': { 50: 29.30, 100: 64.13, 200: 138.95 },
-                    '蝶式': { 50: 24.43, 100: 55.48, 200: 121.81 },
-                    '混合式': { 200: 126.12, 400: 265.85 }
-                }
-            };
-            const b = baseTimes[gender][stroke][dist];
+            // 改用全域 WA_BASE_TIMES 常數，不再重複定義
+            const b = WA_BASE_TIMES[gender]?.[stroke]?.[dist];
+            if (!b) return `<div class="p-4 text-center text-gray-500">未提供此項目的 WA 積分計算基準</div>`;
             
             let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">WA 積分換算對照表</div>`;
             h += `<div class="list-row font-bold text-gray-400" style="border-bottom:1px solid #333;"><span style="width:40%;">積分分數</span><span style="width:60%; text-align:right;">所需秒數/成績</span></div>`;
@@ -622,69 +654,144 @@
 
         async function loadTabContent(id, mode, dist, stroke, p1, p2, p3) {
             const c = document.getElementById(`body-${id}`);
+            if (!c) return;
             c.innerHTML = `<div class="text-center p-4"><div class="spinner inline-block"></div></div>`;
-            
-            if (mode === 'rank') {
-                const sorted = await getRankData(dist, stroke, p1, p2, p3, false);
-                sorted.forEach(u => u.wa = calculateFinapoint(dist, stroke, timeToSec(u.raw), p3));
-                const total = sorted.length;
-                const tIdx = sorted.findIndex(u => u.name === p1);
-                
-                let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">同齡選手排名 (全國)</div>`;
-                h += `<div class="list-row font-bold text-gray-400" style="border-bottom:1px solid #333;"><span class="col-rank-fixed">#</span><span class="col-birth-fixed">出生年</span><span class="col-name-fixed">姓名</span><span class="col-time-fixed">成績</span><span class="col-wa-list">WA 積分</span><span class="col-8code-fixed">年份</span><span class="col-meet-fixed">賽事名稱</span></div><div style="max-height:220px; overflow-y:auto;">`;
-                
-                sorted.slice(0, 15).forEach((u, i) => {
-                    const isSelf = u.name === p1;
-                    h += `<div class="list-row ${isSelf?'row-gold':''}"><span class="col-rank-fixed">${i+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">${u.wa > 0 ? u.wa : '-'}</span><span class="col-8code-fixed">${u.fullDate}</span><span class="col-meet-fixed">${u.meet}</span></div>`;
-                });
-                
-                if (total > 0) {
-                    h += `<div style="border-top:1px solid #444; margin:12px 0 8px 0;"></div>`;
-                    if (tIdx >= 0) {
-                        const u = sorted[tIdx], pr = (100 * (total - tIdx) / total).toFixed(1);
-                        h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${tIdx+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${u.fullDate}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
+
+            // [Auditor] AbortController：若同一張卡被重複觸發，取消上一次未完成的請求
+            if (cardAbortControllers[id]) {
+                cardAbortControllers[id].abort();
+            }
+            const controller = new AbortController();
+            cardAbortControllers[id] = controller;
+            const signal = controller.signal;
+
+            // 每次異步步驟後檢查是否已被中止
+            const checkAbort = () => {
+                if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
+            };
+
+            const safeDist   = parseInt(dist, 10);
+            const safeStroke = sanitizeSql(stroke);
+            const safeP1     = sanitizeSql(p1);
+            const safeP2     = sanitizeSql(p2);
+            const safeP3     = sanitizeSql(p3);
+
+            try {
+                if (mode === 'rank') {
+                    const sorted = await getRankData(dist, stroke, p1, p2, p3, false);
+                    checkAbort();
+                    sorted.forEach(u => u.wa = calculateFinapoint(dist, stroke, timeToSec(u.raw), p3));
+                    const total = sorted.length;
+                    const tIdx = sorted.findIndex(u => u.name === p1);
+
+                    let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">同齡選手排名 (全國)</div>`;
+                    h += `<div class="list-row font-bold text-gray-400" style="border-bottom:1px solid #333;"><span class="col-rank-fixed">#</span><span class="col-birth-fixed">出生年</span><span class="col-name-fixed">姓名</span><span class="col-time-fixed">成績</span><span class="col-wa-list">WA 積分</span><span class="col-8code-fixed">年份</span><span class="col-meet-fixed">賽事名稱</span></div><div style="max-height:220px; overflow-y:auto;">`;
+                    sorted.slice(0, 15).forEach((u, i) => {
+                        const isSelf = u.name === p1;
+                        h += `<div class="list-row ${isSelf?'row-gold':''}"><span class="col-rank-fixed">${i+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">${u.wa > 0 ? u.wa : '-'}</span><span class="col-8code-fixed">${u.fullDate}</span><span class="col-meet-fixed">${u.meet}</span></div>`;
+                    });
+                    if (total > 0) {
+                        h += `<div style="border-top:1px solid #444; margin:12px 0 8px 0;"></div>`;
+                        if (tIdx >= 0) {
+                            const u = sorted[tIdx], pr = (100 * (total - tIdx) / total).toFixed(1);
+                            h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${tIdx+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${u.fullDate}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
+                        }
                     }
+                    checkAbort();
+                    c.innerHTML = h + "</div></div></div>";
+
+                } else if (mode === 'trend') {
+                    // [Auditor+QA] dist 過濾推入 SQL，消除 Main Thread .filter() Regex
+                    const res = await remoteQuery(`
+                        SELECT 年份, 成績, 賽事名稱, 出生年
+                        FROM swimming_scores
+                        WHERE 姓名='${safeP1}'
+                          AND CAST(TRIM(SUBSTR(項目, MAX(1, INSTR(項目,'公尺')-4), 4)) AS INTEGER) = ${safeDist}
+                          AND 項目 LIKE '%${safeStroke}%'
+                          AND 項目 NOT LIKE '%接力%'
+                          AND ${LC_FILTER}
+                        ORDER BY 年份 ASC
+                    `);
+                    checkAbort();
+                    const fV = (res[0] && res[0].values) ? res[0].values : [];
+                    const mkD = (rs) => rs.map(v => ({ x: new Date(v[0].substring(0,4), v[0].substring(4,6)-1, v[0].substring(6,8)), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
+                    const mkA = (rs) => rs.map(v => ({ x: (parseInt(v[0].substring(0,4)) + (parseInt(v[0].substring(4,6))-1)/12) - toAD(v[3]), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
+                    const tD = mkD(fV), aD = mkA(fV);
+                    const ageS = await getRankData(dist, stroke, p1, p2, p3, false);
+                    checkAbort();
+                    const natS = await getRankData(dist, stroke, p1, p2, p3, true);
+                    checkAbort();
+                    let ageOpt = '<option value=""># 選擇同齡對手</option>', natOpt = '<option value=""># 選擇全國對手</option>';
+                    ageS.slice(0,25).forEach(r => { if(r.name!==p1) ageOpt += `<option value="${r.name}" style="color:#0A84FF;">${r.name} (${r.raw})</option>`; });
+                    natS.slice(0,25).forEach(r => { if(r.name!==p1) natOpt += `<option value="${r.name}" style="color:#FF3B30;">${r.name} (${r.raw})</option>`; });
+
+                    c.innerHTML = `<div class="p-3" style="background:#000;"><div class="mb-8"><div class="font-bold mb-2">${dist}m 趨勢圖</div><select id="st-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#0A84FF]">${ageOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-t-${id}"></canvas></div></div><div><div class="font-bold mb-2">成長對比圖</div><select id="sa-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#FF3B30]">${natOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-a-${id}"></canvas></div></div></div>`;
+
+                    const tt = { backgroundColor: 'rgba(28,28,30,0.95)', titleFont: {weight:'bold'}, padding:12, displayColors:false, titleColor: (ctx) => ctx.tooltip.dataPoints[0].dataset.borderColor, callbacks: { title: (its) => its[0].raw.date8, label: (it) => [`賽事: ${it.raw.meet}`, `成績: ${formatToXcode(it.raw.y)}`], labelTextColor: (it) => it.dataset.borderColor } };
+                    const opt = (isT) => ({ responsive: true, maintainAspectRatio: false, scales: { x: { type: isT?'time':'linear', grid: { color:'#333' }, ticks: { color:'#FFF' } }, y: { ticks: { callback: v => formatToXcode(v), color:'#FFF' }, grid: { color:'#333' } } }, plugins: { legend: { display: false }, tooltip: tt } });
+                    const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type: 'line', data: { datasets: [{ data: tD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(true) });
+                    const aC = new Chart(document.getElementById(`canvas-a-${id}`), { type: 'line', data: { datasets: [{ data: aD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(false) });
+
+                    // [QA+Auditor] 趨勢對手選擇也推入 SQL 過濾，不再 Main Thread Regex
+                    const fetchOpponent = async (name) => {
+                        const safeN = sanitizeSql(name);
+                        const rO = await remoteQuery(`
+                            SELECT 年份, 成績, 賽事名稱, 出生年
+                            FROM swimming_scores
+                            WHERE 姓名='${safeN}'
+                              AND CAST(TRIM(SUBSTR(項目, MAX(1, INSTR(項目,'公尺')-4), 4)) AS INTEGER) = ${safeDist}
+                              AND 項目 LIKE '%${safeStroke}%'
+                              AND 項目 NOT LIKE '%接力%'
+                              AND ${LC_FILTER}
+                            ORDER BY 年份 ASC
+                        `);
+                        return (rO[0] && rO[0].values) ? rO[0].values : [];
+                    };
+                    document.getElementById(`st-${id}`).onchange = async (e) => {
+                        const ff = await fetchOpponent(e.target.value);
+                        tC.data.datasets[1] = { label: e.target.value, data: mkD(ff), borderColor: '#0A84FF', borderDash: [5,5], pointBackgroundColor: '#0A84FF', pointRadius: 4 };
+                        tC.update();
+                    };
+                    document.getElementById(`sa-${id}`).onchange = async (e) => {
+                        const ff = await fetchOpponent(e.target.value);
+                        aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 };
+                        aC.update();
+                    };
+
+                } else if (mode === 'matrix') {
+                    const matHtml = await renderMatrix(dist, stroke, p3);
+                    checkAbort();
+                    c.innerHTML = matHtml;
+
+                } else if (mode === 'history') {
+                    // [Auditor+QA] dist 過濾推入 SQL
+                    const res = await remoteQuery(`
+                        SELECT 年份, 成績, 賽事名稱
+                        FROM swimming_scores
+                        WHERE 姓名='${safeP1}'
+                          AND CAST(TRIM(SUBSTR(項目, MAX(1, INSTR(項目,'公尺')-4), 4)) AS INTEGER) = ${safeDist}
+                          AND 項目 LIKE '%${safeStroke}%'
+                          AND 項目 NOT LIKE '%接力%'
+                          AND ${LC_FILTER}
+                        ORDER BY 年份 DESC
+                    `);
+                    checkAbort();
+                    const fR = (res[0] && res[0].values) ? res[0].values : [];
+                    const minS = fR.length > 0 ? Math.min(...fR.map(v => timeToSec(v[1]))) : 0;
+                    let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">歷年紀錄</div>`;
+                    fR.forEach(v => { const s = timeToSec(v[1]); h += `<div class="list-row ${s===minS?'row-gold':''}"><span class="col-8code-fixed">${v[0]}</span><span class="col-time-fixed">${formatToXcode(s)}</span><span class="col-meet-fixed">${v[2]}</span></div>`; });
+                    c.innerHTML = h + "</div>";
                 }
-                c.innerHTML = h + "</div></div></div>";
-            } else if (mode === 'trend') {
-                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`);
-                const fV = res[0].values.filter(vv => { const m = vv[4].match(/(\d+)公尺/); return m && String(m[1]) === String(dist); });
-                const mkD = (rs) => rs.map(v => ({ x: new Date(v[0].substring(0,4), v[0].substring(4,6)-1, v[0].substring(6,8)), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
-                const mkA = (rs) => rs.map(v => ({ x: (parseInt(v[0].substring(0,4)) + (parseInt(v[0].substring(4,6))-1)/12) - toAD(v[3]), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
-                const tD = mkD(fV), aD = mkA(fV);
-                const ageS = await getRankData(dist, stroke, p1, p2, p3, false), natS = await getRankData(dist, stroke, p1, p2, p3, true);
-                let ageOpt = '<option value=""># 選擇同齡對手</option>', natOpt = '<option value=""># 選擇全國對手</option>';
-                ageS.slice(0,25).forEach(r => { if(r.name!==p1) ageOpt += `<option value="${r.name}" style="color:#0A84FF;">${r.name} (${r.raw})</option>`; });
-                natS.slice(0,25).forEach(r => { if(r.name!==p1) natOpt += `<option value="${r.name}" style="color:#FF3B30;">${r.name} (${r.raw})</option>`; });
-                
-                c.innerHTML = `<div class="p-3" style="background:#000;"><div class="mb-8"><div class="font-bold mb-2">${dist}m 趨勢圖</div><select id="st-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#0A84FF]">${ageOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-t-${id}"></canvas></div></div><div><div class="font-bold mb-2">成長對比圖</div><select id="sa-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#FF3B30]">${natOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-a-${id}"></canvas></div></div></div>`;
-                
-                const tt = { backgroundColor: 'rgba(28,28,30,0.95)', titleFont: {weight:'bold'}, padding:12, displayColors:false, titleColor: (ctx) => ctx.tooltip.dataPoints[0].dataset.borderColor, callbacks: { title: (its) => its[0].raw.date8, label: (it) => [`賽事: ${it.raw.meet}`, `成績: ${formatToXcode(it.raw.y)}`], labelTextColor: (it) => it.dataset.borderColor } };
-                const opt = (isT) => ({ responsive: true, maintainAspectRatio: false, scales: { x: { type: isT?'time':'linear', grid: { color:'#333' }, ticks: { color:'#FFF' } }, y: { ticks: { callback: v => formatToXcode(v), color:'#FFF' }, grid: { color:'#333' } } }, plugins: { legend: { display: false }, tooltip: tt } });
-                const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type: 'line', data: { datasets: [{ data: tD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(true) });
-                const aC = new Chart(document.getElementById(`canvas-a-${id}`), { type: 'line', data: { datasets: [{ data: aD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(false) });
-                
-                document.getElementById(`st-${id}`).onchange = async (e) => { 
-                    const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
-                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺/); return mm && String(mm[1]) === String(dist); });
-                    tC.data.datasets[1] = { label: e.target.value, data: mkD(ff), borderColor: '#0A84FF', borderDash: [5,5], pointBackgroundColor: '#0A84FF', pointRadius: 4 }; tC.update(); 
-                };
-                document.getElementById(`sa-${id}`).onchange = async (e) => { 
-                    const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
-                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺/); return mm && String(mm[1]) === String(dist); });
-                    aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 }; aC.update(); 
-                };
-            } else if (mode === 'matrix') { c.innerHTML = await renderMatrix(dist, stroke, p3); }
-            else if (mode === 'history') {
-                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 DESC`);
-                const fR = res[0].values.filter(v => {
-                    const m = v[3].match(/(\d+)公尺/);
-                    return m && String(m[1]) === String(dist);
-                });
-                const minS = fR.length > 0 ? Math.min(...fR.map(v => timeToSec(v[1]))) : 0;
-                let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">歷年紀錄</div>`;
-                fR.forEach(v => { const s = timeToSec(v[1]); h += `<div class="list-row ${s===minS?'row-gold':''}"><span class="col-8code-fixed">${v[0]}</span><span class="col-time-fixed">${formatToXcode(s)}</span><span class="col-meet-fixed">${v[2]}</span></div>`; });
-                c.innerHTML = h + "</div>";
+            } catch (err) {
+                if (err.name === 'AbortError') return; // [Auditor] 正常中止，靜默退出
+                if (c && document.body.contains(c)) {
+                    c.innerHTML = `<div class="text-center p-4 text-red-500">載入失敗: ${err.message}</div>`;
+                }
+            } finally {
+                // 清理 controller 參照
+                if (cardAbortControllers[id] === controller) {
+                    delete cardAbortControllers[id];
+                }
             }
         }
 
@@ -765,8 +872,47 @@
 
         startSystem();
         function collapseAll() { document.querySelectorAll('.drill-down.active').forEach(p => p.classList.remove('active')); }
-        function resetDB() { if (confirm("重置清除資料庫快取？")) { indexedDB.deleteDatabase("SwimSQL"); location.reload(); } }
-        function toggleHistory() { let h = JSON.parse(localStorage.getItem('swim_h')||"[]"), html = `<div id="histModal" style="position:fixed; top:65px; left:16px; right:16px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000;"><div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;"><span style="color:#D4AF37; font-weight:bold;">歷史紀錄</span><span onclick="document.getElementById('histModal').remove()" style="color:#8E8E93; cursor:pointer;">關閉</span></div>`; h.forEach(n => html += `<div style="display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;"><span onclick="selectHist('${n}')" style="flex:1; cursor:pointer; color:#FFF;">${n}</span><span onclick="deleteHistory('${n}')" style="cursor:pointer;">🗑️</span></div>`); document.body.insertAdjacentHTML('beforeend', html+'</div>'); }
+        function resetDB() {
+            if (confirm("重置清除資料庫快取？")) {
+                // 先終止 Worker 釋放連線，防止 deleteDatabase 進入 blocked 狀態
+                if (typeof worker !== 'undefined' && worker) {
+                    worker.terminate();
+                    worker = null;
+                }
+                const req = indexedDB.deleteDatabase("SwimSQL");
+                req.onsuccess = () => location.reload();
+                req.onerror = () => alert("重置失敗，請手動清除瀏覽器快取");
+                req.onblocked = () => alert("資料庫被占用，請關閉其他分頁後重試");
+            }
+        }
+        function toggleHistory() {
+            if (document.getElementById('histModal')) { document.getElementById('histModal').remove(); return; }
+            let h = JSON.parse(localStorage.getItem('swim_h')||"[]");
+            const modal = document.createElement('div');
+            modal.id = 'histModal';
+            modal.style.cssText = 'position:fixed; top:65px; left:16px; right:16px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000;';
+            const header = document.createElement('div');
+            header.style.cssText = 'display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;';
+            const title = document.createElement('span');
+            title.style.cssText = 'color:#D4AF37; font-weight:bold;'; title.textContent = '歷史紀錄';
+            const close = document.createElement('span');
+            close.style.cssText = 'color:#8E8E93; cursor:pointer;'; close.textContent = '關閉';
+            close.onclick = () => modal.remove();
+            header.appendChild(title); header.appendChild(close); modal.appendChild(header);
+            h.forEach(n => {
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;';
+                const nameSpan = document.createElement('span');
+                nameSpan.style.cssText = 'flex:1; cursor:pointer; color:#FFF;';
+                nameSpan.textContent = n;  // 使用 textContent 避免 XSS
+                nameSpan.onclick = () => selectHist(n);
+                const delSpan = document.createElement('span');
+                delSpan.style.cursor = 'pointer'; delSpan.textContent = '🗑️';
+                delSpan.onclick = () => deleteHistory(n);
+                row.appendChild(nameSpan); row.appendChild(delSpan); modal.appendChild(row);
+            });
+            document.body.appendChild(modal);
+        }
         function selectHist(n) { document.getElementById('searchInput').value = n; if(document.getElementById('histModal')) document.getElementById('histModal').remove(); doSearch(); }
         function deleteHistory(n) { let h = JSON.parse(localStorage.getItem('swim_h')||"[]").filter(x => x!==n); localStorage.setItem('swim_h', JSON.stringify(h)); if(document.getElementById('histModal')) document.getElementById('histModal').remove(); toggleHistory(); }
         function saveHistory(n) { if(!n) return; let h = JSON.parse(localStorage.getItem('swim_h')||"[]"); h = [n, ...h.filter(x => x !== n)].slice(0,30); localStorage.setItem('swim_h', JSON.stringify(h)); }
@@ -795,7 +941,8 @@
             if (!worker) return;
 
             const variants = getNameVariants(val);
-            const nameCond = "(" + variants.map(v => `姓名 LIKE '${v}%'`).join(" OR ") + ")";
+            // [Developer] sanitizeSql 防止 autocomplete 輸入注入
+            const nameCond = "(" + variants.map(v => `姓名 LIKE '${sanitizeSql(v)}%'`).join(" OR ") + ")";
             const query = `SELECT DISTINCT 姓名 FROM swimming_scores WHERE ${nameCond} LIMIT 15`;
             const res = await remoteQuery(query);
             if (!res[0] || !res[0].values) return;
