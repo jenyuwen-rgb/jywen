@@ -420,6 +420,12 @@
             return name.replace(/\s+/g, '').replace(/　/g, '');
         }
 
+        // 泳式 emoji 符號映射
+        function getStrokeSymbol(stroke) {
+            const map = { '自由式': '🏊', '仰式': '🔄', '蛙式': '🐸', '蝶式': '🦋', '混合式': '🔀' };
+            return map[stroke] || '🏊';
+        }
+
         // 產生溫/温, 台/臺, 黃/黄所有可能異體字組合
         function getNameVariants(name) {
             if (!name) return [];
