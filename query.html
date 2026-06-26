@@ -333,6 +333,31 @@
             return name.replace(/\s+/g, '').replace(/　/g, '');
         }
 
+        // 產生溫/温, 台/臺, 黃/黄所有可能異體字組合
+        function getNameVariants(name) {
+            if (!name) return [];
+            const map = {
+                '温': ['温', '溫'],
+                '溫': ['温', '溫'],
+                '台': ['台', '臺'],
+                '臺': ['台', '臺'],
+                '黄': ['黄', '黃'],
+                '黃': ['黄', '黃']
+            };
+            let variants = [''];
+            for (let char of name) {
+                let options = map[char] || [char];
+                let nextVariants = [];
+                for (let v of variants) {
+                    for (let opt of options) {
+                        nextVariants.push(v + opt);
+                    }
+                }
+                variants = nextVariants;
+            }
+            return variants;
+        }
+
         async function doSearch() {
             const inputVal = normalizeName(document.getElementById('searchInput').value);
             if (!inputVal) return;
@@ -342,8 +367,10 @@
             mainDiv.innerHTML = `<div class="text-center p-10"><div class="spinner inline-block"></div><div class="mt-2 text-gray-400">正在搜尋資料庫...</div></div>`;
             
             try {
-                // 1. 取得該選手的所有出生年與性別
-                const infoRes = await remoteQuery(`SELECT DISTINCT 出生年, 性別 FROM swimming_scores WHERE 姓名='${inputVal}' AND ${LC_FILTER}`);
+                // 1. 取得該選手的所有出生年與性別 (支援異體字比對)
+                const variants = getNameVariants(inputVal);
+                const nameCond = "姓名 IN (" + variants.map(v => `'${v}'`).join(",") + ")";
+                const infoRes = await remoteQuery(`SELECT DISTINCT 出生年, 性別, 姓名 FROM swimming_scores WHERE ${nameCond} AND ${LC_FILTER}`);
                 if (!infoRes[0] || !infoRes[0].values || infoRes[0].values.length === 0) {
                     mainDiv.innerHTML = `<div class="text-center p-10 text-gray-400">❌ 找不到該選手的個人參賽紀錄，請確認名字是否輸入正確（接力賽事不計入）。</div>`;
                     return;
@@ -353,6 +380,7 @@
                 for (const row of infoRes[0].values) {
                     const birthYear = row[0];
                     const gender = row[1];
+                    const dbName = row[2] || inputVal; // 使用資料庫中實際儲存的姓名
                     const genderLabel = gender === "M" ? "男" : "女";
                     
                     html += `<div class="year-center p-4 m-3 bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl flex justify-between items-center"><div class="font-bold text-lg"><span class="gold-gradient-text">${toAD(birthYear)} 年出生 (${genderLabel})</span></div></div>`;
@@ -363,7 +391,7 @@
                         FROM (
                             SELECT 項目, 成績, 單位, 賽事名稱, 年份 
                             FROM swimming_scores 
-                            WHERE 姓名='${inputVal}' AND 出生年='${birthYear}' AND 性別='${gender}'
+                            WHERE 姓名='${dbName}' AND 出生年='${birthYear}' AND 性別='${gender}'
                         )
                         GROUP BY 項目
                     `);
@@ -400,7 +428,7 @@
                                     const cardId = `c-${birthYear}-${gender}-${it.dist}-${stroke}`;
                                     html += `
                                         <div class="drill-down" id="${cardId}">
-                                            <div class="drill-down-header" onclick="toggleDrillDown('${cardId}', ${it.dist}, '${stroke}', '${inputVal}', '${birthYear}', '${gender}')">
+                                            <div class="drill-down-header" onclick="toggleDrillDown('${cardId}', ${it.dist}, '${stroke}', '${dbName}', '${birthYear}', '${gender}')">
                                                 <span class="font-bold text-white text-[1.05rem]">${it.dist}公尺</span>
                                                 <div class="flex items-center gap-3">
                                                     <span class="font-bold text-[#FFD933] text-lg font-mono">${it.pb}</span>
@@ -409,10 +437,10 @@
                                             </div>
                                             <div class="drill-down-content">
                                                 <div class="tabs-header">
-                                                    <div class="tab-btn active" onclick="switchTab('${cardId}', 'rank', ${it.dist}, '${stroke}', '${inputVal}', '${birthYear}', '${gender}')">同齡排名</div>
-                                                    <div class="tab-btn" onclick="switchTab('${cardId}', 'trend', ${it.dist}, '${stroke}', '${inputVal}', '${birthYear}', '${gender}')">趨勢成長</div>
-                                                    <div class="tab-btn" onclick="switchTab('${cardId}', 'matrix', ${it.dist}, '${stroke}', '${inputVal}', '${birthYear}', '${gender}')">WA積分</div>
-                                                    <div class="tab-btn" onclick="switchTab('${cardId}', 'history', ${it.dist}, '${stroke}', '${inputVal}', '${birthYear}', '${gender}')">歷年成績</div>
+                                                    <div class="tab-btn active" onclick="switchTab('${cardId}', 'rank', ${it.dist}, '${stroke}', '${dbName}', '${birthYear}', '${gender}')">同齡排名</div>
+                                                    <div class="tab-btn" onclick="switchTab('${cardId}', 'trend', ${it.dist}, '${stroke}', '${dbName}', '${birthYear}', '${gender}')">趨勢成長</div>
+                                                    <div class="tab-btn" onclick="switchTab('${cardId}', 'matrix', ${it.dist}, '${stroke}', '${dbName}', '${birthYear}', '${gender}')">WA積分</div>
+                                                    <div class="tab-btn" onclick="switchTab('${cardId}', 'history', ${it.dist}, '${stroke}', '${dbName}', '${birthYear}', '${gender}')">歷年成績</div>
                                                 </div>
                                                 <div class="tab-body p-2" id="body-${cardId}">
                                                     <div class="text-center p-4"><div class="spinner inline-block"></div></div>
@@ -720,7 +748,9 @@
             if (!val || val.length < 1) return;
             if (!worker) return;
 
-            const query = `SELECT DISTINCT 姓名 FROM swimming_scores WHERE 姓名 LIKE '${val}%' LIMIT 15`;
+            const variants = getNameVariants(val);
+            const nameCond = "(" + variants.map(v => `姓名 LIKE '${v}%'`).join(" OR ") + ")";
+            const query = `SELECT DISTINCT 姓名 FROM swimming_scores WHERE ${nameCond} LIMIT 15`;
             const res = await remoteQuery(query);
             if (!res[0] || !res[0].values) return;
 
