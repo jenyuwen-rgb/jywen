@@ -834,14 +834,14 @@
 
     <!-- Web Worker JavaScript -->
     <script id="worker-script" type="text/javascript-worker">
-        importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
+        importScripts('SQL_JS_CDN_URL');
         let db = null;
         self.onmessage = async function(e) {
-            const { type, data, query, id } = e.data;
+            const { type, data, query, id, wasmUrl } = e.data;
             
             if (type === 'INIT') {
                 try {
-                    const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
+                    const SQL = await initSqlJs({ locateFile: f => wasmUrl });
                     db = new SQL.Database(data);
                     
                     // 初始化必要的 calendar 及 scores 表結構
@@ -954,7 +954,6 @@
                     stmtInsert.free();
                     stmtDeduce.free();
                     
-                    // 去重清理
                     db.run(`
                         DELETE FROM swimming_scores
                         WHERE rowid NOT IN (
@@ -980,6 +979,22 @@
     </script>
 
     <script>
+        // 解決 Blob URL Web Worker 載入 CDN 以及跨域問題，使用本機 JS & WASM
+        const localJsUrl = new URL('sql-wasm.js', window.location.href).href;
+        const localWasmUrl = new URL('sql-wasm.wasm', window.location.href).href;
+        
+        const workerCode = document.getElementById('worker-script').textContent
+            .replace('SQL_JS_CDN_URL', localJsUrl);
+            
+        const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+        const worker = new Worker(URL.createObjectURL(workerBlob));
+        
+        // 綁定錯誤監聽，防止靜默失效
+        worker.onerror = function(err) {
+            console.error("Worker 發生錯誤:", err);
+            alert("資料庫引擎載入出錯: " + err.message);
+        };
+
         const callbacks = {};
         let queryId = 0;
         let dbFileName = "swim_results_birthday.db";
@@ -991,7 +1006,6 @@
                 document.getElementById('dbLockOverlay').style.display = 'none';
                 isDBLoaded = true;
                 
-                // 載入賽事來源下拉清單
                 loadRecentGamesList('site_a');
                 loadRecentGamesList('site_e');
 
@@ -1070,7 +1084,8 @@
                         document.getElementById('uploadProgressBar').style.width = '70%';
                         
                         const buf = await (fileBlob instanceof Blob ? fileBlob.arrayBuffer() : fileBlob);
-                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buf) });
+                        // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
+                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]);
                     } else {
                         showLockOverlay();
                     }
@@ -1094,7 +1109,7 @@
             const progressBar = document.getElementById('uploadProgressBar');
             
             progressBar.style.width = '40%';
-            statusEl.textContent = "讀取本機資料庫檔案中...";
+            statusEl.textContent = "讀起本機資料庫檔案中...";
             
             try {
                 const buffer = await file.arrayBuffer();
@@ -1110,7 +1125,8 @@
                         progressBar.style.width = '85%';
                         statusEl.textContent = "載入完畢，正在喚醒 SQL.js 引擎...";
                         document.getElementById('db-status-text').textContent = `資料庫已載入 (${(file.size / (1024 * 1024)).toFixed(1)} MB)`;
-                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buffer) });
+                        // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
+                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buffer), wasmUrl: localWasmUrl }, [buffer]);
                     };
                 };
             } catch (err) {

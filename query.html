@@ -242,14 +242,18 @@
 
     <!-- Web Worker JavaScript -->
     <script id="worker-script" type="text/javascript-worker">
-        importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
+        importScripts('SQL_JS_CDN_URL');
         let db = null;
         self.onmessage = async function(e) {
-            const { type, data, query, id } = e.data;
+            const { type, data, query, id, wasmUrl } = e.data;
             if (type === 'INIT') {
-                const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
-                db = new SQL.Database(data);
-                self.postMessage({ type: 'READY' });
+                try {
+                    const SQL = await initSqlJs({ locateFile: f => wasmUrl });
+                    db = new SQL.Database(data);
+                    self.postMessage({ type: 'READY' });
+                } catch(err) {
+                    self.postMessage({ type: 'ERROR', id, error: err.message });
+                }
             } else if (type === 'QUERY') {
                 try {
                     const stmt = db.prepare(query);
@@ -265,9 +269,22 @@
     </script>
 
     <script>
-        // 初始化 Worker
-        const blob = new Blob([document.getElementById('worker-script').textContent], { type: 'application/javascript' });
-        const worker = new Worker(URL.createObjectURL(blob));
+        // 解決 Blob URL Web Worker 載入 CDN 以及跨域問題，使用本機 JS & WASM
+        const localJsUrl = new URL('sql-wasm.js', window.location.href).href;
+        const localWasmUrl = new URL('sql-wasm.wasm', window.location.href).href;
+        
+        const workerCode = document.getElementById('worker-script').textContent
+            .replace('SQL_JS_CDN_URL', localJsUrl);
+            
+        const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+        const worker = new Worker(URL.createObjectURL(workerBlob));
+        
+        // 綁定錯誤監聽，防止靜默失效
+        worker.onerror = function(err) {
+            console.error("Worker 發生錯誤:", err);
+            alert("資料庫引擎載入出錯: " + err.message);
+        };
+
         const callbacks = {};
         let queryId = 0;
 
@@ -620,8 +637,6 @@
             
             try {
                 const buffer = await files[0].arrayBuffer(); 
-                worker.postMessage({ type: 'INIT', data: new Uint8Array(buffer) }); 
-                
                 statusEl.textContent = "正在快取資料庫至瀏覽器 (IndexedDB)...";
                 const openReq = indexedDB.open("SwimSQL", 1); 
                 openReq.onupgradeneeded = e => {
@@ -636,9 +651,8 @@
                     tx.oncomplete = () => {
                         progressBar.style.width = '100%';
                         statusEl.textContent = "載入完成！正在重啟系統...";
-                        setTimeout(() => {
-                            document.getElementById('dbLoaderArea').style.display = 'none'; 
-                        }, 500);
+                        // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
+                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buffer), wasmUrl: localWasmUrl }, [buffer]);
                     };
                 }; 
             } catch (err) {
@@ -662,8 +676,10 @@
                 const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db"); 
                 getReq.onsuccess = async () => { 
                     if (getReq.result) { 
-                        const buf = await (getReq.result instanceof Blob ? getReq.result.arrayBuffer() : getReq.result); 
-                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buf) }); 
+                        const fileBlob = getReq.result;
+                        const buf = await (fileBlob instanceof Blob ? fileBlob.arrayBuffer() : fileBlob); 
+                        // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
+                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]); 
                     } else {
                         showUploadPrompt();
                     }
