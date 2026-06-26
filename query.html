@@ -346,9 +346,20 @@
                         
                         const dot = document.getElementById('db-info-dot');
                         dot.className = "inline-block w-2.5 h-2.5 rounded-full bg-green-500";
+                        let warningHtml = "";
+                        if (count === 0) {
+                            warningHtml = `
+                                <div class="mt-2 text-red-500 bg-red-950/40 border border-red-500/30 p-2 rounded text-xs leading-relaxed max-w-md mx-auto text-left">
+                                    ⚠️ 注意：您載入的可能是空白或只含行事曆的資料庫（目前有 0 筆成績）。<br>
+                                    請按右上方「重置」按鈕，並重新選取正確的 <b>swim_results_birthday.db</b> (約 290MB) 檔案。
+                                </div>
+                            `;
+                        }
+                        
                         document.getElementById('db-info-text').innerHTML = `
                             📁 <b>${info.name}</b> (${sizeMB}) · 
                             📊 <b>${count.toLocaleString()}</b> 筆成績
+                            ${warningHtml}
                         `;
                     };
                 };
