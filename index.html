@@ -1602,8 +1602,8 @@
                 
                 progressBar.style.width = '100%';
                 statusEl.textContent = "✅ 更新入庫成功！";
-                addCardLog("🎉 資料庫已快取更新至 IndexedDB。", "success");
-                addCardLog("👉 請點選上方『💾 匯出最新資料庫 (.db)』存回您的本機，以便保留資料。", "success");
+                 addCardLog("🎉 資料庫已快取更新至 IndexedDB。", "success");
+                 addCardLog("👉 變更已安全儲存於瀏覽器快取，下次開啟將自動套用最新數據。", "success");
 
                 // 更新 IndexedDB 中的資料庫大小
                 const openReq = indexedDB.open("SwimSQL", 1);
