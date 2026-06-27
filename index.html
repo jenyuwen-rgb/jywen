@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <style>
-        body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; }
+        body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; max-width: 900px; margin: 0 auto; }
         .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 8px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; }
         #searchInput { background: transparent; flex: 1; min-width: 0; outline: none; font-weight: bold; font-size: 18px; color: white; }
         .header-title { text-align: center; background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 32px; font-weight: 900; margin: 15px 0; display: block; }
@@ -266,46 +266,113 @@
             if (!sexRes[0]) { loader.style.display = 'none'; return; }
             const sex = sexRes[0].values[0][0]; saveHistory(input);
             const strokes = ["蝶式", "仰式", "蛙式", "自由式", "混合式"];
-            for (let [sIdx, stroke] of strokes.entries()) {
-                const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${input}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}`);
-                if (!res[0]) continue;
-                const card = document.createElement('div'); card.className = "stroke-card";
-                card.cardHTML = "";
-                card.innerHTML = `<div class="stroke-title">${stroke}</div>`;
-                const trayInner = document.createElement('div'); trayInner.style.minWidth = "710px";
-                const scrollTray = document.createElement('div'); scrollTray.style.overflowX = "auto";
-                let allData = res[0].values.map(v => { let o = {}; res[0].columns.forEach((col, i) => o[col] = v[i]); o.totalSec = timeToSec(o.成績); return o; });
+            
+            // 1. 併發查詢所有泳姿的原始數據
+            const strokePromises = strokes.map(stroke => 
+                remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${input}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}`)
+            );
+            const strokeResults = await Promise.all(strokePromises);
+            
+            // 2. 蒐集所有的排行查詢 Promise
+            const rankPromises = [];
+            const strokeDataList = [];
+            
+            for (let i = 0; i < strokes.length; i++) {
+                const stroke = strokes[i];
+                const res = strokeResults[i];
+                if (!res || !res[0]) continue;
+                
+                const cols = res[0].columns;
+                let allData = res[0].values.map(v => {
+                    let o = {};
+                    cols.forEach((col, idx) => o[col] = v[idx]);
+                    o.totalSec = timeToSec(o.成績);
+                    return o;
+                });
                 
                 const dists = [...new Set(allData.map(r => r.項目.match(/(\d+)公尺/)?.[1]))].filter(Boolean).sort((a,b)=>a-b);
-                for (let [dIdx, dist] of dists.entries()) {
+                const strokeInfo = { stroke, allData, dists, distDetails: [] };
+                
+                for (let dist of dists) {
                     const dData = allData.filter(r => {
                         const m = r.項目.match(/(\d+)公尺/);
                         return m && String(m[1]) === String(dist);
                     }).sort((a,b) => a.totalSec - b.totalSec);
                     
                     if (dData.length === 0) continue;
-                    const pb = dData[0], id = `s${sIdx}d${dIdx}`;
-                    const ageG = await getRankData(dist, stroke, input, pb.出生年, sex, false);
-                    const natG = await getRankData(dist, stroke, input, null, sex, true);
-                    const ageIdx = ageG.findIndex(r => r.name === input), natIdx = natG.findIndex(r => r.name === input);
+                    const pb = dData[0];
+                    
+                    const agePromiseIdx = rankPromises.length;
+                    rankPromises.push(getRankData(dist, stroke, input, pb.出生年, sex, false));
+                    
+                    const natPromiseIdx = rankPromises.length;
+                    rankPromises.push(getRankData(dist, stroke, input, null, sex, true));
+                    
+                    strokeInfo.distDetails.push({
+                        dist,
+                        pb,
+                        dData,
+                        agePromiseIdx,
+                        natPromiseIdx
+                    });
+                }
+                strokeDataList.push(strokeInfo);
+            }
+            
+            // 3. 一次性併發執行所有的排行查詢 SQL (極速！)
+            const allRanks = await Promise.all(rankPromises);
+            
+            // 4. 一次性生成所有 DOM 節點並塞入，保證無任何碎裂彈出感！
+            const fragment = document.createDocumentFragment();
+            
+            for (let [sIdx, info] of strokeDataList.entries()) {
+                const card = document.createElement('div');
+                card.className = "stroke-card";
+                card.innerHTML = `<div class="stroke-title">${info.stroke}</div>`;
+                
+                const trayInner = document.createElement('div');
+                trayInner.style.minWidth = "710px";
+                const scrollTray = document.createElement('div');
+                scrollTray.style.overflowX = "auto";
+                
+                for (let [dIdx, det] of info.distDetails.entries()) {
+                    const ageG = allRanks[det.agePromiseIdx] || [];
+                    const natG = allRanks[det.natPromiseIdx] || [];
+                    
+                    const ageIdx = ageG.findIndex(r => r.name === input);
+                    const natIdx = natG.findIndex(r => r.name === input);
                     const pr = ageIdx >= 0 ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
+                    
+                    const id = `s${sIdx}d${dIdx}`;
                     const row = document.createElement('div');
                     row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
                     row.innerHTML = `
-                        <span class="col-dist-main" onclick="toggleD('${id}','trend','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dist}m</span>
-                        <span class="col-count-main" onclick="toggleD('${id}','history','${dist}','${stroke}','${input}')">${dData.length}場</span>
-                        <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}</span>
-                        <span class="col-wa-main">WA:${getWA(dist, stroke, pb.成績, sex)}</span>
+                        <span class="col-dist-main" onclick="toggleD('${id}','trend','${det.dist}','${info.stroke}','${input}','${det.pb.出生年}','${sex}')">${det.dist}m</span>
+                        <span class="col-count-main" onclick="toggleD('${id}','history','${det.dist}','${info.stroke}','${input}')">${det.dData.length}場</span>
+                        <span class="col-pb-main">PB ${formatToXcode(det.pb.totalSec)}</span>
+                        <span class="col-wa-main">WA:${getWA(det.dist, info.stroke, det.pb.成績, sex)}</span>
                         <span class="col-pr-main">PR ${pr.toFixed(1)}%</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行#${ageIdx+1}</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','matrix','${dist}','${stroke}', null, null, '${sex}')">年度最佳</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natIdx >= 0 ? '#' + (natIdx+1) : '-'}</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','rank','${det.dist}','${info.stroke}','${input}','${det.pb.出生年}','${sex}')">同齡排行#${ageIdx+1}</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','matrix','${det.dist}','${info.stroke}', null, null, '${sex}')">年度最佳</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','natRank','${det.dist}','${info.stroke}','${input}','${det.pb.出生年}','${sex}')">全國排行${natIdx >= 0 ? '#' + (natIdx+1) : '-'}</span>
                     `;
-                    const dd = document.createElement('div'); dd.id = `p-${id}`; dd.className = "drill-down";
-                    dd.innerHTML = `<div id="c-${id}"></div>`; trayInner.appendChild(row); trayInner.appendChild(dd);
+                    
+                    const dd = document.createElement('div');
+                    dd.id = `p-${id}`;
+                    dd.className = "drill-down";
+                    dd.innerHTML = `<div id="c-${id}"></div>`;
+                    
+                    trayInner.appendChild(row);
+                    trayInner.appendChild(dd);
                 }
-                scrollTray.appendChild(trayInner); card.appendChild(scrollTray); main.appendChild(card);
+                
+                scrollTray.appendChild(trayInner);
+                card.appendChild(scrollTray);
+                fragment.appendChild(card);
             }
+            
+            main.appendChild(fragment);
+            
             if (!fastMode) {
                 await minWait; loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
             } else {
