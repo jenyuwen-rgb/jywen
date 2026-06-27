@@ -1164,12 +1164,41 @@
             }
         }
 
-        // 匯出資料庫 (下載 Blob)
+        // 匯出資料庫 (支援讓使用者選擇地端路徑並直接寫入複寫，或傳統下載)
         async function exportDatabase() {
             if (!isDBLoaded) return;
             try {
                 const binary = await remoteExport();
                 const blob = new Blob([binary], { type: "application/x-sqlite3" });
+                
+                // 嘗試使用 File System Access API
+                if ('showSaveFilePicker' in window) {
+                    try {
+                        const options = {
+                            suggestedName: dbFileName || "swim_results_birthday.db",
+                            types: [{
+                                description: 'SQLite Database File',
+                                accept: {
+                                    'application/x-sqlite3': ['.db']
+                                }
+                            }]
+                        };
+                        const handle = await window.showSaveFilePicker(options);
+                        const writable = await handle.createWritable();
+                        await writable.write(blob);
+                        await writable.close();
+                        alert("資料庫已成功存檔並覆蓋地端檔案！");
+                        return;
+                    } catch (err) {
+                        // 如果使用者取消 (AbortError)，則不執行任何動作
+                        if (err.name === 'AbortError') {
+                            return;
+                        }
+                        console.warn("直接寫入地端失敗，改用傳統下載: ", err);
+                    }
+                }
+                
+                // 傳統下載 Fallback
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
