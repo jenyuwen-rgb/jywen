@@ -89,6 +89,19 @@
         .autocomplete-item:hover strong, .autocomplete-active strong {
             color: #000 !important;
         }
+
+        /* 響應式置中與 Header 調整 */
+        .scroll-tray { overflow-x: auto; width: 100%; }
+        @media (min-width: 768px) {
+            .scroll-tray { display: flex; justify-content: center; }
+        }
+        .header-center-area { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 12px; width: 100%; }
+        @media (min-width: 768px) {
+            .header-center-area { padding: 0 150px; }
+        }
+        @media (max-width: 600px) {
+            .db-status-text-span { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -102,15 +115,16 @@
 
     <!-- 頂部雙標題分頁導覽與狀態列 -->
     <header style="position:relative; display:flex; justify-content:center; align-items:center; margin: 12px 12px 1.5rem 12px; min-height: 56px; text-align:center;">
-        <div style="display:flex; flex-direction:column; align-items:center; gap:4px; padding: 0 100px;">
+        <div class="header-center-area">
             <div style="display:flex; align-items:baseline; gap:24px; flex-wrap:wrap; justify-content:center;">
                 <a href="manage.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.25rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">JYWEN 全台游泳賽事整合平台</a>
+                <span style="color:#444; font-size:1.25rem; user-select:none; font-weight:bold;">←</span>
                 <h1 style="margin:0; font-size:1.5rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">游泳成績查詢</h1>
             </div>
             <p class="text-xs text-gray-500" style="margin:0;">JYWEN 泳協賽事 PB 與歷史成績檢索</p>
         </div>
         <div id="db-status-badge" style="position:absolute; right:16px; top:12px; font-size:12px; color:#8E8E93; display:flex; align-items:center; gap:6px;">
-            <span style="width:8px; height:8px; background-color:#8E8E93; border-radius:50%; display:inline-block;"></span>未載入資料庫
+            <span style="width:8px; height:8px; background-color:#8E8E93; border-radius:50%; display:inline-block;"></span><span class="db-status-text-span">未載入資料庫</span>
         </div>
     </header>
 
@@ -163,6 +177,21 @@
         let queryCallbacks = {};
         const LC_FILTER = "項目 NOT LIKE '%接力%' AND 項目 NOT LIKE '%(25m)%' AND 項目 NOT LIKE '%短水道%' AND 賽事名稱 NOT LIKE '%短水道%'";
 
+        // [UX Cache Restore] 網頁載入瞬間立即還原上次搜尋結果，達到 0ms 秒殺顯示效果
+        function restoreCachedResults() {
+            try {
+                const cachedHtml = sessionStorage.getItem('last_rendered_html');
+                const cachedSwimmer = sessionStorage.getItem('last_searched_swimmer');
+                if (cachedHtml && cachedSwimmer) {
+                    document.getElementById('searchInput').value = cachedSwimmer;
+                    document.getElementById('main').innerHTML = cachedHtml;
+                }
+            } catch (e) {
+                console.error("還原搜尋結果快取失敗:", e);
+            }
+        }
+        restoreCachedResults();
+
         swimmerAnim = lottie.loadAnimation({ container: document.getElementById('lottie-swimmer'), renderer: 'svg', loop: true, autoplay: false, animationData: swimmerJSON });
         swimmerAnim.addEventListener('DOMLoaded', () => swimmerAnim.goToAndStop(32, true));
 
@@ -175,7 +204,7 @@
                     document.getElementById('dbLoaderArea').style.display = 'none'; 
                     const badge = document.getElementById('db-status-badge');
                     if (badge) {
-                        badge.innerHTML = '<span style="width:8px; height:8px; background-color:#30D158; border-radius:50%; display:inline-block;"></span>資料庫已載入';
+                        badge.innerHTML = '<span style="width:8px; height:8px; background-color:#30D158; border-radius:50%; display:inline-block;"></span><span class="db-status-text-span">資料庫已載入</span>';
                         badge.style.color = '#30D158';
                     }
                     const lastSwimmer = sessionStorage.getItem('last_searched_swimmer');
@@ -266,7 +295,7 @@
                 loader.style.display = 'none';
                 minWait = Promise.resolve();
             }
-            const main = document.getElementById('main'); main.innerHTML = "";
+            const main = document.getElementById('main');
             const sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}' LIMIT 1`);
             if (!sexRes[0]) { loader.style.display = 'none'; return; }
             const sex = sexRes[0].values[0][0]; saveHistory(input);
@@ -338,7 +367,7 @@
                 const trayInner = document.createElement('div');
                 trayInner.style.minWidth = "710px";
                 const scrollTray = document.createElement('div');
-                scrollTray.style.overflowX = "auto";
+                scrollTray.className = "scroll-tray";
                 
                 for (let [dIdx, det] of info.distDetails.entries()) {
                     const ageG = allRanks[det.agePromiseIdx] || [];
@@ -376,7 +405,13 @@
                 fragment.appendChild(card);
             }
             
+            main.innerHTML = "";
             main.appendChild(fragment);
+            try {
+                sessionStorage.setItem('last_rendered_html', main.innerHTML);
+            } catch (e) {
+                console.error("儲存快取 HTML 失敗:", e);
+            }
             
             if (!fastMode) {
                 await minWait; loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
