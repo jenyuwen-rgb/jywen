@@ -96,10 +96,12 @@
         <div class="mt-4 text-[#D4AF37] font-bold tracking-widest text-lg">正在全力衝刺中...</div>
     </div>
 
-    <!-- 返回首頁按鈕 -->
-    <div class="m-3 flex justify-between items-center">
-        <a href="manage.html" class="btn-home">⚙️ 賽事下載管理</a>
-        <span class="text-xs text-gray-500">PWA Offline Capable</span>
+    <!-- 頂部導覽與狀態列 -->
+    <div class="m-3 flex justify-between items-center" style="min-height: 24px;">
+        <a href="manage.html" style="text-decoration:none; color:#D4AF37; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:6px;">← JYWEN 全台游泳賽事整合平台</a>
+        <span id="db-status-badge" style="font-size:12px; color:#8E8E93; display:flex; align-items:center; gap:6px;">
+            <span style="width:8px; height:8px; background-color:#8E8E93; border-radius:50%; display:inline-block;"></span>未載入資料庫
+        </span>
     </div>
 
     <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E] rounded-xl text-center border border-[#38383A]">
@@ -158,7 +160,15 @@
             worker = new Worker(URL.createObjectURL(blob));
             worker.onmessage = function(e) {
                 const { type, res, id } = e.data;
-                if (type === 'READY') { document.getElementById('dbLoaderArea').style.display = 'none'; doSearch(); }
+                if (type === 'READY') { 
+                    document.getElementById('dbLoaderArea').style.display = 'none'; 
+                    const badge = document.getElementById('db-status-badge');
+                    if (badge) {
+                        badge.innerHTML = '<span style="width:8px; height:8px; background-color:#30D158; border-radius:50%; display:inline-block;"></span>資料庫已載入';
+                        badge.style.color = '#30D158';
+                    }
+                    doSearch(); 
+                }
                 else if (type === 'RESULT') { if(queryCallbacks[id]) queryCallbacks[id](res); }
             };
         }
@@ -590,6 +600,19 @@
         }
 
         document.addEventListener('click', closeAutocomplete);
+
+        // [iOS / macOS Gesture] 監聽手勢向右滑動 (Swipe Right)，返回全台游泳賽事整合平台 (manage.html)
+        let touchstartX = 0;
+        let touchendX = 0;
+        document.addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+        document.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            if (touchendX > touchstartX + 100) {
+                window.location.href = 'manage.html';
+            }
+        }, {passive: true});
     </script>
 </body>
 </html>
