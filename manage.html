@@ -1426,11 +1426,29 @@
         }
 
         async function postJsonWithProxy(url, postData) {
-            // Convert to GET parameters and fetch via allorigins GET wrapper first to bypass CORS/403
             const query = new URLSearchParams();
             for (const key in postData) {
                 query.append(key, postData[key]);
             }
+
+            // 1. 優先使用本站伺服器端代理 /api/proxy (極速且無 CORS/403/逾時限制)
+            try {
+                const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+                const resp = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: query.toString()
+                });
+                if (resp.ok) {
+                    return await resp.json();
+                }
+            } catch (e) {
+                console.warn("本站伺服器端代理失敗，改用 public proxy 嘗試: ", e);
+            }
+
+            // 2. Fallback: AllOrigins GET wrapper
             const targetUrl = url + "?" + query.toString();
             try {
                 const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
@@ -1442,22 +1460,18 @@
                     }
                 }
             } catch (e) {
-                console.warn("AllOrigins POST fallback failed, trying corsproxy.io POST:", e);
+                console.warn("AllOrigins fallback failed: ", e);
             }
 
-            // Fallback to corsproxy.io POST
+            // 3. Fallback: corsproxy.io POST
             const proxyUrl = CORS_PROXY + encodeURIComponent(url);
-            const formData = new URLSearchParams();
-            for (const key in postData) {
-                formData.append(key, postData[key]);
-            }
             const resp = await fetch(proxyUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: formData
+                body: query
             });
             if (!resp.ok) throw new Error(`HTTP 錯誤: ${resp.status}`);
             return await resp.json();
