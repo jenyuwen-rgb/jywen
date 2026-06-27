@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "api/races.py": {
+      "runtime": "python3.9",
+      "maxDuration": 15
+    }
+  },
+  "routes": [
+    { "src": "/api/races", "dest": "/api/races.py" }
+  ]
+}

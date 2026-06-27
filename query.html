@@ -191,6 +191,26 @@
             color: var(--primary);
             border-bottom-color: var(--primary);
         }
+
+        /* ── 原始泳式卡片 UI ── */
+        .stroke-card { background-color: #1C1C1E; border: 0.5px solid #38383A; border-radius: 12px; margin: 16px 12px; padding: 16px; }
+        .stroke-title { font-size: 26px; font-weight: 900; margin-bottom: 8px; color: var(--primary); }
+        .race-row { display: grid; grid-template-columns: 55px 50px 105px 80px 85px 115px 85px 115px; align-items: center; padding: 5px 0; border-bottom: 0.5px solid #38383A; font-size: 14px; color: #FFF; white-space: nowrap; }
+        .col-dist-main { text-decoration: underline; font-weight: 800; cursor: pointer; color: var(--primary); }
+        .col-count-main { text-decoration: underline; cursor: pointer; font-size: 12px; color: #A1A1A6; }
+        .col-pb-main { font-family: monospace; font-weight: bold; }
+        .col-wa-main { font-size: 13px; color: #A1A1A6; }
+        .col-pr-main { font-weight: 600; }
+        .col-rank-link { text-decoration: underline; cursor: pointer; color: #0A84FF; font-size: 13px; }
+        .row-gold, .row-gold span, .row-gold b, .row-gold div { color: #D4AF37 !important; opacity: 1 !important; }
+        .rank-header-AD { display: flex; justify-content: center; align-items: center; background: #2C2C2E; padding: 10px; border-radius: 12px; margin-bottom: 15px; gap: 20px; border: 0.5px solid #444; }
+        .year-side { color: #666; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .year-side:hover { color: #D4AF37; }
+        .year-center { color: #D4AF37; font-weight: 900; font-size: 18px; }
+        .year-center::after { content: "年出生 排行"; color: #8E8E93; font-size: 12px; font-weight: normal; margin-left: 4px; }
+        .matrix-table { width: 100%; min-width: 750px; border-collapse: collapse; text-align: center; }
+        .matrix-table th, .matrix-table td { padding: 8px 4px; border-bottom: 0.5px solid #222; }
+        .data-panel { background: #1C1C1E; border-radius: 12px; padding: 12px; margin: 4px; }
     </style>
 </head>
 <body class="pb-10">
@@ -413,8 +433,8 @@
             }
         }
 
-        // 過濾接力或非法出生年
-        const LC_FILTER = `出生年 IS NOT NULL AND 出生年 != '' AND LENGTH(出生年) >= 3 AND LENGTH(姓名) >= 2`;
+        // 過濾接力、短水道賽事、非法出生年（合併原始版本 + 資料品質過濾）
+        const LC_FILTER = `項目 NOT LIKE '%接力%' AND 項目 NOT LIKE '%(25m)%' AND 項目 NOT LIKE '%短水道%' AND 賽事名稱 NOT LIKE '%短水道%' AND 出生年 IS NOT NULL AND 出生年 != '' AND LENGTH(出生年) >= 3 AND LENGTH(姓名) >= 2`;
 
         function normalizeName(name) {
             return name.replace(/\s+/g, '').replace(/　/g, '');
@@ -453,23 +473,95 @@
 
         async function doSearch() {
             const inputVal = normalizeName(document.getElementById('searchInput').value);
-            if (!inputVal) return;
+            if (!inputVal || !worker) return;
+            if (document.getElementById('histModal')) document.getElementById('histModal').remove();
             saveHistory(inputVal);
 
-            // 關閉歷史紀錄視窗（若開啟）
-            if (document.getElementById('histModal')) document.getElementById('histModal').remove();
-
             const mainDiv = document.getElementById('main');
-            mainDiv.innerHTML = `<div class="text-center p-10"><div class="spinner inline-block"></div><div class="mt-2 text-gray-400">正在搜尋資料庫...</div></div>`;
-            
-            try {
-                // 1. 取得該選手的所有出生年與性別 (支援異體字比對)
-                // [Developer] sanitizeSql 防止單引號注入
-                const variants = getNameVariants(inputVal);
-                const nameCond = "姓名 IN (" + variants.map(v => `'${sanitizeSql(v)}'`).join(",") + ")";
-                const infoRes = await remoteQuery(`SELECT DISTINCT 出生年, 性別, 姓名 FROM swimming_scores WHERE ${nameCond} AND ${LC_FILTER}`);
-                if (!infoRes[0] || !infoRes[0].values || infoRes[0].values.length === 0) {
-                    mainDiv.innerHTML = `<div class="text-center p-10 text-gray-400">❌ 找不到該選手的個人參賽紀錄，請確認名字是否輸入正確（接力賽事不計入）。</div>`;
+            mainDiv.innerHTML = '<div class="text-center p-10"><div class="spinner inline-block"></div><div class="mt-2 text-gray-400">正在搜尋資料庫...</div></div>';
+
+            // 取得性別和實際姓名（支援異體字）
+            const variants = getNameVariants(inputVal);
+            const nameCond = '姓名 IN (' + variants.map(v => `'${sanitizeSql(v)}'`).join(',') + ')';
+            const sexRes = await remoteQuery(`SELECT 性別, 姓名 FROM swimming_scores WHERE ${nameCond} AND ${LC_FILTER} LIMIT 1`);
+            if (!sexRes[0] || !sexRes[0].values || !sexRes[0].values[0]) {
+                mainDiv.innerHTML = '<div class="text-center p-10 text-gray-400">❌ 找不到該選手的個人參賽紀錄，請確認名字是否輸入正確。</div>';
+                return;
+            }
+            const sex = sexRes[0].values[0][0];       // 'M' 或 'F'
+            const dbName = sexRes[0].values[0][1];    // 資料庫中實際儲存的姓名
+            const safeDbName = sanitizeSql(dbName);
+            mainDiv.innerHTML = '';
+
+            const strokes = ['蝶式', '仰式', '蛙式', '自由式', '混合式'];
+            for (let [sIdx, stroke] of strokes.entries()) {
+                const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${safeDbName}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}`);
+                if (!res[0] || !res[0].values || res[0].values.length === 0) continue;
+
+                const card = document.createElement('div');
+                card.className = 'stroke-card';
+                card.innerHTML = `<div class="stroke-title">${stroke}</div>`;
+
+                const trayInner = document.createElement('div');
+                trayInner.style.minWidth = '710px';
+                const scrollTray = document.createElement('div');
+                scrollTray.style.overflowX = 'auto';
+
+                const cols = res[0].columns;
+                let allData = res[0].values.map(v => {
+                    let o = {};
+                    cols.forEach((col, i) => o[col] = v[i]);
+                    o.totalSec = timeToSec(o['成績']);
+                    return o;
+                });
+
+                const dists = [...new Set(allData.map(r => r['項目'].match(/(\d+)公尺/)?.[1]))].filter(Boolean).sort((a,b) => a-b);
+
+                for (let [dIdx, dist] of dists.entries()) {
+                    const dData = allData.filter(r => {
+                        const m = r['項目'].match(/(\d+)公尺/);
+                        return m && String(m[1]) === String(dist);
+                    }).sort((a,b) => a.totalSec - b.totalSec);
+                    if (dData.length === 0) continue;
+
+                    const pb = dData[0];
+                    const id = `s${sIdx}d${dIdx}`;
+                    const waScore = calculateFinapoint(parseInt(dist), stroke, pb.totalSec, sex);
+
+                    const ageG = await getRankData(dist, stroke, dbName, pb['出生年'], sex, false);
+                    const natG = await getRankData(dist, stroke, dbName, null, sex, true);
+                    const ageIdx = ageG.findIndex(r => variants.includes(r.name) || r.name === dbName);
+                    const natIdx = natG.findIndex(r => variants.includes(r.name) || r.name === dbName);
+                    const pr = ageIdx >= 0 ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
+
+                    const row = document.createElement('div');
+                    row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
+                    row.innerHTML = `
+                        <span class="col-dist-main" onclick="toggleD('${id}','trend','${dist}','${stroke}','${dbName}','${pb['出生年']}','${sex}')">${dist}m</span>
+                        <span class="col-count-main" onclick="toggleD('${id}','history','${dist}','${stroke}','${dbName}','${pb['出生年']}','${sex}')">${dData.length}場</span>
+                        <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}</span>
+                        <span class="col-wa-main">WA:${waScore > 0 ? waScore : '-'}</span>
+                        <span class="col-pr-main">PR ${pr.toFixed(1)}%</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${dbName}','${pb['出生年']}','${sex}')">同齡排行${ageIdx >= 0 ? '#'+(ageIdx+1) : '-'}</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','matrix','${dist}','${stroke}',null,null,'${sex}')">年度最佳</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${dbName}','${pb['出生年']}','${sex}')">全國排行${natIdx >= 0 ? '#'+(natIdx+1) : '-'}</span>
+                    `;
+
+                    const dd = document.createElement('div');
+                    dd.id = `p-${id}`;
+                    dd.className = 'drill-down';
+                    dd.innerHTML = `<div id="c-${id}"></div>`;
+                    trayInner.appendChild(row);
+                    trayInner.appendChild(dd);
+                }
+                scrollTray.appendChild(trayInner);
+                card.appendChild(scrollTray);
+                mainDiv.appendChild(card);
+            }
+        }
+
+
+
                     return;
                 }
 
@@ -556,7 +648,109 @@
             }
         }
 
-        // 展開 / 收合細節
+        // ── toggleD：點擊展開/收合細節，含 AbortController 防競態 ──
+        const drillAbortControllers = {};
+        async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
+            const p = document.getElementById(`p-${id}`);
+            const c = document.getElementById(`c-${id}`);
+            if (!p || !c) return;
+            // 同 mode 同出生年 → 收合
+            if (p.classList.contains('active') && c.getAttribute('data-mode') === mode && c.getAttribute('data-birth') === String(p2)) {
+                p.classList.remove('active'); return;
+            }
+            p.classList.add('active');
+            c.setAttribute('data-mode', mode);
+            c.setAttribute('data-birth', String(p2));
+            c.innerHTML = '<div class="text-center p-4"><div class="spinner inline-block"></div></div>';
+
+            if (drillAbortControllers[id]) drillAbortControllers[id].abort();
+            const controller = new AbortController();
+            drillAbortControllers[id] = controller;
+            const signal = controller.signal;
+            const checkAbort = () => { if (signal.aborted) throw new DOMException('Aborted', 'AbortError'); };
+
+            const safeDist   = parseInt(dist, 10);
+            const safeStroke = sanitizeSql(stroke);
+            const safeP1     = sanitizeSql(p1 || '');
+
+            try {
+                if (mode === 'rank' || mode === 'natRank') {
+                    const isNat = mode === 'natRank';
+                    const sorted = await getRankData(dist, stroke, p1, p2, p3, isNat);
+                    checkAbort();
+                    sorted.forEach(u => u.wa = calculateFinapoint(dist, stroke, timeToSec(u.raw), p3));
+                    const total = sorted.length;
+                    const tIdx  = sorted.findIndex(r => getNameVariants(p1 || '').includes(r.name) || r.name === p1);
+                    let headerAD = '';
+                    if (!isNat) {
+                        const yNum = parseInt(String(p2).replace(/\D/g, ''));
+                        headerAD = `<div class="rank-header-AD"><span class="year-side" onclick="event.stopPropagation();toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum-1}','${p3}')">${toAD(yNum-1)}</span><span class="year-center">${toAD(yNum)}</span><span class="year-side" onclick="event.stopPropagation();toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum+1}','${p3}')">${toAD(yNum+1)}</span></div>`;
+                    } else {
+                        headerAD = `<div class="rank-header-AD"><span class="year-center" style="color:#FFF;">全國排行 (2025-2026)</span></div>`;
+                    }
+                    let h = `<div class="data-panel p-3">${headerAD}<div style="overflow-x:auto;"><div style="min-width:610px;">`;
+                    sorted.slice(0, 30).forEach((r, i) => {
+                        const isSelf = getNameVariants(p1||'').includes(r.name) || r.name === p1;
+                        h += `<div class="list-row ${isSelf?'row-gold':''}"><span class="col-rank-fixed">#${i+1}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${r.wa>0?Math.round(r.wa):'-'}</span><span class="col-8code-fixed">${r.fullDate}</span><span class="col-meet-fixed">${r.meet}</span></div>`;
+                    });
+                    if (total > 0) {
+                        h += `<div style="border-top:1px solid #444;margin:12px 0 8px;"></div>`;
+                        if (tIdx >= 0) {
+                            const u = sorted[tIdx], pr = (100*(total-tIdx)/total).toFixed(1);
+                            h += `<div class="list-row row-gold" style="border-bottom:none;padding-bottom:8px;"><span class="col-rank-fixed">#${tIdx+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${u.fullDate}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6;font-size:14px;line-height:1.8;margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
+                        }
+                    }
+                    checkAbort();
+                    c.innerHTML = h + '</div></div></div>';
+
+                } else if (mode === 'trend') {
+                    const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${safeP1}' AND 項目 LIKE '%${safeDist}公尺%${safeStroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`);
+                    checkAbort();
+                    const fV = (res[0]&&res[0].values) ? res[0].values.filter(vv => { const m=vv[4].match(/(\d+)公尺/); return m&&String(m[1])===String(dist); }) : [];
+                    const mkD = rs => rs.map(v => ({ x: new Date(v[0].substring(0,4), v[0].substring(4,6)-1, v[0].substring(6,8)), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
+                    const mkA = rs => rs.map(v => ({ x: (parseInt(v[0].substring(0,4))+(parseInt(v[0].substring(4,6))-1)/12)-toAD(v[3]), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
+                    const tD = mkD(fV), aD = mkA(fV);
+                    const ageS = await getRankData(dist, stroke, p1, p2, p3, false); checkAbort();
+                    const natS = await getRankData(dist, stroke, p1, p2, p3, true);  checkAbort();
+                    let ageOpt = '<option value=""># 選擇同齡對手</option>', natOpt = '<option value=""># 選擇全國對手</option>';
+                    ageS.slice(0,25).forEach(r => { if(r.name!==p1) ageOpt+=`<option value="${r.name}" style="color:#0A84FF;">${r.name} (${r.raw})</option>`; });
+                    natS.slice(0,25).forEach(r => { if(r.name!==p1) natOpt+=`<option value="${r.name}" style="color:#FF3B30;">${r.name} (${r.raw})</option>`; });
+                    c.innerHTML = `<div class="p-3" style="background:#000;"><div class="mb-8"><div class="font-bold mb-2">${dist}m 趨勢圖</div><select id="st-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#0A84FF]">${ageOpt}</select><div style="height:250px;border:1px solid #222;padding:5px;"><canvas id="canvas-t-${id}"></canvas></div></div><div><div class="font-bold mb-2">成長對比圖</div><select id="sa-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#FF3B30]">${natOpt}</select><div style="height:250px;border:1px solid #222;padding:5px;"><canvas id="canvas-a-${id}"></canvas></div></div></div>`;
+                    const tt = { backgroundColor:'rgba(28,28,30,0.95)', titleFont:{weight:'bold'}, padding:12, displayColors:false, titleColor:ctx=>ctx.tooltip.dataPoints[0].dataset.borderColor, callbacks:{ title:its=>its[0].raw.date8, label:it=>[`賽事: ${it.raw.meet}`,`成績: ${formatToXcode(it.raw.y)}`], labelTextColor:it=>it.dataset.borderColor } };
+                    const opt = isT => ({ responsive:true, maintainAspectRatio:false, scales:{ x:{type:isT?'time':'linear',grid:{color:'#333'},ticks:{color:'#FFF'}}, y:{ticks:{callback:v=>formatToXcode(v),color:'#FFF'},grid:{color:'#333'}} }, plugins:{legend:{display:false},tooltip:tt} });
+                    const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type:'line', data:{datasets:[{data:tD,borderColor:'#FFF',borderWidth:2.5,pointBackgroundColor:'#FFF',pointRadius:4}]}, options:opt(true) });
+                    const aC = new Chart(document.getElementById(`canvas-a-${id}`), { type:'line', data:{datasets:[{data:aD,borderColor:'#FFF',borderWidth:2.5,pointBackgroundColor:'#FFF',pointRadius:4}]}, options:opt(false) });
+                    const fetchOpp = async name => {
+                        const sN = sanitizeSql(name);
+                        const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${sN}' AND 項目 LIKE '%${safeDist}公尺%${safeStroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`);
+                        return (rO[0]&&rO[0].values) ? rO[0].values.filter(vv=>{ const mm=vv[4].match(/(\d+)公尺/); return mm&&String(mm[1])===String(dist); }) : [];
+                    };
+                    document.getElementById(`st-${id}`).onchange = async e => { if(!e.target.value) return; const ff=await fetchOpp(e.target.value); tC.data.datasets[1]={label:e.target.value,data:mkD(ff),borderColor:'#0A84FF',borderDash:[5,5],pointBackgroundColor:'#0A84FF',pointRadius:4}; tC.update(); };
+                    document.getElementById(`sa-${id}`).onchange = async e => { if(!e.target.value) return; const ff=await fetchOpp(e.target.value); aC.data.datasets[1]={label:e.target.value,data:mkA(ff),borderColor:'#FF3B30',borderDash:[5,5],pointBackgroundColor:'#FF3B30',pointRadius:4}; aC.update(); };
+
+                } else if (mode === 'matrix') {
+                    const matHtml = await renderMatrix(dist, stroke, p3);
+                    checkAbort();
+                    c.innerHTML = matHtml;
+
+                } else if (mode === 'history') {
+                    const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目 FROM swimming_scores WHERE 姓名='${safeP1}' AND 項目 LIKE '%${safeDist}公尺%${safeStroke}%' AND ${LC_FILTER} ORDER BY 年份 DESC`);
+                    checkAbort();
+                    const fR = (res[0]&&res[0].values) ? res[0].values.filter(v=>{ const m=v[3].match(/(\d+)公尺/); return m&&String(m[1])===String(dist); }) : [];
+                    const minS = fR.length>0 ? Math.min(...fR.map(v=>timeToSec(v[1]))) : 0;
+                    let h = '<div class="data-panel"><div style="color:#FFD933;font-weight:bold;margin-bottom:10px;">歷年紀錄</div>';
+                    fR.forEach(v => { const s=timeToSec(v[1]); h+=`<div class="list-row ${s===minS?'row-gold':''}"><span class="col-8code-fixed">${v[0]}</span><span class="col-time-fixed">${formatToXcode(s)}</span><span class="col-meet-fixed">${v[2]}</span></div>`; });
+                    c.innerHTML = h + '</div>';
+                }
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+                if (c && document.body.contains(c)) c.innerHTML = `<div class="text-center p-4 text-red-500">載入失敗: ${err.message}</div>`;
+            } finally {
+                if (drillAbortControllers[id] === controller) delete drillAbortControllers[id];
+            }
+        }
+
+        // ── (舊版 toggleDrillDown 已由 toggleD 取代) ──
         async function toggleDrillDown(cardId, dist, stroke, p1, p2, p3) {
             const card = document.getElementById(cardId);
             const wasActive = card.classList.contains('active');
@@ -631,20 +825,39 @@
             return (b && sec > 0) ? Math.floor(1000 * Math.pow(b / sec, 3)) : 0;
         }
 
-        async function renderMatrix(dist, stroke, gender) {
-            // 改用全域 WA_BASE_TIMES 常數，不再重複定義
-            const b = WA_BASE_TIMES[gender]?.[stroke]?.[dist];
-            if (!b) return `<div class="p-4 text-center text-gray-500">未提供此項目的 WA 積分計算基準</div>`;
-            
-            let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">WA 積分換算對照表</div>`;
-            h += `<div class="list-row font-bold text-gray-400" style="border-bottom:1px solid #333;"><span style="width:40%;">積分分數</span><span style="width:60%; text-align:right;">所需秒數/成績</span></div>`;
-            
-            const pts = [1000, 900, 800, 750, 700, 650, 600, 550, 500, 450, 400, 350, 300, 250, 200, 150, 100];
-            pts.forEach(pt => {
-                const targetSec = b / Math.pow(pt / 1000, 1/3);
-                h += `<div class="list-row"><span style="width:40%; font-family:monospace; color:#FFF;">${pt} 分</span><span style="width:60%; text-align:right; font-family:monospace; color:var(--primary); font-weight:bold;">${formatToXcode(targetSec)}</span></div>`;
+        async function renderMatrix(dist, stroke, sex) {
+            // 年度最佳矩陣（還原原始設計）
+            const currentYear = new Date().getFullYear();
+            const showYears = []; for (let i = 0; i < 5; i++) showYears.push(String(currentYear - i));
+            const groups = ['18以上', '高中', '國中', '國小高年級', '國小中年級', '國小低年級'];
+            const genderCond = (sex === 'F' || (sex||'').includes('女')) ? `性別 = 'F'` : `性別 = 'M'`;
+            const safeDist = parseInt(dist, 10);
+            const safeStroke = sanitizeSql(stroke);
+            const res = await remoteQuery(`SELECT 年份, 姓名, 出生年, 成績, 項目 FROM swimming_scores WHERE 項目 LIKE '%${safeDist}公尺%${safeStroke}%' AND ${genderCond} AND ${LC_FILTER} AND 成績 != ''`);
+            let matrix = { 'All-Time': {} }; showYears.forEach(y => matrix[y] = {});
+            function getG(age) { if(age<9) return '國小低年級'; if(age<=10) return '國小中年級'; if(age<=12) return '國小高年級'; if(age<=14) return '國中'; if(age<=17) return '高中'; return '18以上'; }
+            if (res[0] && res[0].values) {
+                res[0].values.forEach(v => {
+                    const m = v[4].match(/(\d+)公尺/);
+                    if (!m || String(m[1]) !== String(dist)) return;
+                    const rY = parseInt(String(v[0]).substring(0,4)), sec = timeToSec(v[3]), bY = toAD(v[2]);
+                    if (sec <= 0) return;
+                    const g = getG(rY - bY);
+                    if (matrix[String(rY)] && (!matrix[String(rY)][g] || sec < matrix[String(rY)][g].sec)) matrix[String(rY)][g] = { n: v[1], sec };
+                    if (!matrix['All-Time'][g] || sec < matrix['All-Time'][g].sec) matrix['All-Time'][g] = { n: v[1], sec };
+                });
+            }
+            let colorMap = {}, all = new Set();
+            Object.values(matrix).forEach(row => groups.forEach(g => { if(row[g]) all.add(row[g].n); }));
+            const sz = all.size || 1;
+            Array.from(all).sort().forEach((n, i) => colorMap[n] = `hsl(${Math.round(i*(360/sz))}, 85%, 65%)`);
+            let h = `<div class="data-panel"><div style="color:#FFD933;font-weight:bold;margin-bottom:10px;">年度最佳矩陣</div><div style="overflow-x:auto;"><table class="matrix-table"><tr style="background:#2C2C2E;"><th>年度</th>${groups.map(g=>`<th>${g}</th>`).join('')}</tr>`;
+            ['All-Time', ...showYears].forEach(y => {
+                h += `<tr><td class="font-bold">${y}</td>`;
+                groups.forEach(g => { const r = matrix[y]?.[g]; h += r ? `<td><b style="color:${colorMap[r.n]};text-shadow:1px 1px 1px #000;">${r.n}</b><br><small>${formatToXcode(r.sec)}</small></td>` : '<td>-</td>'; });
+                h += '</tr>';
             });
-            return h + "</div>";
+            return h + '</table></div></div>';
         }
 
         async function loadTabContent(id, mode, dist, stroke, p1, p2, p3) {

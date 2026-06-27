@@ -703,12 +703,21 @@
                     <div class="card-desc">提供全國性游泳賽事、分齡賽、中正盃及國手選拔賽之最新消息與成績公告。</div>
                     
                     <div class="form-group">
-                        <label>選擇賽事項目</label>
-                        <select class="form-select" disabled>
-                            <option value="">開發中...</option>
+                        <label for="select-site_d">選擇賽事項目</label>
+                        <select id="select-site_d" class="form-select" onchange="handleSelectChange('site_d')" disabled>
+                            <option value="">獲取網頁賽事清單中...</option>
                         </select>
                     </div>
-                    <button class="btn-download" disabled>下載賽事</button>
+                    <button id="btn-site_d" class="btn-download" onclick="startRaceUpdate('site_d')" disabled>下載賽事</button>
+
+                    <!-- 下載進度與日誌 -->
+                    <div id="progress-container-site_d" class="download-progress-card-wrapper" style="display: none;">
+                        <div id="status-site_d" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
+                        <div class="progress-bar-wrapper">
+                            <div id="bar-site_d" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="log-site_d" class="log-console"></div>
+                    </div>
                 </div>
 
                 <!-- 台中泳協 -->
@@ -746,12 +755,21 @@
                     <div class="card-desc">南部地區游泳賽事發佈平台，提供台南主辦之分齡賽與錦標賽歷史成績。</div>
                     
                     <div class="form-group">
-                        <label>選擇賽事項目</label>
-                        <select class="form-select" disabled>
-                            <option value="">開發中...</option>
+                        <label for="select-site_b">選擇賽事項目</label>
+                        <select id="select-site_b" class="form-select" onchange="handleSelectChange('site_b')" disabled>
+                            <option value="">獲取網頁賽事清單中...</option>
                         </select>
                     </div>
-                    <button class="btn-download" disabled>下載賽事</button>
+                    <button id="btn-site_b" class="btn-download" onclick="startRaceUpdate('site_b')" disabled>下載賽事</button>
+
+                    <!-- 下載進度與日誌 -->
+                    <div id="progress-container-site_b" class="download-progress-card-wrapper" style="display: none;">
+                        <div id="status-site_b" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
+                        <div class="progress-bar-wrapper">
+                            <div id="bar-site_b" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="log-site_b" class="log-console"></div>
+                    </div>
                 </div>
 
                 <!-- 高雄泳協 -->
@@ -763,12 +781,21 @@
                     <div class="card-desc">高雄地區港都盃等主要游泳比賽報名與成績公告專區。</div>
                     
                     <div class="form-group">
-                        <label>選擇賽事項目</label>
-                        <select class="form-select" disabled>
-                            <option value="">開發中...</option>
+                        <label for="select-site_c">選擇賽事項目</label>
+                        <select id="select-site_c" class="form-select" onchange="handleSelectChange('site_c')" disabled>
+                            <option value="">獲取網頁賽事清單中...</option>
                         </select>
                     </div>
-                    <button class="btn-download" disabled>下載賽事</button>
+                    <button id="btn-site_c" class="btn-download" onclick="startRaceUpdate('site_c')" disabled>下載賽事</button>
+
+                    <!-- 下載進度與日誌 -->
+                    <div id="progress-container-site_c" class="download-progress-card-wrapper" style="display: none;">
+                        <div id="status-site_c" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
+                        <div class="progress-bar-wrapper">
+                            <div id="bar-site_c" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="log-site_c" class="log-console"></div>
+                    </div>
                 </div>
 
                 <!-- 高雄水上 -->
@@ -1002,6 +1029,9 @@
                 isDBLoaded = true;
                 
                 loadRecentGamesList('site_a');
+                loadRecentGamesList('site_b');
+                loadRecentGamesList('site_c');
+                loadRecentGamesList('site_d');
                 loadRecentGamesList('site_e');
 
                 if (needPopulate) {
@@ -1374,42 +1404,32 @@
             return await resp.json();
         }
 
-        // 加載賽事列表到對應卡片下拉選單
+        // 從 Vercel Serverless API 取得各協會賽事清單（server-side 爬蟲，無 CORS 問題）
         async function loadRecentGamesList(siteId) {
             const gameSelect = document.getElementById(`select-${siteId}`);
-            
+            if (!gameSelect) return;
+
             try {
-                let targetUrl = "";
-                if (siteId === "site_a") {
-                    targetUrl = "https://swim8.kcsat.org/score_search";
-                } else if (siteId === "site_e") {
-                    targetUrl = "https://swim.kcsat.org/score_search";
+                // 呼叫 Vercel /api/races?site=xxx，由伺服器端爬取賽事清單
+                const resp = await fetch(`/api/races?site=${siteId}`);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+
+                // data = [{ id, races: [{text, value}, ...] }]
+                const site = data.find(s => s.id === siteId);
+                const races = site ? site.races : [];
+
+                if (races.length === 0 || (races.length === 1 && !races[0].value)) {
+                    gameSelect.innerHTML = `<option value="">${races[0]?.text || '無賽事資料'}</option>`;
+                    return;
                 }
 
-                const html = await fetchHtmlWithProxy(targetUrl);
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const selectTag = doc.querySelector('select[name="search_game_filter"]');
-                
-                if (selectTag) {
-                    let optionsHtml = '<option value="">-- 選擇要下載的賽事 --</option>';
-                    const seen = new Set();
-                    const options = selectTag.querySelectorAll('option');
-                    
-                    options.forEach(opt => {
-                        const val = opt.value.trim();
-                        const text = opt.textContent.trim();
-                        if (val && val !== '0' && !seen.has(val)) {
-                            seen.add(val);
-                            optionsHtml += `<option value="${val}">${text}</option>`;
-                        }
-                    });
-                    
-                    gameSelect.innerHTML = optionsHtml;
-                    gameSelect.disabled = false;
-                } else {
-                    gameSelect.innerHTML = '<option value="">無法解析網頁賽事選單。</option>';
-                }
+                let optionsHtml = '<option value="">-- 選擇要下載的賽事 --</option>';
+                races.forEach(r => {
+                    if (r.value) optionsHtml += `<option value="${r.value}">${r.text}</option>`;
+                });
+                gameSelect.innerHTML = optionsHtml;
+                gameSelect.disabled = false;
             } catch (err) {
                 gameSelect.innerHTML = `<option value="">獲取失敗: ${err.message}</option>`;
             }
