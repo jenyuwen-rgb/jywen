@@ -1050,32 +1050,56 @@
         }
 
         async function startSystem() { 
-            const openReq = indexedDB.open("SwimSQL", 1); 
-            openReq.onupgradeneeded = e => {
-                if (!e.target.result.objectStoreNames.contains("files")) {
-                    e.target.result.createObjectStore("files");
-                }
-            };
-            openReq.onsuccess = e => { 
-                const db = e.target.result;
-                if(!db.objectStoreNames.contains("files")) {
+            try {
+                const openReq = indexedDB.open("SwimSQL", 1); 
+                openReq.onupgradeneeded = e => {
+                    if (!e.target.result.objectStoreNames.contains("files")) {
+                        e.target.result.createObjectStore("files");
+                    }
+                };
+                openReq.onblocked = () => {
+                    console.warn("IndexedDB 被其他分頁占用，請關閉其他分頁");
+                    const statusEl = document.getElementById('loaderStatus') || { textContent: "" };
+                    statusEl.textContent = "⚠️ 偵測到資料庫被其他分頁占用。請關閉其他相關分頁，然後重新整理本頁面。";
                     showUploadPrompt();
-                    return;
-                }
-                const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db"); 
-                getReq.onsuccess = async () => { 
-                    if (getReq.result) { 
-                        const fileBlob = getReq.result;
-                        const buf = await (fileBlob instanceof Blob ? fileBlob.arrayBuffer() : fileBlob); 
-                        // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
-                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]); 
-                    } else {
+                };
+                openReq.onsuccess = e => { 
+                    try {
+                        const db = e.target.result;
+                        if(!db.objectStoreNames.contains("files")) {
+                            showUploadPrompt();
+                            return;
+                        }
+                        const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db"); 
+                        getReq.onsuccess = async () => { 
+                            try {
+                                if (getReq.result) { 
+                                    const fileBlob = getReq.result;
+                                    const buf = await (fileBlob instanceof Blob ? fileBlob.arrayBuffer() : fileBlob); 
+                                    // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
+                                    worker.postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]); 
+                                } else {
+                                    showUploadPrompt();
+                                }
+                            } catch (bufErr) {
+                                console.error("讀取快取資料庫失敗:", bufErr);
+                                showUploadPrompt();
+                            }
+                        };
+                        getReq.onerror = () => { showUploadPrompt(); };
+                    } catch (txErr) {
+                        console.error("建立資料庫唯讀 Transaction 失敗:", txErr);
                         showUploadPrompt();
                     }
                 };
-                getReq.onerror = () => { showUploadPrompt(); };
-            };
-            openReq.onerror = () => { showUploadPrompt(); };
+                openReq.onerror = e => { 
+                    console.error("打開 IndexedDB 失敗:", e);
+                    showUploadPrompt(); 
+                };
+            } catch (err) {
+                console.error("啟動系統時發生異常:", err);
+                showUploadPrompt();
+            }
         }
 
         startSystem();
