@@ -948,47 +948,64 @@
             } else if (type === 'DEDUCE_AND_INSERT') {
                 try {
                     const scores = data;
+                    if (!scores || scores.length === 0) {
+                        self.postMessage({ type: 'DEDUCE_AND_INSERT_DONE' });
+                        return;
+                    }
+                    
+                    const raceName = scores[0].賽事名稱 || '';
+                    
+                    // ① 一次性查完所有姓名+單位的出生年/性別快取，避免逐筆查詢資料庫
+                    const deduceCache = new Map();
+                    const existingStmt = db.prepare(
+                        `SELECT 姓名, 單位, 出生年, 性別 FROM swimming_scores
+                         WHERE 出生年 IS NOT NULL AND 出生年 != ''
+                         GROUP BY 姓名, 單位`
+                    );
+                    while (existingStmt.step()) {
+                        const r = existingStmt.getAsObject();
+                        deduceCache.set(`${r.姓名}|${r.單位}`, { 出生年: r.出生年, 性別: r.性別 });
+                    }
+                    existingStmt.free();
+                    
+                    // ② 用單一 Transaction 批次插入，提升效能 10~100 倍
+                    db.run('BEGIN TRANSACTION');
+                    
                     const stmtInsert = db.prepare(`
                         INSERT INTO swimming_scores (年份, 賽事名稱, 項目, 組別, 水道, 單位, 姓名, 出生年, 性別, 成績, 名次, 積分, 備註, 成績報告網址) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     `);
                     
-                    const stmtDeduce = db.prepare(`
-                        SELECT DISTINCT 出生年, 性別 FROM swimming_scores WHERE 姓名=? AND 單位=? AND 出生年 IS NOT NULL AND 出生年 != '' LIMIT 1
-                    `);
-                    
                     for (const sc of scores) {
-                        let deducedBirth = "";
-                        let deducedGender = sc.性別 || "";
+                        const cacheKey = `${sc.姓名}|${sc.單位}`;
+                        const cached = deduceCache.get(cacheKey);
                         
-                        stmtDeduce.bind([sc.姓名, sc.單位]);
-                        if (stmtDeduce.step()) {
-                            const resObj = stmtDeduce.getAsObject();
-                            deducedBirth = resObj.出生年 || "";
-                            if (!deducedGender) deducedGender = resObj.性別 || "";
-                        }
-                        stmtDeduce.reset();
+                        let deducedBirth = sc.出生年 || (cached ? cached.出生年 : '') || '';
+                        let deducedGender = sc.性別 || (cached ? cached.性別 : '') || '';
                         
                         stmtInsert.run([
                             sc.年份, sc.賽事名稱, sc.項目, sc.組別, sc.水道, sc.單位, sc.姓名,
-                            deducedBirth, deducedGender, sc.成績, sc.名次, sc.積分, sc.備註, sc.成績報告網址
+                            deducedBirth, deducedGender, sc.成績, sc.名次, sc.積分, sc.備註, sc.成績報告網址 || ''
                         ]);
                     }
                     
                     stmtInsert.free();
-                    stmtDeduce.free();
+                    db.run('COMMIT');
                     
+                    // ③ 去重：只針對本次賽事名稱範圍做去重，避免全表掃描
                     db.run(`
                         DELETE FROM swimming_scores
-                        WHERE rowid NOT IN (
+                        WHERE 賽事名稱 = ? AND rowid NOT IN (
                             SELECT MIN(rowid)
                             FROM swimming_scores
-                            GROUP BY "年份", "賽事名稱", "項目", "組別", "姓名", "出生年", "性別", "單位", "成績", "名次"
+                            WHERE 賽事名稱 = ?
+                            GROUP BY 年份, 賽事名稱, 項目, 組別, 姓名, 出生年, 性別, 單位, 成績, 名次
                         )
-                    `);
+                    `, [raceName, raceName]);
                     
                     self.postMessage({ type: 'DEDUCE_AND_INSERT_DONE' });
                 } catch (err) {
+                    try { db.run('ROLLBACK'); } catch(e) {}
                     self.postMessage({ type: 'ERROR', id, error: err.message });
                 }
             } else if (type === 'EXPORT') {
