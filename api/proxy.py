@@ -4,75 +4,52 @@ import urllib.parse
 import json
 
 class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        # Read request body
-        content_length = int(self.headers.get('Content-Length', 0))
-        post_data = self.rfile.read(content_length)
-        
+    def _proxy_request(self, method, post_data=None):
+        """Unified proxy logic for GET and POST. Transparently forwards
+        the request and returns the remote response verbatim, preserving
+        Content-Type so the browser can decide how to parse it."""
         parsed = urllib.parse.urlparse(self.path)
         params = urllib.parse.parse_qs(parsed.query)
         url = params.get('url', [None])[0]
-        
+
         if not url:
             self.send_response(400)
-            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
-            self.wfile.write(b'{"error": "Missing url"}')
+            self.wfile.write(b'{"error": "Missing url parameter"}')
             return
-            
-        headers = {
+
+        req_headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-            'Content-Type': 'application/x-www-form-urlencoded'
         }
-        
+        if post_data is not None:
+            req_headers['Content-Type'] = 'application/x-www-form-urlencoded'
+
         try:
-            req = urllib.request.Request(url, data=post_data, headers=headers, method='POST')
+            req = urllib.request.Request(url, data=post_data, headers=req_headers, method=method)
             with urllib.request.urlopen(req, timeout=20) as resp:
                 body = resp.read()
+                ct = resp.headers.get('Content-Type', 'text/html; charset=utf-8')
                 self.send_response(200)
-                self.send_header('Content-Type', resp.headers.get('Content-Type', 'application/json'))
+                self.send_header('Content-Type', ct)
                 self.send_header('Access-Control-Allow-Origin', '*')
                 self.send_header('Content-Length', str(len(body)))
                 self.end_headers()
                 self.wfile.write(body)
         except Exception as e:
-            self.send_response(500)
-            self.send_header('Content-Type', 'text/plain; charset=utf-8')
+            err_body = json.dumps({'error': str(e)}, ensure_ascii=False).encode('utf-8')
+            self.send_response(502)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Content-Length', str(len(err_body)))
             self.end_headers()
-            self.wfile.write(str(e).encode('utf-8'))
+            self.wfile.write(err_body)
 
     def do_GET(self):
-        parsed = urllib.parse.urlparse(self.path)
-        params = urllib.parse.parse_qs(parsed.query)
-        url = params.get('url', [None])[0]
-        
-        if not url:
-            self.send_response(400)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            self.wfile.write(b'{"error": "Missing url"}')
-            return
-            
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
-        }
-        
-        try:
-            req = urllib.request.Request(url, headers=headers, method='GET')
-            with urllib.request.urlopen(req, timeout=20) as resp:
-                body = resp.read()
-                self.send_response(200)
-                self.send_header('Content-Type', resp.headers.get('Content-Type', 'text/html'))
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Content-Length', str(len(body)))
-                self.end_headers()
-                self.wfile.write(body)
-        except Exception as e:
-            self.send_response(500)
-            self.send_header('Content-Type', 'text/plain; charset=utf-8')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            self.wfile.write(str(e).encode('utf-8'))
+        self._proxy_request('GET')
+
+    def do_POST(self):
+        content_length = int(self.headers.get('Content-Length', 0))
+        post_data = self.rfile.read(content_length) if content_length > 0 else b''
+        self._proxy_request('POST', post_data)

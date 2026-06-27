@@ -1431,41 +1431,53 @@
                 query.append(key, postData[key]);
             }
 
-            // 1. 優先使用本站伺服器端代理 /api/proxy (極速且無 CORS/403/逾時限制)
+            // 統一的智慧解析器：自動判斷 proxy 回傳的是 JSON 還是 HTML
+            async function parseProxyResponse(resp) {
+                const ct = resp.headers.get('Content-Type') || '';
+                const text = await resp.text();
+                if (!text) return {};
+                // 嘗試 JSON 解析
+                if (ct.includes('application/json') || text.trimStart().startsWith('{') || text.trimStart().startsWith('[')) {
+                    try { return JSON.parse(text); } catch(e) {}
+                }
+                // 否則視為 HTML，包裝成 {html: "..."} 與前端解析器相容
+                return { html: text, select: text };
+            }
+
+            // 1. 優先使用本站伺服器端代理 /api/proxy（零 CORS 限制，無逾時問題）
             try {
                 const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
                 const resp = await fetch(proxyUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: query.toString()
                 });
                 if (resp.ok) {
-                    return await resp.json();
+                    return await parseProxyResponse(resp);
                 }
             } catch (e) {
-                console.warn("本站伺服器端代理失敗，改用 public proxy 嘗試: ", e);
+                console.warn("[Proxy 1/3] 本站代理失敗，改用 AllOrigins: ", e);
             }
 
-            // 2. Fallback: AllOrigins GET wrapper
+            // 2. Fallback: AllOrigins GET wrapper（將 POST 轉 GET）
             const targetUrl = url + "?" + query.toString();
             try {
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-                const resp = await fetch(proxyUrl);
+                const aoUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+                const resp = await fetch(aoUrl);
                 if (resp.ok) {
                     const json = await resp.json();
                     if (json.contents) {
-                        return JSON.parse(json.contents);
+                        const text = json.contents;
+                        try { return JSON.parse(text); } catch(e) {}
+                        return { html: text, select: text };
                     }
                 }
             } catch (e) {
-                console.warn("AllOrigins fallback failed: ", e);
+                console.warn("[Proxy 2/3] AllOrigins 失敗，改用 corsproxy.io: ", e);
             }
 
             // 3. Fallback: corsproxy.io POST
-            const proxyUrl = CORS_PROXY + encodeURIComponent(url);
-            const resp = await fetch(proxyUrl, {
+            const resp = await fetch(CORS_PROXY + encodeURIComponent(url), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -1474,7 +1486,7 @@
                 body: query
             });
             if (!resp.ok) throw new Error(`HTTP 錯誤: ${resp.status}`);
-            return await resp.json();
+            return await parseProxyResponse(resp);
         }
 
         // 從 Vercel Serverless API 取得各協會賽事清單（server-side 爬蟲，無 CORS 問題）
