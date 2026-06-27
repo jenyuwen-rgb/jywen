@@ -1,939 +1,403 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>游泳成績與 PB 查詢系統</title>
-    <!-- Tailwind CSS CDN -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>游泳成績查詢 v26.0 (AD Edition)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chart.js Time Adapter -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;700&display=swap');
-        
-        :root {
-            --primary: #D4AF37;
-            --primary-light: #F3D078;
-            --bg-dark: #0A0A0B;
-            --bg-card: #141416;
-            --text-gray: #A1A1A6;
-        }
-
-        body {
-            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
-            background-color: var(--bg-dark);
-            color: #FFFFFF;
-            min-height: 100vh;
-        }
-
-        .gold-gradient-text {
-            background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: inline-block;
-        }
-
-        .header-title {
-            text-align: center;
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin: 2rem 0;
-            letter-spacing: 0.1em;
-            background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-header {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            background-color: var(--bg-card);
-            border: 1px solid #232326;
-            border-radius: 16px;
-            padding: 0.6rem 1rem;
-            margin: 0 1rem 1.5rem 1rem;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        .nav-header input {
-            background: transparent;
-            border: none;
-            color: #FFF;
-            font-size: 1.2rem;
-            width: 100%;
-            outline: none;
-            padding-left: 0.5rem;
-        }
-
-        /* Auto-complete dropdown positioning & styling */
-        .autocomplete-items {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: #1C1C1E;
-            border: 1px solid #333;
-            border-radius: 8px;
-            z-index: 100;
-            max-height: 250px;
-            overflow-y: auto;
-            margin-top: 5px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-        .autocomplete-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            color: #FFF;
-            transition: background 0.2s;
-        }
-        .autocomplete-item:hover, .autocomplete-active {
-            background-color: #2C2C2E;
-            color: var(--primary);
-        }
-
-        .btn-home {
-            background: linear-gradient(135deg, #222 0%, #111 100%);
-            border: 1px solid #333;
-            color: #FFF;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-        .btn-home:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .list-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 10px;
-            border-bottom: 0.5px solid #222;
-            align-items: center;
-            font-size: 0.95rem;
-        }
-        .list-row:last-child {
-            border-bottom: none;
-        }
-        .row-gold {
-            color: var(--primary);
-            font-weight: 600;
-        }
-        
-        /* 固定寬度欄位，避免錯位 */
-        .col-rank-fixed { width: 45px; text-align: center; flex-shrink: 0; color: #888; font-family: monospace; }
-        .col-birth-fixed { width: 55px; text-align: center; flex-shrink: 0; font-family: monospace; }
-        .col-name-fixed { width: 85px; font-weight: bold; flex-shrink: 0; text-align: left; padding-left: 5px; }
-        .col-time-fixed { width: 75px; text-align: right; flex-shrink: 0; font-weight: bold; font-family: monospace; }
-        .col-wa-list { width: 70px; text-align: center; flex-shrink: 0; font-family: monospace; font-size: 0.85rem; color: #A1A1A6; }
-        .col-8code-fixed { width: 85px; text-align: center; flex-shrink: 0; font-family: monospace; font-size: 0.85rem; color: #8E8E93; }
-        .col-meet-fixed { flex-grow: 1; text-align: left; padding-left: 15px; color: #8E8E93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.9rem; }
-
-        .spinner {
-            border: 3px solid rgba(255,255,255,0.1);
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border-left-color: var(--primary);
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .drill-down {
-            background-color: var(--bg-card);
-            border: 1px solid #232326;
-            border-radius: 12px;
-            margin: 0.5rem 1rem;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-        .drill-down-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            cursor: pointer;
-        }
-        .drill-down-content {
-            display: none;
-            border-top: 1px solid #232326;
-        }
-        .drill-down.active .drill-down-content {
-            display: block;
-        }
-        .arrow-icon {
-            transition: transform 0.3s;
-        }
-        .drill-down.active .arrow-icon {
-            transform: rotate(180deg);
-        }
-
-        .tabs-header {
-            display: flex;
-            background: #1C1C1E;
-            border-bottom: 1px solid #232326;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            color: var(--text-gray);
-            font-weight: 600;
-            border-bottom: 2px solid transparent;
-            cursor: pointer;
-        }
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-
-        /* ── 原始泳式卡片 UI ── */
+        body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; }
+        .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 8px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; }
+        #searchInput { background: transparent; flex: 1; min-width: 0; outline: none; font-weight: bold; font-size: 18px; color: white; }
+        .header-title { text-align: center; background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 32px; font-weight: 900; margin: 15px 0; display: block; }
         .stroke-card { background-color: #1C1C1E; border: 0.5px solid #38383A; border-radius: 12px; margin: 16px 12px; padding: 16px; }
-        .stroke-title { font-size: 26px; font-weight: 900; margin-bottom: 8px; color: var(--primary); }
-        .race-row { display: grid; grid-template-columns: 55px 50px 105px 80px 85px 115px 85px 115px; align-items: center; padding: 5px 0; border-bottom: 0.5px solid #38383A; font-size: 14px; color: #FFF; white-space: nowrap; }
-        .col-dist-main { text-decoration: underline; font-weight: 800; cursor: pointer; color: var(--primary); }
-        .col-count-main { text-decoration: underline; cursor: pointer; font-size: 12px; color: #A1A1A6; }
+        .stroke-title { font-size: 26px; font-weight: 900;  margin-bottom: 2px; }
+        
+        .race-row { display: grid; grid-template-columns: 55px 50px 105px 80px 85px 115px 85px 115px; align-items: center; padding: 3px 0; border-bottom: 0.5px solid #38383A; font-size: 14px; color: #FFF; white-space: nowrap; }
+        .col-dist-main { text-decoration: underline; font-weight: 800; cursor: pointer; }
+        .col-count-main { text-decoration: underline; cursor: pointer; font-size: 12px; }
         .col-pb-main { font-family: monospace; font-weight: bold; }
-        .col-wa-main { font-size: 13px; color: #A1A1A6; }
+        .col-wa-main { font-size: 13px; }
         .col-pr-main { font-weight: 600; }
-        .col-rank-link { text-decoration: underline; cursor: pointer; color: #0A84FF; font-size: 13px; }
-        .row-gold, .row-gold span, .row-gold b, .row-gold div { color: #D4AF37 !important; opacity: 1 !important; }
+        .col-rank-link { text-decoration: underline; cursor: pointer; }
+        .row-gold, .row-gold span, .row-gold b, .row-gold div { background-image: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; opacity: 1 !important; }
+
+        .list-row { display: flex; align-items: center; padding: 4px 0; border-bottom: 1px solid #111; font-size: 14px; color: #FFF; white-space: nowrap; }
+        .col-rank-fixed { width: 35px; flex-shrink: 0; font-family: monospace; text-align: left; }
+        .col-birth-fixed { width: 50px; flex-shrink: 0; color: #8E8E93; font-size: 12px; text-align: center; font-family: monospace; }
+        .col-name-fixed { width: 85px; flex-shrink: 0; font-weight: bold; margin-left: 2px; }
+        .col-time-fixed { width: 80px; flex-shrink: 0; font-family: monospace; font-weight: bold; }
+        .col-wa-list { width: 75px; flex-shrink: 0; font-family: monospace; }
+        .col-8code-fixed { width: 85px; flex-shrink: 0; font-family: monospace; }
+        .col-meet-fixed { flex: 1; overflow: hidden; text-overflow: ellipsis; padding-left: 10px; }
+
         .rank-header-AD { display: flex; justify-content: center; align-items: center; background: #2C2C2E; padding: 10px; border-radius: 12px; margin-bottom: 15px; gap: 20px; border: 0.5px solid #444; }
         .year-side { color: #666; font-size: 13px; cursor: pointer; transition: 0.2s; }
         .year-side:hover { color: #D4AF37; }
-        .year-center { color: #D4AF37; font-weight: 900; font-size: 18px; }
+        .year-center { background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; font-size: 18px; display: inline-block; }
         .year-center::after { content: "年出生 排行"; color: #8E8E93; font-size: 12px; font-weight: normal; margin-left: 4px; }
+
         .matrix-table { width: 100%; min-width: 750px; border-collapse: collapse; text-align: center; }
-        .matrix-table th, .matrix-table td { padding: 8px 4px; border-bottom: 0.5px solid #222; }
-        .data-panel { background: #1C1C1E; border-radius: 12px; padding: 12px; margin: 4px; }
+        .matrix-table td { padding: 8px 4px; border-bottom: 0.5px solid #222; }
+        .drill-down { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .drill-down.active { max-height: 30000px; padding: 15px 0; }
+        
+        #queryLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
+        #lottie-swimmer { width: 320px; height: 320px; margin-bottom: -40px; }
+        
+        .btn-home { background: rgba(255,255,255,0.08); border: 1.5px solid #444; color: #FFF; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 14px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-home:hover { background: rgba(255,255,255,0.15); border-color: #888; }
+
+        /* 姓名自動完成 (Autocomplete) 樣式 */
+        .autocomplete-items {
+            position: absolute;
+            top: calc(100% + 14px);
+            left: 0;
+            right: 0;
+            background: #1C1C1E;
+            border: 1.5px solid #38383A;
+            border-radius: 12px;
+            max-height: 280px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+        }
+        .autocomplete-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            color: #FFF;
+            font-size: 16px;
+            font-weight: 500;
+            border-bottom: 0.5px solid #2C2C2E;
+            text-align: left;
+            transition: all 0.15s ease;
+        }
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+        .autocomplete-item:hover, .autocomplete-active {
+            background: #D4AF37 !important;
+            color: #000 !important;
+        }
+        .autocomplete-item strong {
+            color: #D4AF37;
+        }
+        .autocomplete-item:hover strong, .autocomplete-active strong {
+            color: #000 !important;
+        }
     </style>
 </head>
-<body class="pb-10">
-
-    <!-- 全域載入狀態遮罩 -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-[#0A0A0B] bg-opacity-95 z-50 flex flex-col justify-center items-center">
-        <div class="spinner mb-4"></div>
-        <div class="text-[#D4AF37] font-bold tracking-widest text-lg">正在啟動查詢系統...</div>
+<body>
+    <div id="queryLoader">
+        <div id="lottie-swimmer"></div>
+        <div class="mt-4 text-[#D4AF37] font-bold tracking-widest text-lg">正在全力衝刺中...</div>
     </div>
 
-    <!-- 賽事下載管理按鈕 -->
+    <!-- 返回首頁按鈕 -->
     <div class="m-3 flex justify-between items-center">
         <a href="manage.html" class="btn-home">⚙️ 賽事下載管理</a>
         <span class="text-xs text-gray-500">PWA Offline Capable</span>
     </div>
 
-    <!-- 資料庫載入區塊 (全螢幕鎖定畫面) -->
-    <div id="dbLoaderArea" class="fixed inset-0 bg-[#0A0A0B] bg-opacity-95 z-40 flex justify-center items-center p-4 backdrop-blur-md" style="display: none;">
-        <div class="max-w-md w-full p-8 rounded-2xl bg-[#141416] border-2 border-[#D4AF37]/20 shadow-2xl text-center">
-            <div class="text-5xl text-[#D4AF37] mb-4">🔒</div>
-            <h2 class="text-2xl font-bold mb-2 text-white">地端資料庫尚未載入</h2>
-            <p class="text-sm text-gray-400 mb-6 leading-relaxed">
-                本系統為純前端靜態查詢網頁。所有數據皆儲存於您的本地裝置中。<br>
-                請載入您的 <strong>swim_results_birthday.db</strong> 檔案以啟用成績查詢系統。
-            </p>
-            <input type="file" id="dbFileInput" class="hidden" onchange="handleDBUpload(this.files)">
-            <button onclick="document.getElementById('dbFileInput').click()" class="w-full py-3 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F3D078] text-black font-bold hover:shadow-lg transition-all transform hover:-translate-y-0.5">📂 載入地端資料庫 (.db)</button>
-            <div id="progressContainer" class="mt-6 text-left hidden">
-                <div id="loaderStatus" class="text-xs text-gray-400 mb-2">準備中...</div>
-                <div class="w-full bg-[#232326] h-1.5 rounded-full overflow-hidden">
-                    <div id="progressBar" class="bg-[#D4AF37] h-full" style="width: 0%"></div>
-                </div>
-            </div>
+    <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E] rounded-xl text-center border border-[#38383A]">
+        <input type="file" id="dbFileInput" hidden onchange="handleDBUpload(this.files)">
+        <button onclick="document.getElementById('dbFileInput').click()" class="bg-[#D4AF37] text-black px-8 py-3 rounded-full font-bold">手動載入本機 DB</button>
+        <div id="progressContainer" class="mt-6 hidden">
+            <div id="loaderStatus" class="text-sm text-gray-400 mb-2">準備中...</div>
+            <div class="w-full bg-[#333] rounded-full h-2 overflow-hidden"><div id="progressBar" class="bg-[#D4AF37] h-full" style="width: 0%"></div></div>
         </div>
     </div>
 
     <div class="header-title">游泳成績查詢</div>
-    
-    <!-- 資料庫狀態顯示列 -->
-    <div id="db-info-bar" class="text-center text-xs text-gray-400 mb-3 flex justify-center items-center gap-2">
-        <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" id="db-info-dot"></span>
-        <span id="db-info-text">連線中...</span>
-    </div>
-
     <div class="nav-header">
         <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()">🕒</span>
         <div style="position: relative; flex: 1; min-width: 0; display: flex; align-items: center;">
-            <input type="text" id="searchInput" value="温心妤" placeholder="輸入選手姓名..." autocomplete="off">
+            <input type="text" id="searchInput" value="温心妤" autocomplete="off">
             <div id="autocomplete-list" class="autocomplete-items hidden"></div>
         </div>
-        <span class="font-bold text-[#D4AF37] px-3 cursor-pointer" style="flex-shrink:0;" onclick="doSearch()">查詢</span>
-        <span class="font-bold text-white px-2 cursor-pointer" style="flex-shrink:0;" onclick="collapseAll()">收合</span>
-        <span class="font-bold cursor-pointer px-2" style="flex-shrink:0; color:#FF6B6B;" onclick="resetDB()">重置</span>
+        <span class="font-bold text-[#D4AF37] px-3 cursor-pointer" onclick="doSearch()">查詢</span>
+        <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
+        <span class="font-bold text-gray-500 px-3 cursor-pointer" onclick="resetDB()">重置</span>
     </div>
 
     <div id="main"></div>
 
-    <!-- Web Worker JavaScript -->
     <script id="worker-script" type="text/javascript-worker">
-        importScripts('SQL_JS_CDN_URL');
+        importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
         let db = null;
         self.onmessage = async function(e) {
-            const { type, data, query, id, wasmUrl } = e.data;
+            const { type, data, query, id } = e.data;
             if (type === 'INIT') {
-                try {
-                    const SQL = await initSqlJs({ locateFile: f => wasmUrl });
-                    db = new SQL.Database(data);
-                    // [Auditor] 建立複合索引，加速 LIKE 查詢與排名計算
-                    try {
-                        db.run('CREATE INDEX IF NOT EXISTS idx_event ON swimming_scores(項目, 性別, 出生年)');
-                        db.run('CREATE INDEX IF NOT EXISTS idx_name ON swimming_scores(姓名, 出生年, 性別)');
-                    } catch(idxErr) { /* 索引建立失敗不阻斷系統 */ }
-                    self.postMessage({ type: 'READY' });
-                } catch(err) {
-                    self.postMessage({ type: 'ERROR', id, error: err.message });
-                }
+                const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
+                db = new SQL.Database(data);
+                self.postMessage({ type: 'READY' });
             } else if (type === 'QUERY') {
                 try {
-                    // [Auditor 根本修正] db.exec() 回傳 [{columns:[...], values:[[...],...]}]
-                    // 與主執行緒所有 res[0].values 存取方式完全吻合
-                    // 舊版 getAsObject() 回傳 plain objects，導致 .values 永遠 undefined（查無資料根因）
-                    const result = db.exec(query);
-                    self.postMessage({ type: 'RESULT', id, data: result });
-                } catch (err) {
-                    self.postMessage({ type: 'ERROR', id, error: err.message });
-                }
+                    const res = db.exec(query);
+                    self.postMessage({ type: 'RESULT', id: id, res: res });
+                } catch (err) { self.postMessage({ type: 'ERROR', id: id, msg: err.message }); }
             }
         };
     </script>
 
     <script>
-        // 解決 Blob URL Web Worker 載入 CDN 以及跨域問題，使用本機 JS & WASM
-        const localJsUrl = new URL('sql-wasm.js', window.location.href).href;
-        const localWasmUrl = new URL('sql-wasm.wasm', window.location.href).href;
-        
-        const workerCode = document.getElementById('worker-script').textContent
-            .replace('SQL_JS_CDN_URL', localJsUrl);
-            
-        const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
-        let worker = new Worker(URL.createObjectURL(workerBlob));
-        
-        // 綁定錯誤監聽，防止靜默失效
-        worker.onerror = function(err) {
-            console.error("Worker 發生錯誤:", err);
-            alert("資料庫引擎載入出錯: " + err.message);
-        };
+        const swimmerJSON = {"v":"4.8.0","meta":{"g":"LottieFiles AE 1.1.0","a":"","k":"","d":"","tc":"#ffffff"},"fr":60,"ip":32,"op":97,"w":558,"h":558,"nm":"run forest run","ddd":0,"assets":[{"id":"comp_0","layers":[{"ddd":0,"ind":1,"ty":3,"nm":"Null 1","sr":1,"ks":{"o":{"a":0,"k":0,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[400,400,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"ip":0,"op":300,"st":0,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":"so uc Outlines 2","parent":3,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.445],"y":[0.77]},"o":{"x":[0.253],"y":[0.205]},"t":32,"s":[0]},{"i":{"x":[0.833],"y":[0.908]},"o":{"x":[0.066],"y":[0.352]},"t":48,"s":[-291]},{"i":{"x":[0.709],"y":[-0.568]},"o":{"x":[0.554],"y":[0.31]},"t":72,"s":[-325]},{"t":97,"s":[-360]}],"ix":10},"p":{"a":0,"k":[350,336,0],"ix":2},"a":{"a":0,"k":[350,336,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[4.381,5.995],[0,0],[5.994,-4.381],[0,0],[-4.382,-5.995],[-5.995,4.381],[0,0]],"o":[[0,0],[-4.381,-5.995],[0,0],[-5.995,4.382],[4.381,5.994],[0,0],[5.995,-4.381]],"v":[[33.205,-24.268],[33.205,-24.268],[14.34,-27.201],[-30.27,5.402],[-33.203,24.268],[-14.338,27.201],[30.271,-5.403]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[328.043,352.451],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":32,"op":97,"st":32,"bm":0},{"ddd":0,"ind":3,"ty":4,"nm":"so om Outlines 2","parent":1,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.407],"y":[0.831]},"o":{"x":[0.428],"y":[0.692]},"t":32,"s":[6]},{"i":{"x":[0.769],"y":[0.647]},"o":{"x":[0.443],"y":[0.306]},"t":56,"s":[172]},{"i":{"x":[0.404],"y":[0.514]},"o":{"x":[0.36],"y":[0.241]},"t":76,"s":[229]},{"t":97,"s":[366]}],"ix":10},"p":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":64,"s":[21.577,-29.249,0],"to":[-0.715,0.428,0],"ti":[0,0,0]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":82,"s":[17.285,-26.683,0],"to":[0,0,0],"ti":[-0.715,0.428,0]},{"t":97,"s":[21.577,-29.249,0]}],"ix":2},"a":{"a":0,"k":[418,367,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[3.113,-6.741],[0,0],[-6.741,-3.113],[0,0],[-3.113,6.74],[6.741,3.112],[0,0]],"o":[[0,0],[-3.113,6.741],[0,0],[6.742,3.113],[3.113,-6.742],[0,0],[-6.741,-3.112]],"v":[[-47.002,-21.705],[-47.002,-21.705],[-40.406,-3.789],[29.086,28.301],[47.002,21.705],[40.406,3.789],[-29.086,-28.302]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[384.772,352.03],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":32,"op":97,"st":32,"bm":0},{"ddd":0,"ind":4,"ty":4,"nm":"so uc Outlines 3","parent":5,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.445],"y":[0.77]},"o":{"x":[0.253],"y":[0.205]},"t":65,"s":[0]},{"i":{"x":[0.833],"y":[0.908]},"o":{"x":[0.066],"y":[0.352]},"t":81,"s":[-291]},{"i":{"x":[0.709],"y":[-0.568]},"o":{"x":[0.554],"y":[0.31]},"t":105,"s":[-325]},{"t":130,"s":[-360]}],"ix":10},"p":{"a":0,"k":[350,336,0],"ix":2},"a":{"a":0,"k":[350,336,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[4.381,5.995],[0,0],[5.994,-4.381],[0,0],[-4.382,-5.995],[-5.995,4.381],[0,0]],"o":[[0,0],[-4.381,-5.995],[0,0],[-5.995,4.382],[4.381,5.994],[0,0],[5.995,-4.381]],"v":[[33.205,-24.268],[33.205,-24.268],[14.34,-27.201],[-30.27,5.402],[-33.203,24.268],[-14.338,27.201],[30.271,-5.403]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[328.043,352.451],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":65,"op":130,"st":65,"bm":0},{"ddd":0,"ind":5,"ty":4,"nm":"so om Outlines 3","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.407],"y":[0.831]},"o":{"x":[0.428],"y":[0.692]},"t":65,"s":[6]},{"i":{"x":[0.769],"y":[0.647]},"o":{"x":[0.443],"y":[0.306]},"t":89,"s":[172]},{"i":{"x":[0.404],"y":[0.514]},"o":{"x":[0.36],"y":[0.241]},"t":109,"s":[229]},{"t":130,"s":[366]}],"ix":10},"p":{"a":1,"k":[{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":97,"s":[421.577,370.751,0],"to":[-0.715,0.428,0],"ti":[0,0,0]},{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":115,"s":[417.285,373.317,0],"to":[0,0,0],"ti":[-0.715,0.428,0]},{"t":130,"s":[421.577,370.751,0]}],"ix":2},"a":{"a":0,"k":[418,367,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[3.113,-6.741],[0,0],[-6.741,-3.113],[0,0],[-3.113,6.74],[6.741,3.112],[0,0]],"o":[[0,0],[-3.113,6.741],[0,0],[6.742,3.113],[3.113,-6.742],[0,0],[-6.741,-3.112]],"v":[[-47.002,-21.705],[-47.002,-21.705],[-40.406,-3.789],[29.086,28.301],[47.002,21.705],[40.406,3.789],[-29.086,-28.302]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[384.772,352.03],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":65,"op":130,"st":65,"bm":0},{"ddd":0,"ind":6,"ty":4,"nm":"so uc Outlines","parent":7,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.445],"y":[0.77]},"o":{"x":[0.253],"y":[0.205]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.908]},"o":{"x":[0.066],"y":[0.352]},"t":16,"s":[-291]},{"i":{"x":[0.709],"y":[-0.568]},"o":{"x":[0.554],"y":[0.31]},"t":40,"s":[-325]},{"t":65,"s":[-360]}],"ix":10},"p":{"a":0,"k":[350,336,0],"ix":2},"a":{"a":0,"k":[350,336,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[4.381,5.995],[0,0],[5.994,-4.381],[0,0],[-4.382,-5.995],[-5.995,4.381],[0,0]],"o":[[0,0],[-4.381,-5.995],[0,0],[-5.995,4.382],[4.381,5.994],[0,0],[5.995,-4.381]],"v":[[33.205,-24.268],[33.205,-24.268],[14.34,-27.201],[-30.27,5.402],[-33.203,24.268],[-14.338,27.201],[30.271,-5.403]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[328.043,352.451],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":65,"st":0,"bm":0},{"ddd":0,"ind":7,"ty":4,"nm":"so om Outlines","parent":8,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.407],"y":[0.831]},"o":{"x":[0.428],"y":[0.692]},"t":0,"s":[0]},{"i":{"x":[0.769],"y":[0.647]},"o":{"x":[0.443],"y":[0.306]},"t":24,"s":[166]},{"i":{"x":[0.404],"y":[0.514]},"o":{"x":[0.36],"y":[0.241]},"t":44,"s":[223]},{"t":65,"s":[360]}],"ix":10},"p":{"a":1,"k":[{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":32,"s":[418,367,0],"to":[-0.667,0.5,0],"ti":[0,0,0]},{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":50,"s":[414,370,0],"to":[0,0,0],"ti":[-0.667,0.5,0]},{"t":65,"s":[418,367,0]}],"ix":2},"a":{"a":0,"k":[418,367,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[3.113,-6.741],[0,0],[-6.741,-3.113],[0,0],[-3.113,6.74],[6.741,3.112],[0,0]],"o":[[0,0],[-3.113,6.741],[0,0],[6.742,3.113],[3.113,-6.742],[0,0],[-6.741,-3.112]],"v":[[-47.002,-21.705],[-47.002,-21.705],[-40.406,-3.789],[29.086,28.301],[47.002,21.705],[40.406,3.789],[-29.086,-28.302]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[384.772,352.03],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":65,"st":0,"bm":0},{"ddd":0,"ind":8,"ty":4,"nm":"gov Outlines","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":6,"ix":10},"p":{"a":0,"k":[384,403,0],"ix":2},"a":{"a":0,"k":[384,403,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[10.116,11.696],[0,0],[-11.696,10.116],[0,0],[-10.116,-11.696],[11.695,-10.116],[0,0]],"o":[[0,0],[-10.116,-11.696],[0,0],[11.696,-10.116],[10.116,11.696],[0,0],[-11.696,10.117]],"v":[[-48.302,41.777],[-48.302,41.777],[-45.442,2.284],[8.807,-44.638],[48.302,-41.777],[45.442,-2.283],[-8.808,44.638]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[383.329,402.953],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":300,"st":0,"bm":0},{"ddd":0,"ind":9,"ty":4,"nm":"kafa Outlines","parent":8,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[438,352.5,0],"ix":2},"a":{"a":0,"k":[438,352.5,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[8.472,-15.194],[15.195,8.473],[-8.472,15.195],[-15.194,-8.471]],"o":[[-8.473,15.195],[-15.195,-8.471],[8.471,-15.195],[15.194,8.473]],"v":[[27.513,15.339],[-15.341,27.512],[-27.513,-15.341],[15.34,-27.514]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[453.587,334.518],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":300,"st":0,"bm":0}]}],"layers":[{"ddd":0,"ind":1,"ty":3,"nm":"Null 2","sr":1,"ks":{"o":{"a":0,"k":0,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[254,307,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"ip":0,"op":300,"st":0,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":"dajkfs Outlines 2","parent":1,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[78,40,0],"ix":2},"a":{"a":0,"k":[400,400,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0]],"o":[[27,0],[28,0],[28,0],[28,0],[27,0],[28,0],[28,0],[28,0],[0,0]],"v":[[-287,9],[-216,-9],[-144,9],[-72,-9],[0,9],[71,-9],[143,9],[215,-9],[287,9]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"tm","s":{"a":0,"k":4,"ix":1},"e":{"a":0,"k":46,"ix":2},"o":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":32,"s":[0]},{"t":97,"s":[180]}],"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false},{"ty":"st","c":{"a":0,"k":[0.039,0.52,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":20,"ix":5},"lc":2,"lj":2,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":32,"s":[492.5,405.5],"to":[-47.833,0],"ti":[47.833,0]},{"t":97,"s":[205.5,405.5]}],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":3,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":300,"st":0,"bm":0},{"ddd":0,"ind":3,"ty":4,"nm":"dajkfs Outlines","parent":1,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[78,0,0],"ix":2},"a":{"a":0,"k":[400,400,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0]],"o":[[27,0],[28,0],[28,0],[28,0],[27,0],[28,0],[28,0],[28,0],[0,0]],"v":[[-287,9],[-216,-9],[-144,9],[-72,-9],[0,9],[71,-9],[143,9],[215,-9],[287,9]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"tm","s":{"a":0,"k":0,"ix":1},"e":{"a":0,"k":50,"ix":2},"o":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":32,"s":[0]},{"t":97,"s":[180]}],"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false},{"ty":"st","c":{"a":0,"k":[0.039,0.52,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":20,"ix":5},"lc":2,"lj":2,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":32,"s":[492.5,405.5],"to":[-47.833,0],"ti":[47.833,0]},{"t":97,"s":[205.5,405.5]}],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":3,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":300,"st":0,"bm":0},{"ddd":0,"ind":4,"ty":0,"nm":"maan","parent":1,"refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":2,"ix":10},"p":{"a":1,"k":[{"i":{"x":0.705,"y":1},"o":{"x":0.411,"y":0},"t":32,"s":[0,0,0],"to":[0,0,0],"ti":[0,0,0]},{"i":{"x":0.585,"y":1},"o":{"x":0.292,"y":0},"t":64,"s":[0,3,0],"to":[0,0,0],"ti":[0,0,0]},{"t":97,"s":[0,0,0]}],"ix":2},"a":{"a":0,"k":[400,400,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":6}},"ao":0,"hasMask":true,"masksProperties":[{"inv":false,"mode":"a","pt":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":40,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[286.249,400.581],[342.381,395.846],[401,412.5],[472.693,392.576],[547.441,413.17],[602.5,377.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":46,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[283.749,392.581],[316.881,395.846],[362.5,412.5],[435.693,392.576],[510.441,412.17],[605,380.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":51,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[282.613,395.763],[340.063,411.437],[394.227,397.318],[435.739,396.712],[502.85,409.124],[600.986,373.511],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":54,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[281.931,397.672],[329.722,410.892],[390.864,394.409],[448.466,403.644],[527.502,389.363],[603.493,384.006],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":57,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[281.249,399.581],[319.381,410.346],[387.5,391.5],[461.193,410.576],[521.941,392.67],[606,394.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":60,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[276.374,402.394],[315.381,407.284],[377.563,391.438],[442.443,411.514],[518.102,388.134],[605.063,403.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":63,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[271.499,405.206],[311.381,404.221],[367.625,391.375],[423.693,412.451],[506.391,387.375],[604.125,412.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":65,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[268.249,407.081],[309.381,402.347],[361.5,392.5],[427.193,409.076],[501.441,389.17],[603.5,418.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":68,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[268.249,407.081],[310.631,400.096],[368.25,394.5],[418.943,410.326],[490.191,390.17],[603.5,418.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":70,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[268.249,407.081],[321.464,392.93],[385.083,404.167],[472.314,389.871],[504.357,399.836],[603.5,418.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":71,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[268.249,407.081],[326.881,389.347],[393.5,409],[458.193,393.076],[511.441,404.67],[603.5,418.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":73,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[268.249,407.081],[322.381,391.347],[392,414.5],[465.693,391.076],[518.941,411.67],[603.5,418.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":75,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[272.083,404.081],[324.714,392.847],[388.5,410],[455.193,392.743],[516.282,408.936],[604.266,386.426],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":76,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[273.999,402.581],[325.881,393.596],[386.75,407.75],[449.943,393.576],[512.191,414.42],[602,402],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":79,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[279.749,398.081],[336.381,402.346],[383,406],[448.193,393.076],[506.941,411.67],[600.5,385.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":83,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[279.749,398.081],[344.81,411.132],[416.357,394],[458.479,404.219],[500.941,411.67],[600.5,385.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":86,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[279.749,398.081],[335.381,413.346],[409,393],[466.193,412.576],[521.441,397.67],[600.5,385.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":88,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[278.583,402.248],[335.714,412.18],[399.25,392.917],[466.193,413.576],[532.934,388.038],[600.667,397.167],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":90,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[277.416,406.415],[336.048,411.013],[389.5,392.834],[466.193,414.576],[534.783,388.749],[600.833,408.833],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":92,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[276.249,410.581],[334.881,405.347],[392,395.5],[457.193,412.576],[524.441,393.17],[601,420.5],[532.5,262],[340.673,245.293]],"c":true}]},{"t":96,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[279.249,414.081],[352.881,392.347],[384.5,399.5],[446.193,413.076],[508.941,392.17],[601,420.5],[532.5,262],[340.673,245.293]],"c":true}]}],"ix":1},"o":{"a":0,"k":100,"ix":3},"x":{"a":0,"k":0,"ix":4},"nm":"Mask 1"}],"w":800,"h":800,"ip":0,"op":300,"st":0,"bm":0}],"markers":[]};
 
-        const callbacks = {};
-        let queryId = 0;
+        let swimmerAnim, worker = null;
+        let queryCallbacks = {};
+        const LC_FILTER = "項目 NOT LIKE '%接力%' AND 項目 NOT LIKE '%(25m)%' AND 項目 NOT LIKE '%短水道%' AND 賽事名稱 NOT LIKE '%短水道%'";
 
-        worker.onmessage = function(e) {
-            const { type, id, data, error } = e.data;
-            if (type === 'READY') {
-                document.getElementById('loadingOverlay').style.display = 'none';
-                document.getElementById('dbLoaderArea').style.display = 'none';
-                updateDbStatusInfo();
-                // 輸入框有內容才自動搜尋，否則顯示歡迎畫面
-                if (document.getElementById('searchInput').value.trim()) {
-                    doSearch();
-                } else {
-                    document.getElementById('main').innerHTML = `
-                        <div class="text-center p-10">
-                            <div class="text-5xl mb-4">🏊</div>
-                            <div class="text-white text-lg font-bold mb-2">資料庫已成功載入</div>
-                            <div class="text-gray-400 text-sm">請在上方搜尋列輸入選手姓名進行查詢</div>
-                        </div>
-                    `;
-                }
-            } else if (type === 'RESULT') {
-                if (callbacks[id]) { callbacks[id].resolve(data); delete callbacks[id]; }
-            } else if (type === 'ERROR') {
-                if (callbacks[id]) { callbacks[id].reject(new Error(error)); delete callbacks[id]; }
-            }
-        };
+        swimmerAnim = lottie.loadAnimation({ container: document.getElementById('lottie-swimmer'), renderer: 'svg', loop: true, autoplay: false, animationData: swimmerJSON });
+        swimmerAnim.addEventListener('DOMLoaded', () => swimmerAnim.goToAndStop(32, true));
+
+        function initWorker() {
+            const blob = new Blob([document.getElementById('worker-script').textContent], { type: 'text/javascript' });
+            worker = new Worker(URL.createObjectURL(blob));
+            worker.onmessage = function(e) {
+                const { type, res, id } = e.data;
+                if (type === 'READY') { document.getElementById('dbLoaderArea').style.display = 'none'; doSearch(); }
+                else if (type === 'RESULT') { if(queryCallbacks[id]) queryCallbacks[id](res); }
+            };
+        }
+        initWorker();
 
         function remoteQuery(query) {
-            return new Promise((resolve, reject) => {
-                const id = queryId++;
-                callbacks[id] = { resolve, reject };
-                worker.postMessage({ type: 'QUERY', id, query });
-            });
+            const id = Date.now() + Math.random();
+            return new Promise(resolve => { queryCallbacks[id] = resolve; worker.postMessage({ type: 'QUERY', query, id }); });
         }
 
-        // 輔助函數
-        const WEEKDAYS = ["一","二","三","四","五","六","日"];
-        const toAD = y => parseInt(y) < 1000 ? parseInt(y) + 1911 : parseInt(y);
-        const formatToXcode = s => {
-            const m = Math.floor(s / 60), sec = (s % 60).toFixed(2);
-            return m > 0 ? `${m}:${sec.padStart(5, '0')}` : sec;
-        };
-        const timeToSec = str => {
-            if(!str) return 0;
-            const parts = str.split(':');
-            return parts.length === 2 ? parseInt(parts[0], 10)*60 + parseFloat(parts[1]) : parseFloat(parts[0]);
-        };
+        function normalizeName(n) { return n ? String(n).replace(/溫/g, '温').trim() : ""; }
+        function timeToSec(t) { if (!t) return 0; const s = String(t).trim(), p = s.split(/[:.]/); if (p.length === 3) return parseInt(p[0])*60 + parseInt(p[1]) + parseInt(p[2])/100; if (p.length === 2) return s.includes(':') ? parseInt(p[0])*60 + parseInt(p[1]) : parseInt(p[0]) + parseInt(p[1])/100; return parseFloat(s) || 0; }
+        function formatToXcode(s) { if (isNaN(s) || s <= 0) return "00.00"; const m = Math.floor(s/60), ss = Math.floor(s%60), cc = String(Math.round((s-Math.floor(s))*100)).padStart(2,'0'); return m === 0 ? `${ss}.${cc}` : `${m}:${String(ss).padStart(2,'0')}.${cc}`; }
+        function toAD(y) { const num = parseInt(String(y).replace(/\D/g, '')); return num < 1900 ? num + 1911 : num; }
 
-        // [Developer+Auditor] baseTimes 抽成全域常數，消除 calculateFinapoint/renderMatrix 重複定義
-        const WA_BASE_TIMES = {
-            'M': {
-                '自由式': { 50: 20.91, 100: 46.80, 200: 102.00, 400: 212.27, 800: 440.47, 1500: 843.10 },
-                '仰式':   { 50: 23.71, 100: 51.60, 200: 111.96 },
-                '蛙式':   { 50: 25.95, 100: 56.88, 200: 125.96 },
-                '蝶式':   { 50: 22.27, 100: 49.45, 200: 110.73 },
-                '混合式': { 200: 114.00, 400: 243.84 }
-            },
-            'F': {
-                '自由式': { 50: 23.61, 100: 51.71, 200: 112.98, 400: 235.38, 800: 484.79, 1500: 920.48 },
-                '仰式':   { 50: 26.86, 100: 57.13, 200: 123.35 },
-                '蛙式':   { 50: 29.30, 100: 64.13, 200: 138.95 },
-                '蝶式':   { 50: 24.43, 100: 55.48, 200: 121.81 },
-                '混合式': { 200: 126.12, 400: 265.85 }
-            }
-        };
-
-        // [Developer] SQL 輸入 sanitize：跳脫單引號，防止 SQL Injection
-        function sanitizeSql(str) {
-            if (typeof str !== 'string') return '';
-            return str.replace(/'/g, "''").substring(0, 20); // 最長20字元防止超長注入
+        function getWA(dist, stroke, timeStr, sex) {
+            const sec = timeToSec(timeStr); if (sec <= 0) return 0;
+            const bF = { "蝶式": {50:25.0, 100:55.5, 200:122.0}, "仰式": {50:27.1, 100:57.4, 200:125.0}, "蛙式": {50:30.0, 100:65.3, 200:143.0}, "自由式": {50:23.9, 100:51.7, 200:112.0, 400:240.0, 800:490.0, 1500:940.0}, "混合式": {200:122.6, 400:259.0} };
+            const bM = { "蝶式": {50:22.3, 100:49.5, 200:110.0}, "仰式": {50:24.0, 100:51.6, 200:111.9}, "蛙式": {50:26.6, 100:56.9, 200:124.0}, "自由式": {50:21.3, 100:46.9, 200:102.0, 400:220.0, 800:460.0, 1500:880.0}, "混合式": {200:112.9, 400:243.0} };
+            const b = (sex||"").includes("女") ? bF : bM;
+            let s = stroke.includes("蝶")?"蝶式":stroke.includes("仰")?"仰式":stroke.includes("蛙")?"蛙式":stroke.includes("自由")?"自由式":"混合式";
+            return Math.floor(1000 * Math.pow((b[s]?.[parseInt(dist)]||100)/sec, 3));
         }
 
-        // [Auditor] per-card AbortController，解決切換 Tab 的 Race Condition
-        const cardAbortControllers = {};
-        // 查詢並顯示資料庫詳細資訊
-        async function updateDbStatusInfo() {
-            try {
-                const countRes = await remoteQuery("SELECT COUNT(*) as cnt FROM swimming_scores");
-                const count = (countRes[0] && countRes[0].values) ? countRes[0].values[0][0] : 0;
-                
-                const openReq = indexedDB.open("SwimSQL", 1);
-                openReq.onsuccess = e => {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains("files")) return;
-                    const getReq = db.transaction("files", "readonly").objectStore("files").get("db_info");
-                    getReq.onsuccess = () => {
-                        const info = getReq.result || { name: "swim_results_birthday.db", size: 0 };
-                        const sizeMB = info.size ? `${(info.size / (1024 * 1024)).toFixed(1)} MB` : "已載入";
-                        
-                        const dot = document.getElementById('db-info-dot');
-                        dot.className = "inline-block w-2.5 h-2.5 rounded-full bg-green-500";
-                        let warningHtml = "";
-                        if (count === 0) {
-                            warningHtml = `
-                                <div class="mt-2 text-red-500 bg-red-950/40 border border-red-500/30 p-2 rounded text-xs leading-relaxed max-w-md mx-auto text-left">
-                                    ⚠️ 注意：您載入的可能是空白或只含行事曆的資料庫（目前有 0 筆成績）。<br>
-                                    請按右上方「重置」按鈕，並重新選取正確的 <b>swim_results_birthday.db</b> (約 290MB) 檔案。
-                                </div>
-                            `;
-                        }
-                        
-                        document.getElementById('db-info-text').innerHTML = `
-                            📁 <b>${info.name}</b> (${sizeMB}) · 
-                            📊 <b>${count.toLocaleString()}</b> 筆成績
-                            ${warningHtml}
-                        `;
-                    };
-                };
-            } catch (err) {
-                console.error("無法更新資料庫資訊:", err);
-                document.getElementById('db-info-text').textContent = "讀取資料庫資訊失敗";
-            }
-        }
-
-        // 過濾接力、短水道賽事、非法出生年（合併原始版本 + 資料品質過濾）
-        const LC_FILTER = `項目 NOT LIKE '%接力%' AND 項目 NOT LIKE '%(25m)%' AND 項目 NOT LIKE '%短水道%' AND 賽事名稱 NOT LIKE '%短水道%' AND 出生年 IS NOT NULL AND 出生年 != '' AND LENGTH(出生年) >= 3 AND LENGTH(姓名) >= 2`;
-
-        function normalizeName(name) {
-            return name.replace(/\s+/g, '').replace(/　/g, '');
-        }
-
-        // 泳式 emoji 符號映射
-        function getStrokeSymbol(stroke) {
-            const map = { '自由式': '🏊', '仰式': '🔄', '蛙式': '🐸', '蝶式': '🦋', '混合式': '🔀' };
-            return map[stroke] || '🏊';
-        }
-
-        // 產生溫/温, 台/臺, 黃/黄所有可能異體字組合
-        function getNameVariants(name) {
-            if (!name) return [];
-            const map = {
-                '温': ['温', '溫'],
-                '溫': ['温', '溫'],
-                '台': ['台', '臺'],
-                '臺': ['台', '臺'],
-                '黄': ['黄', '黃'],
-                '黃': ['黄', '黃']
-            };
-            let variants = [''];
-            for (let char of name) {
-                let options = map[char] || [char];
-                let nextVariants = [];
-                for (let v of variants) {
-                    for (let opt of options) {
-                        nextVariants.push(v + opt);
-                    }
-                }
-                variants = nextVariants;
-            }
-            return variants;
-        }
-
-        async function doSearch() {
-            const inputVal = normalizeName(document.getElementById('searchInput').value);
-            if (!inputVal || !worker) return;
-            if (document.getElementById('histModal')) document.getElementById('histModal').remove();
-            saveHistory(inputVal);
-
-            const mainDiv = document.getElementById('main');
-            mainDiv.innerHTML = '<div class="text-center p-10"><div class="spinner inline-block"></div><div class="mt-2 text-gray-400">正在搜尋資料庫...</div></div>';
-
-            // 取得性別和實際姓名（支援異體字）
-            const variants = getNameVariants(inputVal);
-            const nameCond = '姓名 IN (' + variants.map(v => `'${sanitizeSql(v)}'`).join(',') + ')';
-            const sexRes = await remoteQuery(`SELECT 性別, 姓名 FROM swimming_scores WHERE ${nameCond} AND ${LC_FILTER} LIMIT 1`);
-            if (!sexRes[0] || !sexRes[0].values || !sexRes[0].values[0]) {
-                mainDiv.innerHTML = '<div class="text-center p-10 text-gray-400">❌ 找不到該選手的個人參賽紀錄，請確認名字是否輸入正確。</div>';
-                return;
-            }
-            const sex = sexRes[0].values[0][0];       // 'M' 或 'F'
-            const dbName = sexRes[0].values[0][1];    // 資料庫中實際儲存的姓名
-            const safeDbName = sanitizeSql(dbName);
-            mainDiv.innerHTML = '';
-
-            const strokes = ['蝶式', '仰式', '蛙式', '自由式', '混合式'];
-            for (let [sIdx, stroke] of strokes.entries()) {
-                const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${safeDbName}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}`);
-                if (!res[0] || !res[0].values || res[0].values.length === 0) continue;
-
-                const card = document.createElement('div');
-                card.className = 'stroke-card';
-                card.innerHTML = `<div class="stroke-title">${stroke}</div>`;
-
-                const trayInner = document.createElement('div');
-                trayInner.style.minWidth = '710px';
-                const scrollTray = document.createElement('div');
-                scrollTray.style.overflowX = 'auto';
-
-                const cols = res[0].columns;
-                let allData = res[0].values.map(v => {
-                    let o = {};
-                    cols.forEach((col, i) => o[col] = v[i]);
-                    o.totalSec = timeToSec(o['成績']);
-                    return o;
-                });
-
-                const dists = [...new Set(allData.map(r => r['項目'].match(/(\d+)公尺/)?.[1]))].filter(Boolean).sort((a,b) => a-b);
-
-                for (let [dIdx, dist] of dists.entries()) {
-                    const dData = allData.filter(r => {
-                        const m = r['項目'].match(/(\d+)公尺/);
-                        return m && String(m[1]) === String(dist);
-                    }).sort((a,b) => a.totalSec - b.totalSec);
-                    if (dData.length === 0) continue;
-
-                    const pb = dData[0];
-                    const id = `s${sIdx}d${dIdx}`;
-                    const waScore = calculateFinapoint(parseInt(dist), stroke, pb.totalSec, sex);
-
-                    const ageG = await getRankData(dist, stroke, dbName, pb['出生年'], sex, false);
-                    const natG = await getRankData(dist, stroke, dbName, null, sex, true);
-                    const ageIdx = ageG.findIndex(r => variants.includes(r.name) || r.name === dbName);
-                    const natIdx = natG.findIndex(r => variants.includes(r.name) || r.name === dbName);
-                    const pr = ageIdx >= 0 ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
-
-                    const row = document.createElement('div');
-                    row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
-                    row.innerHTML = `
-                        <span class="col-dist-main" onclick="toggleD('${id}','trend','${dist}','${stroke}','${dbName}','${pb['出生年']}','${sex}')">${dist}m</span>
-                        <span class="col-count-main" onclick="toggleD('${id}','history','${dist}','${stroke}','${dbName}','${pb['出生年']}','${sex}')">${dData.length}場</span>
-                        <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}</span>
-                        <span class="col-wa-main">WA:${waScore > 0 ? waScore : '-'}</span>
-                        <span class="col-pr-main">PR ${pr.toFixed(1)}%</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${dbName}','${pb['出生年']}','${sex}')">同齡排行${ageIdx >= 0 ? '#'+(ageIdx+1) : '-'}</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','matrix','${dist}','${stroke}',null,null,'${sex}')">年度最佳</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${dbName}','${pb['出生年']}','${sex}')">全國排行${natIdx >= 0 ? '#'+(natIdx+1) : '-'}</span>
-                    `;
-
-                    const dd = document.createElement('div');
-                    dd.id = `p-${id}`;
-                    dd.className = 'drill-down';
-                    dd.innerHTML = `<div id="c-${id}"></div>`;
-                    trayInner.appendChild(row);
-                    trayInner.appendChild(dd);
-                }
-                scrollTray.appendChild(trayInner);
-                card.appendChild(scrollTray);
-                mainDiv.appendChild(card);
-            }
-        }
-
-        // ── toggleD：點擊展開/收合細節，含 AbortController 防競態 ──
-        const drillAbortControllers = {};
-        async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
-            const p = document.getElementById(`p-${id}`);
-            const c = document.getElementById(`c-${id}`);
-            if (!p || !c) return;
-            // 同 mode 同出生年 → 收合
-            if (p.classList.contains('active') && c.getAttribute('data-mode') === mode && c.getAttribute('data-birth') === String(p2)) {
-                p.classList.remove('active'); return;
-            }
-            p.classList.add('active');
-            c.setAttribute('data-mode', mode);
-            c.setAttribute('data-birth', String(p2));
-            c.innerHTML = '<div class="text-center p-4"><div class="spinner inline-block"></div></div>';
-
-            if (drillAbortControllers[id]) drillAbortControllers[id].abort();
-            const controller = new AbortController();
-            drillAbortControllers[id] = controller;
-            const signal = controller.signal;
-            const checkAbort = () => { if (signal.aborted) throw new DOMException('Aborted', 'AbortError'); };
-
-            const safeDist   = parseInt(dist, 10);
-            const safeStroke = sanitizeSql(stroke);
-            const safeP1     = sanitizeSql(p1 || '');
-
-            try {
-                if (mode === 'rank' || mode === 'natRank') {
-                    const isNat = mode === 'natRank';
-                    const sorted = await getRankData(dist, stroke, p1, p2, p3, isNat);
-                    checkAbort();
-                    sorted.forEach(u => u.wa = calculateFinapoint(dist, stroke, timeToSec(u.raw), p3));
-                    const total = sorted.length;
-                    const tIdx  = sorted.findIndex(r => getNameVariants(p1 || '').includes(r.name) || r.name === p1);
-                    let headerAD = '';
-                    if (!isNat) {
-                        const yNum = parseInt(String(p2).replace(/\D/g, ''));
-                        headerAD = `<div class="rank-header-AD"><span class="year-side" onclick="event.stopPropagation();toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum-1}','${p3}')">${toAD(yNum-1)}</span><span class="year-center">${toAD(yNum)}</span><span class="year-side" onclick="event.stopPropagation();toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum+1}','${p3}')">${toAD(yNum+1)}</span></div>`;
-                    } else {
-                        headerAD = `<div class="rank-header-AD"><span class="year-center" style="color:#FFF;">全國排行 (2025-2026)</span></div>`;
-                    }
-                    let h = `<div class="data-panel p-3">${headerAD}<div style="overflow-x:auto;"><div style="min-width:610px;">`;
-                    sorted.slice(0, 30).forEach((r, i) => {
-                        const isSelf = getNameVariants(p1||'').includes(r.name) || r.name === p1;
-                        h += `<div class="list-row ${isSelf?'row-gold':''}"><span class="col-rank-fixed">#${i+1}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${r.wa>0?Math.round(r.wa):'-'}</span><span class="col-8code-fixed">${r.fullDate}</span><span class="col-meet-fixed">${r.meet}</span></div>`;
-                    });
-                    if (total > 0) {
-                        h += `<div style="border-top:1px solid #444;margin:12px 0 8px;"></div>`;
-                        if (tIdx >= 0) {
-                            const u = sorted[tIdx], pr = (100*(total-tIdx)/total).toFixed(1);
-                            h += `<div class="list-row row-gold" style="border-bottom:none;padding-bottom:8px;"><span class="col-rank-fixed">#${tIdx+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${u.fullDate}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6;font-size:14px;line-height:1.8;margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
-                        }
-                    }
-                    checkAbort();
-                    c.innerHTML = h + '</div></div></div>';
-
-                } else if (mode === 'trend') {
-                    const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${safeP1}' AND 項目 LIKE '%${safeDist}公尺%${safeStroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`);
-                    checkAbort();
-                    const fV = (res[0]&&res[0].values) ? res[0].values.filter(vv => { const m=vv[4].match(/(\d+)公尺/); return m&&String(m[1])===String(dist); }) : [];
-                    const mkD = rs => rs.map(v => ({ x: new Date(v[0].substring(0,4), v[0].substring(4,6)-1, v[0].substring(6,8)), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
-                    const mkA = rs => rs.map(v => ({ x: (parseInt(v[0].substring(0,4))+(parseInt(v[0].substring(4,6))-1)/12)-toAD(v[3]), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
-                    const tD = mkD(fV), aD = mkA(fV);
-                    const ageS = await getRankData(dist, stroke, p1, p2, p3, false); checkAbort();
-                    const natS = await getRankData(dist, stroke, p1, p2, p3, true);  checkAbort();
-                    let ageOpt = '<option value=""># 選擇同齡對手</option>', natOpt = '<option value=""># 選擇全國對手</option>';
-                    ageS.slice(0,25).forEach(r => { if(r.name!==p1) ageOpt+=`<option value="${r.name}" style="color:#0A84FF;">${r.name} (${r.raw})</option>`; });
-                    natS.slice(0,25).forEach(r => { if(r.name!==p1) natOpt+=`<option value="${r.name}" style="color:#FF3B30;">${r.name} (${r.raw})</option>`; });
-                    c.innerHTML = `<div class="p-3" style="background:#000;"><div class="mb-8"><div class="font-bold mb-2">${dist}m 趨勢圖</div><select id="st-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#0A84FF]">${ageOpt}</select><div style="height:250px;border:1px solid #222;padding:5px;"><canvas id="canvas-t-${id}"></canvas></div></div><div><div class="font-bold mb-2">成長對比圖</div><select id="sa-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#FF3B30]">${natOpt}</select><div style="height:250px;border:1px solid #222;padding:5px;"><canvas id="canvas-a-${id}"></canvas></div></div></div>`;
-                    const tt = { backgroundColor:'rgba(28,28,30,0.95)', titleFont:{weight:'bold'}, padding:12, displayColors:false, titleColor:ctx=>ctx.tooltip.dataPoints[0].dataset.borderColor, callbacks:{ title:its=>its[0].raw.date8, label:it=>[`賽事: ${it.raw.meet}`,`成績: ${formatToXcode(it.raw.y)}`], labelTextColor:it=>it.dataset.borderColor } };
-                    const opt = isT => ({ responsive:true, maintainAspectRatio:false, scales:{ x:{type:isT?'time':'linear',grid:{color:'#333'},ticks:{color:'#FFF'}}, y:{ticks:{callback:v=>formatToXcode(v),color:'#FFF'},grid:{color:'#333'}} }, plugins:{legend:{display:false},tooltip:tt} });
-                    const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type:'line', data:{datasets:[{data:tD,borderColor:'#FFF',borderWidth:2.5,pointBackgroundColor:'#FFF',pointRadius:4}]}, options:opt(true) });
-                    const aC = new Chart(document.getElementById(`canvas-a-${id}`), { type:'line', data:{datasets:[{data:aD,borderColor:'#FFF',borderWidth:2.5,pointBackgroundColor:'#FFF',pointRadius:4}]}, options:opt(false) });
-                    const fetchOpp = async name => {
-                        const sN = sanitizeSql(name);
-                        const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${sN}' AND 項目 LIKE '%${safeDist}公尺%${safeStroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`);
-                        return (rO[0]&&rO[0].values) ? rO[0].values.filter(vv=>{ const mm=vv[4].match(/(\d+)公尺/); return mm&&String(mm[1])===String(dist); }) : [];
-                    };
-                    document.getElementById(`st-${id}`).onchange = async e => { if(!e.target.value) return; const ff=await fetchOpp(e.target.value); tC.data.datasets[1]={label:e.target.value,data:mkD(ff),borderColor:'#0A84FF',borderDash:[5,5],pointBackgroundColor:'#0A84FF',pointRadius:4}; tC.update(); };
-                    document.getElementById(`sa-${id}`).onchange = async e => { if(!e.target.value) return; const ff=await fetchOpp(e.target.value); aC.data.datasets[1]={label:e.target.value,data:mkA(ff),borderColor:'#FF3B30',borderDash:[5,5],pointBackgroundColor:'#FF3B30',pointRadius:4}; aC.update(); };
-
-                } else if (mode === 'matrix') {
-                    const matHtml = await renderMatrix(dist, stroke, p3);
-                    checkAbort();
-                    c.innerHTML = matHtml;
-
-                } else if (mode === 'history') {
-                    const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目 FROM swimming_scores WHERE 姓名='${safeP1}' AND 項目 LIKE '%${safeDist}公尺%${safeStroke}%' AND ${LC_FILTER} ORDER BY 年份 DESC`);
-                    checkAbort();
-                    const fR = (res[0]&&res[0].values) ? res[0].values.filter(v=>{ const m=v[3].match(/(\d+)公尺/); return m&&String(m[1])===String(dist); }) : [];
-                    const minS = fR.length>0 ? Math.min(...fR.map(v=>timeToSec(v[1]))) : 0;
-                    let h = '<div class="data-panel"><div style="color:#FFD933;font-weight:bold;margin-bottom:10px;">歷年紀錄</div>';
-                    fR.forEach(v => { const s=timeToSec(v[1]); h+=`<div class="list-row ${s===minS?'row-gold':''}"><span class="col-8code-fixed">${v[0]}</span><span class="col-time-fixed">${formatToXcode(s)}</span><span class="col-meet-fixed">${v[2]}</span></div>`; });
-                    c.innerHTML = h + '</div>';
-                }
-            } catch (err) {
-                if (err.name === 'AbortError') return;
-                if (c && document.body.contains(c)) c.innerHTML = `<div class="text-center p-4 text-red-500">載入失敗: ${err.message}</div>`;
-            } finally {
-                if (drillAbortControllers[id] === controller) delete drillAbortControllers[id];
-            }
-        }
-
-        // ── (舊版 toggleDrillDown 已由 toggleD 取代) ──
-        async function toggleDrillDown(cardId, dist, stroke, p1, p2, p3) {
-            const card = document.getElementById(cardId);
-            const wasActive = card.classList.contains('active');
-            
-            // 收合其他已展開的
-            document.querySelectorAll('.drill-down.active').forEach(c => {
-                if (c.id !== cardId) c.classList.remove('active');
-            });
-            
-            card.classList.toggle('active');
-            
-            if (!wasActive) {
-                const activeTab = card.querySelector('.tab-btn.active').textContent;
-                let mode = 'rank';
-                if (activeTab === '趨勢成長') mode = 'trend';
-                else if (activeTab === 'WA積分') mode = 'matrix';
-                else if (activeTab === '歷年成績') mode = 'history';
-                
-                await loadTabContent(cardId, mode, dist, stroke, p1, p2, p3);
-            }
-        }
-
-        async function switchTab(cardId, mode, dist, stroke, p1, p2, p3) {
-            const card = document.getElementById(cardId);
-            card.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (mode === 'rank' && btn.textContent === '同齡排名') btn.classList.add('active');
-                if (mode === 'trend' && btn.textContent === '趨勢成長') btn.classList.add('active');
-                if (mode === 'matrix' && btn.textContent === 'WA積分') btn.classList.add('active');
-                if (mode === 'history' && btn.textContent === '歷年成績') btn.classList.add('active');
-            });
-            await loadTabContent(cardId, mode, dist, stroke, p1, p2, p3);
-        }
-
-        // 取得特定項目的同齡選手排名資料
-        // [Developer] 簡化 SQL 以發揮 SQLite 索引最大效能，將精確比對交由 JS 處理
-        async function getRankData(dist, stroke, p1, p2, p3, isNational=false) {
-            const safeDist = parseInt(dist, 10);
-            const safeStroke = sanitizeSql(stroke);
-            const genderFilter = p3 ? `AND 性別='${sanitizeSql(p3)}'` : '';
-            const ageFilter = isNational ? '' : `AND 出生年='${sanitizeSql(p2)}'`;
-            
-            // 優先利用項目/性別/出生年索引篩選出少量數據
-            const q = `
-                SELECT 姓名, 成績, 年份, 賽事名稱, 出生年, 項目, 單位
-                FROM swimming_scores
-                WHERE 項目 LIKE '%${safeDist}公尺%${safeStroke}%'
-                  ${genderFilter} ${ageFilter}
-                  AND ${LC_FILTER}
-            `;
-            const res = await remoteQuery(q);
-            if (!res[0] || !res[0].values) return [];
-            
+        async function getRankData(dist, stroke, name, birth, sex, isNational) {
+            const pattern = `%${dist}公尺%${stroke}%`;
+            let filter = `項目 LIKE '${pattern}' AND 性別 = '${sex}' AND ${LC_FILTER}`;
+            if (isNational) filter += ` AND (年份 LIKE '2026%' OR 年份 LIKE '2025%')`; else filter += ` AND 出生年='${birth}'`;
+            const res = await remoteQuery(`SELECT 姓名, 成績, 年份, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE ${filter}`);
+            if (!res[0]) return [];
             const pBs = {};
             res[0].values.forEach(v => {
-                const item = v[5];
-                const match = item.match(/(\d+)公尺/);
-                if (!match || String(match[1]) !== String(dist)) return;
-                
-                // 排除接力
-                if (item.includes('接力') || item.includes('×')) return;
-                
-                const pN = v[0];
-                const sec = timeToSec(v[1]);
-                if (sec > 0 && (!pBs[pN] || sec < pBs[pN].sec)) {
-                    pBs[pN] = {
-                        name: pN,
-                        sec,
-                        raw: v[1],
-                        birthYear: v[4],
-                        meet: v[3],
-                        fullDate: v[2],
-                        unit: v[6]
-                    };
-                }
+                const m = v[5].match(/(\d+)公尺/);
+                if (!m || m[1] !== String(dist)) return;
+
+                const pN = v[0], sec = timeToSec(v[1]);
+                if (sec > 0 && (!pBs[pN] || sec < pBs[pN].sec)) pBs[pN] = { name: pN, sec, raw: formatToXcode(sec), fullDate: v[2], meet: v[3], wa: getWA(dist, stroke, v[1], sex), birthYear: v[4] };
             });
             return Object.values(pBs).sort((a,b) => a.sec - b.sec);
         }
 
-        // 動態計算 FINA (WA) 積分 — 改用全域 WA_BASE_TIMES 常數
-        function calculateFinapoint(dist, stroke, sec, gender) {
-            const b = WA_BASE_TIMES[gender]?.[stroke]?.[dist];
-            return (b && sec > 0) ? Math.floor(1000 * Math.pow(b / sec, 3)) : 0;
-        }
-
         async function renderMatrix(dist, stroke, sex) {
-            // 年度最佳矩陣（還原原始設計）
             const currentYear = new Date().getFullYear();
-            const showYears = []; for (let i = 0; i < 5; i++) showYears.push(String(currentYear - i));
-            const groups = ['18以上', '高中', '國中', '國小高年級', '國小中年級', '國小低年級'];
-            const genderCond = (sex === 'F' || (sex||'').includes('女')) ? `性別 = 'F'` : `性別 = 'M'`;
-            const safeDist = parseInt(dist, 10);
-            const safeStroke = sanitizeSql(stroke);
-            const res = await remoteQuery(`SELECT 年份, 姓名, 出生年, 成績, 項目 FROM swimming_scores WHERE 項目 LIKE '%${safeDist}公尺%${safeStroke}%' AND ${genderCond} AND ${LC_FILTER} AND 成績 != ''`);
-            let matrix = { 'All-Time': {} }; showYears.forEach(y => matrix[y] = {});
-            function getG(age) { if(age<9) return '國小低年級'; if(age<=10) return '國小中年級'; if(age<=12) return '國小高年級'; if(age<=14) return '國中'; if(age<=17) return '高中'; return '18以上'; }
-            if (res[0] && res[0].values) {
+            const showYears = []; for (let i = 0; i < 5; i++) { showYears.push((currentYear - i).toString()); }
+            const groups = ["18以上", "高中", "國中", "國小高年級", "國小中年級", "國小低年級"];
+            const res = await remoteQuery(`SELECT 年份, 姓名, 出生年, 成績, 項目 FROM swimming_scores WHERE 項目 LIKE '%${dist}公尺%${stroke}%' AND 性別 = '${sex.includes("男")?"男":"女"}' AND ${LC_FILTER} AND 成績 != ''`);
+            let matrix = { "All-Time": {} }; showYears.forEach(y => matrix[y] = {});
+            function getG(age) { if (age < 9) return "國小低年級"; if (age <= 10) return "國小中年級"; if (age <= 12) return "國小高年級"; if (age <= 14) return "國中"; if (age <= 17) return "高中"; return "18以上"; }
+            if (res[0]) {
                 res[0].values.forEach(v => {
                     const m = v[4].match(/(\d+)公尺/);
-                    if (!m || String(m[1]) !== String(dist)) return;
+                    if (!m || m[1] !== String(dist)) return;
+
                     const rY = parseInt(String(v[0]).substring(0,4)), sec = timeToSec(v[3]), bY = toAD(v[2]);
-                    if (sec <= 0) return;
                     const g = getG(rY - bY);
-                    if (matrix[String(rY)] && (!matrix[String(rY)][g] || sec < matrix[String(rY)][g].sec)) matrix[String(rY)][g] = { n: v[1], sec };
-                    if (!matrix['All-Time'][g] || sec < matrix['All-Time'][g].sec) matrix['All-Time'][g] = { n: v[1], sec };
+                    if (matrix[rY] && (!matrix[rY][g] || sec < matrix[rY][g].sec)) matrix[rY][g] = { n: v[1], sec };
+                    if (!matrix["All-Time"][g] || sec < matrix["All-Time"][g].sec) matrix["All-Time"][g] = { n: v[1], sec };
                 });
             }
             let colorMap = {}, all = new Set();
             Object.values(matrix).forEach(row => groups.forEach(g => { if(row[g]) all.add(row[g].n); }));
-            const sz = all.size || 1;
-            Array.from(all).sort().forEach((n, i) => colorMap[n] = `hsl(${Math.round(i*(360/sz))}, 85%, 65%)`);
-            let h = `<div class="data-panel"><div style="color:#FFD933;font-weight:bold;margin-bottom:10px;">年度最佳矩陣</div><div style="overflow-x:auto;"><table class="matrix-table"><tr style="background:#2C2C2E;"><th>年度</th>${groups.map(g=>`<th>${g}</th>`).join('')}</tr>`;
-            ['All-Time', ...showYears].forEach(y => {
-                h += `<tr><td class="font-bold">${y}</td>`;
-                groups.forEach(g => { const r = matrix[y]?.[g]; h += r ? `<td><b style="color:${colorMap[r.n]};text-shadow:1px 1px 1px #000;">${r.n}</b><br><small>${formatToXcode(r.sec)}</small></td>` : '<td>-</td>'; });
-                h += '</tr>';
-            });
-            return h + '</table></div></div>';
+            Array.from(all).sort().forEach((n, i) => colorMap[n] = `hsl(${(i * (360 / all.size))}, 85%, 65%)`);
+            let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">年度最佳矩陣</div><div style="overflow-x:auto;"><table class="matrix-table"><tr style="background:#2C2C2E;"><th>年度</th>${groups.map(g=>`<th>${g}</th>`).join('')}</tr>`;
+            ["All-Time", ...showYears].forEach(y => { h += `<tr><td class="font-bold">${y}</td>`; groups.forEach(g => { const r = matrix[y][g]; h += r ? `<td><b style="color:${colorMap[r.n]}; text-shadow:1px 1px 1px #000;">${r.n}</b><br><small>${formatToXcode(r.sec)}</small></td>` : `<td>-</td>`; }); h += `</tr>`; });
+            return h + "</table></div></div>";
         }
 
-        async function loadTabContent(id, mode, dist, stroke, p1, p2, p3) {
-            const c = document.getElementById(`body-${id}`);
-            if (!c) return;
-            c.innerHTML = `<div class="text-center p-4"><div class="spinner inline-block"></div></div>`;
-
-            // [Auditor] AbortController：若同一張卡被重複觸發，取消上一次未完成的請求
-            if (cardAbortControllers[id]) {
-                cardAbortControllers[id].abort();
+        async function doSearch() {
+            const input = normalizeName(document.getElementById('searchInput').value); if (!input || !worker) return;
+            const loader = document.getElementById('queryLoader');
+            loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
+            swimmerAnim.playSegments([32, 97], true);
+            const minWait = new Promise(r => setTimeout(r, 1500));
+            const main = document.getElementById('main'); main.innerHTML = "";
+            const sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}' LIMIT 1`);
+            if (!sexRes[0]) { loader.style.display = 'none'; return; }
+            const sex = sexRes[0].values[0][0]; saveHistory(input);
+            const strokes = ["蝶式", "仰式", "蛙式", "自由式", "混合式"];
+            for (let [sIdx, stroke] of strokes.entries()) {
+                const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${input}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}`);
+                if (!res[0]) continue;
+                const card = document.createElement('div'); card.className = "stroke-card";
+                card.cardHTML = "";
+                card.innerHTML = `<div class="stroke-title">${stroke}</div>`;
+                const trayInner = document.createElement('div'); trayInner.style.minWidth = "710px";
+                const scrollTray = document.createElement('div'); scrollTray.style.overflowX = "auto";
+                let allData = res[0].values.map(v => { let o = {}; res[0].columns.forEach((col, i) => o[col] = v[i]); o.totalSec = timeToSec(o.成績); return o; });
+                
+                const dists = [...new Set(allData.map(r => r.項目.match(/(\d+)公尺/)?.[1]))].filter(Boolean).sort((a,b)=>a-b);
+                for (let [dIdx, dist] of dists.entries()) {
+                    const dData = allData.filter(r => {
+                        const m = r.項目.match(/(\d+)公尺/);
+                        return m && String(m[1]) === String(dist);
+                    }).sort((a,b) => a.totalSec - b.totalSec);
+                    
+                    if (dData.length === 0) continue;
+                    const pb = dData[0], id = `s${sIdx}d${dIdx}`;
+                    const ageG = await getRankData(dist, stroke, input, pb.出生年, sex, false);
+                    const natG = await getRankData(dist, stroke, input, null, sex, true);
+                    const ageIdx = ageG.findIndex(r => r.name === input), natIdx = natG.findIndex(r => r.name === input);
+                    const pr = ageIdx >= 0 ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
+                    const row = document.createElement('div');
+                    row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
+                    row.innerHTML = `
+                        <span class="col-dist-main" onclick="toggleD('${id}','trend','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dist}m</span>
+                        <span class="col-count-main" onclick="toggleD('${id}','history','${dist}','${stroke}','${input}')">${dData.length}場</span>
+                        <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}</span>
+                        <span class="col-wa-main">WA:${getWA(dist, stroke, pb.成績, sex)}</span>
+                        <span class="col-pr-main">PR ${pr.toFixed(1)}%</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行#${ageIdx+1}</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','matrix','${dist}','${stroke}', null, null, '${sex}')">年度最佳</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natIdx >= 0 ? '#' + (natIdx+1) : '-'}</span>
+                    `;
+                    const dd = document.createElement('div'); dd.id = `p-${id}`; dd.className = "drill-down";
+                    dd.innerHTML = `<div id="c-${id}"></div>`; trayInner.appendChild(row); trayInner.appendChild(dd);
+                }
+                scrollTray.appendChild(trayInner); card.appendChild(scrollTray); main.appendChild(card);
             }
-            const controller = new AbortController();
-            cardAbortControllers[id] = controller;
-            const signal = controller.signal;
+            await minWait; loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+        }
 
-            // 每次異步步驟後檢查是否已被中止
-            const checkAbort = () => {
-                if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
-            };
-
-            const safeDist   = parseInt(dist, 10);
-            const safeStroke = sanitizeSql(stroke);
-            const safeP1     = sanitizeSql(p1);
-            const safeP2     = sanitizeSql(p2);
-            const safeP3     = sanitizeSql(p3);
-
-            try {
+        async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
+            const p = document.getElementById(`p-${id}`), c = document.getElementById(`c-${id}`);
+            if (p.classList.contains('active') && c.getAttribute('data-mode') === mode && c.getAttribute('data-birth') === p2) { p.classList.remove('active'); return; }
+            p.classList.add('active'); c.setAttribute('data-mode', mode); c.setAttribute('data-birth', p2);
+            if (mode === 'rank' || mode === 'natRank') {
+                const sorted = await getRankData(dist, stroke, p1, p2, p3, mode==='natRank');
+                const adYear = toAD(p2);
+                let headerAD = "";
                 if (mode === 'rank') {
-                    const sorted = await getRankData(dist, stroke, p1, p2, p3, false);
-                    checkAbort();
-                    sorted.forEach(u => u.wa = calculateFinapoint(dist, stroke, timeToSec(u.raw), p3));
-                    const total = sorted.length;
-                    const tIdx = sorted.findIndex(u => u.name === p1);
-
-                    let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">同齡選手排名 (全國)</div>`;
-                    h += `<div class="list-row font-bold text-gray-400" style="border-bottom:1px solid #333;"><span class="col-rank-fixed">#</span><span class="col-birth-fixed">出生年</span><span class="col-name-fixed">姓名</span><span class="col-time-fixed">成績</span><span class="col-wa-list">WA 積分</span><span class="col-8code-fixed">年份</span><span class="col-meet-fixed">賽事名稱</span></div><div style="max-height:220px; overflow-y:auto;">`;
-                    sorted.slice(0, 15).forEach((u, i) => {
-                        const isSelf = u.name === p1;
-                        h += `<div class="list-row ${isSelf?'row-gold':''}"><span class="col-rank-fixed">${i+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">${u.wa > 0 ? u.wa : '-'}</span><span class="col-8code-fixed">${u.fullDate}</span><span class="col-meet-fixed">${u.meet}</span></div>`;
-                    });
-                    if (total > 0) {
-                        h += `<div style="border-top:1px solid #444; margin:12px 0 8px 0;"></div>`;
-                        if (tIdx >= 0) {
-                            const u = sorted[tIdx], pr = (100 * (total - tIdx) / total).toFixed(1);
-                            h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${tIdx+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${u.fullDate}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
-                        }
+                    const yNum = parseInt(p2.replace(/\D/g, ''));
+                    headerAD = `<div class="rank-header-AD"><span class="year-side" onclick="event.stopPropagation(); toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum-1}','${p3}')">${toAD(yNum-1)}</span><span class="year-center">${adYear}</span><span class="year-side" onclick="event.stopPropagation(); toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum+1}','${p3}')">${toAD(yNum+1)}</span></div>`;
+                } else {
+                    headerAD = `<div class="rank-header-AD"><span class="year-center" style="color:#FFF;">全國排行 (2025-2026)</span></div>`;
+                }
+                let h = `<div class="data-panel p-3">${headerAD}<div style="overflow-x:auto;"><div style="min-width:610px;">`;
+                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${r.name===p1?'row-gold':''}"><span class="col-rank-fixed">#${i+1}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${r.fullDate}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
+                const total = sorted.length, tIdx = sorted.findIndex(r => r.name === p1);
+                if (total > 0) {
+                    h += `<div style="border-top:1px solid #444; margin:12px 0 8px 0;"></div>`;
+                    if (tIdx >= 0) {
+                        const u = sorted[tIdx], pr = (100 * (total - tIdx) / total).toFixed(1);
+                        h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${tIdx+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${u.fullDate}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
                     }
-                    checkAbort();
-                    c.innerHTML = h + "</div></div></div>";
-
-                } else if (mode === 'trend') {
-                    // [Auditor+QA] dist 過濾推入 SQL，消除 Main Thread .filter() Regex
-                    const res = await remoteQuery(`
-                        SELECT 年份, 成績, 賽事名稱, 出生年
-                        FROM swimming_scores
-                        WHERE 姓名='${safeP1}'
-                          AND CAST(TRIM(SUBSTR(項目, MAX(1, INSTR(項目,'公尺')-4), 4)) AS INTEGER) = ${safeDist}
-                          AND 項目 LIKE '%${safeStroke}%'
-                          AND 項目 NOT LIKE '%接力%'
-                          AND ${LC_FILTER}
-                        ORDER BY 年份 ASC
-                    `);
-                    checkAbort();
-                    const fV = (res[0] && res[0].values) ? res[0].values : [];
-                    const mkD = (rs) => rs.map(v => ({ x: new Date(v[0].substring(0,4), v[0].substring(4,6)-1, v[0].substring(6,8)), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
-                    const mkA = (rs) => rs.map(v => ({ x: (parseInt(v[0].substring(0,4)) + (parseInt(v[0].substring(4,6))-1)/12) - toAD(v[3]), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
-                    const tD = mkD(fV), aD = mkA(fV);
-                    const ageS = await getRankData(dist, stroke, p1, p2, p3, false);
-                    checkAbort();
-                    const natS = await getRankData(dist, stroke, p1, p2, p3, true);
-                    checkAbort();
-                    let ageOpt = '<option value=""># 選擇同齡對手</option>', natOpt = '<option value=""># 選擇全國對手</option>';
-                    ageS.slice(0,25).forEach(r => { if(r.name!==p1) ageOpt += `<option value="${r.name}" style="color:#0A84FF;">${r.name} (${r.raw})</option>`; });
-                    natS.slice(0,25).forEach(r => { if(r.name!==p1) natOpt += `<option value="${r.name}" style="color:#FF3B30;">${r.name} (${r.raw})</option>`; });
-
-                    c.innerHTML = `<div class="p-3" style="background:#000;"><div class="mb-8"><div class="font-bold mb-2">${dist}m 趨勢圖</div><select id="st-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#0A84FF]">${ageOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-t-${id}"></canvas></div></div><div><div class="font-bold mb-2">成長對比圖</div><select id="sa-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#FF3B30]">${natOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-a-${id}"></canvas></div></div></div>`;
-
-                    const tt = { backgroundColor: 'rgba(28,28,30,0.95)', titleFont: {weight:'bold'}, padding:12, displayColors:false, titleColor: (ctx) => ctx.tooltip.dataPoints[0].dataset.borderColor, callbacks: { title: (its) => its[0].raw.date8, label: (it) => [`賽事: ${it.raw.meet}`, `成績: ${formatToXcode(it.raw.y)}`], labelTextColor: (it) => it.dataset.borderColor } };
-                    const opt = (isT) => ({ responsive: true, maintainAspectRatio: false, scales: { x: { type: isT?'time':'linear', grid: { color:'#333' }, ticks: { color:'#FFF' } }, y: { ticks: { callback: v => formatToXcode(v), color:'#FFF' }, grid: { color:'#333' } } }, plugins: { legend: { display: false }, tooltip: tt } });
-                    const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type: 'line', data: { datasets: [{ data: tD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(true) });
-                    const aC = new Chart(document.getElementById(`canvas-a-${id}`), { type: 'line', data: { datasets: [{ data: aD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(false) });
-
-                    // [QA+Auditor] 趨勢對手選擇也推入 SQL 過濾，不再 Main Thread Regex
-                    const fetchOpponent = async (name) => {
-                        const safeN = sanitizeSql(name);
-                        const rO = await remoteQuery(`
-                            SELECT 年份, 成績, 賽事名稱, 出生年
-                            FROM swimming_scores
-                            WHERE 姓名='${safeN}'
-                              AND CAST(TRIM(SUBSTR(項目, MAX(1, INSTR(項目,'公尺')-4), 4)) AS INTEGER) = ${safeDist}
-                              AND 項目 LIKE '%${safeStroke}%'
-                              AND 項目 NOT LIKE '%接力%'
-                              AND ${LC_FILTER}
-                            ORDER BY 年份 ASC
-                        `);
-                        return (rO[0] && rO[0].values) ? rO[0].values : [];
-                    };
-                    document.getElementById(`st-${id}`).onchange = async (e) => {
-                        const ff = await fetchOpponent(e.target.value);
-                        tC.data.datasets[1] = { label: e.target.value, data: mkD(ff), borderColor: '#0A84FF', borderDash: [5,5], pointBackgroundColor: '#0A84FF', pointRadius: 4 };
-                        tC.update();
-                    };
-                    document.getElementById(`sa-${id}`).onchange = async (e) => {
-                        const ff = await fetchOpponent(e.target.value);
-                        aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 };
-                        aC.update();
-                    };
-
-                } else if (mode === 'matrix') {
-                    const matHtml = await renderMatrix(dist, stroke, p3);
-                    checkAbort();
-                    c.innerHTML = matHtml;
-
-                } else if (mode === 'history') {
-                    // [Auditor+QA] dist 過濾推入 SQL
-                    const res = await remoteQuery(`
-                        SELECT 年份, 成績, 賽事名稱
-                        FROM swimming_scores
-                        WHERE 姓名='${safeP1}'
-                          AND CAST(TRIM(SUBSTR(項目, MAX(1, INSTR(項目,'公尺')-4), 4)) AS INTEGER) = ${safeDist}
-                          AND 項目 LIKE '%${safeStroke}%'
-                          AND 項目 NOT LIKE '%接力%'
-                          AND ${LC_FILTER}
-                        ORDER BY 年份 DESC
-                    `);
-                    checkAbort();
-                    const fR = (res[0] && res[0].values) ? res[0].values : [];
-                    const minS = fR.length > 0 ? Math.min(...fR.map(v => timeToSec(v[1]))) : 0;
-                    let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">歷年紀錄</div>`;
-                    fR.forEach(v => { const s = timeToSec(v[1]); h += `<div class="list-row ${s===minS?'row-gold':''}"><span class="col-8code-fixed">${v[0]}</span><span class="col-time-fixed">${formatToXcode(s)}</span><span class="col-meet-fixed">${v[2]}</span></div>`; });
-                    c.innerHTML = h + "</div>";
                 }
-            } catch (err) {
-                if (err.name === 'AbortError') return; // [Auditor] 正常中止，靜默退出
-                if (c && document.body.contains(c)) {
-                    c.innerHTML = `<div class="text-center p-4 text-red-500">載入失敗: ${err.message}</div>`;
-                }
-            } finally {
-                // 清理 controller 參照
-                if (cardAbortControllers[id] === controller) {
-                    delete cardAbortControllers[id];
-                }
+                c.innerHTML = h + "</div></div></div>";
+            } else if (mode === 'trend') {
+                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`);
+                const fV = res[0].values.filter(vv => { const m = vv[4].match(/(\d+)公尺/); return m && String(m[1]) === String(dist); });
+                const mkD = (rs) => rs.map(v => ({ x: new Date(v[0].substring(0,4), v[0].substring(4,6)-1, v[0].substring(6,8)), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
+                const mkA = (rs) => rs.map(v => ({ x: (parseInt(v[0].substring(0,4)) + (parseInt(v[0].substring(4,6))-1)/12) - toAD(v[3]), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
+                const tD = mkD(fV), aD = mkA(fV);
+                const ageS = await getRankData(dist, stroke, p1, p2, p3, false), natS = await getRankData(dist, stroke, p1, p2, p3, true);
+                let ageOpt = '<option value=""># 選擇同齡對手</option>', natOpt = '<option value=""># 選擇全國對手</option>';
+                ageS.slice(0,25).forEach(r => { if(r.name!==p1) ageOpt += `<option value="${r.name}" style="color:#0A84FF;">${r.name} (${r.raw})</option>`; });
+                natS.slice(0,25).forEach(r => { if(r.name!==p1) natOpt += `<option value="${r.name}" style="color:#FF3B30;">${r.name} (${r.raw})</option>`; });
+                c.innerHTML = `<div class="p-3" style="background:#000;"><div class="mb-8"><div class="font-bold mb-2">${dist}m 趨勢圖</div><select id="st-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#0A84FF]">${ageOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-t-${id}"></canvas></div></div><div><div class="font-bold mb-2">成長對比圖</div><select id="sa-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#FF3B30]">${natOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-a-${id}"></canvas></div></div></div>`;
+                const tt = { backgroundColor: 'rgba(28,28,30,0.95)', titleFont: {weight:'bold'}, padding:12, displayColors:false, titleColor: (ctx) => ctx.tooltip.dataPoints[0].dataset.borderColor, callbacks: { title: (its) => its[0].raw.date8, label: (it) => [`賽事: ${it.raw.meet}`, `成績: ${formatToXcode(it.raw.y)}`], labelTextColor: (it) => it.dataset.borderColor } };
+                const opt = (isT) => ({ responsive: true, maintainAspectRatio: false, scales: { x: { type: isT?'time':'linear', grid: { color:'#333' }, ticks: { color:'#FFF' } }, y: { ticks: { callback: v => formatToXcode(v), color:'#FFF' }, grid: { color:'#333' } } }, plugins: { legend: { display: false }, tooltip: tt } });
+                const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type: 'line', data: { datasets: [{ data: tD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(true) });
+                const aC = new Chart(document.getElementById(`canvas-a-${id}`), { type: 'line', data: { datasets: [{ data: aD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(false) });
+                document.getElementById(`st-${id}`).onchange = async (e) => { 
+                    const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
+                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺/); return mm && String(mm[1]) === String(dist); });
+                    tC.data.datasets[1] = { label: e.target.value, data: mkD(ff), borderColor: '#0A84FF', borderDash: [5,5], pointBackgroundColor: '#0A84FF', pointRadius: 4 }; tC.update(); 
+                };
+                document.getElementById(`sa-${id}`).onchange = async (e) => { 
+                    const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
+                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺/); return mm && String(mm[1]) === String(dist); });
+                    aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 }; aC.update(); 
+                };
+            } else if (mode === 'matrix') { c.innerHTML = await renderMatrix(dist, stroke, p3); }
+            else if (mode === 'history') {
+                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 DESC`);
+                const fR = res[0].values.filter(v => {
+                    const m = v[3].match(/(\d+)公尺/);
+                    return m && String(m[1]) === String(dist);
+                });
+                const minS = fR.length > 0 ? Math.min(...fR.map(v => timeToSec(v[1]))) : 0;
+                let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">歷年紀錄</div>`;
+                fR.forEach(v => { const s = timeToSec(v[1]); h += `<div class="list-row ${s===minS?'row-gold':''}"><span class="col-8code-fixed">${v[0]}</span><span class="col-time-fixed">${formatToXcode(s)}</span><span class="col-meet-fixed">${v[2]}</span></div>`; });
+                c.innerHTML = h + "</div>";
             }
         }
 
-        // 手動載入本機 DB
-        function showUploadPrompt() {
-            document.getElementById('loadingOverlay').style.display = 'none';
-            document.getElementById('dbLoaderArea').style.display = 'flex';
+        async function downloadDatabaseFromServer() {
             document.getElementById('progressContainer').classList.remove('hidden');
             const statusEl = document.getElementById('loaderStatus');
-            statusEl.textContent = "未偵測到本機快取資料庫。請選取您的 swim_results_birthday.db 檔案進行載入。";
-            document.getElementById('progressBar').style.width = '0%';
+            const progressBar = document.getElementById('progressBar');
+            statusEl.textContent = "正在自伺服器下載游泳成績資料庫 (約 290MB)...";
+            
+            try {
+                const response = await fetch('/api/birthday_db');
+                if (!response.ok) throw new Error("下載失敗");
+                
+                const contentLength = response.headers.get('content-length');
+                const total = contentLength ? parseInt(contentLength, 10) : 0;
+                let loaded = 0;
+                
+                const reader = response.body.getReader();
+                const chunks = [];
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                    loaded += value.length;
+                    if (total) {
+                        const pct = Math.round((loaded / total) * 100);
+                        progressBar.style.width = `${pct}%`;
+                        statusEl.textContent = `下載中: ${pct}% (${(loaded / 1024 / 1024).toFixed(1)}MB / ${(total / 1024 / 1024).toFixed(1)}MB)`;
+                    } else {
+                        statusEl.textContent = `下載中: ${(loaded / 1024 / 1024).toFixed(1)}MB`;
+                    }
+                }
+                
+                statusEl.textContent = "下載完成！正在初始化資料庫...";
+                const blob = new Blob(chunks);
+                const buffer = await blob.arrayBuffer();
+                
+                worker.postMessage({ type: 'INIT', data: new Uint8Array(buffer) });
+                
+                const openReq = indexedDB.open("SwimSQL", 1);
+                openReq.onupgradeneeded = e => {
+                    if (!e.target.result.objectStoreNames.contains("files")) {
+                        e.target.result.createObjectStore("files");
+                    }
+                };
+                openReq.onsuccess = e => {
+                    const db = e.target.result;
+                    const tx = db.transaction("files", "readwrite");
+                    tx.objectStore("files").put(blob, "current_db");
+                    tx.oncomplete = () => {
+                        document.getElementById('dbLoaderArea').style.display = 'none';
+                    };
+                };
+            } catch (err) {
+                statusEl.textContent = `自動下載失敗: ${err.message}。請嘗試重新整理網頁，或點選上方按鈕手動上傳資料庫檔。`;
+            }
         }
 
         async function handleDBUpload(files) { 
@@ -944,32 +408,24 @@
             progressBar.style.width = '50%';
             statusEl.textContent = "正在讀取本機檔案...";
             
-            try {
-                const buffer = await files[0].arrayBuffer(); 
-                statusEl.textContent = "正在快取資料庫至瀏覽器 (IndexedDB)...";
-                const openReq = indexedDB.open("SwimSQL", 1); 
-                openReq.onupgradeneeded = e => {
-                    if (!e.target.result.objectStoreNames.contains("files")) {
-                        e.target.result.createObjectStore("files");
-                    }
-                }; 
-                openReq.onsuccess = e => {
-                    const db = e.target.result;
-                    const tx = db.transaction("files", "readwrite");
-                    tx.objectStore("files").put(files[0], "current_db");
-                    // 儲存資料庫元數據，供狀態列讀取
-                    const info = { name: files[0].name, size: files[0].size, loadedAt: new Date().toISOString() };
-                    tx.objectStore("files").put(info, "db_info");
-                    tx.oncomplete = () => {
-                        progressBar.style.width = '100%';
-                        statusEl.textContent = "載入完成！正在重啟系統...";
-                        // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
-                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buffer), wasmUrl: localWasmUrl }, [buffer]);
-                    };
-                }; 
-            } catch (err) {
-                statusEl.textContent = `檔案讀取失敗: ${err.message}`;
-            }
+            const buffer = await files[0].arrayBuffer(); 
+            worker.postMessage({ type: 'INIT', data: new Uint8Array(buffer) }); 
+            
+            statusEl.textContent = "正在快取資料庫至瀏覽器...";
+            const openReq = indexedDB.open("SwimSQL", 1); 
+            openReq.onupgradeneeded = e => {
+                if (!e.target.result.objectStoreNames.contains("files")) {
+                    e.target.result.createObjectStore("files");
+                }
+            }; 
+            openReq.onsuccess = e => {
+                const db = e.target.result;
+                const tx = db.transaction("files", "readwrite");
+                tx.objectStore("files").put(files[0], "current_db");
+                tx.oncomplete = () => {
+                    document.getElementById('dbLoaderArea').style.display = 'none'; 
+                };
+            }; 
         }
 
         async function startSystem() { 
@@ -981,93 +437,59 @@
                     }
                 };
                 openReq.onblocked = () => {
-                    console.warn("IndexedDB 被其他分頁占用，請關閉其他分頁");
-                    const statusEl = document.getElementById('loaderStatus') || { textContent: "" };
-                    statusEl.textContent = "⚠️ 偵測到資料庫被其他分頁占用。請關閉其他相關分頁，然後重新整理本頁面。";
-                    showUploadPrompt();
+                    console.warn("IndexedDB 被占用");
+                    const statusEl = document.getElementById('loaderStatus');
+                    if (statusEl) statusEl.textContent = "⚠️ 偵測到資料庫被其他分頁占用。請關閉其他相關分頁，然後重新整理本頁面。";
                 };
                 openReq.onsuccess = e => { 
                     try {
                         const db = e.target.result;
                         if(!db.objectStoreNames.contains("files")) {
-                            showUploadPrompt();
+                            handleNoDatabase();
                             return;
                         }
                         const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db"); 
                         getReq.onsuccess = async () => { 
                             try {
                                 if (getReq.result) { 
-                                    const fileBlob = getReq.result;
-                                    const buf = await (fileBlob instanceof Blob ? fileBlob.arrayBuffer() : fileBlob); 
-                                    // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
-                                    worker.postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]); 
+                                    const buf = await (getReq.result instanceof Blob ? getReq.result.arrayBuffer() : getReq.result); 
+                                    worker.postMessage({ type: 'INIT', data: new Uint8Array(buf) }); 
                                 } else {
-                                    showUploadPrompt();
+                                    handleNoDatabase();
                                 }
                             } catch (bufErr) {
                                 console.error("讀取快取資料庫失敗:", bufErr);
-                                showUploadPrompt();
+                                handleNoDatabase();
                             }
-                        };
-                        getReq.onerror = () => { showUploadPrompt(); };
+                        }; 
+                        getReq.onerror = () => handleNoDatabase();
                     } catch (txErr) {
-                        console.error("建立資料庫唯讀 Transaction 失敗:", txErr);
-                        showUploadPrompt();
+                        console.error("建立唯讀 Transaction 失敗:", txErr);
+                        handleNoDatabase();
                     }
-                };
-                openReq.onerror = e => { 
-                    console.error("打開 IndexedDB 失敗:", e);
-                    showUploadPrompt(); 
-                };
+                }; 
+                openReq.onerror = () => handleNoDatabase();
             } catch (err) {
                 console.error("啟動系統時發生異常:", err);
-                showUploadPrompt();
+                handleNoDatabase();
+            }
+        }
+
+        function handleNoDatabase() {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (isLocal) {
+                downloadDatabaseFromServer();
+            } else {
+                document.getElementById('progressContainer').classList.remove('hidden');
+                document.getElementById('loaderStatus').textContent = "請載入您的 swim_results_birthday.db 檔案啟用系統。";
+                document.getElementById('progressBar').style.width = '0%';
             }
         }
 
         startSystem();
         function collapseAll() { document.querySelectorAll('.drill-down.active').forEach(p => p.classList.remove('active')); }
-        function resetDB() {
-            if (confirm("重置清除資料庫快取？")) {
-                // 先終止 Worker 釋放連線，防止 deleteDatabase 進入 blocked 狀態
-                if (typeof worker !== 'undefined' && worker) {
-                    worker.terminate();
-                    worker = null;
-                }
-                const req = indexedDB.deleteDatabase("SwimSQL");
-                req.onsuccess = () => location.reload();
-                req.onerror = () => alert("重置失敗，請手動清除瀏覽器快取");
-                req.onblocked = () => alert("資料庫被占用，請關閉其他分頁後重試");
-            }
-        }
-        function toggleHistory() {
-            if (document.getElementById('histModal')) { document.getElementById('histModal').remove(); return; }
-            let h = JSON.parse(localStorage.getItem('swim_h')||"[]");
-            const modal = document.createElement('div');
-            modal.id = 'histModal';
-            modal.style.cssText = 'position:fixed; top:65px; left:16px; right:16px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000;';
-            const header = document.createElement('div');
-            header.style.cssText = 'display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;';
-            const title = document.createElement('span');
-            title.style.cssText = 'color:#D4AF37; font-weight:bold;'; title.textContent = '歷史紀錄';
-            const close = document.createElement('span');
-            close.style.cssText = 'color:#8E8E93; cursor:pointer;'; close.textContent = '關閉';
-            close.onclick = () => modal.remove();
-            header.appendChild(title); header.appendChild(close); modal.appendChild(header);
-            h.forEach(n => {
-                const row = document.createElement('div');
-                row.style.cssText = 'display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;';
-                const nameSpan = document.createElement('span');
-                nameSpan.style.cssText = 'flex:1; cursor:pointer; color:#FFF;';
-                nameSpan.textContent = n;  // 使用 textContent 避免 XSS
-                nameSpan.onclick = () => selectHist(n);
-                const delSpan = document.createElement('span');
-                delSpan.style.cursor = 'pointer'; delSpan.textContent = '🗑️';
-                delSpan.onclick = () => deleteHistory(n);
-                row.appendChild(nameSpan); row.appendChild(delSpan); modal.appendChild(row);
-            });
-            document.body.appendChild(modal);
-        }
+        function resetDB() { if (confirm("重置清除資料庫？")) { indexedDB.deleteDatabase("SwimSQL"); location.reload(); } }
+        function toggleHistory() { let h = JSON.parse(localStorage.getItem('swim_h')||"[]"), html = `<div id="histModal" style="position:fixed; top:65px; left:16px; right:16px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000;"><div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;"><span style="color:#D4AF37; font-weight:bold;">歷史紀錄</span><span onclick="document.getElementById('histModal').remove()" style="color:#8E8E93; cursor:pointer;">關閉</span></div>`; h.forEach(n => html += `<div style="display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;"><span onclick="selectHist('${n}')" style="flex:1; cursor:pointer; color:#FFF;">${n}</span><span onclick="deleteHistory('${n}')" style="cursor:pointer;">🗑️</span></div>`); document.body.insertAdjacentHTML('beforeend', html+'</div>'); }
         function selectHist(n) { document.getElementById('searchInput').value = n; if(document.getElementById('histModal')) document.getElementById('histModal').remove(); doSearch(); }
         function deleteHistory(n) { let h = JSON.parse(localStorage.getItem('swim_h')||"[]").filter(x => x!==n); localStorage.setItem('swim_h', JSON.stringify(h)); if(document.getElementById('histModal')) document.getElementById('histModal').remove(); toggleHistory(); }
         function saveHistory(n) { if(!n) return; let h = JSON.parse(localStorage.getItem('swim_h')||"[]"); h = [n, ...h.filter(x => x !== n)].slice(0,30); localStorage.setItem('swim_h', JSON.stringify(h)); }
@@ -1095,10 +517,8 @@
             if (!val || val.length < 1) return;
             if (!worker) return;
 
-            const variants = getNameVariants(val);
-            // [Developer] sanitizeSql 防止 autocomplete 輸入注入
-            const nameCond = "(" + variants.map(v => `姓名 LIKE '${sanitizeSql(v)}%'`).join(" OR ") + ")";
-            const query = `SELECT DISTINCT 姓名 FROM swimming_scores WHERE ${nameCond} LIMIT 15`;
+            // 查詢符合開頭字元的選手姓名 (已建立 idx_swimming_scores_name 索引，查詢極快)
+            const query = `SELECT DISTINCT 姓名 FROM swimming_scores WHERE 姓名 LIKE '${val}%' LIMIT 15`;
             const res = await remoteQuery(query);
             if (!res[0] || !res[0].values) return;
 
@@ -1113,6 +533,7 @@
                 const item = document.createElement('div');
                 item.className = 'autocomplete-item';
                 
+                // 將輸入的字串進行跳脫，並加粗高亮顯示
                 const escapedVal = val.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
                 const regex = new RegExp(`^(${escapedVal})`, 'i');
                 item.innerHTML = name.replace(regex, '<strong>$1</strong>');
@@ -1128,13 +549,13 @@
 
         searchInput.addEventListener('keydown', function(e) {
             let items = autocompleteList.querySelectorAll('.autocomplete-item');
-            if (e.keyCode === 40) {
+            if (e.keyCode === 40) { // 向下鍵
                 currentFocus++;
                 addActive(items);
-            } else if (e.keyCode === 38) {
+            } else if (e.keyCode === 38) { // 向上鍵
                 currentFocus--;
                 addActive(items);
-            } else if (e.keyCode === 13) {
+            } else if (e.keyCode === 13) { // Enter 鍵
                 if (currentFocus > -1 && items.length > 0) {
                     e.preventDefault();
                     items[currentFocus].click();
@@ -1143,7 +564,7 @@
                     closeAutocomplete();
                     doSearch();
                 }
-            } else if (e.keyCode === 27) {
+            } else if (e.keyCode === 27) { // Esc 鍵
                 closeAutocomplete();
             }
         });
