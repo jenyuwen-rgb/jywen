@@ -698,37 +698,48 @@
         }
 
         // 取得特定項目的同齡選手排名資料
-        // [Auditor+QA] dist 過濾已推入 SQL 端，消除 Main Thread Regex + 髒資料問題
+        // [Developer] 簡化 SQL 以發揮 SQLite 索引最大效能，將精確比對交由 JS 處理
         async function getRankData(dist, stroke, p1, p2, p3, isNational=false) {
-            const safeDist = parseInt(dist, 10);   // [Developer] 確保 dist 是整數，防止注入
+            const safeDist = parseInt(dist, 10);
             const safeStroke = sanitizeSql(stroke);
             const genderFilter = p3 ? `AND 性別='${sanitizeSql(p3)}'` : '';
             const ageFilter = isNational ? '' : `AND 出生年='${sanitizeSql(p2)}'`;
-            // [Auditor] SQL 端精確萃取 dist：用 CAST+INSTR+SUBSTR 解析「公尺」前的數字
-            // 同時排除接力項目，防止「100公尺×4接力」污染排名
+            
+            // 優先利用項目/性別/出生年索引篩選出少量數據
             const q = `
-                SELECT 姓名, 出生年, MIN(成績) as PB, 單位, 賽事名稱, 年份
+                SELECT 姓名, 成績, 年份, 賽事名稱, 出生年, 項目, 單位
                 FROM swimming_scores
                 WHERE 項目 LIKE '%${safeDist}公尺%${safeStroke}%'
-                  AND CAST(TRIM(SUBSTR(項目, MAX(1, INSTR(項目,'公尺')-4), 4)) AS INTEGER) = ${safeDist}
-                  AND 項目 NOT LIKE '%接力%'
-                  AND 項目 NOT LIKE '%×%'
                   ${genderFilter} ${ageFilter}
                   AND ${LC_FILTER}
-                GROUP BY 姓名
-                ORDER BY PB ASC
             `;
             const res = await remoteQuery(q);
             if (!res[0] || !res[0].values) return [];
-            // [Auditor] filter 已在 SQL 完成，Main Thread 不再跑 Regex
-            return res[0].values.map(v => ({
-                name: v[0],
-                birthYear: v[1],
-                raw: v[2],
-                wa: 0,
-                meet: v[4],
-                fullDate: v[5]
-            }));
+            
+            const pBs = {};
+            res[0].values.forEach(v => {
+                const item = v[5];
+                const match = item.match(/(\d+)公尺/);
+                if (!match || String(match[1]) !== String(dist)) return;
+                
+                // 排除接力
+                if (item.includes('接力') || item.includes('×')) return;
+                
+                const pN = v[0];
+                const sec = timeToSec(v[1]);
+                if (sec > 0 && (!pBs[pN] || sec < pBs[pN].sec)) {
+                    pBs[pN] = {
+                        name: pN,
+                        sec,
+                        raw: v[1],
+                        birthYear: v[4],
+                        meet: v[3],
+                        fullDate: v[2],
+                        unit: v[6]
+                    };
+                }
+            });
+            return Object.values(pBs).sort((a,b) => a.sec - b.sec);
         }
 
         // 動態計算 FINA (WA) 積分 — 改用全域 WA_BASE_TIMES 常數
