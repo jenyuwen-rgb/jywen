@@ -97,12 +97,15 @@
     </div>
 
     <!-- 頂部雙標題分頁導覽與狀態列 -->
-    <header style="display:flex; justify-content:space-between; align-items:flex-start; margin: 12px 12px 1.5rem 12px;">
-        <div style="display:flex; align-items:baseline; gap:24px; flex-wrap:wrap;">
-            <a href="manage.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.25rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">JYWEN 全台游泳賽事整合平台</a>
-            <h1 style="margin:0; font-size:1.5rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">游泳成績查詢</h1>
+    <header style="position:relative; display:flex; justify-content:center; align-items:center; margin: 12px 12px 1.5rem 12px; min-height: 56px; text-align:center;">
+        <div style="display:flex; flex-direction:column; align-items:center; gap:4px; padding: 0 100px;">
+            <div style="display:flex; align-items:baseline; gap:24px; flex-wrap:wrap; justify-content:center;">
+                <a href="manage.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.25rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">JYWEN 全台游泳賽事整合平台</a>
+                <h1 style="margin:0; font-size:1.5rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">游泳成績查詢</h1>
+            </div>
+            <p class="text-xs text-gray-500" style="margin:0;">JYWEN 泳協賽事 PB 與歷史成績檢索</p>
         </div>
-        <div id="db-status-badge" style="font-size:12px; color:#8E8E93; display:flex; align-items:center; gap:6px; margin-top:8px;">
+        <div id="db-status-badge" style="position:absolute; right:16px; top:12px; font-size:12px; color:#8E8E93; display:flex; align-items:center; gap:6px;">
             <span style="width:8px; height:8px; background-color:#8E8E93; border-radius:50%; display:inline-block;"></span>未載入資料庫
         </div>
     </header>
@@ -170,7 +173,13 @@
                         badge.innerHTML = '<span style="width:8px; height:8px; background-color:#30D158; border-radius:50%; display:inline-block;"></span>資料庫已載入';
                         badge.style.color = '#30D158';
                     }
-                    doSearch(); 
+                    const lastSwimmer = sessionStorage.getItem('last_searched_swimmer');
+                    if (lastSwimmer) {
+                        document.getElementById('searchInput').value = lastSwimmer;
+                        doSearch(true); // 快速載入模式，不跑載入動畫
+                    } else {
+                        doSearch(false);
+                    }
                 }
                 else if (type === 'RESULT') { if(queryCallbacks[id]) queryCallbacks[id](res); }
             };
@@ -239,12 +248,19 @@
             return h + "</table></div></div>";
         }
 
-        async function doSearch() {
+        async function doSearch(fastMode = false) {
             const input = normalizeName(document.getElementById('searchInput').value); if (!input || !worker) return;
+            sessionStorage.setItem('last_searched_swimmer', input);
             const loader = document.getElementById('queryLoader');
-            loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
-            swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 1500));
+            let minWait;
+            if (!fastMode) {
+                loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
+                swimmerAnim.playSegments([32, 97], true);
+                minWait = new Promise(r => setTimeout(r, 1500));
+            } else {
+                loader.style.display = 'none';
+                minWait = Promise.resolve();
+            }
             const main = document.getElementById('main'); main.innerHTML = "";
             const sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}' LIMIT 1`);
             if (!sexRes[0]) { loader.style.display = 'none'; return; }
@@ -290,7 +306,11 @@
                 }
                 scrollTray.appendChild(trayInner); card.appendChild(scrollTray); main.appendChild(card);
             }
-            await minWait; loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+            if (!fastMode) {
+                await minWait; loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+            } else {
+                loader.style.display = 'none';
+            }
         }
 
         async function toggleD(id, mode, dist, stroke, p1, p2, p3) {

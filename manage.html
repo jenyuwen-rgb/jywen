@@ -662,15 +662,15 @@
 
     <div class="container">
         <!-- 頂部雙標題分頁導覽與狀態列 -->
-        <header style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 1.5rem;">
-            <div style="display:flex; flex-direction:column; gap:4px;">
-                <div style="display:flex; align-items:baseline; gap:24px; flex-wrap:wrap;">
+        <header style="position:relative; display:flex; justify-content:center; align-items:center; margin-bottom: 1.5rem; min-height: 56px; text-align:center;">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px; padding: 0 100px;">
+                <div style="display:flex; align-items:baseline; gap:24px; flex-wrap:wrap; justify-content:center;">
                     <h1 class="gold-gradient-text" style="margin: 0; font-size: 1.5rem; font-weight: bold; cursor: default;">JYWEN 全台游泳賽事整合平台</h1>
                     <a href="index.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.25rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">游泳成績查詢</a>
                 </div>
                 <p class="subtitle" style="margin: 0;">五大游泳協會賽事日程與成績查詢</p>
             </div>
-            <div class="db-status-bar" style="border:none; background:none; padding:0; margin:8px 0 0 0; display:flex; align-items:center; gap:6px;">
+            <div class="db-status-bar" style="position:absolute; right:16px; top:12px; border:none; background:none; padding:0; margin:0; display:flex; align-items:center; gap:6px;">
                 <span class="status-dot"></span>
                 <span id="db-status-text" style="font-size:12px; color:#30D158;">資料庫已載入</span>
             </div>
