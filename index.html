@@ -9,7 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <style>
-        body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; max-width: 900px; margin: 0 auto; }
+        body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; }
+        .page-container { max-width: 900px; margin: 0 auto; padding: 0 12px; box-sizing: border-box; width: 100%; }
         .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 8px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; }
         #searchInput { background: transparent; flex: 1; min-width: 0; outline: none; font-weight: bold; font-size: 18px; color: white; }
         .header-title { text-align: center; background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 32px; font-weight: 900; margin: 15px 0; display: block; }
@@ -96,6 +97,9 @@
         <div class="mt-4 text-[#D4AF37] font-bold tracking-widest text-lg">正在全力衝刺中...</div>
     </div>
 
+    <!-- 全域置中容器 -->
+    <div class="page-container">
+
     <!-- 頂部雙標題分頁導覽與狀態列 -->
     <header style="position:relative; display:flex; justify-content:center; align-items:center; margin: 12px 12px 1.5rem 12px; min-height: 56px; text-align:center;">
         <div style="display:flex; flex-direction:column; align-items:center; gap:4px; padding: 0 100px;">
@@ -132,6 +136,7 @@
     </div>
 
     <div id="main"></div>
+    </div> <!-- end page-container -->
 
     <script id="worker-script" type="text/javascript-worker">
         importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
