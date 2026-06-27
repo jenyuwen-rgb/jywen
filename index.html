@@ -96,13 +96,16 @@
         <div class="mt-4 text-[#D4AF37] font-bold tracking-widest text-lg">正在全力衝刺中...</div>
     </div>
 
-    <!-- 頂部導覽與狀態列 -->
-    <div class="m-3 flex justify-between items-center" style="min-height: 24px;">
-        <a href="manage.html" style="text-decoration:none; color:#D4AF37; font-weight:bold; font-size:14px; display:flex; align-items:center; gap:6px;">← JYWEN 全台游泳賽事整合平台</a>
-        <span id="db-status-badge" style="font-size:12px; color:#8E8E93; display:flex; align-items:center; gap:6px;">
+    <!-- 頂部雙標題分頁導覽與狀態列 -->
+    <header style="display:flex; justify-content:space-between; align-items:flex-start; margin: 12px 12px 1.5rem 12px;">
+        <div style="display:flex; align-items:baseline; gap:24px; flex-wrap:wrap;">
+            <a href="manage.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.25rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">JYWEN 全台游泳賽事整合平台</a>
+            <h1 style="margin:0; font-size:1.5rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">游泳成績查詢</h1>
+        </div>
+        <div id="db-status-badge" style="font-size:12px; color:#8E8E93; display:flex; align-items:center; gap:6px; margin-top:8px;">
             <span style="width:8px; height:8px; background-color:#8E8E93; border-radius:50%; display:inline-block;"></span>未載入資料庫
-        </span>
-    </div>
+        </div>
+    </header>
 
     <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E] rounded-xl text-center border border-[#38383A]">
         <input type="file" id="dbFileInput" hidden onchange="handleDBUpload(this.files)">
@@ -113,7 +116,7 @@
         </div>
     </div>
 
-    <div class="header-title">游泳成績查詢</div>
+
     <div class="nav-header">
         <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()">🕒</span>
         <div style="position: relative; flex: 1; min-width: 0; display: flex; align-items: center;">
