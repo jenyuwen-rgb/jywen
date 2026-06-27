@@ -693,7 +693,7 @@
 
         <!-- 跑馬燈 (即將舉辦的賽事) -->
         <div class="marquee-container" id="marquee-bar" style="display: none;">
-            <div class="marquee-label">🔥 即將舉辦</div>
+            <div class="marquee-label">🔥</div>
             <div class="marquee-content">
                 <div class="marquee-track" id="marquee-track"></div>
             </div>
@@ -1292,7 +1292,7 @@
                 });
 
                 tbody.innerHTML = html;
-                updateMarquee(events);
+                await updateMarquee(events);
                 scrollToCurrentMonth();
 
             } catch (err) {
@@ -1332,7 +1332,7 @@
             return null;
         }
 
-        function updateMarquee(events) {
+        async function updateMarquee(events) {
             const track = document.getElementById('marquee-track');
             const marqueeBar = document.getElementById('marquee-bar');
             const now = new Date();
@@ -1363,14 +1363,42 @@
                 }
             });
 
-            if (upcoming.length > 0) {
-                track.innerHTML = upcoming.map(ev => 
-                    `<span class="marquee-item">🏆 <strong>${ev.name}</strong> (${ev.date} · ${ev.loc}) <span style="color:#FFD933; margin-left:6px;">[${ev.countdown}]</span></span>`
-                ).join('');
-                marqueeBar.style.display = 'flex';
-            } else {
-                marqueeBar.style.display = 'none';
+            // 獲取資料庫總筆數
+            let totalRecords = 0;
+            try {
+                const countRes = await remoteQuery("SELECT COUNT(*) as total FROM swimming_scores");
+                if (countRes && countRes[0]) {
+                    totalRecords = countRes[0].total;
+                }
+            } catch (err) {
+                console.error("無法讀取資料庫筆數: ", err);
             }
+
+            // 資料庫路徑與筆數資訊
+            const dbPathInfo = `/Users/jywen/Downloads/For Lobster/游泳賽事自動下載/${dbFileName}`;
+            
+            // 拼接跑馬燈內容
+            let marqueeItems = [];
+            
+            // 1. 最近一個月的賽事
+            upcoming.forEach(ev => {
+                marqueeItems.push(
+                    `<span class="marquee-item">🏆 <strong>${ev.name}</strong> (${ev.date} · ${ev.loc}) <span style="color:#FFD933; margin-left:6px;">[${ev.countdown}]</span></span>`
+                );
+            });
+            
+            // 2. 資料庫路徑與筆數
+            const formattedTotal = Number(totalRecords).toLocaleString();
+            marqueeItems.push(
+                `<span class="marquee-item">📂 <strong>地端資料庫路徑：</strong> <code>${dbPathInfo}</code></span>`,
+                `<span class="marquee-item">📊 <strong>資料庫總數據量：</strong> <span style="color:#30D158; font-weight:bold;">${formattedTotal}</span> 筆成績</span>`
+            );
+
+            // 跑馬燈內容
+            track.innerHTML = marqueeItems.join(' <span style="margin: 0 40px; color: #444;">|</span> ');
+            
+            // 跑馬燈總是顯示，因為即使沒有即將舉行的賽事，也要顯示路徑與數據量資訊
+            marqueeBar.style.display = 'flex';
         }
 
         // CORS 代理請求輔助工具
