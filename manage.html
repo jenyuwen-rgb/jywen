@@ -1077,7 +1077,8 @@
                 if (needPopulate) {
                     console.log("正在從 calendar.json 載入初始行事曆資料...");
                     try {
-                        const resp = await fetch('calendar.json');
+                        const calendarUrl = isLocalHost ? '/static/calendar.json' : 'calendar.json';
+                        const resp = await fetch(calendarUrl);
                         if (resp.ok) {
                             const events = await resp.json();
                             worker.postMessage({ type: 'POPULATE_CALENDAR', data: events });
