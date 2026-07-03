@@ -873,12 +873,10 @@
                         CREATE TABLE IF NOT EXISTS ctsa_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
                         CREATE TABLE IF NOT EXISTS swim8_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
                         CREATE TABLE IF NOT EXISTS tainan_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
-                        CREATE TABLE IF NOT EXISTS kcc_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
-                        CREATE TABLE IF NOT EXISTS swim_kcsat_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
-                        CREATE TABLE IF NOT EXISTS tpesa_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
-                        CREATE TABLE IF NOT EXISTS ctusf_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
                         CREATE TABLE IF NOT EXISTS swimming_scores (年份 TEXT, 賽事名稱 TEXT, 項目 TEXT, 組別 TEXT, 水道 TEXT, 單位 TEXT, 姓名 TEXT, 出生年 TEXT, 性別 TEXT, 成績 TEXT, 名次 TEXT, 積分 TEXT, 備註 TEXT, 成績報告網址 TEXT);
                         CREATE INDEX IF NOT EXISTS idx_swimming_scores_name ON swimming_scores(姓名);
+                        CREATE INDEX IF NOT EXISTS idx_swimming_scores_race ON swimming_scores(賽事名稱);
+                        CREATE INDEX IF NOT EXISTS idx_swimming_scores_name_unit ON swimming_scores(姓名, 單位);
                     `);
                     
                     // 檢查行事曆是否為空
@@ -902,27 +900,25 @@
                     const stmtTpesa = db.prepare("INSERT INTO tpesa_news_calendar (news_id, event_name, event_date, location, pdf_url, source_url) VALUES (?, ?, ?, ?, ?, ?)");
                     const stmtCtusf = db.prepare("INSERT INTO ctusf_news_calendar (news_id, event_name, event_date, location, pdf_url, source_url) VALUES (?, ?, ?, ?, ?, ?)");
                     
-                    for (const ev of events) {
-                        const id = ev.id || "";
-                        const remarkMatch = (ev.remark || "").match(/href="([^"]+)"/);
-                        const pdfUrl = remarkMatch ? remarkMatch[1] : "";
-                        
-                        if (id.startsWith("台中-") || ev.organizer?.includes("台中")) {
-                            stmtSwim8.run([id.replace("台中-",""), ev.name, ev.date, ev.location || "台中市", pdfUrl, ""]);
-                        } else if (id.startsWith("台南-") || ev.organizer?.includes("台南")) {
-                            stmtTainan.run([id.replace("台南-",""), ev.name, ev.date, ev.location || "台南市", pdfUrl, ""]);
-                        } else if (id.startsWith("高雄-") || ev.organizer?.includes("體育總會")) {
-                            stmtKcc.run([id.replace("高雄-",""), ev.name, ev.date, ev.location || "高雄市", pdfUrl, ""]);
-                        } else if (id.startsWith("高雄水上-") || ev.organizer?.includes("高雄水上")) {
-                            stmtKcsat.run([id.replace("高雄水上-",""), ev.name, ev.date, ev.location || "高雄市", pdfUrl, ""]);
-                        } else if (id.startsWith("台北-") || ev.organizer?.includes("台北")) {
-                            stmtTpesa.run([id.replace("台北-",""), ev.name, ev.date, ev.location || "台北市", pdfUrl, ""]);
-                        } else if (id.startsWith("大專體總-") || ev.organizer?.includes("大專體總")) {
-                            stmtCtusf.run([id.replace("大專體總-",""), ev.name, ev.date, ev.location || "全國", pdfUrl, ""]);
-                        } else {
-                            stmtCtsa.run([id, ev.name, ev.date, ev.location || "全國", pdfUrl]);
+                    db.run('BEGIN TRANSACTION');
+                    events.forEach(ev => {
+                        if (ev.src === 'ctsa') {
+                            stmtCtsa.run([ev.news_id || '', ev.name, ev.date, ev.location || '', ev.pdf_url || '']);
+                        } else if (ev.src === 'swim8') {
+                            stmtSwim8.run([ev.news_id || '', ev.name, ev.date, ev.location || '', ev.pdf_url || '', ev.source_url || '']);
+                        } else if (ev.src === 'tainan') {
+                            stmtTainan.run([ev.news_id || '', ev.name, ev.date, ev.location || '', ev.pdf_url || '', ev.source_url || '']);
+                        } else if (ev.src === 'kcc') {
+                            stmtKcc.run([ev.news_id || '', ev.name, ev.date, ev.location || '', ev.pdf_url || '', ev.source_url || '']);
+                        } else if (ev.src === 'swim_kcsat') {
+                            stmtKcsat.run([ev.news_id || '', ev.name, ev.date, ev.location || '', ev.pdf_url || '', ev.source_url || '']);
+                        } else if (ev.src === 'tpesa') {
+                            stmtTpesa.run([ev.news_id || '', ev.name, ev.date, ev.location || '', ev.pdf_url || '', ev.source_url || '']);
+                        } else if (ev.src === 'ctusf') {
+                            stmtCtusf.run([ev.news_id || '', ev.name, ev.date, ev.location || '', ev.pdf_url || '', ev.source_url || '']);
                         }
-                    }
+                    });
+                    db.run('COMMIT');
                     
                     stmtCtsa.free();
                     stmtSwim8.free();
@@ -933,6 +929,7 @@
                     stmtCtusf.free();
                     self.postMessage({ type: 'POPULATE_DONE' });
                 } catch(err) {
+                    try { db.run('ROLLBACK'); } catch(e) {}
                     self.postMessage({ type: 'ERROR', id, error: err.message });
                 }
             } else if (type === 'QUERY') {
@@ -955,20 +952,39 @@
                     
                     const raceName = scores[0].賽事名稱 || '';
                     
-                    // ① 一次性查完所有姓名+單位的出生年/性別快取，避免逐筆查詢資料庫
+                    // ① 獲取本次下載資料中的唯一 (姓名, 單位) 組合，僅針對這些組合進行出生年與性別推算，避免全表掃描
                     const deduceCache = new Map();
-                    const existingStmt = db.prepare(
-                        `SELECT 姓名, 單位, 出生年, 性別 FROM swimming_scores
-                         WHERE 出生年 IS NOT NULL AND 出生年 != ''
-                         GROUP BY 姓名, 單位`
-                    );
-                    while (existingStmt.step()) {
-                        const r = existingStmt.getAsObject();
-                        deduceCache.set(`${r.姓名}|${r.單位}`, { 出生年: r.出生年, 性別: r.性別 });
+                    const uniquePairs = [];
+                    const seenPairs = new Set();
+                    for (const sc of scores) {
+                        const key = `${sc.姓名}|${sc.單位}`;
+                        if (!seenPairs.has(key)) {
+                            seenPairs.add(key);
+                            uniquePairs.push({ name: sc.姓名, unit: sc.單位 });
+                        }
                     }
-                    existingStmt.free();
                     
-                    // ② 用單一 Transaction 批次插入，提升效能 10~100 倍
+                    // ② 預先編譯查詢以進行索引尋找，大幅縮小查詢範圍
+                    const stmtDeduce = db.prepare(`
+                        SELECT 出生年, 性別 FROM swimming_scores
+                        WHERE 姓名=? AND 單位=? AND 出生年 IS NOT NULL AND 出生年 != ''
+                        LIMIT 1
+                    `);
+                    
+                    for (const pair of uniquePairs) {
+                        stmtDeduce.bind([pair.name, pair.unit]);
+                        if (stmtDeduce.step()) {
+                            const r = stmtDeduce.getAsObject();
+                            deduceCache.set(`${pair.name}|${pair.unit}`, {
+                                出生年: r.出生年 || '',
+                                性別: r.性別 || ''
+                            });
+                        }
+                        stmtDeduce.reset();
+                    }
+                    stmtDeduce.free();
+                    
+                    // ③ 用單一 Transaction 批次插入，提升效能 10~100 倍
                     db.run('BEGIN TRANSACTION');
                     
                     const stmtInsert = db.prepare(`
@@ -992,7 +1008,7 @@
                     stmtInsert.free();
                     db.run('COMMIT');
                     
-                    // ③ 去重：只針對本次賽事名稱範圍做去重，避免全表掃描
+                    // ④ 去重：只針對本次賽事名稱範圍做去重，避免全表掃描
                     db.run(`
                         DELETE FROM swimming_scores
                         WHERE 賽事名稱 = ? AND rowid NOT IN (
