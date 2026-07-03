@@ -873,6 +873,10 @@
                         CREATE TABLE IF NOT EXISTS ctsa_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
                         CREATE TABLE IF NOT EXISTS swim8_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
                         CREATE TABLE IF NOT EXISTS tainan_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+                        CREATE TABLE IF NOT EXISTS kcc_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+                        CREATE TABLE IF NOT EXISTS swim_kcsat_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+                        CREATE TABLE IF NOT EXISTS tpesa_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
+                        CREATE TABLE IF NOT EXISTS ctusf_news_calendar (id INTEGER PRIMARY KEY AUTOINCREMENT, news_id TEXT, event_name TEXT, event_date TEXT, location TEXT, pdf_url TEXT, source_url TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);
                         CREATE TABLE IF NOT EXISTS swimming_scores (年份 TEXT, 賽事名稱 TEXT, 項目 TEXT, 組別 TEXT, 水道 TEXT, 單位 TEXT, 姓名 TEXT, 出生年 TEXT, 性別 TEXT, 成績 TEXT, 名次 TEXT, 積分 TEXT, 備註 TEXT, 成績報告網址 TEXT);
                         CREATE INDEX IF NOT EXISTS idx_swimming_scores_name ON swimming_scores(姓名);
                         CREATE INDEX IF NOT EXISTS idx_swimming_scores_race ON swimming_scores(賽事名稱);
