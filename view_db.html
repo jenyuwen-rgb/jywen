@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>檢視資料庫 | JYWEN 游泳賽事平台</title>
+    <!-- 引入 Tailwind CSS 確保樣式一致 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0A0A0B;
+            color: #f4f4f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* 表格排版 */
+        .table-container {
+            background-color: #1C1C1E;
+            border: 1px solid #2C2C2E;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th {
+            background-color: #2C2C2E;
+            color: #AEAEB2;
+            font-weight: 600;
+            padding: 12px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid #3A3A3C;
+        }
+        td {
+            padding: 12px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid #2C2C2E;
+            color: #FFFFFF;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover td {
+            background-color: #2C2C2E;
+        }
+        .db-status-text-span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 全域置中容器 -->
+    <div class="page-container">
+
+        <!-- 頂部雙標題分頁導覽與狀態列 -->
+        <header style="position:relative; display:flex; justify-content:center; align-items:center; margin: 12px 12px 1.5rem 12px; min-height: 56px; text-align:center;">
+            <div class="header-center-area">
+                <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; justify-content:center;">
+                    <a href="manage.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">整合平台</a>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <a href="index.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">游泳成績查詢</a>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <h1 style="margin:0; font-size:1.3rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">檢視資料庫</h1>
+                </div>
+                <p class="text-xs text-gray-500" style="margin:2px 0 0 0;">檢視最新入庫的最後 10 筆選手成績紀錄</p>
+            </div>
+            <div id="db-status-badge" style="position:absolute; right:16px; top:12px; font-size:12px; color:#8E8E93; display:flex; align-items:center; gap:6px;">
+                <span style="width:8px; height:8px; background-color:#8E8E93; border-radius:50%; display:inline-block;"></span><span class="db-status-text-span">未載入資料庫</span>
+            </div>
+        </header>
+
+        <!-- 載入狀態進度條 -->
+        <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E] rounded-xl text-center border border-[#38383A]">
+            <div id="progressContainer">
+                <div id="loaderStatus" class="text-sm text-gray-400 mb-2">正在初始化系統...</div>
+                <div class="w-full bg-[#333] rounded-full h-2 overflow-hidden">
+                    <div id="progressBar" class="bg-[#D4AF37] h-full" style="width: 10%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 數據展示區域 -->
+        <main id="main-content" style="display: none;">
+            <div class="flex justify-between items-center mb-4 px-2">
+                <h2 class="text-lg font-bold text-[#D4AF37]">📋 最新入庫的 10 筆成績</h2>
+                <button onclick="refreshData()" class="bg-[#2C2C2E] hover:bg-[#3A3A3C] text-white border border-[#3A3A3C] rounded-lg px-4 py-2 text-sm font-semibold transition">
+                    🔄 重新整理
+                </button>
+            </div>
+
+            <div class="table-container overflow-x-auto">
+                <table id="scores-table">
+                    <thead>
+                        <tr>
+                            <th>年份</th>
+                            <th>姓名</th>
+                            <th>單位</th>
+                            <th>性別</th>
+                            <th>出生年</th>
+                            <th>項目</th>
+                            <th>組別</th>
+                            <th>成績</th>
+                            <th>名次</th>
+                            <th>賽事名稱</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scores-tbody">
+                        <tr>
+                            <td colspan="10" class="text-center py-8 text-gray-500">正在讀取數據...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Web Worker 腳本 (內建 SQL.js 引擎) -->
+    <script id="worker-script" type="text/javascript-worker">
+        importScripts('SQL_JS_CDN_URL');
+        let db = null;
+        self.onmessage = async function(e) {
+            const { type, data, query, id, wasmUrl } = e.data;
+            
+            if (type === 'INIT') {
+                try {
+                    const SQL = await initSqlJs({ locateFile: f => wasmUrl });
+                    db = new SQL.Database(data);
+                    self.postMessage({ type: 'READY' });
+                } catch(err) {
+                    self.postMessage({ type: 'ERROR', id, error: err.message });
+                }
+            } else if (type === 'QUERY') {
+                try {
+                    const stmt = db.prepare(query);
+                    const rows = [];
+                    while (stmt.step()) {
+                        rows.push(stmt.get());
+                    }
+                    stmt.free();
+                    self.postMessage({ type: 'RESULT', id, data: rows });
+                } catch(err) {
+                    self.postMessage({ type: 'ERROR', id, error: err.message });
+                }
+            }
+        };
+    </script>
+
+    <script>
+        // 解決 Blob URL Web Worker 載入 CDN 以及跨域問題，使用本機 JS & WASM
+        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const localJsUrl = isLocalHost 
+            ? new URL('/static/sql-wasm.js', window.location.origin).href 
+            : new URL('sql-wasm.js', window.location.href).href;
+        const localWasmUrl = isLocalHost 
+            ? new URL('/static/sql-wasm.wasm', window.location.origin).href 
+            : new URL('sql-wasm.wasm', window.location.href).href;
+        
+        const workerCode = document.getElementById('worker-script').textContent
+            .replace('SQL_JS_CDN_URL', localJsUrl);
+            
+        const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+        const worker = new Worker(URL.createObjectURL(workerBlob));
+        
+        worker.onerror = function(err) {
+            console.error("Worker 發生錯誤:", err);
+            alert("資料庫引擎載入出錯: " + err.message);
+        };
+
+        const callbacks = {};
+        let queryId = 0;
+
+        worker.onmessage = function(e) {
+            const { type, data, error, id } = e.data;
+            if (type === 'READY') {
+                document.getElementById('dbLoaderArea').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                const badge = document.getElementById('db-status-badge');
+                if (badge) {
+                    badge.innerHTML = '<span style="width:8px; height:8px; background-color:#30D158; border-radius:50%; display:inline-block;"></span><span class="db-status-text-span" style="color:#30D158;">資料庫已載入</span>';
+                }
+                refreshData();
+            } else if (type === 'RESULT') {
+                if (callbacks[id]) {
+                    callbacks[id].resolve(data);
+                    delete callbacks[id];
+                }
+            } else if (type === 'ERROR') {
+                if (callbacks[id]) {
+                    callbacks[id].reject(new Error(error));
+                    delete callbacks[id];
+                } else {
+                    console.error("Worker 執行錯誤:", error);
+                }
+            }
+        };
+
+        function remoteQuery(query) {
+            return new Promise((resolve, reject) => {
+                const id = queryId++;
+                callbacks[id] = { resolve, reject };
+                worker.postMessage({ type: 'QUERY', id, query });
+            });
+        }
+
+        async function loadDatabaseBuffer(buf) {
+            document.getElementById('progressBar').style.width = '70%';
+            document.getElementById('loaderStatus').textContent = "正在載入 WebAssembly SQL.js 引擎並啟動資料庫...";
+            worker.postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]);
+        }
+
+        // 偵測並加載資料庫
+        async function startSystem() {
+            // 1. 優先嘗試直接從伺服器相對路徑自動載入正式資料庫
+            try {
+                const dbPath = isLocalHost ? '/static/swim_results_birthday.db' : 'static/swim_results_birthday.db';
+                const resp = await fetch(dbPath);
+                if (resp.ok) {
+                    const buf = await resp.arrayBuffer();
+                    loadDatabaseBuffer(buf);
+                    return;
+                }
+            } catch (e) {
+                console.log("無法自動載入正式資料庫，嘗試載入模板庫...", e);
+            }
+
+            // 2. 備用：嘗試載入預建的模板資料庫
+            try {
+                const templatePath = isLocalHost ? '/static/swim_results_template.db' : 'static/swim_results_template.db';
+                const resp = await fetch(templatePath);
+                if (resp.ok) {
+                    const buf = await resp.arrayBuffer();
+                    loadDatabaseBuffer(buf);
+                    return;
+                }
+            } catch (e) {
+                console.log("無法自動載入模板資料庫，嘗試本地 IndexedDB...", e);
+            }
+
+            // 3. 備用：從本地 IndexedDB 讀取已快取的資料庫
+            try {
+                const openReq = indexedDB.open("SwimSQL", 1);
+                openReq.onsuccess = e => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains("files")) {
+                        handleNoDatabase();
+                        return;
+                    }
+                    const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db");
+                    getReq.onsuccess = async () => {
+                        if (getReq.result) {
+                            const buf = await (getReq.result instanceof Blob ? getReq.result.arrayBuffer() : getReq.result);
+                            loadDatabaseBuffer(buf);
+                        } else {
+                            handleNoDatabase();
+                        }
+                    };
+                    getReq.onerror = () => handleNoDatabase();
+                };
+                openReq.onerror = () => handleNoDatabase();
+            } catch (err) {
+                handleNoDatabase();
+            }
+        }
+
+        function handleNoDatabase() {
+            document.getElementById('loaderStatus').textContent = "⚠️ 資料庫尚未載入。請先在「整合平台」分頁中下載賽事，或上傳資料庫以查看內容。";
+            document.getElementById('progressBar').style.width = '0%';
+        }
+
+        // 重新整理並讀取最後 10 筆資料
+        async function refreshData() {
+            const tbody = document.getElementById('scores-tbody');
+            tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-gray-400">正在讀取數據...</td></tr>`;
+
+            try {
+                // 1. 檢查資料表是否存在
+                const checkTable = await remoteQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='swimming_scores'");
+                if (checkTable.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-yellow-500">⚠️ 資料庫中目前尚未建立 swimming_scores 成績資料表。請先至整合平台下載賽事。</td></tr>`;
+                    return;
+                }
+
+                // 2. 查詢最後 10 筆資料 (依 rowid 倒序)
+                const queryStr = "SELECT 年份, 姓名, 單位, 性別, 出生年, 項目, 組別, 成績, 名次, 賽事名稱 FROM swimming_scores ORDER BY rowid DESC LIMIT 10";
+                const rows = await remoteQuery(queryStr);
+
+                if (rows.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-gray-500">資料表目前沒有任何成績數據。</td></tr>`;
+                    return;
+                }
+
+                let html = "";
+                rows.forEach(r => {
+                    html += `<tr>
+                        <td>${r[0] || ""}</td>
+                        <td class="font-bold text-[#FFD933]">${r[1] || ""}</td>
+                        <td>${r[2] || ""}</td>
+                        <td>${r[3] || ""}</td>
+                        <td>${r[4] || ""}</td>
+                        <td>${r[5] || ""}</td>
+                        <td>${r[6] || ""}</td>
+                        <td class="font-semibold text-green-400">${r[7] || ""}</td>
+                        <td>${r[8] || ""}</td>
+                        <td class="text-gray-400 text-xs">${r[9] || ""}</td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-red-500">❌ 讀取失敗: ${err.message}</td></tr>`;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', startSystem);
+    </script>
+</body>
+</html>
