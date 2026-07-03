@@ -1130,8 +1130,48 @@
             });
         }
 
-        // 偵測 IndexedDB 載入資料庫
+        async function loadDatabaseBuffer(fileBlob) {
+            document.getElementById('db-status-text').textContent = `資料庫已載入 (${(fileBlob.size / (1024 * 1024)).toFixed(1)} MB)`;
+            document.getElementById('uploadProgressContainer').style.display = 'block';
+            document.getElementById('uploadStatusText').textContent = "正在載入 WebAssembly SQL.js 引擎並啟動資料庫...";
+            document.getElementById('uploadProgressBar').style.width = '70%';
+            
+            const buf = await (fileBlob instanceof Blob ? fileBlob.arrayBuffer() : fileBlob);
+            // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
+            worker.postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]);
+        }
+
+        // 偵測並加載資料庫
         async function startSystem() {
+            // 1. 優先嘗試直接從伺服器相對路徑自動載入正式資料庫
+            try {
+                const dbPath = isLocalHost ? '/static/swim_results_birthday.db' : 'static/swim_results_birthday.db';
+                const resp = await fetch(dbPath);
+                if (resp.ok) {
+                    const buf = await resp.arrayBuffer();
+                    const blob = new Blob([buf], { type: 'application/octet-stream' });
+                    loadDatabaseBuffer(blob);
+                    return;
+                }
+            } catch (e) {
+                console.log("無法自動載入正式資料庫，嘗試載入模板庫...", e);
+            }
+
+            // 2. 備用：嘗試載入預建的模板資料庫 (只含有行事曆)
+            try {
+                const templatePath = isLocalHost ? '/static/swim_results_template.db' : 'static/swim_results_template.db';
+                const resp = await fetch(templatePath);
+                if (resp.ok) {
+                    const buf = await resp.arrayBuffer();
+                    const blob = new Blob([buf], { type: 'application/octet-stream' });
+                    loadDatabaseBuffer(blob);
+                    return;
+                }
+            } catch (e) {
+                console.log("無法自動載入模板資料庫，嘗試載入本地 IndexedDB...", e);
+            }
+
+            // 3. 備用：從本地 IndexedDB 讀取已快取的資料庫
             const openReq = indexedDB.open("SwimSQL", 1);
             openReq.onupgradeneeded = e => {
                 if (!e.target.result.objectStoreNames.contains("files")) {
@@ -1147,22 +1187,14 @@
                 const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db");
                 getReq.onsuccess = async () => {
                     if (getReq.result) {
-                        const fileBlob = getReq.result;
-                        document.getElementById('db-status-text').textContent = `資料庫已載入 (${(fileBlob.size / (1024 * 1024)).toFixed(1)} MB)`;
-                        document.getElementById('uploadProgressContainer').style.display = 'block';
-                        document.getElementById('uploadStatusText').textContent = "正在載入 WebAssembly SQL.js 引擎並啟動資料庫...";
-                        document.getElementById('uploadProgressBar').style.width = '70%';
-                        
-                        const buf = await (fileBlob instanceof Blob ? fileBlob.arrayBuffer() : fileBlob);
-                        // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
-                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]);
+                        loadDatabaseBuffer(getReq.result);
                     } else {
                         showLockOverlay();
                     }
                 };
-                getReq.onerror = () => { showLockOverlay(); };
+                getReq.onerror = () => showLockOverlay();
             };
-            openReq.onerror = () => { showLockOverlay(); };
+            openReq.onerror = () => showLockOverlay();
         }
 
         function showLockOverlay() {
@@ -1418,7 +1450,7 @@
             }
 
             // 資料庫路徑與筆數資訊
-            const dbPathInfo = `/Users/jywen/Downloads/For Lobster/游泳賽事自動下載/${dbFileName}`;
+            const dbPathInfo = `/Users/jywen/Downloads/For Lobster/static/${dbFileName}`;
             
             // 拼接跑馬燈內容
             let marqueeItems = [];
