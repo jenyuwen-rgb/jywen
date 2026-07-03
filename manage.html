@@ -673,12 +673,14 @@
         <!-- 頂部雙標題分頁導覽與狀態列 -->
         <header style="position:relative; display:flex; justify-content:center; align-items:center; margin-bottom: 1.5rem; min-height: 56px; text-align:center;">
             <div class="header-center-area">
-                <div style="display:flex; align-items:baseline; gap:24px; flex-wrap:wrap; justify-content:center;">
-                    <h1 class="gold-gradient-text" style="margin: 0; font-size: 1.5rem; font-weight: bold; cursor: default;">JYWEN 全台游泳賽事整合平台</h1>
-                    <span style="color:#444; font-size:1.25rem; user-select:none; font-weight:bold;">→</span>
-                    <a href="index.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.25rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">游泳成績查詢</a>
+                <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; justify-content:center;">
+                    <h1 style="margin:0; font-size:1.3rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">整合平台</h1>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <a href="index.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">游泳成績查詢</a>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <a href="view_db.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">檢視資料庫</a>
                 </div>
-                <p class="subtitle" style="margin: 0;">五大游泳協會賽事日程與成績查詢</p>
+                <p class="subtitle" style="margin:2px 0 0 0;">五大游泳協會賽事日程與成績查詢</p>
             </div>
             <div class="db-status-bar" style="position:absolute; right:16px; top:12px; border:none; background:none; padding:0; margin:0; display:flex; align-items:center; gap:12px;">
                 <button onclick="exportDatabase()" style="cursor:pointer; background:#2C2C2E; color:#FFFFFF; border:1px solid #3A3A3C; border-radius:6px; padding:4px 10px; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:4px; transition: background 0.2s, border-color 0.2s;" onmouseover="this.style.background='#3A3A3C'; this.style.borderColor='#48484A';" onmouseout="this.style.background='#2C2C2E'; this.style.borderColor='#3A3A3C';">

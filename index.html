@@ -116,12 +116,14 @@
     <!-- 頂部雙標題分頁導覽與狀態列 -->
     <header style="position:relative; display:flex; justify-content:center; align-items:center; margin: 12px 12px 1.5rem 12px; min-height: 56px; text-align:center;">
         <div class="header-center-area">
-            <div style="display:flex; align-items:baseline; gap:24px; flex-wrap:wrap; justify-content:center;">
-                <a href="manage.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.25rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">JYWEN 全台游泳賽事整合平台</a>
-                <span style="color:#444; font-size:1.25rem; user-select:none; font-weight:bold;">←</span>
-                <h1 style="margin:0; font-size:1.5rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">游泳成績查詢</h1>
+            <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; justify-content:center;">
+                <a href="manage.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">整合平台</a>
+                <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                <h1 style="margin:0; font-size:1.3rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">游泳成績查詢</h1>
+                <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                <a href="view_db.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">檢視資料庫</a>
             </div>
-            <p class="text-xs text-gray-500" style="margin:0;">JYWEN 泳協賽事 PB 與歷史成績檢索</p>
+            <p class="text-xs text-gray-500" style="margin:2px 0 0 0;">JYWEN 泳協賽事 PB 與歷史成績檢索</p>
         </div>
         <div id="db-status-badge" style="position:absolute; right:16px; top:12px; font-size:12px; color:#8E8E93; display:flex; align-items:center; gap:6px;">
             <span style="width:8px; height:8px; background-color:#8E8E93; border-radius:50%; display:inline-block;"></span><span class="db-status-text-span">未載入資料庫</span>
