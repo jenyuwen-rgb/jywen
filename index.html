@@ -568,7 +568,45 @@
             }; 
         }
 
+        async function loadDatabaseBuffer(buf) {
+            document.getElementById('dbLoaderArea').style.display = 'none';
+            const badge = document.getElementById('db-status-badge');
+            if (badge) {
+                badge.innerHTML = '<span style="width:8px; height:8px; background-color:#30D158; border-radius:50%; display:inline-block;"></span><span class="db-status-text-span">資料庫已載入</span>';
+            }
+            worker.postMessage({ type: 'INIT', data: new Uint8Array(buf) });
+        }
+
         async function startSystem() { 
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            
+            // 1. 優先嘗試直接從伺服器相對路徑自動載入正式資料庫
+            try {
+                const dbPath = isLocal ? '/static/swim_results_birthday.db' : 'static/swim_results_birthday.db';
+                const resp = await fetch(dbPath);
+                if (resp.ok) {
+                    const buf = await resp.arrayBuffer();
+                    loadDatabaseBuffer(buf);
+                    return;
+                }
+            } catch (e) {
+                console.log("無法自動載入正式資料庫，嘗試載入模板庫...", e);
+            }
+
+            // 2. 備用：嘗試載入預建的模板資料庫 (只含有行事曆)
+            try {
+                const templatePath = isLocal ? '/static/swim_results_template.db' : 'static/swim_results_template.db';
+                const resp = await fetch(templatePath);
+                if (resp.ok) {
+                    const buf = await resp.arrayBuffer();
+                    loadDatabaseBuffer(buf);
+                    return;
+                }
+            } catch (e) {
+                console.log("無法自動載入模板資料庫，嘗試本地 IndexedDB...", e);
+            }
+
+            // 3. 備用：從本地 IndexedDB 讀取已快取的資料庫
             try {
                 const openReq = indexedDB.open("SwimSQL", 1); 
                 openReq.onupgradeneeded = e => {
@@ -593,7 +631,7 @@
                             try {
                                 if (getReq.result) { 
                                     const buf = await (getReq.result instanceof Blob ? getReq.result.arrayBuffer() : getReq.result); 
-                                    worker.postMessage({ type: 'INIT', data: new Uint8Array(buf) }); 
+                                    loadDatabaseBuffer(buf);
                                 } else {
                                     handleNoDatabase();
                                 }
