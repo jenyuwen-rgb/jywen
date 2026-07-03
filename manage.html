@@ -1801,9 +1801,27 @@
                     const info = { name: dbFileName || "swim_results_birthday.db", size: updatedBlob.size, loadedAt: new Date().toISOString() };
                     tx.objectStore("files").put(info, "db_info");
                     
-                    tx.oncomplete = () => {
+                    tx.oncomplete = async () => {
                         document.getElementById('db-status-text').textContent = `資料庫已載入 (${(updatedBlob.size / (1024 * 1024)).toFixed(1)} MB)`;
                         loadCalendarFromDB(); // 刷新行事曆表
+
+                        // 針對本地 Flask 伺服器，自動同步覆蓋寫入地端實體資料庫檔案
+                        if (isLocalHost) {
+                            try {
+                                const saveResp = await fetch(`/api/save_db?name=${encodeURIComponent(dbFileName || 'swim_results_birthday.db')}`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/octet-stream' },
+                                    body: binary
+                                });
+                                if (saveResp.ok) {
+                                    addCardLog("💾 自動同步：最新數據已成功存檔至本機目錄！", "success");
+                                } else {
+                                    console.warn("自動同步後台失敗");
+                                }
+                            } catch (saveErr) {
+                                console.error("自動同步後台異常:", saveErr);
+                            }
+                        }
                     };
                 };
 
