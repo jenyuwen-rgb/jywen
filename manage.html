@@ -1037,8 +1037,13 @@
 
     <script>
         // 解決 Blob URL Web Worker 載入 CDN 以及跨域問題，使用本機 JS & WASM
-        const localJsUrl = new URL('sql-wasm.js', window.location.href).href;
-        const localWasmUrl = new URL('sql-wasm.wasm', window.location.href).href;
+        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const localJsUrl = isLocalHost 
+            ? new URL('/static/sql-wasm.js', window.location.origin).href 
+            : new URL('sql-wasm.js', window.location.href).href;
+        const localWasmUrl = isLocalHost 
+            ? new URL('/static/sql-wasm.wasm', window.location.origin).href 
+            : new URL('sql-wasm.wasm', window.location.href).href;
         
         const workerCode = document.getElementById('worker-script').textContent
             .replace('SQL_JS_CDN_URL', localJsUrl);
