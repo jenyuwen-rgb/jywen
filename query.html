@@ -102,12 +102,14 @@
         <span class="text-xs text-gray-500">PWA Offline Capable</span>
     </div>
 
-    <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E] rounded-xl text-center border border-[#38383A]">
+    <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E]/80 backdrop-blur-md rounded-xl text-center border border-[#38383A] shadow-sm">
         <input type="file" id="dbFileInput" hidden onchange="handleDBUpload(this.files)">
-        <button onclick="document.getElementById('dbFileInput').click()" class="bg-[#D4AF37] text-black px-8 py-3 rounded-full font-bold">手動載入本機 DB</button>
-        <div id="progressContainer" class="mt-6 hidden">
-            <div id="loaderStatus" class="text-sm text-gray-400 mb-2">準備中...</div>
-            <div class="w-full bg-[#333] rounded-full h-2 overflow-hidden"><div id="progressBar" class="bg-[#D4AF37] h-full" style="width: 0%"></div></div>
+        <button id="manualUploadBtn" onclick="document.getElementById('dbFileInput').click()" class="bg-[#D4AF37] text-black px-8 py-3 rounded-full font-bold hidden">手動載入本機 DB</button>
+        <div id="progressContainer" class="mt-2">
+            <div id="loaderStatus" class="text-sm text-gray-300 font-medium mb-3">正在與雲端同步資料庫狀態...</div>
+            <div class="w-full bg-[#2C2C2E] rounded-full h-2 overflow-hidden">
+                <div id="progressBar" class="bg-[#D4AF37] h-full transition-all duration-300" style="width: 0%"></div>
+            </div>
         </div>
     </div>
 
@@ -344,14 +346,13 @@
             }
         }
 
-        async function downloadDatabaseFromServer() {
+        async function downloadDatabaseFromServer(cloudUpdatedTime) {
             document.getElementById('progressContainer').classList.remove('hidden');
             const statusEl = document.getElementById('loaderStatus');
             const progressBar = document.getElementById('progressBar');
-            statusEl.textContent = "正在自伺服器下載游泳成績資料庫 (約 290MB)...";
+            statusEl.textContent = "正在自雲端 GitHub 下載游泳成績資料庫 (約 170MB)...";
             
             try {
-                // 直接使用 GitHub Release 雲端最新直鏈 (避開 Vercel 100MB 限制並保持所有人讀取最新庫)
                 const response = await fetch('https://github.com/jenyuwen-rgb/jywen/releases/download/latest/swim_results_birthday.db');
                 if (!response.ok) throw new Error("下載失敗");
                 
@@ -393,11 +394,16 @@
                     const tx = db.transaction("files", "readwrite");
                     tx.objectStore("files").put(blob, "current_db");
                     tx.oncomplete = () => {
+                        if (cloudUpdatedTime) {
+                            localStorage.setItem('cached_db_time', cloudUpdatedTime);
+                        }
                         document.getElementById('dbLoaderArea').style.display = 'none';
+                        doSearch();
                     };
                 };
             } catch (err) {
-                statusEl.textContent = `自動下載失敗: ${err.message}。請嘗試重新整理網頁，或點選上方按鈕手動上傳資料庫檔。`;
+                statusEl.textContent = `❌ 自動同步下載失敗: ${err.message}。請確認您的網路連線，或重新整理網頁再試。`;
+                document.getElementById('manualUploadBtn').classList.remove('hidden');
             }
         }
 
@@ -424,67 +430,126 @@
                 const tx = db.transaction("files", "readwrite");
                 tx.objectStore("files").put(files[0], "current_db");
                 tx.oncomplete = () => {
+                    localStorage.setItem('cached_db_time', 'manual_' + Date.now());
                     document.getElementById('dbLoaderArea').style.display = 'none'; 
                 };
             }; 
         }
 
-        async function startSystem() { 
+        async function startSystem() {
+            const statusEl = document.getElementById('loaderStatus');
+            const progressContainer = document.getElementById('progressContainer');
+            if (progressContainer) progressContainer.classList.remove('hidden');
+            if (statusEl) statusEl.textContent = "正在與雲端同步資料庫狀態...";
+
+            let cloudUpdatedTime = null;
             try {
-                const openReq = indexedDB.open("SwimSQL", 1); 
-                openReq.onupgradeneeded = e => {
-                    if (!e.target.result.objectStoreNames.contains("files")) {
-                        e.target.result.createObjectStore("files");
-                    }
-                };
-                openReq.onblocked = () => {
-                    console.warn("IndexedDB 被占用");
-                    const statusEl = document.getElementById('loaderStatus');
-                    if (statusEl) statusEl.textContent = "⚠️ 偵測到資料庫被其他分頁占用。請關閉其他相關分頁，然後重新整理本頁面。";
-                };
-                openReq.onsuccess = e => { 
-                    try {
-                        const db = e.target.result;
-                        if(!db.objectStoreNames.contains("files")) {
-                            handleNoDatabase();
-                            return;
+                // 輕量獲取 GitHub 最新 Release 的更新時間 (利用 no-cache 避免瀏覽器緩存 API 響應)
+                const apiResp = await fetch('https://api.github.com/repos/jenyuwen-rgb/jywen/releases/tags/latest', {
+                    cache: 'no-store'
+                });
+                if (apiResp.ok) {
+                    const relData = await apiResp.json();
+                    const assets = relData.assets || [];
+                    for (const asset of assets) {
+                        if (asset.name === 'swim_results_birthday.db') {
+                            cloudUpdatedTime = asset.updated_at;
+                            break;
                         }
-                        const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db"); 
-                        getReq.onsuccess = async () => { 
-                            try {
-                                if (getReq.result) { 
-                                    const buf = await (getReq.result instanceof Blob ? getReq.result.arrayBuffer() : getReq.result); 
-                                    worker.postMessage({ type: 'INIT', data: new Uint8Array(buf) }); 
-                                } else {
-                                    handleNoDatabase();
-                                }
-                            } catch (bufErr) {
-                                console.error("讀取快取資料庫失敗:", bufErr);
-                                handleNoDatabase();
-                            }
-                        }; 
-                        getReq.onerror = () => handleNoDatabase();
-                    } catch (txErr) {
-                        console.error("建立唯讀 Transaction 失敗:", txErr);
-                        handleNoDatabase();
                     }
-                }; 
-                openReq.onerror = () => handleNoDatabase();
-            } catch (err) {
-                console.error("啟動系統時發生異常:", err);
-                handleNoDatabase();
+                }
+            } catch (apiErr) {
+                console.warn("無法連接 GitHub API 檢查更新，將嘗試加載本地快取:", apiErr);
             }
+
+            const localTime = localStorage.getItem('cached_db_time');
+
+            // 如果有雲端時間，且本地時間一致，且 IndexedDB 裡有資料庫，就直接載入
+            if (cloudUpdatedTime && localTime === cloudUpdatedTime) {
+                const hasCached = await checkIndexedDBHasCached();
+                if (hasCached) {
+                    if (statusEl) statusEl.textContent = "🚀 偵測為最新版，正在讀取快取資料庫...";
+                    try {
+                        await loadCachedDatabase();
+                        return;
+                    } catch (cacheLoadErr) {
+                        console.warn("讀取快取資料庫失敗，將重新下載:", cacheLoadErr);
+                    }
+                }
+            }
+
+            // 如果是地端測試 (localhost/127.0.0.1)，且雲端沒連上，也檢查有無快取，有就直接載入
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (!cloudUpdatedTime) {
+                const hasCached = await checkIndexedDBHasCached();
+                if (hasCached) {
+                    if (statusEl) statusEl.textContent = "正在載入本機快取資料庫...";
+                    try {
+                        await loadCachedDatabase();
+                        return;
+                    } catch (err) {
+                        console.warn(err);
+                    }
+                }
+            }
+
+            // 否則，直接從雲端自動下載
+            if (statusEl) statusEl.textContent = cloudUpdatedTime ? "偵測到雲端資料庫有新更新，正在自動同步..." : "首次載入，正在準備從雲端下載資料庫...";
+            downloadDatabaseFromServer(cloudUpdatedTime);
         }
 
-        function handleNoDatabase() {
-            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            if (isLocal) {
-                downloadDatabaseFromServer();
-            } else {
-                document.getElementById('progressContainer').classList.remove('hidden');
-                document.getElementById('loaderStatus').textContent = "請載入您的 swim_results_birthday.db 檔案啟用系統。";
-                document.getElementById('progressBar').style.width = '0%';
-            }
+        function checkIndexedDBHasCached() {
+            return new Promise((resolve) => {
+                try {
+                    const openReq = indexedDB.open("SwimSQL", 1);
+                    openReq.onupgradeneeded = e => {
+                        if (!e.target.result.objectStoreNames.contains("files")) {
+                            e.target.result.createObjectStore("files");
+                        }
+                    };
+                    openReq.onsuccess = e => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains("files")) {
+                            resolve(false);
+                            return;
+                        }
+                        const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db");
+                        getReq.onsuccess = () => {
+                            resolve(!!getReq.result);
+                        };
+                        getReq.onerror = () => resolve(false);
+                    };
+                    openReq.onerror = () => resolve(false);
+                } catch (e) {
+                    resolve(false);
+                }
+            });
+        }
+
+        function loadCachedDatabase() {
+            return new Promise((resolve, reject) => {
+                const openReq = indexedDB.open("SwimSQL", 1);
+                openReq.onsuccess = e => {
+                    const db = e.target.result;
+                    const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db");
+                    getReq.onsuccess = async () => {
+                        try {
+                            if (getReq.result) {
+                                const buf = await (getReq.result instanceof Blob ? getReq.result.arrayBuffer() : getReq.result);
+                                worker.postMessage({ type: 'INIT', data: new Uint8Array(buf) });
+                                document.getElementById('dbLoaderArea').style.display = 'none';
+                                resolve();
+                            } else {
+                                reject(new Error("快取為空"));
+                            }
+                        } catch (err) {
+                            reject(err);
+                        }
+                    };
+                    getReq.onerror = () => reject(new Error("讀取失敗"));
+                };
+                openReq.onerror = () => reject(new Error("打開數據庫失敗"));
+            });
         }
 
         startSystem();
