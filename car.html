@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>車價分析 | JYWEN 游泳賽事與理財整合平台</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        zinc: {
+                            950: '#0A0A0B',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0A0A0B;
+            color: #f4f4f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card-container {
+            background-color: #1C1C1E;
+            border: 1px solid #2C2C2E;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-center-area { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 12px; width: 100%; }
+        @media (min-width: 768px) {
+            .header-center-area { padding: 0 150px; }
+        }
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column !important;
+                min-height: auto !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            #db-status-badge {
+                position: static !important;
+                margin-top: 6px !important;
+                justify-content: center !important;
+                width: auto !important;
+            }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0A0B;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46;
+        }
+        /* 3D 翻書過渡動畫 */
+        body {
+            perspective: 2000px;
+            overflow-x: hidden;
+        }
+        .page-container {
+            transform-origin: left center;
+            backface-visibility: hidden;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
+        }
+        .page-enter-active {
+            animation: bookFlipIn 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        .page-exit-active {
+            transform: rotateY(-90deg) scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+        }
+        @keyframes bookFlipIn {
+            0% {
+                transform: rotateY(90deg) scale(0.95);
+                opacity: 0;
+            }
+            100% {
+                transform: rotateY(0deg) scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="text-zinc-100 min-h-screen pb-12">
+
+    <div class="page-container">
+
+        <!-- 頂部標題與導覽 -->
+        <header style="display: none !important;">
+            <div class="header-center-area">
+                <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; justify-content:center;">
+                    <a href="manage.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">整合平台</a>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <a href="index.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">游泳成績查詢</a>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <a href="view_db.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">檢視資料庫</a>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <a href="wealth.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">理財</a>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <h1 style="margin:0; font-size:1.3rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">車價分析</h1>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <a href="system_messages.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">系統訊息</a>
+                </div>
+                <p class="text-xs text-gray-500" style="margin:2px 0 0 0;">8891 實車實價中古車折舊分析 (v3.5.0)</p>
+            </div>
+            
+        </header>
+
+        <!-- Selector Panel (iOS styled Control Panel) -->
+        <div class="card-container space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-3 pb-2 border-b border-[#2C2C2E]">
+                <h2 class="text-xs font-semibold tracking-wide text-[#AEAEB2] uppercase">📊 車型行情多維篩選器</h2>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button id="btn-watchlist" onclick="openWatchlistModal()" style="cursor:pointer; background:#2C2C2E; color:#FFFFFF; border:1px solid #3A3A3C; border-radius:6px; padding:4px 10px; font-size:11px; font-weight:bold; display:flex; align-items:center; gap:4px; transition: background 0.2s, border-color 0.2s;" onmouseover="this.style.background='#3A3A3C'; this.style.borderColor='#48484A';" onmouseout="this.style.background='#2C2C2E'; this.style.borderColor='#3A3A3C';">
+                        ⚙️ 編輯關注車輛
+                    </button>
+                    <button id="btn-refresh" onclick="triggerCrawler()" style="cursor:pointer; background:#2C2C2E; color:#FFFFFF; border:1px solid #3A3A3C; border-radius:6px; padding:4px 10px; font-size:11px; font-weight:bold; display:flex; align-items:center; gap:4px; transition: background 0.2s, border-color 0.2s;" onmouseover="this.style.background='#3A3A3C'; this.style.borderColor='#48484A';" onmouseout="this.style.background='#2C2C2E'; this.style.borderColor='#3A3A3C';">
+                        🔄 刷新最新車價
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                
+                <!-- Brand Selection -->
+                <div class="space-y-1.5">
+                    <label class="text-xs text-[#8E8E93] font-medium">品牌 Make</label>
+                    <select id="select-brand" onchange="onBrandChange()" class="w-full bg-[#2C2C2E] border border-[#3A3A3C] rounded-lg px-3 py-2 text-sm text-[#F2F2F7] focus:outline-none focus:border-[#D4AF37] transition-all">
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+
+                <!-- Model Selection -->
+                <div class="space-y-1.5">
+                    <label class="text-xs text-[#8E8E93] font-medium">車系 Model</label>
+                    <select id="select-model" onchange="onModelChange()" class="w-full bg-[#2C2C2E] border border-[#3A3A3C] rounded-lg px-3 py-2 text-sm text-[#F2F2F7] focus:outline-none focus:border-[#D4AF37] transition-all">
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+
+                <!-- Trim Selection -->
+                <div class="space-y-1.5">
+                    <label class="text-xs text-[#8E8E93] font-medium">規格/型號 Trim (可選)</label>
+                    <select id="select-trim" onchange="loadDashboardData()" class="w-full bg-[#2C2C2E] border border-[#3A3A3C] rounded-lg px-3 py-2 text-sm text-[#F2F2F7] focus:outline-none focus:border-[#D4AF37] transition-all">
+                        <option value="">全部規格</option>
+                    </select>
+                </div>
+
+                <!-- Manufacture Year -->
+                <div class="space-y-1.5">
+                    <label class="text-xs text-[#8E8E93] font-medium">出廠年份 Year (X軸起點)</label>
+                    <select id="select-year" onchange="loadDashboardData()" class="w-full bg-[#2C2C2E] border border-[#3A3A3C] rounded-lg px-3 py-2 text-sm text-[#F2F2F7] focus:outline-none focus:border-[#D4AF37] transition-all">
+                        <option value="all" selected>不拘 (全部年份)</option>
+                        <option value="2025">2025年</option>
+                        <option value="2024">2024年</option>
+                        <option value="2023">2023年</option>
+                        <option value="2022">2022年</option>
+                        <option value="2021">2021年</option>
+                        <option value="2020">2020年</option>
+                        <option value="2019">2019年</option>
+                        <option value="2018">2018年</option>
+                        <option value="2017">2017年</option>
+                        <option value="2016">2016年</option>
+                        <option value="2015">2015年</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- KPI Summary Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            
+            <!-- Card 1: Total Db Cars & Top 3 Years -->
+            <div class="bg-[#1C1C1E] border border-[#2C2C2E] p-5 rounded-xl flex flex-col justify-between">
+                <span class="text-xs font-medium text-gray-400">📊 在庫總車源 / Top3 年份</span>
+                <div class="mt-2 space-y-1">
+                    <div class="flex items-baseline space-x-1">
+                        <span id="kpi-total-cars" class="text-2xl font-bold tracking-tight text-zinc-100">--</span>
+                        <span class="text-xs text-zinc-400">台</span>
+                    </div>
+                    <div id="kpi-top-years" class="text-[10px] text-gray-500 leading-normal pt-1.5 border-t border-[#2C2C2E]">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: MSRP -->
+            <div class="bg-[#1C1C1E] border border-[#2C2C2E] p-5 rounded-xl flex flex-col justify-between">
+                <span class="text-xs font-medium text-gray-400">🏷️ 新車參考標配原價</span>
+                <div class="flex items-baseline space-x-1 mt-2">
+                    <span id="kpi-msrp" class="text-3xl font-bold tracking-tight text-zinc-100">--</span>
+                    <span class="text-xs text-zinc-400">萬 TWD</span>
+                </div>
+            </div>
+
+            <!-- Card 3: Current Market Avg -->
+            <div class="bg-[#1C1C1E] border border-[#2C2C2E] p-5 rounded-xl flex flex-col justify-between">
+                <span class="text-xs font-medium text-gray-400">💰 當前中古市場均價</span>
+                <div class="flex items-baseline space-x-1 mt-2">
+                    <span id="kpi-market-avg" class="text-3xl font-bold tracking-tight text-[#FFD933]">--</span>
+                    <span class="text-xs text-zinc-400">萬 TWD</span>
+                </div>
+            </div>
+
+            <!-- Card 4: Residual Rate -->
+            <div class="bg-[#1C1C1E] border border-[#2C2C2E] p-5 rounded-xl flex flex-col justify-between">
+                <span class="text-xs font-medium text-gray-400">📉 當前平均殘值率</span>
+                <div class="flex items-baseline space-x-1 mt-2">
+                    <span id="kpi-residual" class="text-3xl font-bold tracking-tight text-green-400">--</span>
+                    <span class="text-xs text-zinc-400">%</span>
+                </div>
+            </div>
+
+            <!-- Card 5: Turnover days -->
+            <div class="bg-[#1C1C1E] border border-[#2C2C2E] p-5 rounded-xl flex flex-col justify-between">
+                <span class="text-xs font-medium text-gray-400">⏱️ 平均售出天數 (流速)</span>
+                <div class="mt-2 space-y-1">
+                    <div class="flex items-baseline space-x-1">
+                        <span id="kpi-sold-days" class="text-2xl font-bold tracking-tight text-amber-400">--</span>
+                        <span class="text-xs text-zinc-400">天</span>
+                    </div>
+                    <div id="kpi-sold-count" class="text-[10px] text-gray-500 leading-normal pt-1.5 border-t border-[#2C2C2E]">
+                        庫存已售出下架：0 台
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Visualization Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            
+            <!-- Chart 1: Volume Count Stats (X-axis: Year, Y-axis: Count) -->
+            <div class="card-container space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-semibold tracking-wide text-[#AEAEB2] uppercase">📊 各年份品牌車源數量分佈 (目了然總體分佈)</h3>
+                    <span class="text-xs text-zinc-500">單位：台</span>
+                </div>
+                <div id="chart-volume" class="w-full h-[360px]"></div>
+            </div>
+
+            <!-- Chart 2: Model Depreciation Curve (X-axis: Age, Y-axis: Price) -->
+            <div class="card-container space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-semibold tracking-wide text-[#AEAEB2] uppercase">📈 特定車型折舊軌跡與預測折線圖 (實線: 歷史 | 虛線: 預測)</h3>
+                    <span class="text-xs text-zinc-500">單位：萬台幣</span>
+                </div>
+                <div id="chart-depreciation" class="w-full h-[360px]"></div>
+            </div>
+
+        </div>
+
+        <!-- Row 2: Scatter Plot of listings (Full width) -->
+        <div class="card-container space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xs font-semibold tracking-wide text-[#AEAEB2] uppercase">🎯 市場在售車源分佈散佈圖 (點擊圓點跳轉 8891 實車細節)</h3>
+                <span class="text-xs text-zinc-500">橫軸: 里程(萬公里) | 縱軸: 開價(萬 TWD)</span>
+            </div>
+            <div id="chart-scatter" class="w-full h-[400px]"></div>
+        </div>
+
+    </div>
+
+    <!-- Toast Notification (macOS styled Toast) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-12 opacity-0 pointer-events-none transition-all duration-300 ease-out">
+        <div class="bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-xl px-4 py-3 shadow-xl flex items-center space-x-3 max-w-sm">
+            <span class="text-base">🔔</span>
+            <div class="flex-1">
+                <p id="toast-title" class="text-xs font-semibold text-zinc-100">提示</p>
+                <p id="toast-body" class="text-xs text-zinc-400 mt-0.5">內容說明</p>
+            </div>
+            <button onclick="hideToast()" class="text-zinc-500 hover:text-zinc-300 text-xs">✕</button>
+        </div>
+    </div>
+
+    <!-- Watchlist Modal (macOS styled Modal) -->
+    <div id="watchlist-modal" class="modal" style="display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); align-items: center; justify-content: center;">
+        <div class="modal-content" style="background-color: #1C1C1E; border: 1px solid #3A3A3C; border-radius: 16px; width: 95%; max-width: 520px; padding: 28px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold text-zinc-100 flex items-center gap-1.5">⚙️ 編輯關注追蹤車輛</h3>
+                <button onclick="closeWatchlistModal()" class="text-zinc-500 hover:text-zinc-300 text-xs">✕</button>
+            </div>
+            
+            <div class="space-y-4">
+                <p class="text-xs text-[#8E8E93] leading-relaxed">
+                    請編輯您要追蹤的品牌與車系。車系名稱之間請以<strong>英文逗號 `,`</strong> 隔開即可：
+                </p>
+                
+                <!-- Watchlist rows container -->
+                <div id="watchlist-rows-container" class="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+                    <!-- Loaded dynamically -->
+                </div>
+                
+                <!-- Add brand button -->
+                <button onclick="addWatchlistRow('', '')" class="w-full bg-[#2C2C2E] border border-dashed border-[#3A3A3C] hover:bg-[#3A3A3C] text-xs text-zinc-300 rounded-lg py-2.5 font-medium transition-all flex items-center justify-center gap-1">
+                    ➕ 新增追蹤品牌
+                </button>
+                
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button onclick="closeWatchlistModal()" class="bg-[#2C2C2E] border border-[#3A3A3C] hover:bg-[#3A3A3C] text-xs text-zinc-300 rounded-lg px-4 py-2 font-semibold transition-all">
+                        取消
+                    </button>
+                    <button onclick="saveWatchlist()" class="bg-[#D4AF37] hover:bg-[#FFD933] text-xs text-zinc-950 rounded-lg px-4 py-2 font-semibold transition-all">
+                        儲存變更
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let metadata = { brands: [], models: {}, trims: {} };
+        let chartVolume = null;
+        let chartDepreciation = null;
+        let chartScatter = null;
+        let isInitialLoad = true;
+
+        // Initialize ECharts instances
+        document.addEventListener('DOMContentLoaded', () => {
+            chartVolume = echarts.init(document.getElementById('chart-volume'), 'dark', { renderer: 'canvas', backgroundColor: 'transparent' });
+            chartDepreciation = echarts.init(document.getElementById('chart-depreciation'), 'dark', { renderer: 'canvas', backgroundColor: 'transparent' });
+            chartScatter = echarts.init(document.getElementById('chart-scatter'), 'dark', { renderer: 'canvas', backgroundColor: 'transparent' });
+            
+            // Adjust charts on window resize
+            window.addEventListener('resize', () => {
+                chartVolume.resize();
+                chartDepreciation.resize();
+                chartScatter.resize();
+            });
+
+            // Load static volume statistics first, then selectors
+            loadVolumeStats();
+            loadMetadata();
+        });
+
+        // Show Toast Utility
+        function showToast(title, body) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-body').innerText = body;
+            
+            toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            // Auto hide after 5 seconds
+            setTimeout(hideToast, 5000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+        }
+
+        // Fetch overall volume statistics per year per brand (動態下鑽聯動版)
+        async function loadVolumeStats(brand = '', model = '', year = '', trim = '') {
+            try {
+                const response = await fetch(`/api/car_volume_stats?brand=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}&year=${encodeURIComponent(year)}&trim=${encodeURIComponent(trim)}`);
+                const result = await response.json();
+                if (result.status === 'success') {
+                    renderVolumeChart(result);
+                }
+            } catch (err) {
+                console.error("Error loading volume statistics:", err);
+            }
+        }
+
+        // Fetch Brands and Models Metadata
+        async function loadMetadata() {
+            try {
+                const response = await fetch('/api/car_metadata');
+                const result = await response.json();
+                if (result.status === 'success') {
+                    metadata = result;
+                    
+                    // Populating brands dropdown
+                    const brandSelect = document.getElementById('select-brand');
+                    const BRAND_CN = {
+                        'Porsche': '保時捷 (Porsche)',
+                        'Audi': '奧迪 (Audi)',
+                        'BMW': '寶馬 (BMW)',
+                        'Benz': '賓士 (Benz)',
+                        'Mercedes-Benz': '賓士 (Mercedes-Benz)',
+                        'Lexus': '凌志 (Lexus)',
+                        'Toyota': '豐田 (Toyota)',
+                        'Tesla': '特斯拉 (Tesla)',
+                        'Volvo': '富豪 (Volvo)',
+                        'Land Rover': '荒原路華 (Land Rover)',
+                        'Honda': '本田 (Honda)',
+                        'Volkswagen': '福斯 (Volkswagen)',
+                        'Ford': '福特 (Ford)',
+                        'Mazda': '馬自達 (Mazda)',
+                        'Nissan': '日產 (Nissan)',
+                        'Subaru': '速霸陸 (Subaru)',
+                        'Suzuki': '鈴木 (Suzuki)',
+                        'Hyundai': '現代 (Hyundai)',
+                        'Kia': '起亞 (Kia)',
+                        'Skoda': '斯柯達 (Skoda)',
+                        'Peugeot': '寶獅 (Peugeot)',
+                        'Citroen': '雪鐵龍 (Citroen)',
+                        'Infiniti': '極致 (Infiniti)',
+                        'Jaguar': '捷豹 (Jaguar)',
+                        'MINI': '迷你 (MINI)',
+                        'Maserati': '瑪莎拉蒂 (Maserati)',
+                        'Bentley': '賓利 (Bentley)',
+                        'Ferrari': '法拉利 (Ferrari)',
+                        'Lamborghini': '藍寶堅尼 (Lamborghini)',
+                        'Aston Martin': '奧斯頓馬丁 (Aston Martin)',
+                        'McLaren': '麥拉倫 (McLaren)',
+                        'Chevrolet': '雪佛蘭 (Chevrolet)',
+                        'Chrysler': '克萊斯勒 (Chrysler)',
+                        'Cadillac': '凱迪拉克 (Cadillac)',
+                        'Dodge': '道奇 (Dodge)',
+                        'Jeep': '吉普 (Jeep)'
+                    };
+                    brandSelect.innerHTML = metadata.brands.map(b => `<option value="${b}">${BRAND_CN[b] || b}</option>`).join('');
+                    
+                    if (isInitialLoad && metadata.brands.includes('Porsche')) {
+                        brandSelect.value = 'Porsche';
+                    }
+                    onBrandChange();
+                } else {
+                    console.error("Failed to load metadata:", result.message);
+                }
+            } catch (err) {
+                console.error("Error fetching metadata:", err);
+            }
+        }
+
+        // Watchlist Modal controls
+        function addWatchlistRow(brand = '', models = '') {
+            const container = document.getElementById('watchlist-rows-container');
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'watchlist-row flex items-center gap-2 bg-[#2C2C2E] p-2.5 rounded-lg border border-[#3A3A3C]';
+            
+            rowDiv.innerHTML = `
+                <input type="text" placeholder="品牌 (e.g. BMW)" value="${brand}" class="watchlist-brand-input w-[120px] bg-[#2C2C2E] border border-[#3A3A3C] rounded px-2 py-1 text-xs text-[#F2F2F7] placeholder-zinc-600 focus:outline-none focus:border-[#D4AF37]" />
+                <input type="text" placeholder="車系，用逗號隔開 (e.g. M3, M4)" value="${models}" class="watchlist-models-input flex-1 bg-[#2C2C2E] border border-[#3A3A3C] rounded px-2 py-1 text-xs text-[#F2F2F7] placeholder-zinc-600 focus:outline-none focus:border-[#D4AF37]" />
+                <button onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-400 text-xs px-1" title="刪除">🗑️</button>
+            `;
+            container.appendChild(rowDiv);
+        }
+
+        async function openWatchlistModal() {
+            const modal = document.getElementById('watchlist-modal');
+            const container = document.getElementById('watchlist-rows-container');
+            container.innerHTML = ''; // Clear old rows
+            
+            try {
+                const response = await fetch('/api/watchlist');
+                const result = await response.json();
+                if (result.status === 'success') {
+                    const wl = result.watchlist;
+                    for (const [brand, modelsArr] of Object.entries(wl)) {
+                        addWatchlistRow(brand, modelsArr.join(', '));
+                    }
+                    modal.style.display = 'flex';
+                } else {
+                    showToast("讀取失敗", result.message);
+                }
+            } catch (err) {
+                showToast("連線錯誤", err.message);
+            }
+        }
+
+        function closeWatchlistModal() {
+            document.getElementById('watchlist-modal').style.display = 'none';
+        }
+
+        async function saveWatchlist() {
+            const container = document.getElementById('watchlist-rows-container');
+            const rows = container.getElementsByClassName('watchlist-row');
+            const newWatchlist = {};
+            
+            for (let i = 0; i < rows.length; i++) {
+                const brandInput = rows[i].querySelector('.watchlist-brand-input').value.trim();
+                const modelsInput = rows[i].querySelector('.watchlist-models-input').value.trim();
+                
+                if (!brandInput) continue;
+                
+                const modelsArr = modelsInput.split(',')
+                    .map(m => m.trim())
+                    .filter(m => m.length > 0);
+                    
+                newWatchlist[brandInput] = modelsArr;
+            }
+
+            try {
+                const response = await fetch('/api/watchlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ watchlist: newWatchlist })
+                });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showToast("儲存成功", "關注清單已更新！請按刷新按鈕以下載新車型資料。");
+                    closeWatchlistModal();
+                    loadMetadata();
+                } else {
+                    showToast("儲存失敗", result.message);
+                }
+            } catch (err) {
+                showToast("連線錯誤", err.message);
+            }
+        }
+
+        function onBrandChange() {
+            const brand = document.getElementById('select-brand').value;
+            const modelSelect = document.getElementById('select-model');
+            
+            if (metadata.models[brand]) {
+                modelSelect.innerHTML = metadata.models[brand].map(m => `<option value="${m}">${m}</option>`).join('');
+            } else {
+                modelSelect.innerHTML = '';
+            }
+            
+            if (isInitialLoad && brand === 'Porsche' && metadata.models['Porsche'] && metadata.models['Porsche'].includes('718')) {
+                modelSelect.value = '718';
+            }
+            onModelChange();
+            isInitialLoad = false;
+        }
+
+        function onModelChange() {
+            const model = document.getElementById('select-model').value;
+            const trimSelect = document.getElementById('select-trim');
+            
+            let optionsHtml = '<option value="">全部規格</option>';
+            if (metadata.trims[model]) {
+                const uniqueTrims = [...new Set(metadata.trims[model])];
+                optionsHtml += uniqueTrims.map(t => `<option value="${t}">${t}</option>`).join('');
+            }
+            trimSelect.innerHTML = optionsHtml;
+            
+            loadDashboardData();
+        }
+
+        // Trigger manual crawl
+        async function triggerCrawler() {
+            const btn = document.getElementById('btn-refresh');
+            btn.disabled = true;
+            btn.innerHTML = `<span>⏳ 正在下載車價...</span>`;
+            
+            try {
+                const response = await fetch('/api/run_car_crawler', { method: 'POST' });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showToast("背景更新已啟動", "8891 爬蟲正在後台刷新資料，完成後將自動發送 Telegram 通知您！");
+                    // Reload volume statistics shortly after
+                    setTimeout(loadVolumeStats, 3000);
+                } else {
+                    showToast("啟動失敗", result.message);
+                }
+            } catch (err) {
+                showToast("連線錯誤", err.message);
+            } finally {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = `🔄 刷新最新車價`;
+                }, 2000);
+            }
+        }
+
+        // Load entire dashboard stats and charts
+        async function loadDashboardData() {
+            const brand = document.getElementById('select-brand').value;
+            const model = document.getElementById('select-model').value;
+            const trim = document.getElementById('select-trim').value;
+            const year = document.getElementById('select-year').value;
+
+            if (!brand || !model || !year) return;
+
+            // 同步刷新各年份品牌車源數量分佈圖表
+            loadVolumeStats(brand, model, year, trim);
+
+            chartDepreciation.showLoading({ text: '載入中...', color: '#a1a1aa', textColor: '#f4f4f5', maskColor: 'rgba(9, 9, 11, 0.4)' });
+            chartScatter.showLoading({ text: '載入中...', color: '#a1a1aa', textColor: '#f4f4f5', maskColor: 'rgba(9, 9, 11, 0.4)' });
+
+            try {
+                // 1. Fetch Line Forecast
+                const urlForecast = `/api/car_depreciation_forecast?brand=${brand}&model=${model}&trim=${trim}&year=${year}`;
+                const respForecast = await fetch(urlForecast);
+                const resForecast = await respForecast.json();
+
+                // 2. Fetch Scatter Listings
+                const urlListings = `/api/car_listings?brand=${brand}&model=${model}&trim=${trim}`;
+                const respListings = await fetch(urlListings);
+                const resListings = await respListings.json();
+
+                if (resForecast.status === 'success' && resListings.status === 'success') {
+                    renderDepreciationChart(resForecast, year, resListings.data);
+                    renderScatterPlot(resListings.data, resForecast.msrp, year);
+                    updateKpis(resForecast, resListings, year);
+                }
+            } catch (err) {
+                console.error("Error loading dashboard data:", err);
+            } finally {
+                chartDepreciation.hideLoading();
+                chartScatter.hideLoading();
+            }
+        }
+
+        // Render KPI summary numbers and Top 3 Years
+        function updateKpis(forecast, listingsResponse, manufactureYear) {
+            const listings = listingsResponse.data;
+            const topYears = listingsResponse.top_years || [];
+            const avgDaysToSell = listingsResponse.avg_days_to_sell;
+            const soldCount = listingsResponse.sold_count || 0;
+            
+            // MSRP
+            document.getElementById('kpi-msrp').innerText = forecast.msrp;
+            
+            // Total DB counts
+            document.getElementById('kpi-total-cars').innerText = listings.length;
+            
+            // Sold stats
+            document.getElementById('kpi-sold-days').innerText = avgDaysToSell !== null && avgDaysToSell !== undefined ? avgDaysToSell : '--';
+            document.getElementById('kpi-sold-count').innerText = `庫存已售出下架：${soldCount} 台`;
+            
+            // Render Top 3 Years list
+            const topYearsContainer = document.getElementById('kpi-top-years');
+            if (topYears.length > 0) {
+                const medals = ["🥇", "🥈", "🥉"];
+                const listHtml = topYears.map((ty, idx) => {
+                    return `<span>${medals[idx]} ${ty.year}年 (${ty.count}台)</span>`;
+                }).join(' | ');
+                topYearsContainer.innerHTML = `<div class="font-semibold mb-0.5">Top 3 年份分佈：</div>${listHtml}`;
+            } else {
+                topYearsContainer.innerHTML = '無數據分佈';
+            }
+
+            // Current average price calculation
+            const currentYear = new Date().getFullYear();
+            let avgPrice = 0;
+            
+            if (manufactureYear === 'all') {
+                // If "不拘", show the average price of all listings inside database
+                if (listings.length > 0) {
+                    avgPrice = Math.round(listings.reduce((acc, c) => acc + c.asking_price, 0) / listings.length);
+                    document.getElementById('kpi-market-avg').innerText = avgPrice;
+                    document.getElementById('kpi-residual').innerText = Math.round((avgPrice / forecast.msrp) * 100);
+                } else {
+                    document.getElementById('kpi-market-avg').innerText = '--';
+                    document.getElementById('kpi-residual').innerText = '--';
+                }
+            } else {
+                // Specific year logic
+                const currentAge = currentYear - parseInt(manufactureYear);
+                const currentAgeCars = listings.filter(c => c.car_age === currentAge);
+                
+                if (currentAgeCars.length > 0) {
+                    avgPrice = Math.round(currentAgeCars.reduce((acc, c) => acc + c.asking_price, 0) / currentAgeCars.length);
+                    document.getElementById('kpi-market-avg').innerText = avgPrice;
+                    document.getElementById('kpi-residual').innerText = Math.round((avgPrice / forecast.msrp) * 100);
+                } else {
+                    const fPoint = forecast.data.find(p => p.age === currentAge);
+                    if (fPoint) {
+                        document.getElementById('kpi-market-avg').innerText = Math.round(fPoint.price);
+                        document.getElementById('kpi-residual').innerText = Math.round((fPoint.price / forecast.msrp) * 100);
+                    } else {
+                        document.getElementById('kpi-market-avg').innerText = '--';
+                        document.getElementById('kpi-residual').innerText = '--';
+                    }
+                }
+            }
+        }
+
+        // Render Chart 1: Volume counts by brand and year (改為疊加 Barchart)
+        function renderVolumeChart(volumeData) {
+            const years = volumeData.years;
+            const seriesList = [];
+            
+            const BRAND_CN = {
+                'Porsche': '保時捷 (Porsche)',
+                'Audi': '奧迪 (Audi)',
+                'BMW': '寶馬 (BMW)',
+                'Benz': '賓士 (Benz)',
+                'M-Benz': '賓士 (Mercedes-Benz)',
+                'Mercedes-Benz': '賓士 (Mercedes-Benz)',
+                'Lexus': '凌志 (Lexus)',
+                'Toyota': '豐田 (Toyota)',
+                'Honda': '本田 (Honda)',
+                'Volkswagen': '福斯 (Volkswagen)',
+                'Mazda': '馬自達 (Mazda)',
+                'Nissan': '日產 (Nissan)',
+                'Ford': '福特 (Ford)',
+                'Volvo': '富豪 (Volvo)',
+                'Hyundai': '現代 (Hyundai)',
+                'Subaru': '速霸陸 (Subaru)',
+                'Mini': '咪咪 (Mini)',
+                'Ferrari': '法拉利 (Ferrari)',
+                'Lamborghini': '藍寶堅尼 (Lamborghini)',
+                'Infiniti': '極致 (Infiniti)',
+                'Maserati': '瑪莎拉蒂 (Maserati)',
+                'Alfa Romeo': '愛快羅密歐 (Alfa Romeo)',
+                'Skoda': '斯柯達 (Skoda)',
+                'Jaguar': '捷豹 (Jaguar)',
+                'Land Rover': '路虎 (Land Rover)',
+                'Rolls-Royce': '勞斯萊斯 (Rolls-Royce)',
+                'Bentley': '賓利 (Bentley)',
+                'Mitsubishi': '三菱 (Mitsubishi)',
+                'Luxgen': '納智捷 (Luxgen)'
+            };
+
+            for (const [brand, counts] of Object.entries(volumeData.series)) {
+                // 如果該品牌在所有年份的數據都是 0，則跳過，防止 legend 產生太多空白
+                const hasData = counts.some(c => c > 0);
+                if (!hasData) continue;
+
+                seriesList.push({
+                    name: BRAND_CN[brand] || brand,
+                    type: 'bar',
+                    stack: 'total', // 啟用疊加！
+                    data: counts,
+                    barMaxWidth: 26,
+                    itemStyle: { borderRadius: [2, 2, 0, 0] }
+                });
+            }
+
+            const option = {
+                backgroundColor: 'transparent',
+                // 配備 iOS 標準明亮霓虹系統色系
+                color: [
+                    '#0A84FF', '#30D158', '#FF9500', '#FF3B30', '#BF5AF2', 
+                    '#FFD933', '#5AC8FA', '#AF52DE', '#E5E5EA', '#FF2D55',
+                    '#54F1FF', '#FF89C9', '#C3FF54', '#7D54FF', '#FF5454'
+                ],
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    backgroundColor: 'rgba(28,28,30,0.95)',
+                    borderColor: '#3A3A3C',
+                    textStyle: { color: '#F2F2F7', fontSize: 11 },
+                    formatter: function(params) {
+                        let sum = 0;
+                        params.forEach(item => {
+                            if (item.value) sum += item.value;
+                        });
+                        let res = `<b>📅 年份車源總計: <span style="color:#FFD933; font-size:13px;">${sum}</span> 台</b><br/>`;
+                        // 按照數量從大到小排序，利於閱讀
+                        const sortedParams = [...params].sort((a, b) => (b.value || 0) - (a.value || 0));
+                        sortedParams.forEach(item => {
+                            if (item.value > 0) {
+                                res += `${item.marker} ${item.seriesName}：<span class="text-zinc-100 font-bold">${item.value} 台</span><br/>`;
+                            }
+                        });
+                        return res;
+                    }
+                },
+                legend: {
+                    textStyle: { color: '#AEAEB2', fontSize: 9 },
+                    top: 'top',
+                    type: 'scroll', // 品牌較多時啟用 legend 滾動
+                    pageIconColor: '#D4AF37',
+                    pageTextStyle: { color: '#AEAEB2' }
+                },
+                grid: { left: '3%', right: '3%', bottom: '5%', top: '40px', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: years.map(y => `${y}年`),
+                    axisLine: { lineStyle: { color: '#3A3A3C' } },
+                    axisLabel: { color: '#8E8E93', fontSize: 10 }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '車輛數 (台)',
+                    nameTextStyle: { color: '#AEAEB2', fontSize: 10 },
+                    splitLine: { lineStyle: { color: '#2C2C2E' } },
+                    axisLabel: { color: '#8E8E93', fontSize: 10 }
+                },
+                series: seriesList
+            };
+            chartVolume.setOption(option, true);
+        }
+
+        // Render Chart 2: Depreciation forecast curve
+        function renderDepreciationChart(forecast, manufactureYear, listings = []) {
+            const isAll = (manufactureYear === 'all');
+            
+            const xData = forecast.data.map(p => {
+                return (p.year) ? `${p.age}年 (${p.year}年)` : `${p.age}年車`;
+            });
+            
+            let histPrices, projPrices;
+
+            if (isAll) {
+                histPrices = forecast.data.map(p => p.price);
+                projPrices = forecast.data.map(p => null);
+            } else {
+                const currentYear = new Date().getFullYear();
+                const currentAge = currentYear - forecast.manufacture_year;
+                histPrices = forecast.data.map(p => p.age <= currentAge ? p.price : null);
+                projPrices = forecast.data.map(p => p.age >= currentAge ? p.price : null);
+            }
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    enterable: true, // 允許滑鼠進入 tooltip 點擊連結
+                    backgroundColor: 'rgba(28,28,30,0.95)',
+                    borderColor: '#3A3A3C',
+                    textStyle: { color: '#F2F2F7', fontSize: 11 },
+                    extraCssText: 'z-index: 999; max-height: 250px; overflow-y: auto;',
+                    formatter: function(params) {
+                        let specText = isAll ? '全部年份平均' : `${forecast.manufacture_year}款`;
+                        let res = `<b>${forecast.model} ${forecast.trim || ''} (${specText})</b><br/>`;
+                        params.forEach(item => {
+                            if (item.value !== null && item.value !== undefined) {
+                                const isProj = item.seriesName.includes('預測');
+                                res += `車齡：${item.name}<br/>`;
+                                res += `行情均價：<span class="text-zinc-100 font-bold">${item.value} 萬</span> ${isProj ? '<span class="text-zinc-500 text-xs">(預測)</span>' : ''}`;
+                            }
+                        });
+                        
+                        // 動態匹配對應車齡/年份的在庫實體物件
+                        const targetPoint = forecast.data[params[0].dataIndex];
+                        let matchedCars = [];
+                        if (targetPoint) {
+                            if (targetPoint.year) {
+                                matchedCars = listings.filter(c => c.manufacture_year === targetPoint.year);
+                            } else {
+                                matchedCars = listings.filter(c => c.car_age === targetPoint.age);
+                            }
+                        }
+                        
+                        if (matchedCars.length > 0) {
+                            res += `<div style="margin-top:8px; border-top:1px solid #3A3A3C; padding-top:6px;">`;
+                            res += `<b style="color:#FFD933; font-size:11px;">🚗 在庫實體物件 (${matchedCars.length} 台)：</b><br/>`;
+                            matchedCars.forEach((c, idx) => {
+                                const priceText = `<span style="color:#30D158; font-weight:bold;">${c.asking_price} 萬</span>`;
+                                res += `<span style="font-size:10px; color:#AEAEB2;">• ${c.manufacture_year}款: ${priceText}</span><br/>`;
+                            });
+                            res += `</div>`;
+                        } else {
+                            res += `<div style="margin-top:8px; border-top:1px solid #3A3A3C; padding-top:6px; color:#8E8E93; font-size:10px;">(此車齡暫無在庫實體物件)</div>`;
+                        }
+                        return res;
+                    }
+                },
+                legend: {
+                    data: isAll ? ['二手均價曲線'] : ['實際二手行情', '未來殘值折舊預測'],
+                    textStyle: { color: '#AEAEB2', fontSize: 11 },
+                    top: 'top'
+                },
+                grid: { left: '4%', right: '4%', bottom: '5%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: xData,
+                    axisLine: { lineStyle: { color: '#3A3A3C' } },
+                    axisLabel: { color: '#8E8E93', fontSize: 10 }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '萬台幣 (TWD)',
+                    nameTextStyle: { color: '#AEAEB2', fontSize: 10 },
+                    splitLine: { lineStyle: { color: '#2C2C2E' } },
+                    axisLabel: { color: '#8E8E93', fontSize: 10 }
+                },
+                series: isAll ? [
+                    {
+                        name: '二手均價曲線',
+                        type: 'line',
+                        data: histPrices,
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 6,
+                        itemStyle: { color: '#FFD933' },
+                        lineStyle: { width: 3, color: '#D4AF37' }
+                    }
+                ] : [
+                    {
+                        name: '實際二手行情',
+                        type: 'line',
+                        data: histPrices,
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 6,
+                        itemStyle: { color: '#F2F2F7' },
+                        lineStyle: { width: 3, color: '#AEAEB2' }
+                    },
+                    {
+                        name: '未來殘值折舊預測',
+                        type: 'line',
+                        data: projPrices,
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 5,
+                        itemStyle: { color: '#8E8E93' },
+                        lineStyle: { width: 2, type: 'dashed', color: '#545456' }
+                    }
+                ]
+            };
+            chartDepreciation.setOption(option);
+        }
+
+        // Render Chart 3: Scatter Plot
+        function renderScatterPlot(listings, msrp, manufactureYear) {
+            const points = listings.map(c => [
+                parseFloat((c.mileage / 10000).toFixed(2)),
+                c.asking_price,
+                `${c.manufacture_year}款 ${c.trim} (${c.car_age}年車)`,
+                c.url,
+                c.manufacture_year,
+                c.residual_rate
+            ]);
+
+            const trendLine = [];
+            if (points.length > 1) {
+                const xVals = points.map(p => p[0]);
+                const yVals = points.map(p => p[1]);
+                const n = points.length;
+                
+                const sumX = xVals.reduce((a, b) => a + b, 0);
+                const sumY = yVals.reduce((a, b) => a + b, 0);
+                const sumXY = points.reduce((acc, p) => acc + p[0] * p[1], 0);
+                const sumXX = xVals.reduce((a, b) => a + b * b, 0);
+                
+                const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+                const intercept = (sumY - slope * sumX) / n;
+                
+                const minX = Math.min(...xVals);
+                const maxX = Math.max(...xVals);
+                
+                trendLine.push([minX, parseFloat((slope * minX + intercept).toFixed(1))]);
+                trendLine.push([maxX, parseFloat((slope * maxX + intercept).toFixed(1))]);
+            }
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        if (params.seriesType === 'line') return `<b>市場平均價格線 (里程關係線)</b>`;
+                        
+                        const data = params.value;
+                        const title = data[2];
+                        const price = data[1];
+                        const mileage = data[0];
+                        const resRate = data[5];
+                        return `
+                            <div class="space-y-1">
+                                <p class="font-bold text-zinc-100">${title}</p>
+                                <p class="text-xs text-gray-400">里程：<span class="text-zinc-200 font-semibold">${mileage} 萬公里</span></p>
+                                <p class="text-xs text-gray-400">開價：<span class="text-zinc-200 font-semibold">${price} 萬</span></p>
+                                <p class="text-xs text-gray-400">殘值率：<span class="text-zinc-200 font-semibold">${resRate}%</span></p>
+
+                            </div>
+                        `;
+                    }
+                },
+                grid: { left: '4%', right: '3%', bottom: '5%', containLabel: true },
+                xAxis: {
+                    type: 'value',
+                    name: '里程 (萬公里)',
+                    nameLocation: 'middle',
+                    nameGap: 24,
+                    nameTextStyle: { color: '#AEAEB2', fontSize: 10 },
+                    splitLine: { lineStyle: { color: '#2C2C2E' } },
+                    axisLine: { lineStyle: { color: '#3A3A3C' } },
+                    axisLabel: { color: '#8E8E93', fontSize: 10 }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '價格 (萬 TWD)',
+                    nameTextStyle: { color: '#AEAEB2', fontSize: 10 },
+                    splitLine: { lineStyle: { color: '#2C2C2E' } },
+                    axisLine: { lineStyle: { color: '#3A3A3C' } },
+                    axisLabel: { color: '#8E8E93', fontSize: 10 }
+                },
+                series: [
+                    {
+                        name: '中古車物件',
+                        type: 'scatter',
+                        data: points,
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#F2F2F7',
+                            borderColor: '#3A3A3C',
+                            borderWidth: 1
+                        }
+                    },
+                    {
+                        name: '市場均價線',
+                        type: 'line',
+                        data: trendLine,
+                        showSymbol: false,
+                        lineStyle: {
+                            color: '#D4AF37',
+                            type: 'dashed',
+                            width: 1.5
+                        }
+                    }
+                ]
+            };
+
+            chartScatter.setOption(option);
+
+            chartScatter.off('click');
+        }
+        
+        // 3D 翻書效果導航攔截
+        document.addEventListener('DOMContentLoaded', () => {
+            const pageContainer = document.querySelector('.page-container') || document.querySelector('.container');
+            if (pageContainer) {
+                pageContainer.classList.add('page-enter-active');
+            }
+            
+            document.querySelectorAll('header a, nav a, .header-center-area a').forEach(link => {
+                if (link.target === '_blank' || link.href.startsWith('javascript:') || link.href.includes('#') || !link.href) return;
+                
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = link.href;
+                    if (pageContainer) {
+                        pageContainer.classList.remove('page-enter-active');
+                        pageContainer.classList.add('page-exit-active');
+                        setTimeout(() => {
+                            window.location.href = target;
+                        }, 550);
+                    } else {
+                        window.location.href = target;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

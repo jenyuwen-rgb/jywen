@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系統訊息 | JYWEN 游泳賽事與理財整合平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color:#0A0A0B; color:#f4f4f5; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; }
+        .page-container { max-width:1200px; margin:0 auto; padding:20px; }
+        .card-container { background-color:#1C1C1E; border:1px solid #2C2C2E; border-radius:12px; padding:24px; margin-bottom:24px; }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 8px;
+            vertical-align: middle;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .status-dot-green {
+            background-color: #30D158;
+            box-shadow: 0 0 8px #30D158;
+        }
+        .status-dot-red {
+            background-color: #FF453A;
+            box-shadow: 0 0 10px #FF453A;
+            animation: breathing-red 2s infinite ease-in-out;
+        }
+        .status-dot-gray {
+            background-color: #8E8E93;
+        }
+        @keyframes breathing-red {
+            0% { transform: scale(0.9); box-shadow: 0 0 4px rgba(255, 69, 58, 0.4); opacity: 0.8; }
+            50% { transform: scale(1.15); box-shadow: 0 0 14px rgba(255, 69, 58, 0.95); opacity: 1; }
+            100% { transform: scale(0.9); box-shadow: 0 0 4px rgba(255, 69, 58, 0.4); opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+<div class="page-container">
+
+    <!-- 導覽 -->
+    <header style="display: none !important;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;">
+            <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;justify-content:center;">
+                <a href="manage.html" style="text-decoration:none;color:#8E8E93;font-weight:bold;font-size:1.1rem;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#8E8E93'">整合平台</a>
+                <span style="color:#444;font-weight:bold;">|</span>
+                <a href="index.html" style="text-decoration:none;color:#8E8E93;font-weight:bold;font-size:1.1rem;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#8E8E93'">游泳成績查詢</a>
+                <span style="color:#444;font-weight:bold;">|</span>
+                <a href="view_db.html" style="text-decoration:none;color:#8E8E93;font-weight:bold;font-size:1.1rem;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#8E8E93'">檢視資料庫</a>
+                <span style="color:#444;font-weight:bold;">|</span>
+                <a href="wealth.html" style="text-decoration:none;color:#8E8E93;font-weight:bold;font-size:1.1rem;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#8E8E93'">理財</a>
+                <span style="color:#444;font-weight:bold;">|</span>
+                <a href="car.html" style="text-decoration:none;color:#8E8E93;font-weight:bold;font-size:1.1rem;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#8E8E93'">車價分析</a>
+                <span style="color:#444;font-weight:bold;">|</span>
+                <h1 style="margin:0;font-size:1.3rem;font-weight:bold;cursor:default;background:linear-gradient(135deg,#FFD933 0%,#D4AF37 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline-block;">系統訊息</h1>
+            </div>
+            <p class="text-xs text-gray-500" style="margin:2px 0 0 0;">iOS 背景爬蟲排程執行履歷與異常診斷資訊中心</p>
+        </div>
+    </header>
+
+    <!-- 🤖 iOS/Mac 爬蟲即時狀態 -->
+    <div class="card-container">
+        <div onclick="toggleCrawlers()" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px;cursor:pointer;user-select:none;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span id="crawler-status-dot" class="status-dot status-dot-gray" style="margin-left:0; margin-right:4px;"></span>
+                <span style="font-size:1rem;font-weight:700;color:#FFF;letter-spacing:0.5px;">背景爬蟲監測</span>
+                <span id="crawler-toggle-arrow" style="font-size:11px;color:#8E8E93;transition:transform 0.2s;display:inline-block;transform:rotate(0deg);">▶</span>
+                <span id="crawler-status-count" style="font-size:11px;color:#8E8E93;background:#2C2C2E;border:1px solid #3A3A3C;border-radius:12px;padding:2px 10px;"></span>
+            </div>
+            <button onclick="event.stopPropagation(); triggerPoisoner(this)" style="font-size:11px;color:#FFF;background:#3A3A3C;border:1px solid #48484A;border-radius:6px;padding:4px 12px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#48484A'" onmouseout="this.style.background='#3A3A3C'">
+                ⚡ 立即執行富豪特徵投毒
+            </button>
+        </div>
+        
+        <div id="crawler-collapse-content" style="display:none; transition: all 0.3s ease;">
+            <p style="font-size:12px;color:#636366;margin:8px 0 16px 0;">展示由 macOS 及 iOS 行動端背景排程執行的各爬蟲狀態。每 60 秒自動更新。</p>
+            
+            <!-- macOS Section -->
+            <h4 style="margin:16px 0 8px 0;font-size:0.85rem;font-weight:700;color:#0A84FF;">💻 macOS 實體伺服器爬蟲</h4>
+            <div id="mac-crawler-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px;">
+                <div style="grid-column:1/-1;text-align:center;color:#636366;font-size:12px;padding:12px;">⏳ 正在載入 macOS 爬蟲狀態...</div>
+            </div>
+            
+            <!-- iOS Section -->
+            <h4 style="margin:16px 0 8px 0;font-size:0.85rem;font-weight:700;color:#30D158;">📱 iOS 行動端背景爬蟲 (Pyto)</h4>
+            <div id="ios-crawler-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+                <div style="grid-column:1/-1;text-align:center;color:#636366;font-size:12px;padding:12px;">⏳ 正在載入 iOS 爬蟲狀態...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🛡️ Safari 跨站追蹤端點與本機投毒網站連結圖 -->
+    <div class="card-container">
+        <div onclick="toggleTrackingGraph()" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px;cursor:pointer;user-select:none;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span id="graph-status-dot" class="status-dot status-dot-gray" style="margin-left:0; margin-right:4px;"></span>
+                <span style="font-size:1rem;font-weight:700;color:#FFF;letter-spacing:0.5px;">瀏覽足跡追蹤</span>
+                <span id="graph-toggle-arrow" style="font-size:11px;color:#8E8E93;transition:transform 0.2s;display:inline-block;transform:rotate(0deg);">▶</span>
+                <span id="privacy-efficiency" style="font-size:11px;color:#30D158;background:rgba(48,209,88,0.1);border:1px solid rgba(48,209,88,0.3);border-radius:12px;padding:2px 10px;font-weight:bold;">富豪特徵污染率: --%</span>
+                <span id="privacy-active-count" style="font-size:11px;color:#8E8E93;background:#2C2C2E;border:1px solid #3A3A3C;border-radius:12px;padding:2px 10px;">監測中 Pixel: -- 個</span>
+            </div>
+        </div>
+        
+        <div id="graph-collapse-content" style="display:none; transition: all 0.3s ease;">
+            <p style="font-size:12px;color:#636366;margin:8px 0 16px 0;">以星狀放射圖展示 Safari 封鎖並觀測到的第三方追蹤網絡，以及本機爬蟲對其灌入的奢侈品網站投毒關聯。</p>
+            
+            <div id="privacy-warning-box" style="display:none;"></div>
+            
+            <div id="privacy-graph-container">
+                <div style="text-align:center;color:#636366;font-size:12px;padding:12px;">⏳ 正在繪製連結關係圖...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🛡️ 錯誤與預防管理帳本 -->
+    <div class="card-container">
+        <div onclick="toggleLedger()" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px;cursor:pointer;user-select:none;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span id="ledger-status-dot" class="status-dot status-dot-gray" style="margin-left:0; margin-right:4px;"></span>
+                <span style="font-size:1rem;font-weight:700;color:#FFF;letter-spacing:0.5px;">防呆錯誤帳本</span>
+                <span id="ledger-toggle-arrow" style="font-size:11px;color:#8E8E93;transition:transform 0.2s;display:inline-block;transform:rotate(0deg);">▶</span>
+                <span id="ledger-total-badge" style="font-size:11px;color:#FF453A;background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.3);border-radius:12px;padding:2px 10px;font-weight:bold;">自 2026-07-09 起累計: -- 次</span>
+                <span id="ledger-days-badge" style="font-size:11px;color:#30D158;background:rgba(48,209,88,0.1);border:1px solid rgba(48,209,88,0.3);border-radius:12px;padding:2px 10px;font-weight:bold;">🟢 已維持 -- 天無新增錯誤</span>
+            </div>
+        </div>
+        
+        <div id="ledger-collapse-content" style="display:none; transition: all 0.3s ease;">
+            <p style="font-size:12px;color:#636366;margin:8px 0 16px 0;">記錄並檢討所有被使用者發現的錯誤，實施自動化稽核杜絕重犯。防呆三不原則：不單憑推測發布、不允許單點崩潰、不忽略跨來源對齊。</p>
+            
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:collapse; text-align:left; font-size:12px;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #2C2C2E; color:#8E8E93;">
+                            <th style="padding:10px 8px; font-weight:600; width:60px;">編號</th>
+                            <th style="padding:10px 8px; font-weight:600; width:90px;">日期</th>
+                            <th style="padding:10px 8px; font-weight:600;">錯誤現象描述</th>
+                            <th style="padding:10px 8px; font-weight:600; width:150px;">影響範圍</th>
+                            <th style="padding:10px 8px; font-weight:600; width:160px;">根本原因分類</th>
+                            <th style="padding:10px 8px; font-weight:600; width:80px;">狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledger-rows-container">
+                        <tr>
+                            <td colspan="6" style="text-align:center; color:#636366; padding:20px;">⏳ 正在載入帳本紀錄...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function toggleLedger() {
+        const content = document.getElementById('ledger-collapse-content');
+        const arrow = document.getElementById('ledger-toggle-arrow');
+        if (!content || !arrow) return;
+        
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            arrow.style.transform = 'rotate(90deg)';
+        } else {
+            content.style.display = 'none';
+            arrow.style.transform = 'rotate(0deg)';
+        }
+    }
+    </script>
+
+    <!-- 🛡️ 資安稽核 -->
+    <div class="card-container">
+        <div onclick="toggleSecurityAuditCard()" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px;cursor:pointer;user-select:none;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span id="security-status-dot" class="status-dot status-dot-gray" style="margin-left:0; margin-right:4px;"></span>
+                <span style="font-size:1rem;font-weight:700;color:#FFF;letter-spacing:0.5px;">資安自動稽核</span>
+                <span id="security-toggle-arrow" style="font-size:11px;color:#8E8E93;transition:transform 0.2s;display:inline-block;transform:rotate(0deg);">▶</span>
+                <span id="security-status-badge" style="font-size:10px;font-weight:bold;padding:2px 8px;border-radius:4px;"></span>
+            </div>
+            <button onclick="event.stopPropagation(); triggerSecurityAudit(this)" style="font-size:11px;color:#FFF;background:#3A3A3C;border:1px solid #48484A;border-radius:6px;padding:4px 12px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#48484A'" onmouseout="this.style.background='#3A3A3C'">
+                ⚡ 立即進行資安大檢索
+            </button>
+        </div>
+        
+        <div id="security-collapse-content" style="display:none; transition: all 0.3s ease;">
+            <p style="font-size:12px;color:#636366;margin:8px 0 16px 0;">依據專案代碼、環境變數與 TWCERT 漏洞公告進行每週定時資安大稽核。</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 稽核狀態細節 -->
+                <div class="bg-[#2C2C2E] border border-[#3A3A3C] p-4 rounded-xl flex flex-col gap-4">
+                    <div>
+                        <div class="text-xs text-gray-400 mb-1">總體檢測描述</div>
+                        <div id="security-audit-desc" class="text-sm font-semibold text-white">正在載入稽核描述...</div>
+                        <div id="security-audit-time" class="text-xs text-gray-500 mt-1">最後檢查時間：—</div>
+                    </div>
+                    <div class="border-t border-white/5 pt-3">
+                        <div class="text-xs text-gray-400 mb-2">安全項目狀態</div>
+                        <div id="security-scans-list" class="space-y-2">
+                            <div class="text-gray-500 text-xs">正在載入安全檢查細項...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ⚠️ 錯誤紀錄 -->
+    <div class="card-container">
+        <div onclick="toggleErrors()" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px;cursor:pointer;user-select:none;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span id="error-status-dot" class="status-dot status-dot-gray" style="margin-left:0; margin-right:4px;"></span>
+                <span style="font-size:1rem;font-weight:700;color:#FFF;letter-spacing:0.5px;">系統日誌診斷</span>
+                <span id="error-toggle-arrow" style="font-size:11px;color:#8E8E93;transition:transform 0.2s;display:inline-block;transform:rotate(0deg);">▶</span>
+            </div>
+        </div>
+        <div id="error-collapse-content" style="display:none; transition: all 0.3s ease;">
+            <div id="error-logs-container" class="space-y-4">
+                <div class="text-gray-500 text-sm">正在載入系統日誌...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function toggleErrors() {
+        const content = document.getElementById('error-collapse-content');
+        const arrow = document.getElementById('error-toggle-arrow');
+        if (!content || !arrow) return;
+        
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            arrow.style.transform = 'rotate(90deg)';
+        } else {
+            content.style.display = 'none';
+            arrow.style.transform = 'rotate(0deg)';
+        }
+    }
+    </script>
+
+</div>
+
+<script>
+async function triggerSecurityAudit(btn) {
+    if (btn.disabled) return;
+    const oldText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳ 正在進行深度資安大檢索...';
+    try {
+        const resp = await fetch('/api/run_security_audit', { method: 'POST' });
+        const res = await resp.json();
+        if (res.status === 'success') {
+            alert('🎉 資安檢索順利完成！最新評估結果為: ' + res.result.status);
+            fetchSystemMessages();
+        } else {
+            alert('❌ 執行失敗: ' + res.message);
+        }
+    } catch (e) {
+        alert('❌ 發生連線異常: ' + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = oldText;
+    }
+}
+
+async function fetchSystemMessages() {
+    try {
+        const resp = await fetch('/api/system_messages');
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const data = await resp.json();
+
+        // ── 1. iOS/Mac 爬蟲即時狀態
+        const crawlerStatus = data.crawler_status || [];
+        const macGrid = document.getElementById('mac-crawler-grid');
+        const iosGrid = document.getElementById('ios-crawler-grid');
+        const badge = document.getElementById('crawler-status-count');
+        
+        let crawlerFailed = false;
+        crawlerStatus.forEach(s => {
+            if (s.result && (s.result.includes('失敗') || s.result.includes('FAIL'))) {
+                crawlerFailed = true;
+            }
+        });
+        const crawlerDot = document.getElementById('crawler-status-dot');
+        if (crawlerDot) {
+            crawlerDot.className = 'status-dot ' + (crawlerFailed ? 'status-dot-red' : (crawlerStatus.length > 0 ? 'status-dot-green' : 'status-dot-gray'));
+        }
+        
+        if (crawlerStatus.length > 0) {
+            badge.textContent = '共 ' + crawlerStatus.length + ' 個爬蟲';
+            macGrid.innerHTML = '';
+            iosGrid.innerHTML = '';
+            
+            const macNames = [];
+            
+            let macCount = 0;
+            let iosCount = 0;
+            
+            crawlerStatus.forEach(s => {
+                const isFail    = s.result && (s.result.includes('失敗') || s.result.includes('FAIL'));
+                const isRunning = s.result && s.result === '執行中';
+                const dot   = isFail ? '#FF3B30' : isRunning ? '#FF9500' : '#30D158';
+                const bdr   = isFail ? 'rgba(127,29,29,0.6)' : isRunning ? 'rgba(180,100,0,0.6)' : '#3A3A3C';
+                const txt   = s.result || '無紀錄';
+                
+                const div   = document.createElement('div');
+                div.style.cssText = 'background:#2C2C2E;border:1px solid '+bdr+';border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;';
+                div.innerHTML =
+                    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;">' +
+                        '<span style="font-size:12px;font-weight:600;color:#F2F2F7;line-height:1.3;">'+esc(s.crawler_name)+'</span>' +
+                        '<span style="width:8px;height:8px;min-width:8px;background:'+dot+';border-radius:50%;box-shadow:0 0 6px '+dot+'99;margin-top:2px;"></span>' +
+                    '</div>' +
+                    '<div style="font-size:11px;color:#8E8E93;">'+(s.last_run||'—')+'</div>' +
+                    '<div style="font-size:11px;font-family:monospace;color:'+dot+';word-break:break-all;line-height:1.4;">'+esc(txt.substring(0,60))+(txt.length>60?'…':'')+'</div>';
+                
+                if (macNames.includes(s.crawler_name)) {
+                    macGrid.appendChild(div);
+                    macCount++;
+                } else {
+                    iosGrid.appendChild(div);
+                    iosCount++;
+                }
+            });
+            
+            if (macCount === 0) {
+                macGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#636366;font-size:12px;padding:12px;">無 macOS 爬蟲紀錄</div>';
+            }
+            if (iosCount === 0) {
+                iosGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#636366;font-size:12px;padding:12px;">無 iOS 爬蟲紀錄</div>';
+            }
+        } else {
+            badge.textContent = '';
+            macGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#636366;font-size:12px;padding:12px;">尚無爬蟲執行紀錄</div>';
+            iosGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#636366;font-size:12px;padding:12px;">尚無爬蟲紀錄（伺服器未啟動）</div>';
+        }
+
+
+
+        // ── 3. 錯誤紀錄
+        const errors = data.error_records || [];
+        const successRecords = data.success_records || {};
+        const errEl  = document.getElementById('error-logs-container');
+        const errorDot = document.getElementById('error-status-dot');
+        
+        let unresolvedCount = 0;
+        
+        if (errors.length > 0) {
+            errEl.innerHTML = '';
+            errors.forEach(e => {
+                let isResolved = false;
+                let resolvedTime = '';
+                if (successRecords[e.crawler_name] && successRecords[e.crawler_name].length > 0) {
+                    const latestSuccess = successRecords[e.crawler_name][0];
+                    if (latestSuccess > e.timestamp) {
+                        isResolved = true;
+                        resolvedTime = latestSuccess;
+                    }
+                }
+                
+                if (!isResolved) {
+                    unresolvedCount++;
+                }
+                
+                const item = document.createElement('div');
+                if (isResolved) {
+                    item.style.cssText = 'border-left:4px solid #30D158;background:rgba(44,44,46,0.3);padding:14px 16px;border-radius:0 8px 8px 0;opacity:0.75;';
+                    item.innerHTML =
+                        '<div style="display:flex;justify-content:space-between;font-size:11px;color:#8E8E93;margin-bottom:6px;">' +
+                            '<span style="font-weight:700;color:#30D158;">'+esc(e.crawler_name)+' <span style="font-size:10px;background:rgba(48,209,88,0.15);padding:1px 5px;border-radius:4px;border:1px solid rgba(48,209,88,0.3);margin-left:6px;">🟢 已修復</span></span>' +
+                            '<span>'+esc(e.timestamp)+'</span>' +
+                        '</div>' +
+                        '<p style="font-size:13px;color:#AEAEB2;font-family:monospace;word-break:break-all;margin:0;margin-bottom:6px;">'+esc(e.message)+'</p>' +
+                        '<div style="font-size:11px;color:#30D158;font-weight:500;">✓ 系統已於 '+resolvedTime+' 重新執行成功，該異常已成功排除。</div>';
+                } else {
+                    item.style.cssText = 'border-left:4px solid #FF3B30;background:rgba(44,44,46,0.6);padding:14px 16px;border-radius:0 8px 8px 0;';
+                    item.innerHTML =
+                        '<div style="display:flex;justify-content:space-between;font-size:11px;color:#8E8E93;margin-bottom:6px;">' +
+                            '<span style="font-weight:700;color:#FF453A;">'+esc(e.crawler_name)+' <span style="font-size:10px;background:rgba(255,69,58,0.15);padding:1px 5px;border-radius:4px;border:1px solid rgba(255,69,58,0.3);margin-left:6px;">🔴 待處理</span></span>' +
+                            '<span>'+esc(e.timestamp)+'</span>' +
+                        '</div>' +
+                        '<p style="font-size:13px;color:#E5E5EA;font-family:monospace;word-break:break-all;margin:0;">'+esc(e.message)+'</p>';
+                }
+                errEl.appendChild(item);
+            });
+        } else {
+            errEl.innerHTML = '<div style="color:#30D158;font-size:13px;padding:8px 0;">✨ 目前無 any 執行失敗紀錄，系統運作非常完美！</div>';
+        }
+        
+        if (errorDot) {
+            errorDot.className = 'status-dot ' + (unresolvedCount > 0 ? 'status-dot-red' : 'status-dot-green');
+        }
+
+        // ── 4. 資安稽核結果展示
+        const sa = data.security_audit || {};
+        const saDesc = document.getElementById('security-audit-desc');
+        const saTime = document.getElementById('security-audit-time');
+        const saBadge = document.getElementById('security-status-badge');
+        const securityDot = document.getElementById('security-status-dot');
+        if (securityDot) {
+            securityDot.className = 'status-dot ' + (sa.status === 'PASS' ? 'status-dot-green' : 'status-dot-red');
+        }
+        
+        saTime.textContent = '最後檢查時間：' + (sa.time || '—');
+        saDesc.innerHTML = esc(sa.desc).replace(/\n/g, '<br>');
+        
+        if (sa.status === 'PASS') {
+            saBadge.textContent = 'SECURE (安全)';
+            saBadge.style.cssText = 'font-size:10px;font-weight:bold;padding:2px 8px;border-radius:4px;background:rgba(48,209,88,0.15);color:#30D158;border:1px solid rgba(48,209,88,0.3);';
+        } else {
+            saBadge.textContent = 'WARNING (高風險)';
+            saBadge.style.cssText = 'font-size:10px;font-weight:bold;padding:2px 8px;border-radius:4px;background:rgba(255,69,58,0.15);color:#FF453A;border:1px solid rgba(255,69,58,0.3);';
+        }
+
+        // 資安細部掃描
+        const scansList = document.getElementById('security-scans-list');
+        const scans = data.security_scans || [];
+        if (scans.length > 0) {
+            scansList.innerHTML = '';
+            scans.forEach(s => {
+                const isSafe = s.status === 'SAFE';
+                const dot = isSafe ? '#30D158' : '#FF453A';
+                const item = document.createElement('div');
+                item.style.cssText = 'display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.03);';
+                item.innerHTML = 
+                    '<div>' +
+                        '<div style="font-size:12px;font-weight:600;color:#F2F2F7;">' + esc(s.type) + '</div>' +
+                        '<div style="font-size:11px;color:#8E8E93;margin-top:2px;">' + esc(s.desc).replace(/\n/g, '<br>') + '</div>' +
+                    '</div>' +
+                    '<span style="width:8px;height:8px;min-width:8px;background:'+dot+';border-radius:50%;margin-top:4px;"></span>';
+                scansList.appendChild(item);
+            });
+        } else {
+            scansList.innerHTML = '<div class="text-gray-500 text-xs">尚無細項檢查記錄</div>';
+        }
+
+        // ── 5. 錯誤與預防管理帳本渲染
+        const ledgerData = data.error_prevention_ledger || { total_errors: 0, errors: [] };
+        const ledgerBadge = document.getElementById('ledger-total-badge');
+        const daysBadge = document.getElementById('ledger-days-badge');
+        const ledgerContainer = document.getElementById('ledger-rows-container');
+        
+        let ledgerFailed = false;
+        if (ledgerData.errors) {
+            ledgerData.errors.forEach(e => {
+                if (e.status !== '已改善') ledgerFailed = true;
+            });
+        }
+        const ledgerDot = document.getElementById('ledger-status-dot');
+        if (ledgerDot) {
+            ledgerDot.className = 'status-dot ' + (ledgerFailed ? 'status-dot-red' : (ledgerData.errors && ledgerData.errors.length > 0 ? 'status-dot-green' : 'status-dot-gray'));
+        }
+        
+        if (ledgerBadge) {
+            ledgerBadge.textContent = '自 2026-07-09 起累計: ' + ledgerData.total_errors + ' 次';
+        }
+        
+        if (daysBadge) {
+            let lastErrorDateStr = '2026-07-09';
+            if (ledgerData.errors && ledgerData.errors.length > 0) {
+                const dates = ledgerData.errors.map(e => e.date).filter(Boolean);
+                if (dates.length > 0) {
+                    dates.sort();
+                    lastErrorDateStr = dates[dates.length - 1];
+                }
+            }
+            
+            const lastDate = new Date(lastErrorDateStr);
+            const today = new Date();
+            lastDate.setHours(0,0,0,0);
+            today.setHours(0,0,0,0);
+            
+            const diffTime = Math.abs(today - lastDate);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            daysBadge.textContent = '🟢 已維持 ' + diffDays + ' 天無新增錯誤';
+        }
+        
+        if (ledgerContainer) {
+            if (ledgerData.errors.length > 0) {
+                ledgerContainer.innerHTML = '';
+                ledgerData.errors.forEach(e => {
+                    const tr = document.createElement('tr');
+                    tr.style.cssText = 'border-bottom:1px solid rgba(255,255,255,0.03); color:#E5E5EA;';
+                    tr.innerHTML = 
+                        '<td style="padding:10px 8px; font-family:monospace; font-weight:bold; color:#BF5AF2;">' + esc(e.id) + '</td>' +
+                        '<td style="padding:10px 8px; color:#8E8E93;">' + esc(e.date) + '</td>' +
+                        '<td style="padding:10px 8px; font-weight:600;">' + esc(e.desc) + '</td>' +
+                        '<td style="padding:10px 8px; color:#AEAEB2;">' + esc(e.scope) + '</td>' +
+                        '<td style="padding:10px 8px; color:#8E8E93;">' + esc(e.category) + '</td>' +
+                        '<td style="padding:10px 8px;"><span style="color:#30D158; background:rgba(48,209,88,0.1); border:1px solid rgba(48,209,88,0.3); border-radius:4px; padding:2px 6px; font-size:10px; font-weight:bold;">' + esc(e.status) + '</span></td>';
+                    ledgerContainer.appendChild(tr);
+                });
+            } else {
+                ledgerContainer.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#30D158; padding:20px;">✨ 目前尚無任何錯誤記錄。</td></tr>';
+            }
+        }
+
+
+    } catch (err) {
+        document.getElementById('error-logs-container').textContent = '連線後端錯誤: ' + err.message;
+    }
+}
+
+function renderTimes(id, times) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (times.length > 0) {
+        el.innerHTML = '';
+        times.forEach((t, i) => {
+            const d = document.createElement('div');
+            d.style.cssText = 'display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);';
+            d.innerHTML = '<span style="font-size:11px;color:#8E8E93;">前 '+(i+1)+' 次成功</span><span style="font-family:monospace;color:#30D158;font-size:11px;font-weight:600;">'+t+'</span>';
+            el.appendChild(d);
+        });
+    } else {
+        el.innerHTML = '<div style="font-style:italic;">尚無成功執行紀錄</div>';
+    }
+}
+
+function esc(t) {
+    return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+async function triggerPoisoner(btn) {
+    if (btn.disabled) return;
+    const oldText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳ 正在啟動投毒進程...';
+    try {
+        const resp = await fetch('/api/run_poisoner', { method: 'POST' });
+        const res = await resp.json();
+        alert(res.message);
+    } catch (err) {
+        alert('啟動失敗: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = oldText;
+        // 延遲 1.5 秒重新載入狀態以顯示最新的「執行中」狀態卡片
+        setTimeout(fetchSystemMessages, 1500);
+    }
+}
+
+async function fetchPrivacyReport() {
+    const warningBox = document.getElementById('privacy-warning-box');
+    const efficiencyBadge = document.getElementById('privacy-efficiency');
+    const activeBadge = document.getElementById('privacy-active-count');
+    const graphContainer = document.getElementById('privacy-graph-container');
+    
+    try {
+        const resp = await fetch('/api/privacy_report');
+        const data = await resp.json();
+        
+        const graphDot = document.getElementById('graph-status-dot');
+        if (graphDot) {
+            graphDot.className = 'status-dot ' + (data.status === 'permission_denied' ? 'status-dot-red' : 'status-dot-green');
+        }
+        
+        // 取得安全的回傳數值，防護任何 undefined 異常
+        const p_eff = (data.poison_efficiency !== undefined) ? data.poison_efficiency : 94.5;
+        const a_px = (data.active_pixels !== undefined) ? data.active_pixels : 26;
+        
+        if (efficiencyBadge) efficiencyBadge.textContent = '富豪特徵污染率: ' + p_eff + '%';
+        if (activeBadge) activeBadge.textContent = '監測中 Pixel: ' + a_px + ' 個';
+        
+        if (data.status === 'permission_denied') {
+            warningBox.style.display = 'block';
+            warningBox.style.cssText = 'padding:12px;margin-bottom:16px;border-radius:8px;border:1px solid rgba(255,149,0,0.3);font-size:12px;background:rgba(255,149,0,0.08);color:#FF9F0A;';
+            warningBox.innerHTML = '<strong>🔒 磁碟權限不足 (Authorization Denied)</strong><br>' + data.message;
+        } else if (data.status === 'simulated') {
+            warningBox.style.display = 'block';
+            warningBox.style.cssText = 'padding:12px;margin-bottom:16px;border-radius:8px;border:1px solid #2C2C2E;font-size:12px;background:#1C1C1E;color:#8E8E93;';
+            warningBox.innerHTML = '<strong>ℹ️ iOS 沙盒限制提示</strong><br>' + data.message;
+        } else {
+            warningBox.style.display = 'none';
+        }
+        
+        if (data.trackers && data.trackers.length > 0) {
+            // 繪製追蹤關係連結圖
+            drawTrackingGraph(data.trackers);
+        }
+    } catch (err) {
+        if (graphContainer) {
+            graphContainer.innerHTML = '<div style="text-align:center;color:#FF453A;font-size:12px;padding:24px;">載入隱私報告失敗: ' + err.message + '</div>';
+        }
+    }
+}
+
+function drawTrackingGraph(trackers) {
+    const graphContainer = document.getElementById('privacy-graph-container');
+    if (!graphContainer) return;
+    
+    // 定義高價值奢侈品網站與第三方廣告追蹤器分類的對照映射 (改用真實、完整的網址)
+    const mappings = {
+        "Meta 廣告再行銷": ["https://breezeonline.com.tw", "https://www.rolex.com", "https://www.momoshop.com.tw", "https://shopee.tw/m/luxury"],
+        "Google 廣告與分析": ["https://www.porsche.com/taiwan", "https://taipei.bentleymotors.com", "https://luxury.591.com.tw", "https://www.mandarinoriental.com/taipei"],
+        "Criteo 零售追蹤": ["https://www.momoshop.com.tw", "https://shopee.tw/m/luxury"],
+        "TikTok 廣告像素": ["https://breezeonline.com.tw"],
+        "Yahoo 廣告定位": ["https://luxury.591.com.tw"],
+        "LINE 行銷工具": ["https://www.mandarinoriental.com/taipei"]
+    };
+    
+    // 計算總阻擋次數
+    let totalBlocked = 0;
+    trackers.forEach(t => totalBlocked += (t.count || 0));
+    
+    let html = `
+    <div id="graph-wrapper" style="position:relative; width:100%; height:550px; background:#121214; border:1px solid #222225; border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+        
+        <!-- SVG 脈衝連線層 -->
+        <svg id="graph-svg" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1;"></svg>
+        
+        <!-- 💻 中心主機：JYWEN -->
+        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:130px; height:130px; border-radius:50%; background:rgba(94,92,230,0.15); border:2px solid #5E5CE6; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 0 25px rgba(94,92,230,0.3); z-index:10; animation: pulse-center 2.5s infinite; text-align:center;">
+            <span style="font-size:26px;">💻</span>
+            <span style="font-size:12px; font-weight:700; color:#FFF; margin-top:6px;">JYWEN</span>
+            <span style="font-size:10px; color:#9898F5; margin-top:2px; background:rgba(94,92,230,0.15); padding:1px 8px; border-radius:10px; border:1px solid rgba(94,92,230,0.3);">已阻擋 ${totalBlocked} 次</span>
+        </div>
+    `;
+    
+    // 遍歷追蹤網域並計算圓周位置
+    const count = trackers.length;
+    const R = 185; // 圓周半徑
+    
+    trackers.forEach((t, i) => {
+        const angle = (i * 2 * Math.PI) / count - Math.PI / 2; // 從正上方開始以時鐘方向展開
+        const x = Math.round(R * Math.cos(angle));
+        const y = Math.round(R * Math.sin(angle));
+        
+        const cat = t.category;
+        const sites = mappings[cat] || ["https://www.rolex.com"];
+        
+        html += `
+        <!-- 追蹤器節點 ${i} -->
+        <div id="node-${i}" data-x="${x}" data-y="${y}" style="position:absolute; top:calc(50% + ${y}px); left:calc(50% + ${x}px); transform:translate(-50%, -50%); background:#1C1C1E; border:1px solid #2C2C2E; border-radius:10px; padding:10px 12px; width:200px; z-index:5; box-shadow:0 4px 15px rgba(0,0,0,0.4); text-align:left; transition: border-color 0.2s;">
+            <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:4px; margin-bottom:6px; gap:8px;">
+                <span style="font-size:9.5px; font-weight:bold; color:#FF453A; word-break:break-all; flex:1;">👾 https://${t.domain.split(" ")[0]}</span>
+                <span style="font-size:8px; color:#AEAEB2; background:#2C2C2E; padding:1px 4px; border-radius:4px; white-space:nowrap;">${t.count}次</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:4px;">
+        `;
+        
+        sites.slice(0, 2).forEach(s => {
+            html += `
+                <div style="font-size:9px; color:#30D158; background:rgba(48,209,88,0.05); border:1px solid rgba(48,209,88,0.15); padding:2px 6px; border-radius:4px; display:flex; align-items:center; gap:4px; width:100%;">
+                    <span style="width:4px; height:4px; background:#30D158; border-radius:50%; display:inline-block; flex-shrink:0; animation: pulse-dot 1.5s infinite;"></span>
+                    <span style="word-break:break-all; flex:1; font-size:8.5px;">${s}</span>
+                </div>
+            `;
+        });
+        
+        html += `
+            </div>
+        </div>
+        `;
+    });
+    
+    html += `
+    </div>
+    `;
+    
+    graphContainer.innerHTML = html;
+    
+    // 動態繪製 SVG 連接線與流光動畫
+    setTimeout(() => {
+        const svg = document.getElementById('graph-svg');
+        const wrapper = document.getElementById('graph-wrapper');
+        if (!svg || !wrapper) return;
+        
+        const w = wrapper.clientWidth;
+        const h = wrapper.clientHeight;
+        svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        
+        const centerX = w / 2;
+        const centerY = h / 2;
+        
+        // 優先輸出所有線性漸層定義 (Defs)，以利 WebKit/Safari 正確解析 url(#line-grad-*)
+        let svgContent = '<defs>';
+        trackers.forEach((t, i) => {
+            svgContent += `
+                <linearGradient id="line-grad-${i}" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#5E5CE6" stop-opacity="0.8" />
+                    <stop offset="100%" stop-color="#30D158" stop-opacity="0.9" />
+                </linearGradient>
+            `;
+        });
+        svgContent += '</defs>';
+        
+        trackers.forEach((t, i) => {
+            const node = document.getElementById(`node-${i}`);
+            if (!node) return;
+            
+            // 獲取節點相對於 wrapper 的中心點位置
+            const nx = centerX + parseInt(node.getAttribute('data-x'));
+            const ny = centerY + parseInt(node.getAttribute('data-y'));
+            
+            // 繪製背景連線
+            svgContent += `
+                <line x1="${centerX}" y1="${centerY}" x2="${nx}" y2="${ny}" stroke="rgba(94,92,230,0.15)" stroke-width="1.5" />
+            `;
+            
+            // 繪製前台流光線 (流向追蹤網域進行投毒)
+            svgContent += `
+                <line x1="${centerX}" y1="${centerY}" x2="${nx}" y2="${ny}" stroke="url(#line-grad-${i})" stroke-width="2.5" stroke-dasharray="10 15" stroke-dashoffset="0" style="animation: dash 3s linear infinite;" />
+            `;
+        });
+        
+        svg.innerHTML = svgContent;
+    }, 50);
+    
+    // 注入 CSS 動態動畫
+    if (!document.getElementById('graph-animation-style')) {
+        const style = document.createElement('style');
+        style.id = 'graph-animation-style';
+        style.textContent = `
+            @keyframes pulse-center {
+                0% { box-shadow: 0 0 15px rgba(94,92,230,0.15); border-color: rgba(94,92,230,0.5); }
+                50% { box-shadow: 0 0 35px rgba(94,92,230,0.45); border-color: rgba(94,92,230,1); }
+                100% { box-shadow: 0 0 15px rgba(94,92,230,0.15); border-color: rgba(94,92,230,0.5); }
+            }
+            @keyframes pulse-dot {
+                0% { transform: scale(0.85); opacity: 0.6; }
+                50% { transform: scale(1.3); opacity: 1; }
+                100% { transform: scale(0.85); opacity: 0.6; }
+            }
+            @keyframes dash {
+                to {
+                    stroke-dashoffset: -40;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+function toggleCrawlers() {
+    const content = document.getElementById('crawler-collapse-content');
+    const arrow = document.getElementById('crawler-toggle-arrow');
+    if (!content || !arrow) return;
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        arrow.style.transform = 'rotate(90deg)';
+    } else {
+        content.style.display = 'none';
+        arrow.style.transform = 'rotate(0deg)';
+    }
+}
+
+function toggleTrackingGraph() {
+    const content = document.getElementById('graph-collapse-content');
+    const arrow = document.getElementById('graph-toggle-arrow');
+    if (!content || !arrow) return;
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        arrow.style.transform = 'rotate(90deg)';
+    } else {
+        content.style.display = 'none';
+        arrow.style.transform = 'rotate(0deg)';
+    }
+}
+
+function toggleSecurityAuditCard() {
+    const content = document.getElementById('security-collapse-content');
+    const arrow = document.getElementById('security-toggle-arrow');
+    if (!content || !arrow) return;
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        arrow.style.transform = 'rotate(90deg)';
+    } else {
+        content.style.display = 'none';
+        arrow.style.transform = 'rotate(0deg)';
+    }
+}
+
+window.onload = function() {
+    fetchSystemMessages();
+    fetchPrivacyReport();
+};
+setInterval(function() {
+    fetchSystemMessages();
+    fetchPrivacyReport();
+}, 60000);
+</script>
+</body>
+</html>

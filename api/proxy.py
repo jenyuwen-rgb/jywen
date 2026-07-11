@@ -26,9 +26,11 @@ class handler(BaseHTTPRequestHandler):
         if post_data is not None:
             req_headers['Content-Type'] = 'application/x-www-form-urlencoded'
 
+        import ssl
         try:
+            context = ssl._create_unverified_context()
             req = urllib.request.Request(url, data=post_data, headers=req_headers, method=method)
-            with urllib.request.urlopen(req, timeout=20) as resp:
+            with urllib.request.urlopen(req, timeout=20, context=context) as resp:
                 body = resp.read()
                 ct = resp.headers.get('Content-Type', 'text/html; charset=utf-8')
                 self.send_response(200)

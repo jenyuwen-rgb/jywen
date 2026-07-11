@@ -3,329 +3,848 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>檢視資料庫 | JYWEN 游泳賽事平台</title>
-    <!-- 引入 Tailwind CSS 確保樣式一致 -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>資料庫總覽 | JYWEN 平台</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        :root {
+            --bg:       #0A0A0B;
+            --bg-card:  #141416;
+            --bg-card2: #1C1C1E;
+            --border:   #2C2C2E;
+            --border2:  #3A3A3C;
+            --gold:     #D4AF37;
+            --gold-lt:  #FFD933;
+            --text:     #FFFFFF;
+            --muted:    #8E8E93;
+            --green:    #30D158;
+            --red:      #FF453A;
+            --blue:     #0A84FF;
+            --radius:   14px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            background-color: #0A0A0B;
-            color: #f4f4f5;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Inter', 'Noto Sans TC', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
+
         .page-container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 24px 20px 40px;
         }
-        .gold-gradient-text {
-            background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%);
+
+        /* ── 標題區 ── */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #FFD933 50%, #D4AF37 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            display: inline-block;
         }
-        /* 表格排版 */
-        .table-container {
-            background-color: #1C1C1E;
-            border: 1px solid #2C2C2E;
-            border-radius: 12px;
+        .page-subtitle {
+            color: var(--muted);
+            font-size: 0.82rem;
+            margin-top: 4px;
+        }
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--bg-card2);
+            border: 1px solid var(--border2);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .refresh-btn:hover { background: var(--border); border-color: var(--muted); }
+        .refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── 資料庫卡片格線 ── */
+        .db-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .db-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 16px 14px;
+            cursor: pointer;
+            transition: border-color 0.18s, background 0.18s, transform 0.18s;
+            position: relative;
             overflow: hidden;
-            margin-top: 20px;
+        }
+        .db-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(212,175,55,0.04) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .db-card:hover {
+            border-color: var(--border2);
+            background: var(--bg-card2);
+            transform: translateY(-2px);
+        }
+        .db-card.selected {
+            border-color: var(--gold);
+            background: rgba(212,175,55,0.06);
+        }
+        .db-card.offline {
+            opacity: 0.55;
+            cursor: default;
+        }
+        .db-card.offline:hover { transform: none; background: var(--bg-card); border-color: var(--border); }
+
+        .db-card-emoji { font-size: 2rem; margin-bottom: 10px; display: block; }
+        .db-card-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+        .db-card-name {
+            font-size: 0.7rem;
+            color: var(--muted);
+            font-family: 'SF Mono', 'Menlo', monospace;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+        .db-card-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .badge-green  { background: rgba(48,209,88,0.15); color: var(--green); }
+        .badge-red    { background: rgba(255,69,58,0.15);  color: var(--red); }
+        .badge-gray   { background: rgba(142,142,147,0.15); color: var(--muted); }
+        .badge-gold   { background: rgba(212,175,55,0.15);  color: var(--gold-lt); }
+
+        /* ── 詳細資料區 ── */
+        .detail-area {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            animation: fadeIn 0.25s ease;
+        }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
+            background: var(--bg-card2);
+        }
+        .detail-db-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .detail-db-emoji { font-size: 1.5rem; }
+        .detail-db-label { font-size: 1rem; font-weight: 700; }
+        .detail-db-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+        .detail-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .table-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border2);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+        }
+        .table-select:focus { border-color: var(--gold); }
+
+        .rows-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border2);
+            color: var(--muted);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* ── 載入骨架 ── */
+        .loader-box {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border2);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 14px;
+        }
+
+        /* ── 資料表格 ── */
+        .table-wrapper {
+            overflow-x: auto;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            text-align: left;
+            font-size: 0.8rem;
         }
-        th {
-            background-color: #2C2C2E;
-            color: #AEAEB2;
+        thead th {
+            background: var(--bg-card2);
+            color: var(--muted);
             font-weight: 600;
-            padding: 12px 16px;
-            font-size: 14px;
-            border-bottom: 1px solid #3A3A3C;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border2);
+            text-align: left;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
-        td {
-            padding: 12px 16px;
-            font-size: 14px;
-            border-bottom: 1px solid #2C2C2E;
-            color: #FFFFFF;
+        tbody td {
+            padding: 9px 14px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            white-space: nowrap;
+            max-width: 260px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        tr:last-child td {
-            border-bottom: none;
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: rgba(255,255,255,0.03); }
+
+        .td-gold { color: var(--gold-lt) !important; font-weight: 600; }
+        .td-green { color: var(--green) !important; font-weight: 600; }
+        .td-null { color: var(--muted); font-style: italic; }
+
+        .row-count-info {
+            padding: 10px 18px;
+            font-size: 0.75rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            background: var(--bg-card2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        tr:hover td {
-            background-color: #2C2C2E;
+
+        /* ── 骨架卡片動畫（載入中）── */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-card2) 25%, var(--border) 50%, var(--bg-card2) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+            border-radius: 6px;
         }
-        .db-status-text-span {
-            font-weight: bold;
+        @keyframes shimmer { to { background-position: -200% 0; } }
+
+        /* ── 3D 翻書進場 ── */
+        body { perspective: 2000px; }
+        .page-container { transform-origin: left center; backface-visibility: hidden; }
+        .page-enter-active { animation: bookFlipIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        @keyframes bookFlipIn {
+            0%   { transform: rotateY(90deg) scale(0.95); opacity: 0; }
+            100% { transform: rotateY(0deg) scale(1); opacity: 1; }
         }
+
+        @media (max-width: 640px) {
+            .db-grid { grid-template-columns: repeat(2, 1fr); }
+            .page-header { gap: 8px; }
+        }
+
+        /* ── 頂部導覽列 ── */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10,10,11,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 0.5px solid var(--border);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .top-nav-item {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: color 0.15s, background 0.15s;
+            white-space: nowrap;
+        }
+        .top-nav-item:hover { color: var(--text); background: var(--bg-card2); }
+        .top-nav-item.active {
+            background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: default;
+        }
+        .top-nav-divider { color: var(--border2); user-select: none; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <!-- 全域置中容器 -->
-    <div class="page-container">
+<!-- 頂部導覽列：在 iframe 內使用 postMessage，獨立訪問時直接跳轉 -->
+<nav class="top-nav">
+    <button class="top-nav-item" onclick="navTo('query')">游泳成績查詢</button>
+    <span class="top-nav-divider">|</span>
+    <button class="top-nav-item" onclick="navTo('manage')">整合平台</button>
+    <span class="top-nav-divider">|</span>
+    <button class="top-nav-item active" onclick="void(0)">檢視資料庫</button>
+    <span class="top-nav-divider">|</span>
+    <button class="top-nav-item" onclick="navTo('wealth')">理財</button>
+    <span class="top-nav-divider">|</span>
+    <button class="top-nav-item" onclick="navTo('car')">車價分析</button>
+    <span class="top-nav-divider">|</span>
+    <button class="top-nav-item" onclick="navTo('system_messages')">系統訊息</button>
+</nav>
 
-        <!-- 頂部雙標題分頁導覽與狀態列 -->
-        <header style="position:relative; display:flex; justify-content:center; align-items:center; margin: 12px 12px 1.5rem 12px; min-height: 56px; text-align:center;">
-            <div class="header-center-area">
-                <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; justify-content:center;">
-                    <a href="manage.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">整合平台</a>
-                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
-                    <a href="index.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">游泳成績查詢</a>
-                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
-                    <h1 style="margin:0; font-size:1.3rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">檢視資料庫</h1>
-                </div>
-                <p class="text-xs text-gray-500" style="margin:2px 0 0 0;">檢視最新入庫的最後 10 筆選手成績紀錄 (v3.0.0)</p>
-            </div>
-            <div id="db-status-badge" style="position:absolute; right:16px; top:12px; font-size:12px; color:#8E8E93; display:flex; align-items:center; gap:6px;">
-                <span style="width:8px; height:8px; background-color:#8E8E93; border-radius:50%; display:inline-block;"></span><span class="db-status-text-span">未載入資料庫</span>
-            </div>
-        </header>
+<div class="page-container">
 
-        <!-- 載入狀態進度條 -->
-        <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E] rounded-xl text-center border border-[#38383A]">
-            <div id="progressContainer">
-                <div id="loaderStatus" class="text-sm text-gray-400 mb-2">正在初始化系統...</div>
-                <div class="w-full bg-[#333] rounded-full h-2 overflow-hidden">
-                    <div id="progressBar" class="bg-[#D4AF37] h-full" style="width: 10%"></div>
+    <!-- 頁面標題 -->
+    <div class="page-header">
+        <div>
+            <div class="page-title">🗄️ 資料庫總覽</div>
+            <div class="page-subtitle" id="last-refreshed">正在載入所有資料庫資訊...</div>
+        </div>
+        <button class="refresh-btn" id="refresh-btn" onclick="loadAllDatabases()">
+            <svg id="refresh-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            重新整理
+        </button>
+    </div>
+
+    <!-- 資料庫卡片格線 -->
+    <div class="db-grid" id="db-grid">
+        <!-- 骨架卡片 -->
+        <div class="db-card" style="pointer-events:none;">
+            <div class="skeleton" style="width:36px;height:36px;border-radius:8px;margin-bottom:10px;"></div>
+            <div class="skeleton" style="width:70%;height:14px;margin-bottom:6px;"></div>
+            <div class="skeleton" style="width:90%;height:11px;margin-bottom:12px;"></div>
+            <div class="skeleton" style="width:50%;height:20px;border-radius:20px;"></div>
+        </div>
+        <div class="db-card" style="pointer-events:none;">
+            <div class="skeleton" style="width:36px;height:36px;border-radius:8px;margin-bottom:10px;"></div>
+            <div class="skeleton" style="width:60%;height:14px;margin-bottom:6px;"></div>
+            <div class="skeleton" style="width:85%;height:11px;margin-bottom:12px;"></div>
+            <div class="skeleton" style="width:45%;height:20px;border-radius:20px;"></div>
+        </div>
+        <div class="db-card" style="pointer-events:none;">
+            <div class="skeleton" style="width:36px;height:36px;border-radius:8px;margin-bottom:10px;"></div>
+            <div class="skeleton" style="width:75%;height:14px;margin-bottom:6px;"></div>
+            <div class="skeleton" style="width:80%;height:11px;margin-bottom:12px;"></div>
+            <div class="skeleton" style="width:55%;height:20px;border-radius:20px;"></div>
+        </div>
+    </div>
+
+    <!-- 詳細資料區 (預設隱藏) -->
+    <div class="detail-area" id="detail-area" style="display:none;">
+        <div class="detail-header">
+            <div class="detail-db-info">
+                <span class="detail-db-emoji" id="detail-emoji">🗄️</span>
+                <div>
+                    <div class="detail-db-label" id="detail-label">資料庫</div>
+                    <div class="detail-db-sub" id="detail-sub">選擇資料表以瀏覽內容</div>
                 </div>
+            </div>
+            <div class="detail-controls">
+                <select class="table-select" id="table-select" onchange="loadTableData()">
+                    <option value="">(載入中...)</option>
+                </select>
+                <select class="rows-select" id="rows-select" onchange="loadTableData()">
+                    <option value="50">顯示 50 筆</option>
+                    <option value="100">顯示 100 筆</option>
+                    <option value="200">顯示 200 筆</option>
+                    <option value="500">顯示 500 筆</option>
+                </select>
             </div>
         </div>
 
-        <!-- 數據展示區域 -->
-        <main id="main-content" style="display: none;">
-            <div class="flex justify-between items-center mb-4 px-2">
-                <h2 class="text-lg font-bold text-[#D4AF37]">📋 最新入庫的 10 筆成績</h2>
-                <button onclick="refreshData()" class="bg-[#2C2C2E] hover:bg-[#3A3A3C] text-white border border-[#3A3A3C] rounded-lg px-4 py-2 text-sm font-semibold transition">
-                    🔄 重新整理
-                </button>
+        <!-- 篩選器面板 -->
+        <div class="filter-panel" id="filter-panel" style="display:flex; align-items:center; gap:12px; margin-bottom:16px; padding:12px 16px; background:#1C1C1E; border:1px solid #2C2C2E; border-radius:10px; flex-wrap:wrap;">
+            <span style="font-size:12px; font-weight:bold; color:#AEAEB2; display:flex; align-items:center; gap:4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#D4AF37;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                篩選：
+            </span>
+            
+            <div class="filter-group" style="display:flex; align-items:center; gap:6px;">
+                <label for="filter-year" style="font-size:11px; color:#8E8E93;">年份</label>
+                <input type="text" id="filter-year" placeholder="例: 2026" oninput="loadTableData()" 
+                       style="background:#2C2C2E; color:#F2F2F7; border:1px solid #3A3A3C; border-radius:6px; padding:4px 8px; font-size:11px; outline:none; width:90px; transition:border 0.2s;" 
+                       onfocus="this.style.borderColor='#D4AF37'" onblur="this.style.borderColor='#3A3A3C'" />
             </div>
 
-            <div class="table-container overflow-x-auto">
-                <table id="scores-table">
-                    <thead>
-                        <tr>
-                            <th>年份</th>
-                            <th>姓名</th>
-                            <th>單位</th>
-                            <th>性別</th>
-                            <th>出生年</th>
-                            <th>項目</th>
-                            <th>組別</th>
-                            <th>成績</th>
-                            <th>名次</th>
-                            <th>賽事名稱</th>
-                        </tr>
-                    </thead>
-                    <tbody id="scores-tbody">
-                        <tr>
-                            <td colspan="10" class="text-center py-8 text-gray-500">正在讀取數據...</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="filter-group" style="display:flex; align-items:center; gap:6px;">
+                <label for="filter-meet" style="font-size:11px; color:#8E8E93;">賽事名稱</label>
+                <input type="text" id="filter-meet" placeholder="關鍵字搜尋..." oninput="loadTableData()" 
+                       style="background:#2C2C2E; color:#F2F2F7; border:1px solid #3A3A3C; border-radius:6px; padding:4px 8px; font-size:11px; outline:none; width:150px; transition:border 0.2s;" 
+                       onfocus="this.style.borderColor='#D4AF37'" onblur="this.style.borderColor='#3A3A3C'" />
             </div>
-        </main>
 
+            <div class="filter-group" style="display:flex; align-items:center; gap:6px;">
+                <label for="filter-name" style="font-size:11px; color:#8E8E93;">姓名</label>
+                <input type="text" id="filter-name" placeholder="姓名搜尋..." oninput="loadTableData()" 
+                       style="background:#2C2C2E; color:#F2F2F7; border:1px solid #3A3A3C; border-radius:6px; padding:4px 8px; font-size:11px; outline:none; width:110px; transition:border 0.2s;" 
+                       onfocus="this.style.borderColor='#D4AF37'" onblur="this.style.borderColor='#3A3A3C'" />
+            </div>
+            
+            <button onclick="clearFilters()" 
+                    style="background:#3A3A3C; color:#F2F2F7; border:none; border-radius:6px; padding:4px 12px; font-size:11px; cursor:pointer; font-weight:600; transition:background 0.2s;"
+                    onmouseover="this.style.background='#48484A'" onmouseout="this.style.background='#3A3A3C'">清除</button>
+        </div>
+
+        <!-- 資料內容 -->
+        <div id="table-area">
+            <div class="loader-box">
+                <div class="spinner"></div>
+                <div>正在載入資料...</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Web Worker 腳本 (內建 SQL.js 引擎) -->
-    <script id="worker-script" type="text/javascript-worker">
-        importScripts('SQL_JS_CDN_URL');
-        let db = null;
-        self.onmessage = async function(e) {
-            const { type, data, query, id, wasmUrl } = e.data;
-            
-            if (type === 'INIT') {
-                try {
-                    const SQL = await initSqlJs({ locateFile: f => wasmUrl });
-                    db = new SQL.Database(data);
-                    self.postMessage({ type: 'READY' });
-                } catch(err) {
-                    self.postMessage({ type: 'ERROR', id, error: err.message });
-                }
-            } else if (type === 'QUERY') {
-                try {
-                    const stmt = db.prepare(query);
-                    const rows = [];
-                    while (stmt.step()) {
-                        rows.push(stmt.get());
-                    }
-                    stmt.free();
-                    self.postMessage({ type: 'RESULT', id, data: rows });
-                } catch(err) {
-                    self.postMessage({ type: 'ERROR', id, error: err.message });
-                }
+</div>
+
+<!-- Web Worker 腳本（SQL.js 引擎）-->
+<script id="worker-script" type="text/javascript-worker">
+    importScripts('SQL_JS_CDN_URL');
+    let db = null;
+    self.onmessage = async function(e) {
+        const { type, data, query, id, wasmUrl } = e.data;
+        if (type === 'INIT') {
+            try {
+                const SQL = await initSqlJs({ locateFile: f => wasmUrl });
+                db = new SQL.Database(data);
+                self.postMessage({ type: 'READY' });
+            } catch(err) {
+                self.postMessage({ type: 'ERROR', id, error: err.message });
             }
-        };
-    </script>
+        } else if (type === 'QUERY') {
+            try {
+                const stmt = db.prepare(query);
+                const columns = stmt.getColumnNames();
+                const rows = [];
+                while (stmt.step()) { rows.push(stmt.get()); }
+                stmt.free();
+                self.postMessage({ type: 'RESULT', id, data: { columns, rows } });
+            } catch(err) {
+                self.postMessage({ type: 'ERROR', id, error: err.message });
+            }
+        }
+    };
+</script>
 
-    <script>
-        // 解決 Blob URL Web Worker 載入 CDN 以及跨域問題，使用本機 JS & WASM
-        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const localJsUrl = isLocalHost 
-            ? new URL('/static/sql-wasm.js', window.location.origin).href 
-            : new URL('sql-wasm.js', window.location.href).href;
-        const localWasmUrl = isLocalHost 
-            ? new URL('/static/sql-wasm.wasm', window.location.origin).href 
-            : new URL('sql-wasm.wasm', window.location.href).href;
-        
-        const workerCode = document.getElementById('worker-script').textContent
-            .replace('SQL_JS_CDN_URL', localJsUrl);
-            
-        const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
-        const worker = new Worker(URL.createObjectURL(workerBlob));
-        
-        worker.onerror = function(err) {
-            console.error("Worker 發生錯誤:", err);
-            alert("資料庫引擎載入出錯: " + err.message);
-        };
+<script>
+    const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const localJsUrl   = isLocalHost ? new URL('/static/sql-wasm.js',   window.location.origin).href : new URL('sql-wasm.js',   window.location.href).href;
+    const localWasmUrl = isLocalHost ? new URL('/static/sql-wasm.wasm', window.location.origin).href : new URL('sql-wasm.wasm', window.location.href).href;
 
-        const callbacks = {};
-        let queryId = 0;
+    const workerCode = document.getElementById('worker-script').textContent.replace('SQL_JS_CDN_URL', localJsUrl);
+    const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
 
+    // 每次切換 DB 都會重建 worker
+    let worker = null;
+    const callbacks = {};
+    let queryId = 0;
+    let activeDb = null;   // 當前選中的 db 資訊物件
+
+    function spawnWorker() {
+        if (worker) { try { worker.terminate(); } catch(e){} }
+        worker = new Worker(URL.createObjectURL(workerBlob));
         worker.onmessage = function(e) {
             const { type, data, error, id } = e.data;
             if (type === 'READY') {
-                document.getElementById('dbLoaderArea').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-                const badge = document.getElementById('db-status-badge');
-                if (badge) {
-                    badge.innerHTML = '<span style="width:8px; height:8px; background-color:#30D158; border-radius:50%; display:inline-block;"></span><span class="db-status-text-span" style="color:#30D158;">資料庫已載入</span>';
-                }
-                refreshData();
+                onWorkerReady();
             } else if (type === 'RESULT') {
-                if (callbacks[id]) {
-                    callbacks[id].resolve(data);
-                    delete callbacks[id];
-                }
+                if (callbacks[id]) { callbacks[id].resolve(data); delete callbacks[id]; }
             } else if (type === 'ERROR') {
-                if (callbacks[id]) {
-                    callbacks[id].reject(new Error(error));
-                    delete callbacks[id];
-                } else {
-                    console.error("Worker 執行錯誤:", error);
-                }
+                if (callbacks[id]) { callbacks[id].reject(new Error(error)); delete callbacks[id]; }
+                else { console.error('[Worker Error]', error); }
             }
         };
+        worker.onerror = (err) => console.error('[Worker Fatal]', err);
+    }
 
-        function remoteQuery(query) {
-            return new Promise((resolve, reject) => {
-                const id = queryId++;
-                callbacks[id] = { resolve, reject };
-                worker.postMessage({ type: 'QUERY', id, query });
+    function remoteQuery(query) {
+        return new Promise((resolve, reject) => {
+            const id = queryId++;
+            callbacks[id] = { resolve, reject };
+            worker.postMessage({ type: 'QUERY', id, query });
+        });
+    }
+
+    // ── 載入所有資料庫卡片 ──────────────────────────
+    async function loadAllDatabases() {
+        const btn = document.getElementById('refresh-btn');
+        const icon = document.getElementById('refresh-icon');
+        btn.classList.add('spinning');
+        document.getElementById('last-refreshed').textContent = '正在刷新...';
+
+        try {
+            const resp = await fetch('/api/list_databases');
+            const json = await resp.json();
+            if (json.status !== 'ok') throw new Error(json.message);
+
+            renderDbCards(json.databases);
+            const now = new Date().toLocaleTimeString('zh-TW');
+            document.getElementById('last-refreshed').textContent = `最後更新：${now}，共 ${json.databases.length} 個資料庫`;
+        } catch(err) {
+            document.getElementById('last-refreshed').textContent = `❌ 載入失敗：${err.message}`;
+        } finally {
+            btn.classList.remove('spinning');
+        }
+    }
+
+    function formatSize(mb) {
+        if (mb === 0) return '0 B';
+        if (mb < 0.01) return '< 0.01 MB';
+        if (mb >= 1000) return (mb / 1024).toFixed(1) + ' GB';
+        if (mb >= 1) return mb.toFixed(1) + ' MB';
+        return (mb * 1024).toFixed(0) + ' KB';
+    }
+
+    function renderDbCards(databases) {
+        const grid = document.getElementById('db-grid');
+        grid.innerHTML = '';
+        databases.forEach(db => {
+            const card = document.createElement('div');
+            card.className = 'db-card' + (db.exists ? '' : ' offline');
+            card.id = `card-${db.name}`;
+            card.innerHTML = `
+                <span class="db-card-emoji">${db.emoji}</span>
+                <div class="db-card-label">${db.label}</div>
+                <div class="db-card-name">${db.name}</div>
+                <div class="db-card-meta">
+                    ${db.exists
+                        ? `<span class="badge badge-green">✓ 上線</span>
+                           <span class="badge badge-gold">${formatSize(db.size_mb)}</span>
+                           <span class="badge badge-gray">${db.table_count} 資料表</span>`
+                        : `<span class="badge badge-red">✗ 不存在</span>`
+                    }
+                </div>`;
+            if (db.exists) {
+                card.onclick = () => selectDatabase(db);
+            }
+            grid.appendChild(card);
+        });
+    }
+
+    // ── 選取資料庫 ──────────────────────────────────
+    function selectDatabase(db) {
+        // 更新選取狀態
+        document.querySelectorAll('.db-card').forEach(c => c.classList.remove('selected'));
+        const card = document.getElementById(`card-${db.name}`);
+        if (card) card.classList.add('selected');
+
+        activeDb = db;
+
+        // 更新詳細區 header
+        document.getElementById('detail-emoji').textContent = db.emoji;
+        document.getElementById('detail-label').textContent = db.label;
+        document.getElementById('detail-sub').textContent = `${db.name} · ${formatSize(db.size_mb)} · ${db.table_count} 資料表`;
+        document.getElementById('detail-area').style.display = 'block';
+
+        // 填入資料表下拉選單
+        const sel = document.getElementById('table-select');
+        sel.innerHTML = '';
+        if (db.tables && db.tables.length > 0) {
+            const TABLE_ALIAS = {
+                // wealth_clock.db
+                "net_assets_history": "net_assets_history (股票資產歷史/元大淨值)",
+                "mega_bank_assets_history": "mega_bank_assets_history (銀行資產歷史/兆豐對帳單)",
+                "investment_statements": "investment_statements (證券交易明細)",
+                "merrill_clock_history": "merrill_clock_history (美林時鐘景氣象限)",
+                "stock_history_0050": "stock_history_0050 (0050 股價歷史)",
+                "stock_history": "stock_history (大盤與個股歷史)",
+                "爬蟲執行紀錄": "爬蟲執行紀錄 (爬蟲目前狀態)",
+                "爬蟲執行歷史紀錄": "爬蟲執行歷史紀錄 (爬蟲診斷紀錄)",
+                "台灣景氣燈號歷史": "台灣景氣燈號歷史 (景氣燈號與分數)",
+                "外資累積淨匯入": "外資累積淨匯入 (熱錢累積)",
+                "景氣領先指標": "景氣領先指標 (領先指標)",
+                "外資進出月報": "外資進出月報 (外資進出月流向)",
+                "國際收支季資料": "國際收支季資料 (國際收支)",
+                "資安稽核紀錄": "資安稽核紀錄 (資安自動防毒)",
+                "資安新聞": "資安新聞 (資安警報新聞)",
+                "資安掃描紀錄": "資安掃描紀錄 (掃描歷史)",
+                
+                // swim_results_birthday.db / swim_results_downloaded.db
+                "swimming_scores": "swimming_scores (正式游泳成績)",
+                "meet_links": "meet_links (賽事連結)",
+                "crawl_history": "crawl_history (游泳爬蟲歷史)",
+                
+                // car_depreciation.db
+                "car_listings": "car_listings (中古車拍賣清單)",
+                "car_models": "car_models (車款代號對照)",
+                "car_price_trends": "car_price_trends (車價折舊行情趨勢)"
+            };
+
+            db.tables.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = TABLE_ALIAS[t] || t;
+                sel.appendChild(opt);
+            });
+            // 自動選主表
+            const priority = ['swimming_scores', 'merrill_clock_history', 'car_listings'];
+            const def = priority.find(p => db.tables.includes(p));
+            if (def) sel.value = def;
+        } else {
+            sel.innerHTML = '<option value="">(無資料表)</option>';
+        }
+
+        // 顯示載入中
+        showTableLoader();
+
+        // 建立新 worker 並載入 DB
+        spawnWorker();
+        loadDbIntoWorker(db.name);
+    }
+
+    async function loadDbIntoWorker(dbName) {
+        try {
+            const resp = await fetch(`/api/download_any_db?name=${encodeURIComponent(dbName)}`);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const buf = await resp.arrayBuffer();
+            worker.postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]);
+        } catch(err) {
+            showTableError(`無法下載資料庫：${err.message}`);
+        }
+    }
+
+    function onWorkerReady() {
+        loadTableData();
+    }
+
+    function escapeSqlString(str) {
+        return str.replace(/'/g, "''");
+    }
+
+    function clearFilters() {
+        const y = document.getElementById('filter-year');
+        const m = document.getElementById('filter-meet');
+        const n = document.getElementById('filter-name');
+        if (y) y.value = '';
+        if (m) m.value = '';
+        if (n) n.value = '';
+        loadTableData();
+    }
+
+    // ── 載入資料表 ──────────────────────────────────
+    async function loadTableData() {
+        const tableName = document.getElementById('table-select').value;
+        const limit = parseInt(document.getElementById('rows-select').value) || 50;
+        if (!tableName || !worker) return;
+
+        showTableLoader();
+        try {
+            // 1. 取得該資料表的所有欄位資訊 (PRAGMA table_info)
+            const infoRes = await remoteQuery(`PRAGMA table_info("${tableName}")`);
+            const colNames = infoRes.rows.map(r => r[1]); 
+
+            // 2. 依據篩選欄位是否存在於該資料表中，動態建立 WHERE 子句
+            let whereParts = [];
+            const yearVal = document.getElementById('filter-year') ? document.getElementById('filter-year').value.trim() : '';
+            const meetVal = document.getElementById('filter-meet') ? document.getElementById('filter-meet').value.trim() : '';
+            const nameVal = document.getElementById('filter-name') ? document.getElementById('filter-name').value.trim() : '';
+
+            // 年份篩選
+            if (yearVal) {
+                if (colNames.includes('年份')) {
+                    whereParts.push(`"年份" LIKE '%${escapeSqlString(yearVal)}%'`);
+                } else if (colNames.includes('year')) {
+                    whereParts.push(`"year" LIKE '%${escapeSqlString(yearVal)}%'`);
+                }
+            }
+
+            // 賽事名稱篩選
+            if (meetVal) {
+                if (colNames.includes('賽事名稱')) {
+                    whereParts.push(`"賽事名稱" LIKE '%${escapeSqlString(meetVal)}%'`);
+                } else if (colNames.includes('meet_name')) {
+                    whereParts.push(`"meet_name" LIKE '%${escapeSqlString(meetVal)}%'`);
+                }
+            }
+
+            // 姓名篩選
+            if (nameVal) {
+                if (colNames.includes('姓名')) {
+                    whereParts.push(`"姓名" LIKE '%${escapeSqlString(nameVal)}%'`);
+                } else if (colNames.includes('name')) {
+                    whereParts.push(`"name" LIKE '%${escapeSqlString(nameVal)}%'`);
+                }
+            }
+
+            const whereClause = whereParts.length > 0 ? 'WHERE ' + whereParts.join(' AND ') : '';
+
+            // 3. 取得過濾後的總筆數
+            const countRes = await remoteQuery(`SELECT COUNT(*) FROM "${tableName}" ${whereClause}`);
+            const totalRows = countRes.rows[0][0];
+
+            // 4. 取得分頁資料
+            const res = await remoteQuery(`SELECT * FROM "${tableName}" ${whereClause} LIMIT ${limit}`);
+            renderTable(res.columns, res.rows, totalRows, limit);
+        } catch(err) {
+            showTableError(`讀取失敗：${err.message}`);
+        }
+    }
+
+    // ── 渲染表格 ─────────────────────────────────────
+    const GOLD_COLS  = new Set(['姓名', 'name', 'brand', 'symbol', 'asset_name', '名稱']);
+    const GREEN_COLS = new Set(['成績', 'amount', 'asking_price', 'price', 'value', '金額', '餘額', '報酬率']);
+
+    function renderTable(columns, rows, totalRows, limit) {
+        let headHtml = '<thead><tr>';
+        headHtml += `<th style="width:40px;color:var(--border2);">#</th>`;
+        columns.forEach(col => { headHtml += `<th>${col}</th>`; });
+        headHtml += '</tr></thead>';
+
+        let bodyHtml = '<tbody>';
+        if (rows.length === 0) {
+            bodyHtml += `<tr><td colspan="${columns.length + 1}" style="text-align:center;padding:40px;color:var(--muted);">此資料表無任何資料</td></tr>`;
+        } else {
+            rows.forEach((row, idx) => {
+                bodyHtml += `<tr><td style="color:var(--muted);font-size:0.7rem;">${idx + 1}</td>`;
+                row.forEach((val, colIdx) => {
+                    const colName = columns[colIdx];
+                    let cls = '';
+                    if (val === null || val === undefined || val === '') {
+                        cls = 'td-null';
+                        val = '—';
+                    } else if (GOLD_COLS.has(colName)) {
+                        cls = 'td-gold';
+                    } else if (GREEN_COLS.has(colName)) {
+                        cls = 'td-green';
+                    }
+                    bodyHtml += `<td class="${cls}" title="${val}">${val}</td>`;
+                });
+                bodyHtml += '</tr>';
             });
         }
+        bodyHtml += '</tbody>';
 
-        async function loadDatabaseBuffer(buf) {
-            document.getElementById('progressBar').style.width = '70%';
-            document.getElementById('loaderStatus').textContent = "正在載入 WebAssembly SQL.js 引擎並啟動資料庫...";
-            worker.postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]);
+        const showing = Math.min(rows.length, limit);
+        const footerHtml = `
+            <div class="row-count-info">
+                <span>顯示 <strong style="color:var(--text);">${showing}</strong> / 共 <strong style="color:var(--gold-lt);">${totalRows.toLocaleString()}</strong> 筆資料</span>
+                <span style="font-family:monospace;">${document.getElementById('table-select').value}</span>
+            </div>`;
+
+        document.getElementById('table-area').innerHTML =
+            `<div class="table-wrapper"><table>${headHtml}${bodyHtml}</table></div>${footerHtml}`;
+    }
+
+    function showTableLoader() {
+        document.getElementById('table-area').innerHTML = `
+            <div class="loader-box">
+                <div class="spinner"></div>
+                <div>正在載入資料...</div>
+            </div>`;
+    }
+
+    function showTableError(msg) {
+        document.getElementById('table-area').innerHTML = `
+            <div class="loader-box" style="color:var(--red);">
+                ❌ ${msg}
+            </div>`;
+    }
+
+    // ── 導覽函數：iframe 內用 postMessage，獨立訪問時直接跳轉 ──
+    const NAV_MAP = {
+        'query':           '/query.html',
+        'manage':          '/manage.html',
+        'view_db':         '/view_db.html',
+        'wealth':          '/wealth.html',
+        'car':             '/car.html',
+        'system_messages': '/system_messages.html'
+    };
+    function navTo(tabId) {
+        if (window.self !== window.top) {
+            // 在 iframe 內 → 通知父層切換分頁
+            window.parent.postMessage({ switchTab: tabId }, '*');
+        } else {
+            // 獨立訪問 → 直接跳轉
+            const url = NAV_MAP[tabId];
+            if (url) window.location.href = url;
         }
+    }
 
-        // 偵測並加載資料庫
-        async function startSystem() {
-            // 1. 優先嘗試直接從伺服器相對路徑自動載入正式資料庫
-            try {
-                const dbPath = isLocalHost ? '/static/swim_results_birthday.db' : 'static/swim_results_birthday.db';
-                const resp = await fetch(dbPath);
-                if (resp.ok) {
-                    const buf = await resp.arrayBuffer();
-                    loadDatabaseBuffer(buf);
-                    return;
-                }
-            } catch (e) {
-                console.log("無法自動載入正式資料庫，嘗試載入模板庫...", e);
-            }
+    // ── iOS 手勢向左滑動切換到整合平台 ──
+    let touchstartX = 0, touchendX = 0;
+    document.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, { passive: true });
+    document.addEventListener('touchend',   e => {
+        touchendX = e.changedTouches[0].screenX;
+        if (touchendX < touchstartX - 100) navTo('manage');
+        if (touchendX > touchstartX + 100) navTo('wealth');
+    }, { passive: true });
 
-            // 2. 備用：嘗試載入預建的模板資料庫
-            try {
-                const templatePath = isLocalHost ? '/static/swim_results_template.db' : 'static/swim_results_template.db';
-                const resp = await fetch(templatePath);
-                if (resp.ok) {
-                    const buf = await resp.arrayBuffer();
-                    loadDatabaseBuffer(buf);
-                    return;
-                }
-            } catch (e) {
-                console.log("無法自動載入模板資料庫，嘗試本地 IndexedDB...", e);
-            }
+    // ── 頁面啟動 ──────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        loadAllDatabases();
 
-            // 3. 備用：從本地 IndexedDB 讀取已快取的資料庫
-            try {
-                const openReq = indexedDB.open("SwimSQL", 1);
-                openReq.onsuccess = e => {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains("files")) {
-                        handleNoDatabase();
-                        return;
-                    }
-                    const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db");
-                    getReq.onsuccess = async () => {
-                        if (getReq.result) {
-                            const buf = await (getReq.result instanceof Blob ? getReq.result.arrayBuffer() : getReq.result);
-                            loadDatabaseBuffer(buf);
-                        } else {
-                            handleNoDatabase();
-                        }
-                    };
-                    getReq.onerror = () => handleNoDatabase();
-                };
-                openReq.onerror = () => handleNoDatabase();
-            } catch (err) {
-                handleNoDatabase();
-            }
-        }
-
-        function handleNoDatabase() {
-            document.getElementById('loaderStatus').textContent = "⚠️ 資料庫尚未載入。請先在「整合平台」分頁中下載賽事，或上傳資料庫以查看內容。";
-            document.getElementById('progressBar').style.width = '0%';
-        }
-
-        // 重新整理並讀取最後 10 筆資料
-        async function refreshData() {
-            const tbody = document.getElementById('scores-tbody');
-            tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-gray-400">正在讀取數據...</td></tr>`;
-
-            try {
-                // 1. 檢查資料表是否存在
-                const checkTable = await remoteQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='swimming_scores'");
-                if (checkTable.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-yellow-500">⚠️ 資料庫中目前尚未建立 swimming_scores 成績資料表。請先至整合平台下載賽事。</td></tr>`;
-                    return;
-                }
-
-                // 2. 查詢最後 10 筆資料 (依 rowid 倒序)
-                const queryStr = "SELECT 年份, 姓名, 單位, 性別, 出生年, 項目, 組別, 成績, 名次, 賽事名稱 FROM swimming_scores ORDER BY rowid DESC LIMIT 10";
-                const rows = await remoteQuery(queryStr);
-
-                if (rows.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-gray-500">資料表目前沒有任何成績數據。</td></tr>`;
-                    return;
-                }
-
-                let html = "";
-                rows.forEach(r => {
-                    html += `<tr>
-                        <td>${r[0] || ""}</td>
-                        <td class="font-bold text-[#FFD933]">${r[1] || ""}</td>
-                        <td>${r[2] || ""}</td>
-                        <td>${r[3] || ""}</td>
-                        <td>${r[4] || ""}</td>
-                        <td>${r[5] || ""}</td>
-                        <td>${r[6] || ""}</td>
-                        <td class="font-semibold text-green-400">${r[7] || ""}</td>
-                        <td>${r[8] || ""}</td>
-                        <td class="text-gray-400 text-xs">${r[9] || ""}</td>
-                    </tr>`;
-                });
-                tbody.innerHTML = html;
-
-            } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-red-500">❌ 讀取失敗: ${err.message}</td></tr>`;
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', startSystem);
-    </script>
+        // 3D 進場動畫
+        const pc = document.querySelector('.page-container');
+        if (pc) pc.classList.add('page-enter-active');
+    });
+</script>
 </body>
 </html>

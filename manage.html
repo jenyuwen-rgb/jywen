@@ -34,7 +34,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
             box-sizing: border-box;
@@ -641,19 +641,58 @@
         @media (min-width: 768px) {
             .header-center-area { padding: 0 150px; }
         }
-        @media (max-width: 600px) {
-            .db-status-text-span { display: none; }
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column !important;
+                min-height: auto !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+            .db-status-bar, #db-status-badge {
+                position: static !important;
+                margin-top: 6px !important;
+                justify-content: center !important;
+                width: auto !important;
+            }
+        }
+        /* 3D 翻書過渡動畫 */
+        body {
+            perspective: 2000px;
+            overflow-x: hidden;
+        }
+        .container {
+            transform-origin: left center;
+            backface-visibility: hidden;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
+        }
+        .page-enter-active {
+            animation: bookFlipIn 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        .page-exit-active {
+            transform: rotateY(-90deg) scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+        }
+        @keyframes bookFlipIn {
+            0% {
+                transform: rotateY(90deg) scale(0.95);
+                opacity: 0;
+            }
+            100% {
+                transform: rotateY(0deg) scale(1);
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body>
 
     <!-- 全螢幕本地資料庫鎖定遮罩 -->
-    <div id="dbLockOverlay">
+    <div id="dbLockOverlay" style="display: none;">
         <div class="lock-box">
-            <div class="lock-icon">🔒</div>
-            <h2 class="lock-title">地端資料庫尚未載入</h2>
-            <p class="lock-desc">
+            <div class="lock-icon" id="lock-icon-el">🔒</div>
+            <h2 class="lock-title" id="lock-title-el">地端資料庫尚未載入</h2>
+            <p class="lock-desc" id="lock-desc-el">
                 本游泳平台為純前端靜態系統，所有數據均儲存在您的本地裝置中。<br>
                 請選擇您的 <strong>swim_results_birthday.db</strong> 檔案以啟用系統。
             </p>
@@ -671,7 +710,7 @@
 
     <div class="container">
         <!-- 頂部雙標題分頁導覽與狀態列 -->
-        <header style="position:relative; display:flex; justify-content:center; align-items:center; margin-bottom: 1.5rem; min-height: 56px; text-align:center;">
+        <header id="main-header" style="position:relative; display:flex; justify-content:center; align-items:center; margin-bottom: 1.5rem; min-height: 56px; text-align:center;">
             <div class="header-center-area">
                 <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; justify-content:center;">
                     <h1 style="margin:0; font-size:1.3rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">整合平台</h1>
@@ -679,16 +718,25 @@
                     <a href="index.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">游泳成績查詢</a>
                     <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
                     <a href="view_db.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">檢視資料庫</a>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <a href="wealth.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">理財</a>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <a href="car.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">車價分析</a>
+                    <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                    <a href="system_messages.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">系統訊息</a>
                 </div>
-                <p class="subtitle" style="margin:2px 0 0 0;">五大游泳協會賽事日程與成績查詢 (v3.0.0)</p>
+                <p class="subtitle" style="margin:2px 0 0 0;">五大游泳協會賽事日程與成績查詢 (v3.5.0)</p>
             </div>
             <div class="db-status-bar" style="position:absolute; right:16px; top:12px; border:none; background:none; padding:0; margin:0; display:flex; align-items:center; gap:12px;">
-                <button onclick="exportDatabase()" style="cursor:pointer; background:#2C2C2E; color:#FFFFFF; border:1px solid #3A3A3C; border-radius:6px; padding:4px 10px; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:4px; transition: background 0.2s, border-color 0.2s;" onmouseover="this.style.background='#3A3A3C'; this.style.borderColor='#48484A';" onmouseout="this.style.background='#2C2C2E'; this.style.borderColor='#3A3A3C';">
-                    📥 匯出資料庫
+                <button onclick="mergeExportDatabase()" style="cursor:pointer; background:#30D158; color:#FFFFFF; border:none; border-radius:6px; padding:4px 10px; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:4px; transition: background 0.2s;" onmouseover="this.style.background='#34C759';" onmouseout="this.style.background='#30D158';">
+                    📥 合併到本地庫
+                </button>
+                <button onclick="downloadDatabaseDirect()" style="cursor:pointer; background:#2C2C2E; color:#FFFFFF; border:1px solid #3A3A3C; border-radius:6px; padding:4px 10px; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:4px; transition: background 0.2s, border-color 0.2s;" onmouseover="this.style.background='#3A3A3C'; this.style.borderColor='#48484A';" onmouseout="this.style.background='#2C2C2E'; this.style.borderColor='#3A3A3C';">
+                    💾 另存為新庫
                 </button>
                 <div style="display:flex; align-items:center; gap:6px;">
                     <span class="status-dot"></span>
-                    <span style="font-size:12px; color:#30D158; display:flex; align-items:center;"><span id="db-status-text" class="db-status-text-span">資料庫已載入</span></span>
+                    <span style="font-size:12px; color:#30D158; display:flex; align-items:center;"><span id="db-status-text" class="db-status-text-span">正式游泳庫已載入</span></span>
                 </div>
             </div>
         </header>
@@ -950,15 +998,26 @@
                 }
             } else if (type === 'DEDUCE_AND_INSERT') {
                 try {
-                    const scores = data;
-                    if (!scores || scores.length === 0) {
+                    const rawScores = data;
+                    if (!rawScores || rawScores.length === 0) {
                         self.postMessage({ type: 'DEDUCE_AND_INSERT_DONE' });
                         return;
                     }
                     
-                    const raceName = scores[0].賽事名稱 || '';
+                    const raceName = rawScores[0].賽事名稱 || '';
+
+                    // ① 在 JS 端對傳入的原始數據進行去重，減少不必要的資料庫寫入
+                    const scores = [];
+                    const seenScores = new Set();
+                    for (const sc of rawScores) {
+                        const key = `${sc.年份}|${sc.賽事名稱}|${sc.項目}|${sc.組別}|${sc.姓名}|${sc.單位}|${sc.成績}|${sc.名次}`;
+                        if (!seenScores.has(key)) {
+                            seenScores.add(key);
+                            scores.push(sc);
+                        }
+                    }
                     
-                    // ① 獲取本次下載資料中的唯一 (姓名, 單位) 組合，僅針對這些組合進行出生年與性別推算，避免全表掃描
+                    // ② 獲取本次下載資料中的唯一 (姓名, 單位) 組合
                     const deduceCache = new Map();
                     const uniquePairs = [];
                     const seenPairs = new Set();
@@ -970,27 +1029,38 @@
                         }
                     }
                     
-                    // ② 預先編譯查詢以進行索引尋找，大幅縮小查詢範圍
-                    const stmtDeduce = db.prepare(`
-                        SELECT 出生年, 性別 FROM swimming_scores
-                        WHERE 姓名=? AND 單位=? AND 出生年 IS NOT NULL AND 出生年 != ''
-                        LIMIT 1
-                    `);
-                    
-                    for (const pair of uniquePairs) {
-                        stmtDeduce.bind([pair.name, pair.unit]);
-                        if (stmtDeduce.step()) {
+                    // ③ 批次分組查詢出生年與性別（每批 200 個姓名），避免 1000 次 SELECT 帶來的 SQL.js 編譯與單步開銷
+                    const batchSize = 200;
+                    for (let i = 0; i < uniquePairs.length; i += batchSize) {
+                        const batch = uniquePairs.slice(i, i + batchSize);
+                        const placeholders = batch.map(() => '?').join(',');
+                        const names = batch.map(p => p.name);
+                        
+                        const stmtDeduce = db.prepare(`
+                            SELECT 姓名, 單位, 出生年, 性別 FROM swimming_scores
+                            WHERE 姓名 IN (${placeholders}) AND 出生年 IS NOT NULL AND 出生年 != ''
+                        `);
+                        
+                        stmtDeduce.bind(names);
+                        while (stmtDeduce.step()) {
                             const r = stmtDeduce.getAsObject();
-                            deduceCache.set(`${pair.name}|${pair.unit}`, {
-                                出生年: r.出生年 || '',
-                                性別: r.性別 || ''
-                            });
+                            const key = `${r.姓名}|${r.單位}`;
+                            if (!deduceCache.has(key)) {
+                                deduceCache.set(key, {
+                                    出生年: r.出生年 || '',
+                                    性別: r.性別 || ''
+                                });
+                            }
                         }
-                        stmtDeduce.reset();
+                        stmtDeduce.free();
                     }
-                    stmtDeduce.free();
                     
-                    // ③ 用單一 Transaction 批次插入，提升效能 10~100 倍
+                    // ④ 寫入前，先清空該賽事名稱的舊資料（防止重複導入），代替原本極慢的 rowid 去重 DELETE 查詢
+                    if (raceName) {
+                        db.run('DELETE FROM swimming_scores WHERE 賽事名稱 = ?', [raceName]);
+                    }
+
+                    // ⑤ 用單一 Transaction 批次插入，提升效能 10~100 倍
                     db.run('BEGIN TRANSACTION');
                     
                     const stmtInsert = db.prepare(`
@@ -1014,17 +1084,6 @@
                     stmtInsert.free();
                     db.run('COMMIT');
                     
-                    // ④ 去重：只針對本次賽事名稱範圍做去重，避免全表掃描
-                    db.run(`
-                        DELETE FROM swimming_scores
-                        WHERE 賽事名稱 = ? AND rowid NOT IN (
-                            SELECT MIN(rowid)
-                            FROM swimming_scores
-                            WHERE 賽事名稱 = ?
-                            GROUP BY 年份, 賽事名稱, 項目, 組別, 姓名, 出生年, 性別, 單位, 成績, 名次
-                        )
-                    `, [raceName, raceName]);
-                    
                     self.postMessage({ type: 'DEDUCE_AND_INSERT_DONE' });
                 } catch (err) {
                     try { db.run('ROLLBACK'); } catch(e) {}
@@ -1041,7 +1100,49 @@
         };
     </script>
 
-    <script>
+    <script>        // 智慧偵測本地 Python 伺服器基底網址（當大仁哥從 file:/// 本地檔案打開網頁時自動補全）
+        const API_BASE = (window.location.protocol === 'file:' || !window.location.host.includes('5001'))
+            ? 'http://127.0.0.1:5001'
+            : '';
+
+        // 全局前端操作日誌系統
+        const OperationLogger = {
+            logs: [],
+            add(action, details, status = 'INFO') {
+                const timestamp = new Date().toISOString();
+                const detailStr = typeof details === 'object' ? JSON.stringify(details) : String(details);
+                const logEntry = `[${timestamp}] [${status}] ${action}: ${detailStr}`;
+                this.logs.push(logEntry);
+                console.log(`[OperationLogger] ${logEntry}`);
+                
+                // 同步發送至地端後台
+                fetch(`${API_BASE}/api/log_action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ timestamp, status, action, details: detailStr })
+                }).catch(e => console.warn('[Log Sync Error] Backend log write failed:', e));
+            },
+            export() {
+                const blob = new Blob([this.logs.join('\n')], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `web_operation_logs_${new Date().getTime()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        };
+
+        // 監聽 ⌘L 或 Ctrl+L 快捷鍵導出前端日誌
+        window.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'l') {
+                e.preventDefault();
+                OperationLogger.export();
+            }
+        });
+
         // 解決 Blob URL Web Worker 載入 CDN 以及跨域問題，使用本機 JS & WASM
         const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const localJsUrl = isLocalHost 
@@ -1051,68 +1152,68 @@
             ? new URL('/static/sql-wasm.wasm', window.location.origin).href 
             : new URL('sql-wasm.wasm', window.location.href).href;
         
-        const workerCode = document.getElementById('worker-script').textContent
-            .replace('SQL_JS_CDN_URL', localJsUrl);
-            
-        const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
-        const worker = new Worker(URL.createObjectURL(workerBlob));
-        
-        // 綁定錯誤監聽，防止靜默失效
-        worker.onerror = function(err) {
-            console.error("Worker 發生錯誤:", err);
-            alert("資料庫引擎載入出錯: " + err.message);
-        };
-
+        let worker = null;
         const callbacks = {};
         let queryId = 0;
         let dbFileName = "swim_results_birthday.db";
         let isDBLoaded = false;
 
-        worker.onmessage = async function(e) {
-            const { type, id, data, error, needPopulate } = e.data;
-            if (type === 'READY') {
-                document.getElementById('dbLockOverlay').style.display = 'none';
-                isDBLoaded = true;
-                
-                loadRecentGamesList('site_a');
-                loadRecentGamesList('site_b');
-                loadRecentGamesList('site_c');
-                loadRecentGamesList('site_d');
-                loadRecentGamesList('site_e');
+        function ensureWorker() {
+            if (worker) return worker;
+            console.log("正在初始化 SQL.js Web Worker...");
+            const workerCode = document.getElementById('worker-script').textContent
+                .replace('SQL_JS_CDN_URL', localJsUrl);
+            const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+            worker = new Worker(URL.createObjectURL(workerBlob));
+            
+            worker.onerror = function(err) {
+                console.error("Worker 發生錯誤:", err);
+                alert("資料庫引擎載入出錯: " + err.message);
+            };
 
-                if (needPopulate) {
-                    console.log("正在從 calendar.json 載入初始行事曆資料...");
-                    try {
-                        const calendarUrl = isLocalHost ? '/static/calendar.json' : 'calendar.json';
-                        const resp = await fetch(calendarUrl);
-                        if (resp.ok) {
-                            const events = await resp.json();
-                            worker.postMessage({ type: 'POPULATE_CALENDAR', data: events });
-                        }
-                    } catch(err) {
-                        console.error("無法加載 calendar.json", err);
+            worker.onmessage = async function(e) {
+                const { type, id, data, error, needPopulate } = e.data;
+                if (type === 'READY') {
+                    document.getElementById('dbLockOverlay').style.display = 'none';
+                    document.getElementById('uploadProgressContainer').style.display = 'none';
+                    isDBLoaded = true;
+                    if (window.parent) {
+                        window.parent.isDBLoaded = true;
                     }
-                } else {
+                    
+                    if (needPopulate) {
+                        console.log("正在從 calendar.json 載入初始行事曆資料...");
+                        try {
+                            const calendarUrl = isLocalHost ? '/static/calendar.json' : 'calendar.json';
+                            const resp = await fetch(calendarUrl);
+                            if (resp.ok) {
+                                const events = await resp.json();
+                                worker.postMessage({ type: 'POPULATE_CALENDAR', data: events });
+                            }
+                        } catch(err) {
+                            console.error("無法加載 calendar.json", err);
+                        }
+                    }
+                } else if (type === 'POPULATE_DONE') {
                     loadCalendarFromDB();
+                } else if (type === 'RESULT') {
+                    if (callbacks[id]) { callbacks[id].resolve(data); delete callbacks[id]; }
+                } else if (type === 'EXPORT_RESULT') {
+                    if (callbacks[id]) { callbacks[id].resolve(data); delete callbacks[id]; }
+                } else if (type === 'DEDUCE_AND_INSERT_DONE') {
+                    if (callbacks[id]) { callbacks[id].resolve(); delete callbacks[id]; }
+                } else if (type === 'ERROR') {
+                    if (callbacks[id]) { callbacks[id].reject(new Error(error)); delete callbacks[id]; }
                 }
-            } else if (type === 'POPULATE_DONE') {
-                loadCalendarFromDB();
-            } else if (type === 'RESULT') {
-                if (callbacks[id]) { callbacks[id].resolve(data); delete callbacks[id]; }
-            } else if (type === 'EXPORT_RESULT') {
-                if (callbacks[id]) { callbacks[id].resolve(data); delete callbacks[id]; }
-            } else if (type === 'DEDUCE_AND_INSERT_DONE') {
-                if (callbacks[id]) { callbacks[id].resolve(); delete callbacks[id]; }
-            } else if (type === 'ERROR') {
-                if (callbacks[id]) { callbacks[id].reject(new Error(error)); delete callbacks[id]; }
-            }
-        };
+            };
+            return worker;
+        }
 
         function remoteQuery(query) {
             return new Promise((resolve, reject) => {
                 const id = queryId++;
                 callbacks[id] = { resolve, reject };
-                worker.postMessage({ type: 'QUERY', id, query });
+                ensureWorker().postMessage({ type: 'QUERY', id, query });
             });
         }
 
@@ -1120,7 +1221,7 @@
             return new Promise((resolve, reject) => {
                 const id = queryId++;
                 callbacks[id] = { resolve, reject };
-                worker.postMessage({ type: 'EXPORT', id });
+                ensureWorker().postMessage({ type: 'EXPORT', id });
             });
         }
 
@@ -1128,7 +1229,7 @@
             return new Promise((resolve, reject) => {
                 const id = queryId++;
                 callbacks[id] = { resolve, reject };
-                worker.postMessage({ type: 'DEDUCE_AND_INSERT', id, data: scores });
+                ensureWorker().postMessage({ type: 'DEDUCE_AND_INSERT', id, data: scores });
             });
         }
 
@@ -1140,63 +1241,137 @@
             
             const buf = await (fileBlob instanceof Blob ? fileBlob.arrayBuffer() : fileBlob);
             // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
-            worker.postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]);
+            ensureWorker().postMessage({ type: 'INIT', data: new Uint8Array(buf), wasmUrl: localWasmUrl }, [buf]);
+        }
+
+
+
+        async function updateDbInfoFromServer() {
+            let totalRecords = 0;
+            let dbPathInfo = `/Users/jywen/Downloads/For Lobster/static/${dbFileName}`;
+            let fileSizeMB = 0;
+            try {
+                const infoResp = await fetch(`${API_BASE}/api/db_info?name=${encodeURIComponent(dbFileName)}`);
+                if (infoResp.ok) {
+                    const info = await infoResp.json();
+                    if (info.status === 'success') {
+                        totalRecords = info.record_count;
+                        dbPathInfo = info.db_path;
+                        fileSizeMB = info.file_size;
+                        document.getElementById('db-status-text').textContent = `資料庫已載入 (${info.file_size} MB | 共 ${totalRecords.toLocaleString()} 筆紀錄)`;
+                    }
+                }
+            } catch (err) {
+                console.error("無法讀取資料庫資訊: ", err);
+            }
+            return { totalRecords, dbPathInfo, fileSizeMB };
+        }
+
+        async function updateMarqueeAndDbInfo() {
+            const tbody = document.getElementById('calendar-tbody');
+            const track = document.getElementById('marquee-track');
+            const marqueeBar = document.getElementById('marquee-bar');
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            const upcoming = [];
+            const seenNames = new Set();
+
+            const events = window.currentEvents || [];
+
+            events.forEach(ev => {
+                const name = ev.name;
+                if (seenNames.has(name)) return;
+
+                const evDate = parseEventDate(ev.date);
+                if (evDate && evDate >= now) {
+                    const diffTime = evDate - now;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays <= 30) {
+                        let countdownText = diffDays === 0 ? "今天舉辦" : `${diffDays} 天後`;
+                        
+                        upcoming.push({
+                            name: name,
+                            date: ev.date,
+                            loc: ev.location,
+                            countdown: countdownText
+                        });
+                        seenNames.add(name);
+                    }
+                }
+            });
+
+            // 獲取資料庫路徑與筆數資訊
+            const info = await updateDbInfoFromServer();
+            const totalRecords = info.totalRecords;
+            const dbPathInfo = info.dbPathInfo;
+            
+            // 拼接跑馬燈內容
+            let marqueeItems = [];
+            
+            // 1. 最近一個月的賽事
+            upcoming.forEach(ev => {
+                marqueeItems.push(
+                    `<span class="marquee-item">🏆 <strong>${ev.name}</strong> (${ev.date} · ${ev.loc}) <span style="color:#FFD933; margin-left:6px;">[${ev.countdown}]</span></span>`
+                );
+            });
+            
+            // 2. 資料庫路徑與筆數
+            const formattedTotal = Number(totalRecords).toLocaleString();
+            marqueeItems.push(
+                `<span class="marquee-item">📂 <strong>地端資料庫路徑：</strong> <code>${dbPathInfo}</code></span>`,
+                `<span class="marquee-item">📊 <strong>資料庫總數據量：</strong> <span style="color:#30D158; font-weight:bold;">${formattedTotal}</span> 筆成績</span>`
+            );
+
+            // 跑馬燈內容
+            track.innerHTML = marqueeItems.join(' <span style="margin: 0 40px; color: #444;">|</span> ');
+            marqueeBar.style.display = 'flex';
+        }
+
+        // 動態切換資料庫機制
+        async function switchDatabase(selectedDbName) {
+            OperationLogger.add('切換資料庫', selectedDbName);
+            dbFileName = selectedDbName;
+            
+            // 顯示載入遮罩
+            document.getElementById('lock-icon-el').textContent = '⏳';
+            document.getElementById('lock-title-el').textContent = '正在切換資料庫...';
+            document.getElementById('lock-desc-el').innerHTML = `正在從伺服器端切換至 ${selectedDbName}...`;
+            document.getElementById('dbLockOverlay').style.display = 'flex';
+            isDBLoaded = false;
+            if (window.parent) {
+                window.parent.isDBLoaded = false;
+            }
+            
+            try {
+                // 1. 從伺服器 API 重新載入行事曆
+                await loadCalendarFromDB();
+                
+                // 2. 更新跑馬燈與資料庫資訊
+                await updateMarqueeAndDbInfo();
+                
+                isDBLoaded = true;
+                if (window.parent) {
+                    window.parent.isDBLoaded = true;
+                }
+                document.getElementById('dbLockOverlay').style.display = 'none';
+            } catch (e) {
+                console.error("切換資料庫失敗:", e);
+                alert("切換資料庫失敗: " + e.message);
+                document.getElementById('dbLockOverlay').style.display = 'none';
+            }
         }
 
         // 偵測並加載資料庫
         async function startSystem() {
-            // 1. 優先嘗試直接從伺服器相對路徑自動載入正式資料庫
-            try {
-                const dbPath = isLocalHost ? '/static/swim_results_birthday.db' : 'static/swim_results_birthday.db';
-                const resp = await fetch(dbPath);
-                if (resp.ok) {
-                    const buf = await resp.arrayBuffer();
-                    const blob = new Blob([buf], { type: 'application/octet-stream' });
-                    loadDatabaseBuffer(blob);
-                    return;
-                }
-            } catch (e) {
-                console.log("無法自動載入正式資料庫，嘗試載入模板庫...", e);
+            isDBLoaded = true;
+            if (window.parent) {
+                window.parent.isDBLoaded = true;
             }
-
-            // 2. 備用：嘗試載入預建的模板資料庫 (只含有行事曆)
-            try {
-                const templatePath = isLocalHost ? '/static/swim_results_template.db' : 'static/swim_results_template.db';
-                const resp = await fetch(templatePath);
-                if (resp.ok) {
-                    const buf = await resp.arrayBuffer();
-                    const blob = new Blob([buf], { type: 'application/octet-stream' });
-                    loadDatabaseBuffer(blob);
-                    return;
-                }
-            } catch (e) {
-                console.log("無法自動載入模板資料庫，嘗試載入本地 IndexedDB...", e);
-            }
-
-            // 3. 備用：從本地 IndexedDB 讀取已快取的資料庫
-            const openReq = indexedDB.open("SwimSQL", 1);
-            openReq.onupgradeneeded = e => {
-                if (!e.target.result.objectStoreNames.contains("files")) {
-                    e.target.result.createObjectStore("files");
-                }
-            };
-            openReq.onsuccess = e => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains("files")) {
-                    showLockOverlay();
-                    return;
-                }
-                const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db");
-                getReq.onsuccess = async () => {
-                    if (getReq.result) {
-                        loadDatabaseBuffer(getReq.result);
-                    } else {
-                        showLockOverlay();
-                    }
-                };
-                getReq.onerror = () => showLockOverlay();
-            };
-            openReq.onerror = () => showLockOverlay();
+            document.getElementById('dbLockOverlay').style.display = 'none';
+            document.getElementById('uploadProgressContainer').style.display = 'none';
+            await loadCalendarFromDB();
+            await updateDbInfoFromServer();
         }
 
         function showLockOverlay() {
@@ -1233,7 +1408,7 @@
                         statusEl.textContent = "載入完畢，正在喚醒 SQL.js 引擎...";
                         document.getElementById('db-status-text').textContent = `資料庫已載入 (${(file.size / (1024 * 1024)).toFixed(1)} MB)`;
                         // 使用 Transferable Objects 零拷貝傳輸 buffer，防止手機內存崩潰
-                        worker.postMessage({ type: 'INIT', data: new Uint8Array(buffer), wasmUrl: localWasmUrl }, [buffer]);
+                        ensureWorker().postMessage({ type: 'INIT', data: new Uint8Array(buffer), wasmUrl: localWasmUrl }, [buffer]);
                     };
                 };
             } catch (err) {
@@ -1241,12 +1416,248 @@
             }
         }
 
-        // 匯出資料庫 (支援讓使用者選擇地端路徑並直接寫入複寫，或傳統下載)
-        async function exportDatabase() {
-            if (!isDBLoaded) return;
+        // 顯示高質感中央毛玻璃進度指示器 (Apple macOS 設計風格，支援進度條)
+        function showCentralStatus(message, isSuccess = false, isError = false, percent = null) {
+            let container = document.getElementById('central-status-overlay');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'central-status-overlay';
+                container.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:100000; backdrop-filter:blur(5px); transition: opacity 0.3s ease; opacity:0;";
+                
+                const card = document.createElement('div');
+                card.id = 'central-status-card';
+                card.style.cssText = "background:rgba(28,28,30,0.96); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:28px 36px; display:flex; flex-direction:column; align-items:center; gap:16px; box-shadow:0 12px 36px rgba(0,0,0,0.6); width:280px; text-align:center; transform:scale(0.85); transition:transform 0.3s ease; color:#FFFFFF; font-family:-apple-system,BlinkMacSystemFont,sans-serif;";
+                
+                const iconContainer = document.createElement('div');
+                iconContainer.id = 'central-status-icon';
+                iconContainer.style.cssText = "width:48px; height:48px; display:flex; justify-content:center; align-items:center; font-size:36px; line-height:1;";
+                
+                const text = document.createElement('div');
+                text.id = 'central-status-text';
+                text.style.cssText = "font-size:14px; font-weight:600; color:#FFFFFF; line-height:1.5; margin:0; padding:0;";
+                
+                // 進度條容器 (大仁哥要的進度列)
+                const progressContainer = document.createElement('div');
+                progressContainer.id = 'central-status-progress-container';
+                progressContainer.style.cssText = "width:100%; height:6px; background:rgba(255,255,255,0.15); border-radius:3px; margin-top:8px; display:none; overflow:hidden; position:relative;";
+                
+                const progressBar = document.createElement('div');
+                progressBar.id = 'central-status-progress-bar';
+                progressBar.style.cssText = "width:0%; height:100%; background:#30D158; border-radius:3px; transition:width 0.15s ease-out;";
+                
+                progressContainer.appendChild(progressBar);
+                
+                card.appendChild(iconContainer);
+                card.appendChild(text);
+                card.appendChild(progressContainer);
+                container.appendChild(card);
+                document.body.appendChild(container);
+            }
+            
+            const iconEl = document.getElementById('central-status-icon');
+            const textEl = document.getElementById('central-status-text');
+            const cardEl = document.getElementById('central-status-card');
+            const progressContainerEl = document.getElementById('central-status-progress-container');
+            const progressBarEl = document.getElementById('central-status-progress-bar');
+            
+            if (!document.getElementById('spin-keyframes')) {
+                const style = document.createElement('style');
+                style.id = 'spin-keyframes';
+                style.textContent = "@keyframes status-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }";
+                document.head.appendChild(style);
+            }
+            
+            if (isSuccess) {
+                iconEl.innerHTML = "✅";
+                iconEl.style.animation = "none";
+                textEl.textContent = message;
+                textEl.style.color = "#30D158";
+                progressContainerEl.style.display = "none";
+                
+                setTimeout(() => {
+                    container.style.opacity = "0";
+                    cardEl.style.transform = "scale(0.85)";
+                    setTimeout(() => {
+                        if (container.parentNode) container.parentNode.removeChild(container);
+                    }, 300);
+                }, 2000);
+            } else if (isError) {
+                iconEl.innerHTML = "❌";
+                iconEl.style.animation = "none";
+                textEl.textContent = message;
+                textEl.style.color = "#FF453A";
+                progressContainerEl.style.display = "none";
+                
+                setTimeout(() => {
+                    container.style.opacity = "0";
+                    cardEl.style.transform = "scale(0.85)";
+                    setTimeout(() => {
+                        if (container.parentNode) container.parentNode.removeChild(container);
+                    }, 300);
+                }, 2500);
+            } else {
+                if (percent !== null) {
+                    iconEl.innerHTML = "📤";
+                    iconEl.style.animation = "none";
+                    textEl.textContent = message;
+                    textEl.style.color = "#FFFFFF";
+                    progressContainerEl.style.display = "block";
+                    progressBarEl.style.width = `${percent}%`;
+                } else {
+                    iconEl.innerHTML = "🔄";
+                    iconEl.style.animation = "status-spin 1.2s linear infinite";
+                    textEl.textContent = message;
+                    textEl.style.color = "#FFFFFF";
+                    progressContainerEl.style.display = "none";
+                }
+                
+                container.offsetHeight; // force reflow
+                container.style.opacity = "1";
+                cardEl.style.transform = "scale(1)";
+            }
+        }
+
+        // 1. 📥 合併匯出到本地庫 (安全去重合併，絕不覆蓋，支援雙階段進度列)
+        async function mergeExportDatabase() {
+            OperationLogger.add('點擊合併到本地庫', { name: dbFileName });
+            
+            if (!('showOpenFilePicker' in window)) {
+                alert("❌ 您的瀏覽器不支援選擇本地檔案進行就地合併，請使用 Chrome 或 Edge 瀏覽器！");
+                return;
+            }
+            
             try {
-                const binary = await remoteExport();
-                const blob = new Blob([binary], { type: "application/x-sqlite3" });
+                // 1. 讓使用者選擇要合併的本地庫
+                const [handle] = await window.showOpenFilePicker({
+                    types: [{
+                        description: 'SQLite Database File',
+                        accept: { 'application/x-sqlite3': ['.db'] }
+                    }],
+                    excludeAcceptAllOption: true
+                });
+                
+                const file = await handle.getFile();
+                
+                // 顯示初始狀態
+                showCentralStatus("正在準備上傳資料庫...", false, false, 0);
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                // 使用 XMLHttpRequest 代替 fetch 以獲取真實上傳進度
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `${API_BASE}/api/merge_db?name=${encodeURIComponent(dbFileName)}`);
+                xhr.responseType = 'blob';
+                
+                let mergeProgressInterval = null;
+                let currentMergePercent = 0;
+                
+                // 1. 監聽第一階段：上傳進度
+                xhr.upload.addEventListener("progress", (evt) => {
+                    if (evt.lengthComputable) {
+                        const percent = Math.round((evt.loaded / evt.total) * 100);
+                        // 上傳進度最高到 99%
+                        const displayPercent = Math.min(percent, 99);
+                        showCentralStatus(`正在上傳本地庫... ${displayPercent}%`, false, false, displayPercent);
+                    } else {
+                        showCentralStatus("正在上傳本地庫...", false, false, 0);
+                    }
+                }, false);
+                
+                // 2. 當第一階段上傳完成，開始第二階段：去重與合併寫入模擬進度列 (讓大仁哥能看見合併進度)
+                xhr.upload.addEventListener("load", () => {
+                    showCentralStatus("上傳完成！正在進行去重與合併寫入... 0%", false, false, 0);
+                    
+                    // 模擬第二階段進度 (平滑增長至 98%)
+                    currentMergePercent = 0;
+                    mergeProgressInterval = setInterval(() => {
+                        if (currentMergePercent < 80) {
+                            currentMergePercent += Math.floor(Math.random() * 8) + 4; // 隨機增加 4-11%
+                        } else if (currentMergePercent < 95) {
+                            currentMergePercent += Math.floor(Math.random() * 3) + 1; // 隨機增加 1-3%
+                        } else if (currentMergePercent < 98) {
+                            currentMergePercent += 1;
+                        }
+                        
+                        showCentralStatus(`正在進行去重與合併寫入... ${currentMergePercent}%`, false, false, currentMergePercent);
+                    }, 150); // 每 150 毫秒更新一次
+                });
+                
+                // 3. 監聽後台響應結果
+                xhr.onload = async () => {
+                    // 清除第二階段進度定時器
+                    if (mergeProgressInterval) {
+                        clearInterval(mergeProgressInterval);
+                        mergeProgressInterval = null;
+                    }
+                    
+                    if (xhr.status === 200) {
+                        const mergedBlob = xhr.response;
+                        try {
+                            showCentralStatus("正在將合併後的檔案寫入本地端... 99%", false, false, 99);
+                            const writable = await handle.createWritable();
+                            await writable.write(mergedBlob);
+                            await writable.close();
+                            
+                            // 強拉至 100% 並呈現成功打勾
+                            showCentralStatus(`合併完成！新成績已追加至 ${file.name}`, true);
+                            OperationLogger.add('合併資料庫成功', { localDbName: file.name }, 'SUCCESS');
+                        } catch (wErr) {
+                            showCentralStatus(`寫入檔案失敗: ${wErr.message}`, false, true);
+                            OperationLogger.add('合併資料庫寫入失敗', { error: wErr.message }, 'ERROR');
+                        }
+                    } else {
+                        // 處理伺服器端錯誤返回
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            try {
+                                const errData = JSON.parse(reader.result);
+                                showCentralStatus(`合併失敗: ${errData.message || "未知錯誤"}`, false, true);
+                            } catch (e) {
+                                showCentralStatus(`合併失敗: HTTP ${xhr.status}`, false, true);
+                            }
+                        };
+                        reader.readAsText(xhr.response);
+                        OperationLogger.add('合併資料庫後端失敗', { status: xhr.status }, 'ERROR');
+                    }
+                };
+                
+                xhr.onerror = () => {
+                    if (mergeProgressInterval) {
+                        clearInterval(mergeProgressInterval);
+                        mergeProgressInterval = null;
+                    }
+                    showCentralStatus("網路連線錯誤，合併失敗", false, true);
+                    OperationLogger.add('合併資料庫網路錯誤', {}, 'ERROR');
+                };
+                
+                xhr.send(formData);
+                
+            } catch (err) {
+                if (err.name === 'AbortError') return;
+                showCentralStatus(`合併失敗: ${err.message}`, false, true);
+                OperationLogger.add('合併資料庫初始化失敗', { error: err.message }, 'ERROR');
+            }
+        }
+
+        // 2. 💾 直接另存新資料庫 (提供強烈警示)
+        async function downloadDatabaseDirect() {
+            OperationLogger.add('點擊另存為新庫', { name: dbFileName });
+            
+            const confirmSave = confirm(
+                "⚠️ 另存新檔安全警示：\n\n" +
+                "此功能會將整合平台目前的完整資料庫另存到本地。\n" +
+                "如果您在接下來的視窗中選擇了「已有的舊資料庫檔案」，該舊檔案原有的歷史資料將會被完全覆蓋！\n\n" +
+                "💡 提示：若您想保留舊檔案資料並加入新成績，請取消並改用綠色的「合併到本地庫」按鈕。\n\n" +
+                "您確定要繼續另存/備份資料庫嗎？"
+            );
+            
+            if (!confirmSave) return;
+            
+            try {
+                const resp = await fetch(`${API_BASE}/api/download_any_db?name=${encodeURIComponent(dbFileName)}`);
+                if (!resp.ok) throw new Error("下載伺服器資料庫失敗");
+                const blob = await resp.blob();
                 
                 // 嘗試使用 File System Access API
                 if ('showSaveFilePicker' in window) {
@@ -1264,13 +1675,11 @@
                         const writable = await handle.createWritable();
                         await writable.write(blob);
                         await writable.close();
-                        alert("資料庫已成功存檔並覆蓋地端檔案！");
+                        alert("資料庫已成功另存新檔！");
+                        OperationLogger.add('另存資料庫成功', { name: dbFileName }, 'SUCCESS');
                         return;
                     } catch (err) {
-                        // 如果使用者取消 (AbortError)，則不執行任何動作
-                        if (err.name === 'AbortError') {
-                            return;
-                        }
+                        if (err.name === 'AbortError') return;
                         console.warn("直接寫入地端失敗，改用傳統下載: ", err);
                     }
                 }
@@ -1284,41 +1693,34 @@
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                alert("資料庫已成功匯出至您的下載資料夾，請覆蓋您原先的資料庫檔案。");
+                alert("資料庫已成功下載至您的下載資料夾，請覆蓋您原先的資料庫檔案。");
+                OperationLogger.add('傳統下載資料庫成功', { name: dbFileName }, 'SUCCESS');
             } catch(err) {
-                alert("匯出失敗: " + err.message);
+                alert("另存失敗: " + err.message);
+                OperationLogger.add('另存資料庫失敗', { name: dbFileName, error: err.message }, 'ERROR');
             }
         }
 
         // 從資料庫加載行事曆
         async function loadCalendarFromDB() {
+            OperationLogger.add('加載行事曆', { dbFileName });
             const tbody = document.getElementById('calendar-tbody');
             try {
-                const queryStr = `
-                    SELECT 'ctsa' as src, event_name as name, event_date as date, location, '中華泳協' as organizer, pdf_url as remark FROM ctsa_news_calendar
-                    UNION ALL
-                    SELECT 'swim8' as src, event_name as name, event_date as date, location, '台中市體育總會游泳委員會' as organizer, pdf_url as remark FROM swim8_news_calendar WHERE event_date != '非賽事公告'
-                    UNION ALL
-                    SELECT 'tainan' as src, event_name as name, event_date as date, location, '台南市體育總會游泳委員會' as organizer, pdf_url as remark FROM tainan_news_calendar WHERE event_date != '非賽事公告'
-                    UNION ALL
-                    SELECT 'kcc' as src, event_name as name, event_date as date, location, '高雄市體育總會游泳委員會' as organizer, pdf_url as remark FROM kcc_news_calendar WHERE event_date != '非賽事公告'
-                    UNION ALL
-                    SELECT 'swim_kcsat' as src, event_name as name, event_date as date, location, '高雄水上' as organizer, pdf_url as remark FROM swim_kcsat_news_calendar WHERE event_date != '非賽事公告'
-                    UNION ALL
-                    SELECT 'tpesa' as src, event_name as name, event_date as date, location, '台北體育總會游泳協會' as organizer, pdf_url as remark FROM tpesa_news_calendar WHERE event_date != '非賽事公告'
-                    UNION ALL
-                    SELECT 'ctusf' as src, event_name as name, event_date as date, location, '大專體總' as organizer, pdf_url as remark FROM ctusf_news_calendar WHERE event_date != '非賽事公告'
-                `;
+                tbody.innerHTML = `<tr><td colspan="5" class="loading-cell text-gray-500">⏳ 正在從伺服器載入行事曆...</td></tr>`;
                 
-                const res = await remoteQuery(queryStr);
+                const resp = await fetch(`${API_BASE}/api/calendar?name=${encodeURIComponent(dbFileName)}`);
+                if (!resp.ok) throw new Error("取得行事曆失敗");
+                const resJson = await resp.json();
+                
                 let events = [];
-                
-                if (res && res.length > 0) {
-                    events = res;
+                if (resJson && resJson.status === 'success' && resJson.data) {
+                    events = resJson.data;
                 } else {
                     tbody.innerHTML = `<tr><td colspan="5" class="loading-cell text-gray-500">📭 行事曆為空，請點選上方更新專區進行同步。</td></tr>`;
                     return;
                 }
+
+                window.currentEvents = events;
 
                 const now = new Date();
                 const currentYear = now.getFullYear();
@@ -1440,19 +1842,22 @@
                 }
             });
 
-            // 獲取資料庫總筆數
+            // 獲取資料庫路徑與筆數資訊
             let totalRecords = 0;
+            let dbPathInfo = `/Users/jywen/Downloads/For Lobster/static/${dbFileName}`;
             try {
-                const countRes = await remoteQuery("SELECT COUNT(*) as total FROM swimming_scores");
-                if (countRes && countRes[0]) {
-                    totalRecords = countRes[0].total;
+                const infoResp = await fetch(`/api/db_info?name=${encodeURIComponent(dbFileName)}`);
+                if (infoResp.ok) {
+                    const info = await infoResp.json();
+                    if (info.status === 'success') {
+                        totalRecords = info.record_count;
+                        dbPathInfo = info.db_path;
+                        document.getElementById('db-status-text').textContent = `資料庫已載入 (${info.file_size} MB)`;
+                    }
                 }
             } catch (err) {
-                console.error("無法讀取資料庫筆數: ", err);
+                console.error("無法讀取資料庫資訊: ", err);
             }
-
-            // 資料庫路徑與筆數資訊
-            const dbPathInfo = `/Users/jywen/Downloads/For Lobster/static/${dbFileName}`;
             
             // 拼接跑馬燈內容
             let marqueeItems = [];
@@ -1477,6 +1882,8 @@
             // 跑馬燈總是顯示，因為即使沒有即將舉行的賽事，也要顯示路徑與數據量資訊
             marqueeBar.style.display = 'flex';
         }
+
+
 
         // CORS 代理請求輔助工具
         const CORS_PROXY = "https://corsproxy.io/?";
@@ -1523,7 +1930,7 @@
 
             // 1. 優先使用本站伺服器端代理 /api/proxy（零 CORS 限制，無逾時問題）
             try {
-                const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+                const proxyUrl = `${API_BASE}/api/proxy?url=${encodeURIComponent(url)}`;
                 const resp = await fetch(proxyUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -1533,24 +1940,7 @@
                     return await parseProxyResponse(resp);
                 }
             } catch (e) {
-                console.warn("[Proxy 1/3] 本站代理失敗，改用 AllOrigins: ", e);
-            }
-
-            // 2. Fallback: AllOrigins GET wrapper（將 POST 轉 GET）
-            const targetUrl = url + "?" + query.toString();
-            try {
-                const aoUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-                const resp = await fetch(aoUrl);
-                if (resp.ok) {
-                    const json = await resp.json();
-                    if (json.contents) {
-                        const text = json.contents;
-                        try { return JSON.parse(text); } catch(e) {}
-                        return { html: text, select: text };
-                    }
-                }
-            } catch (e) {
-                console.warn("[Proxy 2/3] AllOrigins 失敗，改用 corsproxy.io: ", e);
+                console.warn("[Proxy 1/2] 本站代理失敗，改用 corsproxy.io: ", e);
             }
 
             // 3. Fallback: corsproxy.io POST
@@ -1573,7 +1963,7 @@
 
             try {
                 // 呼叫 Vercel /api/races?site=xxx，由伺服器端爬取賽事清單
-                const resp = await fetch(`/api/races?site=${siteId}`);
+                const resp = await fetch(`${API_BASE}/api/races?site=${siteId}`);
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 const data = await resp.json();
 
@@ -1622,6 +2012,11 @@
                 alert("請選擇一場賽事！");
                 return;
             }
+            
+            OperationLogger.add('點擊下載更新賽事', { siteId, gameId, gameName });
+
+            // 確保資料庫已載入以準備寫入成績
+            await ensureDBLoaded();
 
             const progressContainer = document.getElementById(`progress-container-${siteId}`);
             const statusEl = document.getElementById(`status-${siteId}`);
@@ -1644,199 +2039,97 @@
                 consoleEl.scrollTop = consoleEl.scrollHeight;
             }
 
-            addCardLog(`📡 [CORS] 連接至 ${siteId === 'site_a' ? 'Swim8' : '高雄水上'} 伺服器中...`);
+            addCardLog(`📡 [數據管道] 正在啟動伺服器端爬蟲，連接至賽事伺服器...`);
 
             try {
-                const baseUrl = siteId === 'site_a' ? 'https://swim8.kcsat.org/' : 'https://swim.kcsat.org/';
-                
-                // 1. 取得所有組別
-                addCardLog("正在獲取所有組別 (Game Levels)...");
-                const levelsData = await postJsonWithProxy(baseUrl + "game/get_game_level", { i: gameId });
-                const selectHtml = levelsData.select || "";
-                
-                const parser = new DOMParser();
-                const lvlDoc = parser.parseFromString(selectHtml, 'text/html');
-                const lvlOpts = lvlDoc.querySelectorAll('option');
-                const levels = [];
-                
-                lvlOpts.forEach(opt => {
-                    const val = opt.value.trim();
-                    if (val && val !== '0') {
-                        levels.push({ id: val, name: opt.textContent.trim() });
-                    }
+                const response = await fetch(`${API_BASE}/api/download`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        site: siteId,
+                        value: gameId,
+                        name: gameName,
+                        save_to_birthday: dbFileName === 'swim_results_birthday.db'
+                    })
                 });
 
-                if (levels.length === 0) {
-                    throw new Error("未找到任何比賽組別。");
+                if (!response.ok) {
+                    throw new Error(`HTTP 錯誤: ${response.status}`);
                 }
 
-                addCardLog(`🎯 成功解析 ${levels.length} 個組別。開始獲取各組別項目...`);
-                progressBar.style.width = '15%';
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
 
-                // 2. 獲取項目
-                const allQueries = [];
-                for (let i = 0; i < levels.length; i++) {
-                    const lvl = levels[i];
-                    const eventsData = await postJsonWithProxy(baseUrl + "game/get_game_event", { i: gameId, ei: lvl.id });
-                    const evDoc = parser.parseFromString(eventsData.select || "", 'text/html');
-                    const evOpts = evDoc.querySelectorAll('option');
-                    
-                    evOpts.forEach(opt => {
-                        const val = opt.value.trim();
-                        if (val && val !== '0') {
-                            allQueries.push({
-                                level_id: lvl.id,
-                                level_name: lvl.name,
-                                event_id: val,
-                                event_name: opt.textContent.trim()
-                            });
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n\n");
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        const trimmedLine = line.trim();
+                        if (trimmedLine.startsWith("data: ")) {
+                            try {
+                                const data = JSON.parse(trimmedLine.slice(6));
+                                if (data.status === 'progress') {
+                                    progressBar.style.width = `${data.percent}%`;
+                                    statusEl.textContent = `下載中: ${data.percent}%`;
+                                    addCardLog(data.message);
+                                } else if (data.status === 'success') {
+                                    progressBar.style.width = '100%';
+                                    statusEl.textContent = "✅ 更新入庫成功！";
+                                    addCardLog(data.message, "success");
+                                    OperationLogger.add('更新賽事成功', { siteId, gameId, message: data.message }, 'SUCCESS');
+                                } else if (data.status === 'error') {
+                                    throw new Error(data.message);
+                                }
+                            } catch (e) {
+                                console.warn("解析 SSE 訊息失敗: ", trimmedLine, e);
+                            }
                         }
-                    });
-                    
-                    progressBar.style.width = `${15 + Math.round((i / levels.length) * 15)}%`;
-                }
-
-                addCardLog(`📋 解析出總共 ${allQueries.length} 個成績項目。開始併發下載成績資料...`);
-                
-                // 3. 下載與解析成績
-                const allScores = [];
-                const concurrencyLimit = 5; 
-                let completedCount = 0;
-
-                let yearStr = new Date().getFullYear().toString() + "0101";
-                const yrMatch = gameName.match(/(\d{4})/);
-                if (yrMatch) {
-                    yearStr = yrMatch[1] + "0101";
-                } else {
-                    const rocMatch = gameName.match(/(\d{3})年/);
-                    if (rocMatch) {
-                        yearStr = (parseInt(rocMatch[1]) + 1911).toString() + "0101";
                     }
                 }
 
-                for (let i = 0; i < allQueries.length; i += concurrencyLimit) {
-                    const batch = allQueries.slice(i, i + concurrencyLimit);
-                    const batchPromises = batch.map(async (q) => {
-                        try {
-                            const resData = await postJsonWithProxy(baseUrl + "game/get_search_result", {
-                                i: gameId,
-                                li: q.level_id,
-                                ei: q.event_id
-                            });
-                            
-                            const html = resData.html || "";
-                            if (!html) return;
-                            
-                            const scoreDoc = parser.parseFromString(html, 'text/html');
-                            const table = scoreDoc.querySelector('table.result_list');
-                            if (!table) return;
-                            
-                            const rows = table.querySelectorAll('tr');
-                            if (rows.length <= 1) return;
-                            
-                            const headers = Array.from(rows[0].querySelectorAll('th, td')).map(x => x.textContent.trim());
-                            
-                            for (let rIdx = 1; rIdx < rows.length; rIdx++) {
-                                const cells = rows[rIdx].querySelectorAll('td, th');
-                                if (cells.length !== headers.length) continue;
-                                
-                                const rowData = {};
-                                headers.forEach((h, cIdx) => {
-                                    rowData[h] = cells[cIdx].textContent.trim();
-                                });
-                                
-                                const name = rowData["運動員"] || "";
-                                const timeVal = rowData["比賽成績"] || "";
-                                if (!name || !timeVal) continue;
-                                
-                                allScores.push({
-                                    年份: yearStr,
-                                    賽事名稱: gameName,
-                                    項目: q.event_name,
-                                    組別: q.level_name,
-                                    水道: "",
-                                    單位: rowData["泳隊名稱"] || "",
-                                    姓名: name,
-                                    性別: q.level_name.includes("女") ? "女" : (q.level_name.includes("男") ? "男" : ""),
-                                    成績: timeVal.replace("：", ":"),
-                                    名次: rowData["名次"] || "",
-                                    積分: "",
-                                    備註: rowData["備註"] || "",
-                                    成績報告網址: `${baseUrl}score_search#game=${gameId}&level=${q.level_id}&event=${q.event_id}`
-                                });
-                            }
-                        } catch(err) {
-                            console.error(`項目下載失敗 (${q.event_name}):`, err);
-                        } finally {
-                            completedCount++;
-                            const progressVal = 30 + Math.round((completedCount / allQueries.length) * 55);
-                            progressBar.style.width = `${progressVal}%`;
-                            statusEl.textContent = `下載進度: ${completedCount}/${allQueries.length}`;
-                        }
-                    });
-                    
-                    await Promise.all(batchPromises);
-                }
-
-                addCardLog(`💾 爬取完成！成功抓取 ${allScores.length} 筆原始成績數據。`);
-                addCardLog("正在進行地端資料庫推算與寫入作業...");
-                progressBar.style.width = '90%';
-
-                // 4. WASM 推算並寫入庫
-                await remoteInsertScores(allScores);
-                
-                progressBar.style.width = '100%';
-                statusEl.textContent = "✅ 更新入庫成功！";
-                 addCardLog("🎉 資料庫已快取更新至 IndexedDB。", "success");
-                 addCardLog("👉 變更已安全儲存於瀏覽器快取，下次開啟將自動套用最新數據。", "success");
-
-                // 更新 IndexedDB 中的資料庫大小
-                const openReq = indexedDB.open("SwimSQL", 1);
-                openReq.onsuccess = async (e) => {
-                    const idb = e.target.result;
-                    const tx = idb.transaction("files", "readwrite");
-                    const binary = await remoteExport();
-                    const updatedBlob = new Blob([binary], { type: "application/x-sqlite3" });
-                    tx.objectStore("files").put(updatedBlob, "current_db");
-                    
-                    // 儲存資料庫元數據，供查詢頁面顯示
-                    const info = { name: dbFileName || "swim_results_birthday.db", size: updatedBlob.size, loadedAt: new Date().toISOString() };
-                    tx.objectStore("files").put(info, "db_info");
-                    
-                    tx.oncomplete = async () => {
-                        document.getElementById('db-status-text').textContent = `資料庫已載入 (${(updatedBlob.size / (1024 * 1024)).toFixed(1)} MB)`;
-                        loadCalendarFromDB(); // 刷新行事曆表
-
-                        // 針對本地 Flask 伺服器，自動同步覆蓋寫入地端實體資料庫檔案
-                        if (isLocalHost) {
-                            try {
-                                const saveResp = await fetch(`/api/save_db?name=${encodeURIComponent(dbFileName || 'swim_results_birthday.db')}`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/octet-stream' },
-                                    body: binary
-                                });
-                                if (saveResp.ok) {
-                                    addCardLog("💾 自動同步：最新數據已成功存檔至本機目錄！", "success");
-                                } else {
-                                    console.warn("自動同步後台失敗");
-                                }
-                            } catch (saveErr) {
-                                console.error("自動同步後台異常:", saveErr);
-                            }
-                        }
-                    };
-                };
+                // 重新載入行事曆與資料庫狀態跑馬燈
+                await loadCalendarFromDB();
+                await updateMarqueeAndDbInfo();
 
             } catch (err) {
                 progressBar.style.width = '100%';
                 statusEl.textContent = "❌ 更新失敗";
                 addCardLog(`錯誤原因: ${err.message}`, "error");
+                OperationLogger.add('更新賽事失敗', { siteId, gameId, error: err.message }, 'ERROR');
             }
         }
 
-        window.addEventListener('DOMContentLoaded', startSystem);
+        function ensureDBLoaded() {
+            isDBLoaded = true;
+            if (window.parent) {
+                window.parent.isDBLoaded = true;
+            }
+            document.getElementById('dbLockOverlay').style.display = 'none';
+            startSystem();
+            return Promise.resolve();
+        }
 
-        // [iOS / macOS Gesture] 監聽手勢向左滑動 (Swipe Left)，跳轉到成績查詢系統 (index.html)
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // 立即非同步載入資料庫，並於就緒後自動載入行事曆
+            ensureDBLoaded().then(() => {
+                loadCalendarFromDB();
+            });
+            // 立即非同步載入賽事下拉選單，提升首開與切換速度！
+            loadRecentGamesList('site_a');
+            loadRecentGamesList('site_b');
+            loadRecentGamesList('site_c');
+            loadRecentGamesList('site_d');
+            loadRecentGamesList('site_e');
+        });
+
+        // [iOS / macOS Gesture] 監聽手勢向左滑動 (Swipe Left)，跳轉到成績查詢系統 (query)
         let touchstartX = 0;
         let touchendX = 0;
         document.addEventListener('touchstart', e => {
@@ -1845,9 +2138,71 @@
         document.addEventListener('touchend', e => {
             touchendX = e.changedTouches[0].screenX;
             if (touchendX < touchstartX - 100) {
-                window.location.href = 'index.html';
+                if (window.self !== window.top) {
+                    window.parent.postMessage({ switchTab: 'query' }, '*');
+                } else {
+                    window.location.href = 'index.html';
+                }
             }
         }, {passive: true});
+        
+        // 3D 翻書效果導航攔截
+        document.addEventListener('DOMContentLoaded', () => {
+            // 偵測是否被嵌入於 iframe，若嵌入則隱藏中央導覽並僅保留右側狀態與切換開關
+            if (window.self !== window.top) {
+                const headerCenter = document.querySelector('.header-center-area');
+                if (headerCenter) {
+                    headerCenter.style.setProperty('display', 'none', 'important');
+                }
+                const mainHeader = document.getElementById('main-header');
+                if (mainHeader) {
+                    mainHeader.style.justifyContent = 'flex-end';
+                    mainHeader.style.minHeight = '36px';
+                    mainHeader.style.marginBottom = '1rem';
+                }
+            }
+
+            const pageContainer = document.querySelector('.page-container') || document.querySelector('.container');
+            if (pageContainer) {
+                pageContainer.classList.add('page-enter-active');
+            }
+            
+            document.querySelectorAll('header a, nav a, .header-center-area a').forEach(link => {
+                if (link.target === '_blank' || link.href.startsWith('javascript:') || link.href.includes('#') || !link.href) return;
+                
+                const hrefAttr = link.getAttribute('href');
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (window.self !== window.top && hrefAttr && hrefAttr.endsWith('.html')) {
+                        const tabMap = {
+                            'query.html': 'query',
+                            'index.html': 'query',
+                            'manage.html': 'manage',
+                            'view_db.html': 'view_db',
+                            'wealth.html': 'wealth',
+                            'car.html': 'car',
+                            'system_messages.html': 'system_messages'
+                        };
+                        const tabId = tabMap[hrefAttr];
+                        if (tabId) {
+                            window.parent.postMessage({ switchTab: tabId }, '*');
+                            return;
+                        }
+                    }
+
+                    const target = link.href;
+                    if (pageContainer) {
+                        pageContainer.classList.remove('page-enter-active');
+                        pageContainer.classList.add('page-exit-active');
+                        setTimeout(() => {
+                            window.location.href = target;
+                        }, 550);
+                    } else {
+                        window.location.href = target;
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

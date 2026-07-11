@@ -351,7 +351,8 @@
             statusEl.textContent = "正在自伺服器下載游泳成績資料庫 (約 290MB)...";
             
             try {
-                const response = await fetch('/api/birthday_db');
+                // 直接使用 GitHub Release 雲端最新直鏈 (避開 Vercel 100MB 限制並保持所有人讀取最新庫)
+                const response = await fetch('https://github.com/jenyuwen-rgb/jywen/releases/download/latest/swim_results_birthday.db');
                 if (!response.ok) throw new Error("下載失敗");
                 
                 const contentLength = response.headers.get('content-length');
