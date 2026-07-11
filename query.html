@@ -31,7 +31,7 @@
         .col-name-fixed { width: 85px; flex-shrink: 0; font-weight: bold; margin-left: 2px; }
         .col-time-fixed { width: 80px; flex-shrink: 0; font-family: monospace; font-weight: bold; }
         .col-wa-list { width: 75px; flex-shrink: 0; font-family: monospace; }
-        .col-8code-fixed { width: 85px; flex-shrink: 0; font-family: monospace; }
+        .col-8code-fixed { width: 105px; flex-shrink: 0; font-family: monospace; margin-right: 15px; }
         .col-meet-fixed { flex: 1; overflow: hidden; text-overflow: ellipsis; padding-left: 10px; }
 
         .rank-header-AD { display: flex; justify-content: center; align-items: center; background: #2C2C2E; padding: 10px; border-radius: 12px; margin-bottom: 15px; gap: 20px; border: 0.5px solid #444; }
@@ -193,6 +193,7 @@
         function normalizeName(n) { return n ? String(n).replace(/溫/g, '温').trim() : ""; }
         function timeToSec(t) { if (!t) return 0; const s = String(t).trim(), p = s.split(/[:.]/); if (p.length === 3) return parseInt(p[0])*60 + parseInt(p[1]) + parseInt(p[2])/100; if (p.length === 2) return s.includes(':') ? parseInt(p[0])*60 + parseInt(p[1]) : parseInt(p[0]) + parseInt(p[1])/100; return parseFloat(s) || 0; }
         function formatToXcode(s) { if (isNaN(s) || s <= 0) return "00.00"; const m = Math.floor(s/60), ss = Math.floor(s%60), cc = String(Math.round((s-Math.floor(s))*100)).padStart(2,'0'); return m === 0 ? `${ss}.${cc}` : `${m}:${String(ss).padStart(2,'0')}.${cc}`; }
+        function formatDateStr(d) { if (!d || String(d).length !== 8) return d; const s = String(d); return `${s.substring(0,4)}-${s.substring(4,6)}-${s.substring(6,8)}`; }
         function toAD(y) { const num = parseInt(String(y).replace(/\D/g, '')); return num < 1900 ? num + 1911 : num; }
 
         function getWA(dist, stroke, timeStr, sex) {
@@ -316,13 +317,13 @@
                     headerAD = `<div class="rank-header-AD"><span class="year-center" style="color:#FFF;">全國排行 (2025-2026)</span></div>`;
                 }
                 let h = `<div class="data-panel p-3">${headerAD}<div style="overflow-x:auto;"><div style="min-width:610px;">`;
-                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${r.name===p1?'row-gold':''}"><span class="col-rank-fixed">#${i+1}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${r.fullDate}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
+                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${r.name===p1?'row-gold':''}"><span class="col-rank-fixed">#${i+1}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
                 const total = sorted.length, tIdx = sorted.findIndex(r => r.name === p1);
                 if (total > 0) {
                     h += `<div style="border-top:1px solid #444; margin:12px 0 8px 0;"></div>`;
                     if (tIdx >= 0) {
                         const u = sorted[tIdx], pr = (100 * (total - tIdx) / total).toFixed(1);
-                        h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${tIdx+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${u.fullDate}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
+                        h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${tIdx+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${formatDateStr(u.fullDate)}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
                     }
                 }
                 c.innerHTML = h + "</div></div></div>";
@@ -360,7 +361,7 @@
                 });
                 const minS = fR.length > 0 ? Math.min(...fR.map(v => timeToSec(v[1]))) : 0;
                 let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">歷年紀錄</div>`;
-                fR.forEach(v => { const s = timeToSec(v[1]); h += `<div class="list-row ${s===minS?'row-gold':''}"><span class="col-8code-fixed">${v[0]}</span><span class="col-time-fixed">${formatToXcode(s)}</span><span class="col-meet-fixed">${v[2]}</span></div>`; });
+                fR.forEach(v => { const s = timeToSec(v[1]); h += `<div class="list-row ${s===minS?'row-gold':''}"><span class="col-8code-fixed">${formatDateStr(v[0])}</span><span class="col-time-fixed">${formatToXcode(s)}</span><span class="col-meet-fixed">${v[2]}</span></div>`; });
                 c.innerHTML = h + "</div>";
             }
         }
