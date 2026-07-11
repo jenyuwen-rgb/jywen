@@ -417,16 +417,82 @@
     </div>
 
     <script>
+        // 智慧偵測本地 Python 伺服器基底網址
+        const API_BASE = (window.location.protocol === 'file:' || !window.location.host.includes('5001'))
+            ? 'http://127.0.0.1:5001'
+            : '';
+
+        // 全局前端操作日誌系統
+        const OperationLogger = {
+            logs: [],
+            add(action, details, status = 'INFO') {
+                const timestamp = new Date().toISOString();
+                const detailStr = typeof details === 'object' ? JSON.stringify(details) : String(details);
+                const logEntry = `[${timestamp}] [${status}] ${action}: ${detailStr}`;
+                this.logs.push(logEntry);
+                console.log(`[OperationLogger] ${logEntry}`);
+                
+                // 同步發送至地端後台
+                fetch(`${API_BASE}/api/log_action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ timestamp, status, action, details: detailStr })
+                }).catch(e => console.warn('[Log Sync Error] Backend log write failed:', e));
+            },
+            export() {
+                const blob = new Blob([this.logs.join('\n')], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `wealth_operation_logs_${new Date().getTime()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        };
+
+        // 監聽 ⌘L 或 Ctrl+L 快捷鍵導出前端日誌
+        window.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'l') {
+                e.preventDefault();
+                OperationLogger.export();
+            }
+        });
+
+        // 監聽全域 JavaScript 錯誤與未處理的 Promise Rejection
+        window.addEventListener('error', (e) => {
+            OperationLogger.add('JavaScript 錯誤', {
+                message: e.message,
+                filename: e.filename,
+                lineno: e.lineno,
+                colno: e.colno,
+                error: e.error ? e.error.stack : null
+            }, 'ERROR');
+        });
+
+        window.addEventListener('unhandledrejection', (e) => {
+            OperationLogger.add('Unhandled Promise Rejection', {
+                reason: e.reason ? (e.reason.message || String(e.reason)) : 'Unknown reason',
+                stack: e.reason ? e.reason.stack : null
+            }, 'ERROR');
+        });
+
+        // 初始化頁面日誌
+        OperationLogger.add('載入理財分析頁面', { url: window.location.href });
+
         let dbData = [];
         let currentStock = '0050';
 
         // 載入資料庫資料
         async function loadData() {
+            OperationLogger.add('載入理財資料庫', { stock: currentStock });
             try {
                 const resp = await fetch(`/api/wealth_data?stock=${currentStock}`);
                 if (resp.ok) {
                     const payload = await resp.json();
                     dbData = payload.data || [];
+                    OperationLogger.add('載入理財資料庫成功', { count: dbData.length }, 'SUCCESS');
 
                     if (dbData.length > 0) {
                         const statusText = document.getElementById('db-status-text');
@@ -485,15 +551,18 @@
                     } else {
                         const statusText = document.getElementById('db-status-text');
                         if (statusText) statusText.textContent = "資料庫無數據";
+                        OperationLogger.add('載入理財資料庫無數據', {}, 'WARNING');
                     }
                 } else {
                     const statusText = document.getElementById('db-status-text');
                     if (statusText) statusText.textContent = "載入失敗";
+                    OperationLogger.add('載入理財資料庫失敗', { status: resp.status }, 'ERROR');
                 }
             } catch (err) {
                 console.error("載入理財資料出錯: ", err);
                 const statusText = document.getElementById('db-status-text');
                 if (statusText) statusText.textContent = "連線失敗";
+                OperationLogger.add('載入理財資料庫網路或運行期錯誤', { error: err.message }, 'ERROR');
             }
         }
 
@@ -1471,6 +1540,7 @@
             const txt = document.getElementById('sync-text');
             if (!btn) return;
 
+            OperationLogger.add('點擊同步對帳單按鈕', {});
             btn.disabled = true;
             btn.style.color = '#8E8E93';
             btn.style.borderColor = '#3A3A3C';
@@ -1482,11 +1552,14 @@
                 const json = await resp.json();
                 if (json.status === 'success') {
                     showToast("✅ 對帳單同步完成！已成功抓取並更新資料庫！");
+                    OperationLogger.add('同步對帳單成功', json, 'SUCCESS');
                 } else {
                     showToast("❌ 同步失敗: " + json.message);
+                    OperationLogger.add('同步對帳單失敗', { message: json.message }, 'ERROR');
                 }
             } catch (err) {
                 showToast("❌ 同步異常: " + err);
+                OperationLogger.add('同步對帳單連線或運行期異常', { error: err.message }, 'ERROR');
             } finally {
                 btn.disabled = false;
                 btn.style.color = '#30D158';

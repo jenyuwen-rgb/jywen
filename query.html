@@ -165,10 +165,30 @@
         }
         initWorker();
 
-        function remoteQuery(query) {
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5001';
+
+        async function remoteQuery(query) {
+            if (isLocal) {
+                try {
+                    const response = await fetch('/api/local_query', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query })
+                    });
+                    const res = await response.json();
+                    if (res.status === 'success') {
+                        return res.data;
+                    } else {
+                        console.error('本地查詢出錯:', res.message);
+                    }
+                } catch (e) {
+                    console.error('本地查詢連線失敗，降級使用 Web Worker:', e);
+                }
+            }
             const id = Date.now() + Math.random();
             return new Promise(resolve => { queryCallbacks[id] = resolve; worker.postMessage({ type: 'QUERY', query, id }); });
         }
+
 
         function normalizeName(n) { return n ? String(n).replace(/溫/g, '温').trim() : ""; }
         function timeToSec(t) { if (!t) return 0; const s = String(t).trim(), p = s.split(/[:.]/); if (p.length === 3) return parseInt(p[0])*60 + parseInt(p[1]) + parseInt(p[2])/100; if (p.length === 2) return s.includes(':') ? parseInt(p[0])*60 + parseInt(p[1]) : parseInt(p[0]) + parseInt(p[1])/100; return parseFloat(s) || 0; }
@@ -463,6 +483,13 @@
         }
 
         async function startSystem() {
+            if (isLocal) {
+                const statusEl = document.getElementById('loaderStatus');
+                if (statusEl) statusEl.textContent = "🚀 偵測為本地執行，免下載直接查詢本機資料庫中...";
+                document.getElementById('dbLoaderArea').style.display = 'none';
+                doSearch();
+                return;
+            }
             const statusEl = document.getElementById('loaderStatus');
             const progressContainer = document.getElementById('progressContainer');
             if (progressContainer) progressContainer.classList.remove('hidden');

@@ -10,13 +10,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <style>
         body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; }
-        .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 8px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; }
+        .page-container { max-width: 1200px; margin: 0 auto; padding: 0 16px; width: 100%; }
+        .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 16px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; border-radius: 12px; }
         #searchInput { background: transparent; flex: 1; min-width: 0; outline: none; font-weight: bold; font-size: 18px; color: white; }
         .header-title { text-align: center; background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 32px; font-weight: 900; margin: 15px 0; display: block; }
-        .stroke-card { background-color: #1C1C1E; border: 0.5px solid #38383A; border-radius: 12px; margin: 16px 12px; padding: 16px; }
-        .stroke-title { font-size: 26px; font-weight: 900;  margin-bottom: 2px; }
+        .stroke-card { background-color: #1C1C1E; border: 0.5px solid #38383A; border-radius: 12px; margin: 16px 0; padding: 16px; }
+        .stroke-title { font-size: 26px; font-weight: 900;  margin-bottom: 8px; border-bottom: 1.5px solid #D4AF37; padding-bottom: 4px; display: inline-block; }
         
-        .race-row { display: grid; grid-template-columns: 55px 50px 105px 80px 85px 115px 85px 115px; align-items: center; padding: 3px 0; border-bottom: 0.5px solid #38383A; font-size: 14px; color: #FFF; white-space: nowrap; }
+        .race-row { display: grid; grid-template-columns: 1fr 1.2fr 1.8fr 1.4fr 1.4fr 2fr 1.4fr 2fr; align-items: center; padding: 8px 0; border-bottom: 0.5px solid #38383A; font-size: 14px; color: #FFF; white-space: nowrap; }
         .col-dist-main { text-decoration: underline; font-weight: 800; cursor: pointer; }
         .col-count-main { text-decoration: underline; cursor: pointer; font-size: 12px; }
         .col-pb-main { font-family: monospace; font-weight: bold; }
@@ -25,14 +26,15 @@
         .col-rank-link { text-decoration: underline; cursor: pointer; }
         .row-gold, .row-gold span, .row-gold b, .row-gold div { background-image: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; opacity: 1 !important; }
 
-        .list-row { display: flex; align-items: center; padding: 4px 0; border-bottom: 1px solid #111; font-size: 14px; color: #FFF; white-space: nowrap; }
-        .col-rank-fixed { width: 35px; flex-shrink: 0; font-family: monospace; text-align: left; }
-        .col-birth-fixed { width: 50px; flex-shrink: 0; color: #8E8E93; font-size: 12px; text-align: center; font-family: monospace; }
-        .col-name-fixed { width: 85px; flex-shrink: 0; font-weight: bold; margin-left: 2px; }
-        .col-time-fixed { width: 80px; flex-shrink: 0; font-family: monospace; font-weight: bold; }
-        .col-wa-list { width: 75px; flex-shrink: 0; font-family: monospace; }
-        .col-8code-fixed { width: 85px; flex-shrink: 0; font-family: monospace; }
-        .col-meet-fixed { flex: 1; overflow: hidden; text-overflow: ellipsis; padding-left: 10px; }
+        .list-row { display: grid; grid-template-columns: 0.8fr 1.2fr 1.8fr 1.8fr 1.8fr 2fr 4fr; align-items: center; padding: 8px 0; border-bottom: 1px solid #111; font-size: 14px; color: #FFF; white-space: nowrap; }
+        .col-rank-fixed { font-family: monospace; text-align: left; }
+        .col-birth-fixed { color: #8E8E93; font-size: 12px; text-align: center; font-family: monospace; }
+        .col-name-fixed { font-weight: bold; text-align: left; }
+        .col-time-fixed { font-family: monospace; font-weight: bold; text-align: left; }
+        .col-wa-list { font-family: monospace; text-align: left; }
+        .col-8code-fixed { font-family: monospace; text-align: left; }
+        .col-meet-fixed { overflow: hidden; text-overflow: ellipsis; text-align: left; }
+        .history-row { display: grid; grid-template-columns: 120px 100px 1fr; align-items: center; padding: 8px 0; border-bottom: 1px solid #111; font-size: 14px; color: #FFF; white-space: nowrap; }
 
         .rank-header-AD { display: flex; justify-content: center; align-items: center; background: #2C2C2E; padding: 10px; border-radius: 12px; margin-bottom: 15px; gap: 20px; border: 0.5px solid #444; }
         .year-side { color: #666; font-size: 13px; cursor: pointer; transition: 0.2s; }
@@ -96,10 +98,25 @@
         <div class="mt-4 text-[#D4AF37] font-bold tracking-widest text-lg">正在全力衝刺中...</div>
     </div>
 
-    <!-- 返回首頁按鈕 -->
-    <div class="m-3 flex justify-end items-center">
-        <span class="text-xs text-gray-500">PWA Offline Capable</span>
-    </div>
+    <!-- 頂部導覽列 -->
+    <div class="page-container">
+        <header style="display: none !important;">
+        <div class="header-center-area">
+            <div style="display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; justify-content:center;">
+                <a href="manage.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">整合平台</a>
+                <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                <h1 style="margin:0; font-size:1.3rem; font-weight:bold; cursor:default; background: linear-gradient(135deg, #FFD933 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">游泳成績查詢</h1>
+                <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                <a href="view_db.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">檢視資料庫</a>
+                <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                <a href="wealth.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">理財</a>
+                <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                <a href="car.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">車價分析</a>
+                <span style="color:#444; font-size:1rem; user-select:none; font-weight:bold;">|</span>
+                <a href="system_messages.html" style="text-decoration:none; color:#8E8E93; font-weight:bold; font-size:1.1rem; transition:color 0.2s;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8E8E93'">系統訊息</a>
+            </div>
+        </div>
+    </header>
 
     <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E]/80 backdrop-blur-md rounded-xl text-center border border-[#38383A] shadow-sm">
         <input type="file" id="dbFileInput" hidden onchange="handleDBUpload(this.files)">
@@ -165,10 +182,69 @@
         }
         initWorker();
 
-        function remoteQuery(query) {
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5001';
+        const API_BASE = isLocal ? '' : 'http://127.0.0.1:5001';
+
+        // 全局前端操作日誌系統
+        const OperationLogger = {
+            logs: [],
+            add(action, details, status = 'INFO') {
+                const timestamp = new Date().toISOString();
+                const detailStr = typeof details === 'object' ? JSON.stringify(details) : String(details);
+                const logEntry = `[${timestamp}] [${status}] ${action}: ${detailStr}`;
+                this.logs.push(logEntry);
+                console.log(`[OperationLogger] ${logEntry}`);
+                
+                // 同步發送至地端後台
+                fetch(`${API_BASE}/api/log_action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ timestamp, status, action, details: detailStr })
+                }).catch(e => console.warn('[Log Sync Error] Backend log write failed:', e));
+            },
+            export() {
+                const blob = new Blob([this.logs.join('\n')], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `web_operation_logs_${new Date().getTime()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        };
+
+        // 監聽 ⌘L 或 Ctrl+L 快捷鍵導出前端日誌
+        window.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'l') {
+                e.preventDefault();
+                OperationLogger.export();
+            }
+        });
+
+        async function remoteQuery(query) {
+            if (isLocal) {
+                try {
+                    const response = await fetch('/api/local_query', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query })
+                    });
+                    const res = await response.json();
+                    if (res.status === 'success') {
+                        return res.data;
+                    } else {
+                        console.error('本地查詢出錯:', res.message);
+                    }
+                } catch (e) {
+                    console.error('本地查詢連線失敗，降級使用 Web Worker:', e);
+                }
+            }
             const id = Date.now() + Math.random();
             return new Promise(resolve => { queryCallbacks[id] = resolve; worker.postMessage({ type: 'QUERY', query, id }); });
         }
+
 
         function normalizeName(n) { return n ? String(n).replace(/溫/g, '温').trim() : ""; }
         function timeToSec(t) { if (!t) return 0; const s = String(t).trim(), p = s.split(/[:.]/); if (p.length === 3) return parseInt(p[0])*60 + parseInt(p[1]) + parseInt(p[2])/100; if (p.length === 2) return s.includes(':') ? parseInt(p[0])*60 + parseInt(p[1]) : parseInt(p[0]) + parseInt(p[1])/100; return parseFloat(s) || 0; }
@@ -340,75 +416,47 @@
                 });
                 const minS = fR.length > 0 ? Math.min(...fR.map(v => timeToSec(v[1]))) : 0;
                 let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">歷年紀錄</div>`;
-                fR.forEach(v => { const s = timeToSec(v[1]); h += `<div class="list-row ${s===minS?'row-gold':''}"><span class="col-8code-fixed">${v[0]}</span><span class="col-time-fixed">${formatToXcode(s)}</span><span class="col-meet-fixed">${v[2]}</span></div>`; });
+                fR.forEach(v => { const s = timeToSec(v[1]); h += `<div class="history-row ${s===minS?'row-gold':''}"><span class="col-8code-fixed">${v[0]}</span><span class="col-time-fixed">${formatToXcode(s)}</span><span class="col-meet-fixed">${v[2]}</span></div>`; });
                 c.innerHTML = h + "</div>";
             }
         }
 
-        async function downloadDatabasePartsFromServer(version, totalParts) {
+        async function downloadDatabaseFromServer(cloudUpdatedTime) {
             document.getElementById('progressContainer').classList.remove('hidden');
             const statusEl = document.getElementById('loaderStatus');
             const progressBar = document.getElementById('progressBar');
-            statusEl.textContent = `準備自雲端同步資料庫 (分卷 0/${totalParts})...`;
-            progressBar.style.width = '0%';
+            statusEl.textContent = "正在自雲端 GitHub 下載游泳成績資料庫 (約 170MB)...";
             
             try {
-                const partUrls = [];
-                for (let i = 0; i < totalParts; i++) {
-                    partUrls.push(`/static/db_parts/db.part${i}?v=${version}`);
-                }
+                const response = await fetch('https://github.com/jenyuwen-rgb/jywen/releases/download/latest/swim_results_birthday.db');
+                if (!response.ok) throw new Error("下載失敗");
                 
-                let loadedBytes = Array(totalParts).fill(0);
-                let totalBytesExpected = 0;
+                const contentLength = response.headers.get('content-length');
+                const total = contentLength ? parseInt(contentLength, 10) : 0;
+                let loaded = 0;
                 
-                // 併發啟動所有分卷的下載
-                const fetchPromises = partUrls.map(async (url, idx) => {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error(`分卷 ${idx} 下載失敗`);
-                    
-                    const contentLength = response.headers.get('content-length');
-                    const partLength = contentLength ? parseInt(contentLength, 10) : 45 * 1024 * 1024;
-                    totalBytesExpected += partLength;
-                    
-                    const reader = response.body.getReader();
-                    const chunks = [];
-                    
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-                        chunks.push(value);
-                        loadedBytes[idx] += value.length;
-                        
-                        // 計算總下載進度
-                        const totalLoaded = loadedBytes.reduce((a, b) => a + b, 0);
-                        const expectedTotal = Math.max(totalBytesExpected, 220 * 1024 * 1024);
-                        const pct = Math.min(99, Math.round((totalLoaded / expectedTotal) * 100));
+                const reader = response.body.getReader();
+                const chunks = [];
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                    loaded += value.length;
+                    if (total) {
+                        const pct = Math.round((loaded / total) * 100);
                         progressBar.style.width = `${pct}%`;
-                        statusEl.textContent = `雲端極速下載中: ${pct}% (${(totalLoaded / 1024 / 1024).toFixed(1)}MB / ${(expectedTotal / 1024 / 1024).toFixed(1)}MB)`;
+                        statusEl.textContent = `下載中: ${pct}% (${(loaded / 1024 / 1024).toFixed(1)}MB / ${(total / 1024 / 1024).toFixed(1)}MB)`;
+                    } else {
+                        statusEl.textContent = `下載中: ${(loaded / 1024 / 1024).toFixed(1)}MB`;
                     }
-                    
-                    const partBlob = new Blob(chunks);
-                    return new Uint8Array(await partBlob.arrayBuffer());
-                });
-                
-                const partsData = await Promise.all(fetchPromises);
-                
-                statusEl.textContent = "下載完成！正在合併分卷與初始化資料庫...";
-                progressBar.style.width = '100%';
-                
-                // 合併分卷
-                let totalSize = partsData.reduce((acc, part) => acc + part.length, 0);
-                const mergedArray = new Uint8Array(totalSize);
-                let offset = 0;
-                for (const part of partsData) {
-                    mergedArray.set(part, offset);
-                    offset += part.length;
                 }
                 
-                worker.postMessage({ type: 'INIT', data: mergedArray });
+                statusEl.textContent = "下載完成！正在初始化資料庫...";
+                const blob = new Blob(chunks);
+                const buffer = await blob.arrayBuffer();
                 
-                statusEl.textContent = "正在快取最新資料庫，下次即可秒開...";
-                const blob = new Blob([mergedArray]);
+                worker.postMessage({ type: 'INIT', data: new Uint8Array(buffer) });
                 
                 const openReq = indexedDB.open("SwimSQL", 1);
                 openReq.onupgradeneeded = e => {
@@ -421,13 +469,14 @@
                     const tx = db.transaction("files", "readwrite");
                     tx.objectStore("files").put(blob, "current_db");
                     tx.oncomplete = () => {
-                        localStorage.setItem('cached_db_time', String(version));
+                        if (cloudUpdatedTime) {
+                            localStorage.setItem('cached_db_time', cloudUpdatedTime);
+                        }
                         document.getElementById('dbLoaderArea').style.display = 'none';
                         doSearch();
                     };
                 };
             } catch (err) {
-                console.error(err);
                 statusEl.textContent = `❌ 自動同步下載失敗: ${err.message}。請確認您的網路連線，或重新整理網頁再試。`;
                 document.getElementById('manualUploadBtn').classList.remove('hidden');
             }
@@ -463,32 +512,40 @@
         }
 
         async function startSystem() {
+            if (isLocal) {
+                const statusEl = document.getElementById('loaderStatus');
+                if (statusEl) statusEl.textContent = "🚀 偵測為本地執行，免下載直接查詢本機資料庫中...";
+                document.getElementById('dbLoaderArea').style.display = 'none';
+                doSearch();
+                return;
+            }
             const statusEl = document.getElementById('loaderStatus');
             const progressContainer = document.getElementById('progressContainer');
             if (progressContainer) progressContainer.classList.remove('hidden');
             if (statusEl) statusEl.textContent = "正在與雲端同步資料庫狀態...";
 
-            let cloudVersion = null;
-            let totalParts = 0;
-            
+            let cloudUpdatedTime = null;
             try {
-                // 輕量獲取雲端最新分卷版本與分卷數 (no-cache 防止瀏覽器緩存)
-                const apiResp = await fetch('/static/db_parts/version.json', {
+                const apiResp = await fetch('https://api.github.com/repos/jenyuwen-rgb/jywen/releases/tags/latest', {
                     cache: 'no-store'
                 });
                 if (apiResp.ok) {
-                    const verData = await apiResp.json();
-                    cloudVersion = verData.version;
-                    totalParts = verData.parts;
+                    const relData = await apiResp.json();
+                    const assets = relData.assets || [];
+                    for (const asset of assets) {
+                        if (asset.name === 'swim_results_birthday.db') {
+                            cloudUpdatedTime = asset.updated_at;
+                            break;
+                        }
+                    }
                 }
             } catch (apiErr) {
-                console.warn("無法連接雲端 version.json，將嘗試加載本地快取:", apiErr);
+                console.warn("無法連接 GitHub API 檢查更新，將嘗試加載本地快取:", apiErr);
             }
 
             const localTime = localStorage.getItem('cached_db_time');
 
-            // 如果有雲端版本，且本地時間一致，且 IndexedDB 裡有資料庫，就直接載入
-            if (cloudVersion && localTime === String(cloudVersion)) {
+            if (cloudUpdatedTime && localTime === cloudUpdatedTime) {
                 const hasCached = await checkIndexedDBHasCached();
                 if (hasCached) {
                     if (statusEl) statusEl.textContent = "🚀 偵測為最新版，正在讀取快取資料庫...";
@@ -501,8 +558,7 @@
                 }
             }
 
-            // 如果是地端測試 (localhost/127.0.0.1)，且雲端沒連上，也檢查有無快取，有就直接載入
-            if (!cloudVersion) {
+            if (!cloudUpdatedTime) {
                 const hasCached = await checkIndexedDBHasCached();
                 if (hasCached) {
                     if (statusEl) statusEl.textContent = "正在載入本機快取資料庫...";
@@ -515,14 +571,7 @@
                 }
             }
 
-            // 否則，直接從雲端自動下載
-            if (cloudVersion && totalParts > 0) {
-                if (statusEl) statusEl.textContent = localTime ? "偵測到雲端資料庫有新更新，正在自動同步..." : "首次載入，正在準備從雲端下載資料庫...";
-                downloadDatabasePartsFromServer(cloudVersion, totalParts);
-            } else {
-                if (statusEl) statusEl.textContent = "⚠️ 無法取得雲端版本資訊且無快取。請確認您的網路連線。";
-                document.getElementById('manualUploadBtn').classList.remove('hidden');
-            }
+            downloadDatabaseFromServer(cloudUpdatedTime);
         }
 
         function checkIndexedDBHasCached() {
@@ -580,6 +629,34 @@
         }
 
         startSystem();
+        
+        // [SPA 導航優化] 攔截 iframe 內點擊，改以通知 Parent 切換分頁以避免硬刷新
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.self !== window.top) {
+                document.querySelectorAll('header a, nav a, .header-center-area a').forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && href.endsWith('.html')) {
+                        const tabMap = {
+                            'query.html': 'query',
+                            'index.html': 'query',
+                            'manage.html': 'manage',
+                            'view_db.html': 'view_db',
+                            'wealth.html': 'wealth',
+                            'car.html': 'car',
+                            'system_messages.html': 'system_messages'
+                        };
+                        const tabId = tabMap[href];
+                        if (tabId) {
+                            link.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                window.parent.postMessage({ switchTab: tabId }, '*');
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
         function collapseAll() { document.querySelectorAll('.drill-down.active').forEach(p => p.classList.remove('active')); }
         function resetDB() { if (confirm("重置清除資料庫？")) { indexedDB.deleteDatabase("SwimSQL"); location.reload(); } }
         function toggleHistory() { let h = JSON.parse(localStorage.getItem('swim_h')||"[]"), html = `<div id="histModal" style="position:fixed; top:65px; left:16px; right:16px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000;"><div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;"><span style="color:#D4AF37; font-weight:bold;">歷史紀錄</span><span onclick="document.getElementById('histModal').remove()" style="color:#8E8E93; cursor:pointer;">關閉</span></div>`; h.forEach(n => html += `<div style="display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;"><span onclick="selectHist('${n}')" style="flex:1; cursor:pointer; color:#FFF;">${n}</span><span onclick="deleteHistory('${n}')" style="cursor:pointer;">🗑️</span></div>`); document.body.insertAdjacentHTML('beforeend', html+'</div>'); }
@@ -684,5 +761,6 @@
 
         document.addEventListener('click', closeAutocomplete);
     </script>
+</div>
 </body>
 </html>
