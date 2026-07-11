@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>JYWEN 游泳與數據整合平台</title>
+    <style>
+        /* macOS & iOS 極簡玻璃美學 Launchpad */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-main:    #0A0A0B;
+            --border:     #222225;
+            --text-muted: #8E8E93;
+            --gold:       #D4AF37;
+            --gold-lt:    #FFD933;
+            --radius-card: 28px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-main);
+            color: #FFF;
+            font-family: 'Outfit', 'Noto Sans TC', -apple-system, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ── 背景星空與漸層桌布 ── */
+        .desktop-wallpaper {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #151518 0%, #0A0A0B 100%);
+        }
+        .wallpaper-logo {
+            font-size: 6.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0; 
+            line-height: 1; /* 消除預設行高產生的上下間距不對稱 */
+            opacity: 0.16;
+            letter-spacing: 8px;
+        }
+        .wallpaper-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 5px;
+            opacity: 0.18;
+            text-transform: uppercase;
+            position: absolute;
+            transform: translateY(58px); /* 脫離 flex 排版，不影響 JYWEN 主字體的完美置中計算 */
+        }
+
+        /* ── Launchpad 2列 3行 正方形按鈕網格容器 ── */
+        .launchpad-wrapper {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            transition: opacity 0.4s ease, filter 0.4s ease;
+        }
+
+        .launchpad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 240px); /* 放大至 240px */
+            grid-template-rows: repeat(2, 240px);    /* 放大至 240px */
+            column-gap: 32px;
+            row-gap: 100px; /* 大幅拉大行距，讓 JYWEN 完美呈現 */
+            padding: 32px;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @media (max-width: 820px) {
+            .launchpad-grid {
+                grid-template-columns: repeat(2, 190px); /* 手機端也適當放大 */
+                grid-template-rows: repeat(3, 190px);
+                gap: 20px;
+            }
+            .launch-card {
+                padding: 10px;
+                gap: 4px;
+            }
+            .launch-card-icon {
+                width: 115px;
+                height: 115px;
+            }
+            .launch-card-label {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* ── 3D 立體質感正方形卡片樣式 ── */
+        .launch-card {
+            background: linear-gradient(135deg, rgba(32, 32, 35, 0.65) 0%, rgba(18, 18, 20, 0.8) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            /* 3D 頂部受光雙邊框 */
+            border-top: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            border-right: 1px solid rgba(0, 0, 0, 0.3);
+            border-bottom: 3.5px solid rgba(0, 0, 0, 0.5); /* 底部重影模擬厚度 */
+            border-radius: var(--radius-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px; /* 極小間距以求完全填滿 */
+            padding: 14px; /* 壓縮內邊距 */
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+            /* 物理重力懸浮陰影 */
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.45), 
+                inset 0 1px 0px rgba(255, 255, 255, 0.1);
+        }
+
+        .launch-card:hover {
+            transform: translateY(-8px) scale(1.03); /* 浮起動畫，立體感躍然紙上 */
+            background: linear-gradient(135deg, rgba(48, 48, 52, 0.8) 0%, rgba(24, 24, 28, 0.9) 100%);
+            border-top-color: rgba(212, 175, 55, 0.45);
+            border-left-color: rgba(212, 175, 55, 0.25);
+            /* 金色呼吸發光霓虹 */
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.6), 
+                0 0 25px rgba(212, 175, 55, 0.25),
+                inset 0 1px 0px rgba(255, 255, 255, 0.15);
+        }
+
+        /* 點選時向下凹陷回彈 */
+        .launch-card:active {
+            transform: translateY(4px) scale(0.96);
+            border-bottom-width: 1px;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.3), 
+                0 0 10px rgba(212, 175, 55, 0.1),
+                inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ── 統一高質感、高科技白金黃金漸層圖示 ── */
+        .launch-card-icon {
+            width: 145px;  /* 圖片/圖示巨大化至 145px */
+            height: 145px; /* 圖片/圖示巨大化至 145px */
+            transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .launch-card:hover .launch-card-icon {
+            transform: translateY(-4px) scale(1.02); /* 由於尺寸巨大，Hover 微調防溢出 */
+        }
+
+        .launch-card-label {
+            font-size: 1.55rem; /* 字體顯著放大至 1.55rem */
+            font-weight: 900;   /* 重磅 Black 加粗，達到完美填滿視覺 */
+            color: #AEAEB2;
+            letter-spacing: 0.5px;
+            transition: color 0.3s;
+        }
+
+        .launch-card:hover .launch-card-label {
+            color: #F2F2F7;
+        }
+
+        /* ── 離心散射彈開與淡出動畫 (Explosion Effect) ── */
+        .launchpad-grid.has-active-card .launch-card {
+            opacity: 0;
+            filter: blur(10px);
+            pointer-events: none;
+        }
+
+        /* 6張卡片依位置向外散射，規模與動態極致和諧 */
+        .launchpad-grid.has-active-card .launch-card.card-0 { transform: translate3d(-240px, -240px, 0) scale(0.3); }
+        .launchpad-grid.has-active-card .launch-card.card-1 { transform: translate3d(0, -280px, 0) scale(0.3); }
+        .launchpad-grid.has-active-card .launch-card.card-2 { transform: translate3d(240px, -240px, 0) scale(0.3); }
+        .launchpad-grid.has-active-card .launch-card.card-3 { transform: translate3d(-240px, 240px, 0) scale(0.3); }
+        .launchpad-grid.has-active-card .launch-card.card-4 { transform: translate3d(0, 280px, 0) scale(0.3); }
+        .launchpad-grid.has-active-card .launch-card.card-5 { transform: translate3d(240px, 240px, 0) scale(0.3); }
+
+        /* ── 全螢幕分頁內容容器 (Scale & Fade Expansion) ── */
+        .content-container {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0.1);
+            transform-origin: center center;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+        }
+
+        .content-container.expanded {
+            pointer-events: auto;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* 內置 iframe 分頁，延續 zero-reload 的 3D 位移隱藏技術 */
+        .tab-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translate3d(-9999px, 0, 0);
+            background-color: var(--bg-main);
+        }
+        
+        .tab-panel.active {
+            visibility: visible;
+            pointer-events: auto;
+            transform: translate3d(0, 0, 0);
+        }
+
+        /* ── 右上角極簡圓形毛玻璃關閉按鈕 ✕ ── */
+        .close-tab-btn {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(30, 30, 32, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #AEAEB2;
+            font-size: 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 999;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+        }
+
+        .close-tab-btn:hover {
+            color: #F2F2F7;
+            background: rgba(44, 44, 46, 0.9);
+            border-color: rgba(255, 255, 255, 0.16);
+            transform: scale(1.08);
+        }
+
+        .close-tab-btn:active {
+            transform: scale(0.95);
+        }
+
+        .close-tab-btn.visible {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        /* 浮水印版本號 */
+        .version-badge {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            font-size: 0.72rem;
+            color: #27272A;
+            font-family: monospace;
+            z-index: 2;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── 全域 SVG 漸層色彩定義 (白金-黃金金屬拉絲質感) ── -->
+    <svg width="0" height="0" style="position: absolute; pointer-events: none; left: -9999px;">
+        <defs>
+            <linearGradient id="iconGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFFFFF" />
+                <stop offset="40%" stop-color="#F5D384" />
+                <stop offset="100%" stop-color="#D4AF37" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- 桌面極簡背景壁紙 -->
+    <div class="desktop-wallpaper">
+        <div class="wallpaper-logo">JYWEN</div>
+        <div class="wallpaper-sub">Swim & Finance Hub</div>
+    </div>
+
+    <!-- 版本號浮水印 -->
+    <div class="version-badge">v6.2.0</div>
+
+    <!-- ── Launchpad 2列 3行 正方形按鈕網格 ── -->
+    <div class="launchpad-wrapper" id="launchpad-wrapper">
+        <div class="launchpad-grid" id="launchpad-grid">
+            
+            <!-- 1. 整合平台 -->
+            <div class="launch-card card-0" onclick="switchTab('manage', this)">
+                <svg class="launch-card-icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGoldGradient)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M21 12H3"/>
+                    <path d="M12 3v18"/>
+                    <circle cx="7.5" cy="7.5" r="1.5"/>
+                    <circle cx="16.5" cy="7.5" r="1.5"/>
+                    <circle cx="7.5" cy="16.5" r="1.5"/>
+                    <circle cx="16.5" cy="16.5" r="1.5"/>
+                </svg>
+                <span class="launch-card-label">整合平台</span>
+            </div>
+
+            <!-- 2. 游泳成績查詢 -->
+            <div class="launch-card card-1" onclick="switchTab('query', this)">
+                <svg class="launch-card-icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGoldGradient)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="13" r="8"/>
+                    <path d="M12 5V2"/>
+                    <path d="M10 2h4"/>
+                    <path d="M12 9v4l3 3"/>
+                    <path d="M2 13h2"/>
+                    <path d="M20 13h2"/>
+                </svg>
+                <span class="launch-card-label">游泳成績</span>
+            </div>
+
+            <!-- 3. 檢視資料庫 -->
+            <div class="launch-card card-2" onclick="switchTab('view_db', this)">
+                <svg class="launch-card-icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGoldGradient)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                    <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>
+                </svg>
+                <span class="launch-card-label">檢視資料庫</span>
+            </div>
+
+            <!-- 4. 理財分析 -->
+            <div class="launch-card card-3" onclick="switchTab('wealth', this)">
+                <svg class="launch-card-icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGoldGradient)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                    <path d="M3 20h18"/>
+                    <path d="M3 12l6-4 6 4 6-8"/>
+                </svg>
+                <span class="launch-card-label">理財分析</span>
+            </div>
+
+            <!-- 5. 車價分析 -->
+            <div class="launch-card card-4" onclick="switchTab('car', this)">
+                <svg class="launch-card-icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGoldGradient)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                    <circle cx="7" cy="17" r="2"/>
+                    <circle cx="17" cy="17" r="2"/>
+                </svg>
+                <span class="launch-card-label">車價分析</span>
+            </div>
+
+            <!-- 6. 系統訊息 -->
+            <div class="launch-card card-5" onclick="switchTab('system_messages', this)">
+                <svg class="launch-card-icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGoldGradient)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span class="launch-card-label">系統訊息</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 右上角圓形關閉按鈕 ✕ -->
+    <button class="close-tab-btn" id="close-tab-btn" onclick="closeActiveTab()" title="返回主頁面">✕</button>
+
+    <!-- 全螢幕分頁內容容器 (iframe zero-reload 容器) -->
+    <div class="content-container" id="content-container">
+        <iframe id="iframe-manage" class="tab-panel" src=""></iframe>
+        <iframe id="iframe-query" class="tab-panel" src=""></iframe>
+        <iframe id="iframe-view_db" class="tab-panel" src=""></iframe>
+        <iframe id="iframe-wealth" class="tab-panel" src=""></iframe>
+        <iframe id="iframe-car" class="tab-panel" src=""></iframe>
+        <iframe id="iframe-system_messages" class="tab-panel" src=""></iframe>
+    </div>
+
+    <script>
+        const tabUrls = {
+            'manage': '/manage.html',
+            'query': '/query.html',
+            'view_db': '/view_db.html',
+            'wealth': '/wealth.html',
+            'car': '/car.html',
+            'system_messages': '/system_messages.html'
+        };
+        
+        const loadedTabs = {};
+        let activeTabId = null;
+
+        // ── 點擊正方形按鈕：展開分頁 ──
+        function switchTab(tabId, cardEl = null) {
+            const grid = document.getElementById('launchpad-grid');
+            const container = document.getElementById('content-container');
+            const closeBtn = document.getElementById('close-tab-btn');
+
+            activeTabId = tabId;
+
+            // 1. 如果有傳入卡片節點，動態計算放大原點 (transformOrigin)
+            if (cardEl) {
+                const rect = cardEl.getBoundingClientRect();
+                const originX = rect.left + rect.width / 2;
+                const originY = rect.top + rect.height / 2;
+                container.style.transformOrigin = `${originX}px ${originY}px`;
+            } else {
+                // 如果無卡片（如跨頁面跳轉），則預設從對應卡片或視窗中央膨脹
+                const matchedCard = document.querySelector(`.launch-card.card-${getCardIndex(tabId)}`);
+                if (matchedCard) {
+                    const rect = matchedCard.getBoundingClientRect();
+                    container.style.transformOrigin = `${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px`;
+                } else {
+                    container.style.transformOrigin = 'center center';
+                }
+            }
+
+            // 2. 啟動離心散射與淡出動畫
+            grid.classList.add('has-active-card');
+
+            // 3. 延遲加載 iframe (Lazy load)
+            const targetIframe = document.getElementById(`iframe-${tabId}`);
+            if (targetIframe) {
+                if (!loadedTabs[tabId]) {
+                    targetIframe.src = tabUrls[tabId];
+                    loadedTabs[tabId] = true;
+                }
+                
+                // 4. 切換 active iframe
+                document.querySelectorAll('.tab-panel').forEach(p => {
+                    if (p.id === `iframe-${tabId}`) {
+                        p.classList.add('active');
+                    } else {
+                        p.classList.remove('active');
+                    }
+                });
+
+                // 5. 展開分頁內容，並顯示右上角關閉鍵
+                container.classList.add('expanded');
+                closeBtn.classList.add('visible');
+            }
+        }
+
+        // ── 點擊關閉按鈕：坍縮回 Launchpad ──
+        function closeActiveTab() {
+            const grid = document.getElementById('launchpad-grid');
+            const container = document.getElementById('content-container');
+            const closeBtn = document.getElementById('close-tab-btn');
+
+            if (!activeTabId) return;
+
+            // 1. 收合面板（向原點坍縮）與隱藏關閉鍵
+            container.classList.remove('expanded');
+            closeBtn.classList.remove('visible');
+
+            // 2. 收攏其餘卡片（卡片淡入並歸位）
+            grid.classList.remove('has-active-card');
+
+            // 3. 延遲重設活動 ID
+            setTimeout(() => {
+                activeTabId = null;
+            }, 500);
+        }
+
+        // 輔助獲取分頁對應的卡片 Index
+        function getCardIndex(tabId) {
+            const indices = {
+                'manage': 0,
+                'query': 1,
+                'view_db': 2,
+                'wealth': 3,
+                'car': 4,
+                'system_messages': 5
+            };
+            return indices[tabId] !== undefined ? indices[tabId] : 0;
+        }
+        
+        // 監聽來自子分頁頂部導覽列跳轉的 postMessage 跨分頁調用
+        window.addEventListener('message', (event) => {
+            const targetTabId = event.data.switchTab;
+            if (targetTabId) {
+                // 如果跳轉的目標與當前不一致，先順滑收起當前，再從新卡片原點彈出
+                if (activeTabId !== targetTabId) {
+                    closeActiveTab();
+                    setTimeout(() => {
+                        switchTab(targetTabId);
+                    }, 400); // 配合收起動畫耗時，呈現完美的跳躍彈出視覺
+                }
+            }
+        });
+    </script>
+</body>
+</html>
