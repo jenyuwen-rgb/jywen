@@ -375,7 +375,7 @@
             try {
                 const partUrls = [];
                 for (let i = 0; i < totalParts; i++) {
-                    partUrls.push(`https://cdn.jsdelivr.net/gh/jenyuwen-rgb/jywen@main/static/db_parts/db.part${i}?v=${version}`);
+                    partUrls.push(`static/db_parts/db.part${i}?v=${version}`);
                 }
                 
                 let loadedBytes = Array(totalParts).fill(0);
@@ -500,7 +500,7 @@
             
             try {
                 // 輕量獲取雲端最新分卷版本與分卷數 (no-cache 防止瀏覽器緩存)
-                const apiResp = await fetch('https://cdn.jsdelivr.net/gh/jenyuwen-rgb/jywen@main/static/db_parts/version.json', {
+                const apiResp = await fetch('static/db_parts/version.json', {
                     cache: 'no-store'
                 });
                 if (apiResp.ok) {
