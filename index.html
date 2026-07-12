@@ -432,43 +432,40 @@
             try {
                 const partUrls = [];
                 for (let i = 0; i < totalParts; i++) {
-                    partUrls.push(`static/db_parts/db.part${i}?v=${version}`);
+                    partUrls.push(`/static/db_parts/db.part${i}?v=${version}`);
                 }
                 
-                let loadedBytes = Array(totalParts).fill(0);
-                let totalBytesExpected = 0;
+                const partsData = [];
+                let totalLoaded = 0;
                 
-                // 併發啟動所有分卷的下載
-                const fetchPromises = partUrls.map(async (url, idx) => {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error(`分卷 ${idx} 下載失敗`);
+                // 依序單個下載，防止行動裝置 Safari 併發連線崩潰與記憶體溢出
+                for (let i = 0; i < totalParts; i++) {
+                    const response = await fetch(partUrls[i]);
+                    if (!response.ok) throw new Error(`分卷 ${i} 下載失敗`);
                     
                     const contentLength = response.headers.get('content-length');
-                    const partLength = contentLength ? parseInt(contentLength, 10) : 45 * 1024 * 1024;
-                    totalBytesExpected += partLength;
+                    const partLength = contentLength ? parseInt(contentLength, 10) : 15 * 1024 * 1024;
                     
                     const reader = response.body.getReader();
                     const chunks = [];
+                    let partLoaded = 0;
                     
                     while (true) {
                         const { done, value } = await reader.read();
                         if (done) break;
                         chunks.push(value);
-                        loadedBytes[idx] += value.length;
+                        partLoaded += value.length;
+                        totalLoaded += value.length;
                         
-                        // 計算總下載進度
-                        const totalLoaded = loadedBytes.reduce((a, b) => a + b, 0);
-                        const expectedTotal = Math.max(totalBytesExpected, 220 * 1024 * 1024);
-                        const pct = Math.min(99, Math.round((totalLoaded / expectedTotal) * 100));
+                        // 估算總大小為 252.5MB
+                        const pct = Math.min(99, Math.round((totalLoaded / (252.5 * 1024 * 1024)) * 100));
                         progressBar.style.width = `${pct}%`;
-                        statusEl.textContent = `雲端極速下載中: ${pct}% (${(totalLoaded / 1024 / 1024).toFixed(1)}MB / ${(expectedTotal / 1024 / 1024).toFixed(1)}MB)`;
+                        statusEl.textContent = `雲端下載中: ${pct}% (分卷 ${i+1}/${totalParts})`;
                     }
                     
                     const partBlob = new Blob(chunks);
-                    return new Uint8Array(await partBlob.arrayBuffer());
-                });
-                
-                const partsData = await Promise.all(fetchPromises);
+                    partsData.push(new Uint8Array(await partBlob.arrayBuffer()));
+                }
                 
                 statusEl.textContent = "下載完成！正在合併分卷與初始化資料庫...";
                 progressBar.style.width = '100%';
@@ -567,14 +564,15 @@
             const statusEl = document.getElementById('loaderStatus');
             const progressContainer = document.getElementById('progressContainer');
             if (progressContainer) progressContainer.classList.remove('hidden');
-            if (statusEl) statusEl.textContent = "正在與雲端同步資料庫狀態...";
+            
+            if (statusEl) statusEl.textContent = "⏳ [1/4] 正在檢查網路與連線雲端...";
 
             let cloudVersion = null;
             let totalParts = 0;
             
             try {
-                // 輕量獲取雲端最新分卷版本與分卷數 (no-cache 防止瀏覽器緩存，超時 3 秒)
-                const apiResp = await fetchWithTimeout('static/db_parts/version.json', {
+                // 輕量獲取雲端最新分卷版本與分卷數 (超時 3 秒，使用前置斜線定位)
+                const apiResp = await fetchWithTimeout('/static/db_parts/version.json', {
                     cache: 'no-store',
                     timeout: 3000
                 });
@@ -587,12 +585,14 @@
                 console.warn("無法連接雲端 version.json，將嘗試加載本地快取:", apiErr);
             }
 
+            if (statusEl) statusEl.textContent = "⏳ [2/4] 正在比對版本與檢查快取...";
             const localTime = localStorage.getItem('cached_db_time');
 
-            if (cloudUpdatedTime && localTime === cloudUpdatedTime) {
+            // 如果有雲端版本，且本地時間一致，且 IndexedDB 裡有資料庫，就直接載入
+            if (cloudVersion && localTime === String(cloudVersion)) {
                 const hasCached = await checkIndexedDBHasCached();
                 if (hasCached) {
-                    if (statusEl) statusEl.textContent = "🚀 偵測為最新版，正在讀取快取資料庫...";
+                    if (statusEl) statusEl.textContent = "⏳ [3/4] 偵測為最新版，正在讀取快取資料庫...";
                     try {
                         await loadCachedDatabase();
                         return;
@@ -602,24 +602,37 @@
                 }
             }
 
-            if (!cloudUpdatedTime) {
+            // 否則，下載新分卷
+            if (cloudVersion && totalParts > 0) {
+                if (statusEl) statusEl.textContent = "⏳ [4/4] 正在自雲端下載最新分卷檔案...";
+                try {
+                    await downloadDatabasePartsFromServer(cloudVersion, totalParts);
+                } catch (dlErr) {
+                    if (statusEl) statusEl.textContent = `❌ 自動同步下載失敗: ${dlErr.message}`;
+                }
+            } else {
+                // 兜底載入本地快取
                 const hasCached = await checkIndexedDBHasCached();
                 if (hasCached) {
-                    if (statusEl) statusEl.textContent = "正在載入本機快取資料庫...";
+                    if (statusEl) statusEl.textContent = "⚠️ 連線雲端失敗，正在載入本地歷史快取...";
                     try {
                         await loadCachedDatabase();
-                        return;
-                    } catch (err) {
-                        console.warn(err);
+                    } catch (cacheLoadErr) {
+                        if (statusEl) statusEl.textContent = "❌ 快取載入失敗，且無法連線雲端。";
                     }
+                } else {
+                    if (statusEl) statusEl.textContent = "❌ 無法與雲端同步，且無本地快取資料。";
+                    document.getElementById('manualUploadBtn').classList.remove('hidden');
                 }
             }
-
-            downloadDatabaseFromServer(cloudUpdatedTime);
         }
 
         function checkIndexedDBHasCached() {
             return new Promise((resolve) => {
+                const timer = setTimeout(() => {
+                    console.warn("IndexedDB check timed out");
+                    resolve(false);
+                }, 2000);
                 try {
                     const openReq = indexedDB.open("SwimSQL", 1);
                     openReq.onupgradeneeded = e => {
@@ -630,17 +643,26 @@
                     openReq.onsuccess = e => {
                         const db = e.target.result;
                         if (!db.objectStoreNames.contains("files")) {
+                            clearTimeout(timer);
                             resolve(false);
                             return;
                         }
                         const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db");
                         getReq.onsuccess = () => {
+                            clearTimeout(timer);
                             resolve(!!getReq.result);
                         };
-                        getReq.onerror = () => resolve(false);
+                        getReq.onerror = () => {
+                            clearTimeout(timer);
+                            resolve(false);
+                        };
                     };
-                    openReq.onerror = () => resolve(false);
+                    openReq.onerror = () => {
+                        clearTimeout(timer);
+                        resolve(false);
+                    };
                 } catch (e) {
+                    clearTimeout(timer);
                     resolve(false);
                 }
             });
@@ -648,27 +670,48 @@
 
         function loadCachedDatabase() {
             return new Promise((resolve, reject) => {
+                const timer = setTimeout(() => reject(new Error("讀取快取超時")), 3000);
                 const openReq = indexedDB.open("SwimSQL", 1);
                 openReq.onsuccess = e => {
                     const db = e.target.result;
-                    const getReq = db.transaction("files", "readonly").objectStore("files").get("current_db");
-                    getReq.onsuccess = async () => {
-                        try {
-                            if (getReq.result) {
-                                const buf = await (getReq.result instanceof Blob ? getReq.result.arrayBuffer() : getReq.result);
-                                worker.postMessage({ type: 'INIT', data: new Uint8Array(buf) });
-                                document.getElementById('dbLoaderArea').style.display = 'none';
-                                resolve();
-                            } else {
-                                reject(new Error("快取為空"));
+                    if (!db.objectStoreNames.contains("files")) {
+                        clearTimeout(timer);
+                        reject(new Error("快取資料表不存在"));
+                        return;
+                    }
+                    try {
+                        const tx = db.transaction("files", "readonly");
+                        const getReq = tx.objectStore("files").get("current_db");
+                        getReq.onsuccess = async () => {
+                            try {
+                                if (getReq.result) {
+                                    const buf = await (getReq.result instanceof Blob ? getReq.result.arrayBuffer() : getReq.result);
+                                    worker.postMessage({ type: 'INIT', data: new Uint8Array(buf) });
+                                    document.getElementById('dbLoaderArea').style.display = 'none';
+                                    clearTimeout(timer);
+                                    resolve();
+                                } else {
+                                    clearTimeout(timer);
+                                    reject(new Error("快取為空"));
+                                }
+                            } catch (err) {
+                                clearTimeout(timer);
+                                reject(err);
                             }
-                        } catch (err) {
-                            reject(err);
-                        }
-                    };
-                    getReq.onerror = () => reject(new Error("讀取失敗"));
+                        };
+                        getReq.onerror = () => {
+                            clearTimeout(timer);
+                            reject(new Error("讀取失敗"));
+                        };
+                    } catch (txErr) {
+                        clearTimeout(timer);
+                        reject(txErr);
+                    }
                 };
-                openReq.onerror = () => reject(new Error("打開數據庫失敗"));
+                openReq.onerror = () => {
+                    clearTimeout(timer);
+                    reject(new Error("打開數據庫失敗"));
+                };
             });
         }
 
