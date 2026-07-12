@@ -410,6 +410,95 @@
 
         </div>
 
+        <!-- 💵 美林時鐘自動複利退休模擬器 (macOS 頂級毛玻璃卡片) -->
+        <div class="card-container" id="retirement-simulator-section" style="padding: 20px; margin-bottom: 24px; background: #1C1C1E; border: 1px solid #2C2C2E; border-radius: 16px;">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- 標題與簡介 -->
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2C2C2E; padding-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #D4AF37; display: flex; align-items: center; gap: 8px;">
+                            <span>💵 美林時鐘自動複利退休模擬器</span>
+                        </h3>
+                        <p style="margin: 4px 0 0 0; font-size: 11px; color: #8E8E93;">依據您的實體帳戶本金與定期定額歷史數據，結合美林景氣象限資產配置策略進行高精度複利演算</p>
+                    </div>
+                    <!-- 預設一億標籤 -->
+                    <div style="background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.4); border-radius: 20px; padding: 4px 14px; font-size: 11px; font-weight: 800; color: #D4AF37;">
+                        🎯 退休目標：1 億元 TWD
+                    </div>
+                </div>
+
+                <!-- 二欄式配置：左邊控制器，右邊結果與圖表 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: start;">
+                    
+                    <!-- 左欄：控制滑桿 -->
+                    <div style="display: flex; flex-direction: column; gap: 16px; background: #161618; border: 0.5px solid #2C2C2E; border-radius: 12px; padding: 18px;">
+                        
+                        <!-- 參數 1: 初始本金 -->
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: #AEAEB2;">
+                                <span>1. 初始投資本金 (TWD)</span>
+                                <span style="color: #F2F2F7; font-weight: 800;">$<span id="sim-principal-val">5,000,000</span> 元</span>
+                            </div>
+                            <input type="range" id="sim-principal-input" min="100000" max="30000000" step="100000" value="5000000" oninput="runRetirementSimulation()" style="width: 100%; accent-color: #D4AF37; background: #2C2C2E; border-radius: 4px; height: 6px; cursor: pointer; outline: none;">
+                            <div style="display: flex; justify-content: space-between; font-size: 9px; color: #636366;">
+                                <span>10 萬</span>
+                                <span>3,000 萬</span>
+                            </div>
+                        </div>
+
+                        <!-- 參數 2: 每月定期定額 -->
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: #AEAEB2;">
+                                <span>2. 每月續投金額 (TWD)</span>
+                                <span style="color: #F2F2F7; font-weight: 800;">$<span id="sim-monthly-val">100,000</span> 元</span>
+                            </div>
+                            <input type="range" id="sim-monthly-input" min="5000" max="1000000" step="5000" value="100000" oninput="runRetirementSimulation()" style="width: 100%; accent-color: #D4AF37; background: #2C2C2E; border-radius: 4px; height: 6px; cursor: pointer; outline: none;">
+                            <div style="display: flex; justify-content: space-between; font-size: 9px; color: #636366;">
+                                <span>5,000 元</span>
+                                <span>100 萬</span>
+                            </div>
+                        </div>
+
+                        <!-- 參數 3: 美林時鐘資產策略 (預期年化報酬率) -->
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 12px; font-weight: 700; color: #AEAEB2; margin-bottom: 2px;">3. 美林景氣輪動配置策略</label>
+                            <select id="sim-strategy-input" onchange="runRetirementSimulation()" 
+                                    style="width:100%; background:#2C2C2E; color:#F2F2F7; border:1px solid #3A3A3C; border-radius:8px; padding:8px; font-size:12px; font-weight:600; outline:none; cursor:pointer; height:34px; line-height:18px;">
+                                <option value="8.5" selected>🇺🇸/🇹🇼 美林時鐘動態配置策略 (預期 8.5% 年化)</option>
+                                <option value="7.0">📈 靜態買進持有台股 0050 策略 (預期 7.0% 年化)</option>
+                                <option value="4.5">💵 保守防禦性配置 (預期 4.5% 年化)</option>
+                                <option value="1.5">🏦 一般台幣銀行定期存款 (預期 1.5% 年化)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 右欄：診斷結果與複利曲線圖 -->
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        
+                        <!-- 倒數時間與利息回報摘要 (Mac風格卡片) -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div style="background: rgba(48, 209, 88, 0.08); border: 1px solid rgba(48, 209, 88, 0.2); border-radius: 12px; padding: 14px; text-align: center;">
+                                <div style="font-size: 11px; color: #30D158; font-weight: 700; margin-bottom: 4px;">🎯 預估達成一億退休</div>
+                                <div id="sim-result-time" style="font-size: 18px; font-weight: 900; color: #30D158;">-- 年 -- 月</div>
+                            </div>
+                            <div style="background: rgba(255, 214, 10, 0.08); border: 1px solid rgba(255, 214, 10, 0.2); border-radius: 12px; padding: 14px; text-align: center;">
+                                <div style="font-size: 11px; color: #FFD60A; font-weight: 700; margin-bottom: 4px;">📈 賺取的純利息回報</div>
+                                <div id="sim-result-interest" style="font-size: 18px; font-weight: 900; color: #FFD60A;">$0</div>
+                            </div>
+                        </div>
+
+                        <!-- 複利增長 ECharts 圖表 -->
+                        <div style="background: #161618; border: 0.5px solid #2C2C2E; border-radius: 12px; padding: 10px; position: relative;">
+                            <div id="chart-retirement" style="width: 100%; height: 180px;"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
         <!-- 📈 定期定額持股看板摘要 -->
         <div class="card-container mb-6" id="holdings-section" style="padding: 16px;">
             <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
@@ -1830,6 +1919,9 @@
                     megaBody.innerHTML = '<div style="text-align:center; color:#636366; padding:15px;">尚無兆豐銀行存款紀錄</div>';
                 }
 
+                // 初始化退休模擬器
+                initRetirementSimulator(netAssets, bankAssets);
+
             } catch (e) {
                 console.error("載入最新資產配置出錯: ", e);
                 const yuantaBody = document.getElementById('yuanta-ledger-body');
@@ -2164,6 +2256,249 @@
                 });
                 tbody.appendChild(tr);
             });
+        }
+
+        // ================================================================
+        // 💵 美林時鐘自動複利退休模擬器邏輯
+        // ================================================================
+        let retirementChart = null;
+
+        function initRetirementSimulator(netAssets, bankAssets) {
+            let totalPrincipal = 0;
+            
+            // 1. 取得最新元大資產
+            if (netAssets && netAssets.length > 0) {
+                totalPrincipal += (netAssets[0]['資產總淨額'] || 0);
+            }
+            
+            // 2. 取得最新兆豐資產
+            if (bankAssets && bankAssets.length > 0) {
+                const b = bankAssets[0];
+                const dep = b['存款'] || 0;
+                const trust = b['特定金錢信託'] || 0;
+                const ins = b['人身保險'] || 0;
+                const loan = b['貸款'] || 0;
+                totalPrincipal += (dep + trust + ins - loan);
+            }
+            
+            // 如果資產為 0，預設 500 萬元起算
+            if (totalPrincipal <= 0) totalPrincipal = 5000000;
+            
+            // 設定滑桿本金 (限制在 10 萬 ~ 3000 萬之間，四捨五入到萬位)
+            const inputPrincipal = Math.max(100000, Math.min(30000000, Math.round(totalPrincipal / 100000) * 100000));
+            const principalInput = document.getElementById('sim-principal-input');
+            if (principalInput) principalInput.value = inputPrincipal;
+            
+            // 3. 估計每月續投金額：從最近 6 個月的對帳單月交易額計算平均
+            let avgMonthlyContrib = 0;
+            if (allStmtData && allStmtData.length > 0) {
+                const monthMap = {};
+                allStmtData.forEach(row => {
+                    const date = row['成交日期'] || '';
+                    const amt = row['總金額'] || 0;
+                    if (!date) return;
+                    
+                    let month = date.slice(0, 7).replace('/', '-');
+                    const parts = month.split('-');
+                    if (parts[0] && parts[0].length < 4) {
+                        month = (parseInt(parts[0], 10) + 1911) + '-' + parts[1];
+                    }
+                    monthMap[month] = (monthMap[month] || 0) + amt;
+                });
+                
+                const months = Object.keys(monthMap).sort();
+                const last6 = months.slice(-6);
+                let totalContrib = 0;
+                last6.forEach(m => { totalContrib += monthMap[m]; });
+                if (last6.length > 0) avgMonthlyContrib = totalContrib / last6.length;
+            }
+            
+            // 如果為 0，預設每月投入 10 萬元
+            if (avgMonthlyContrib <= 0) avgMonthlyContrib = 100000;
+            
+            const inputMonthly = Math.max(5000, Math.min(1000000, Math.round(avgMonthlyContrib / 5000) * 5000));
+            const monthlyInput = document.getElementById('sim-monthly-input');
+            if (monthlyInput) monthlyInput.value = inputMonthly;
+            
+            // 執行第一次計算
+            runRetirementSimulation();
+            
+            // 監聽視窗重定大小
+            window.addEventListener('resize', () => {
+                if (retirementChart) retirementChart.resize();
+            });
+        }
+
+        function runRetirementSimulation() {
+            const principalInput = document.getElementById('sim-principal-input');
+            const monthlyInput = document.getElementById('sim-monthly-input');
+            const strategyInput = document.getElementById('sim-strategy-input');
+            
+            if (!principalInput || !monthlyInput || !strategyInput) return;
+            
+            const principal = parseFloat(principalInput.value);
+            const monthly = parseFloat(monthlyInput.value);
+            const rate = parseFloat(strategyInput.value) / 100.0;
+            
+            // 更新數值標記
+            document.getElementById('sim-principal-val').textContent = principal.toLocaleString();
+            document.getElementById('sim-monthly-val').textContent = monthly.toLocaleString();
+            
+            const target = 100000000; // 一億退休
+            let currentWealth = principal;
+            let totalInvested = principal;
+            const monthlyRate = rate / 12.0;
+            
+            let monthsNeeded = 0;
+            const maxYears = 50;
+            const maxMonths = maxYears * 12;
+            
+            const wealthTimeline = [principal];
+            const investedTimeline = [principal];
+            const monthLabels = ["初始"];
+            
+            while (currentWealth < target && monthsNeeded < maxMonths) {
+                monthsNeeded++;
+                currentWealth += monthly;
+                totalInvested += monthly;
+                currentWealth *= (1 + monthlyRate);
+                
+                // 記錄前 24 個月，以及之後的每年點以確保圖表乾淨流暢
+                if (monthsNeeded <= 24 || monthsNeeded % 12 === 0) {
+                    wealthTimeline.push(Math.round(currentWealth));
+                    investedTimeline.push(totalInvested);
+                    
+                    if (monthsNeeded <= 24) {
+                        monthLabels.push(`${monthsNeeded}月`);
+                    } else {
+                        monthLabels.push(`${monthsNeeded / 12}年`);
+                    }
+                }
+            }
+            
+            // 補足最後一筆
+            if (monthsNeeded > 0 && monthsNeeded % 12 !== 0 && monthsNeeded > 24) {
+                wealthTimeline.push(Math.round(currentWealth));
+                investedTimeline.push(totalInvested);
+                monthLabels.push(`${Math.ceil(monthsNeeded / 12)}年`);
+            }
+            
+            // 更新結果時間
+            const timeEl = document.getElementById('sim-result-time');
+            if (monthsNeeded >= maxYears * 12) {
+                timeEl.textContent = "超過 50 年";
+                timeEl.style.color = "#FF4538";
+            } else {
+                const y = Math.floor(monthsNeeded / 12);
+                const m = monthsNeeded % 12;
+                timeEl.textContent = `${y} 年 ${m} 個月`;
+                timeEl.style.color = "#30D158";
+            }
+            
+            // 更新利息
+            const interest = Math.max(0, currentWealth - totalInvested);
+            document.getElementById('sim-result-interest').textContent = `$${Math.round(interest).toLocaleString()}`;
+            
+            // 繪製/更新圖表
+            const chartDom = document.getElementById('chart-retirement');
+            if (!chartDom) return;
+            
+            if (!retirementChart) {
+                retirementChart = echarts.init(chartDom, 'dark');
+            }
+            
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(28,28,30,0.9)',
+                    borderColor: '#2C2C2E',
+                    borderWidth: 1,
+                    formatter: function(params) {
+                        let res = `<div style="font-size:11px;color:#AEAEB2;margin-bottom:4px;">時間軸: ${params[0].name}</div>`;
+                        params.forEach(p => {
+                            res += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;color:#F2F2F7;">
+                                      <span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${p.color};margin-right:5px;"></span>${p.seriesName}</span>
+                                      <span style="font-weight:700;">$${p.value.toLocaleString()}</span>
+                                    </div>`;
+                        });
+                        return res;
+                    }
+                },
+                legend: {
+                    data: ['累積本金投入', '複利資產價值'],
+                    textStyle: { color: '#AEAEB2', fontSize: 9 },
+                    top: 0
+                },
+                grid: {
+                    left: '2%',
+                    right: '2%',
+                    bottom: '5%',
+                    top: '20%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: monthLabels,
+                    axisLine: { lineStyle: { color: '#3A3A3C' } },
+                    axisLabel: { color: '#8E8E93', fontSize: 9 }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#3A3A3C' } },
+                    splitLine: { lineStyle: { color: '#2C2C2E' } },
+                    axisLabel: { 
+                        color: '#8E8E93', 
+                        fontSize: 9,
+                        formatter: function(value) {
+                            return (value / 10000000) + '千萬';
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '累積本金投入',
+                        type: 'line',
+                        data: investedTimeline,
+                        smooth: true,
+                        showSymbol: false,
+                        lineStyle: { color: '#AEAEB2', width: 1.5, type: 'dotted' },
+                        itemStyle: { color: '#AEAEB2' }
+                    },
+                    {
+                        name: '複利資產價值',
+                        type: 'line',
+                        data: wealthTimeline,
+                        smooth: true,
+                        showSymbol: false,
+                        lineStyle: { color: '#D4AF37', width: 2.5 },
+                        itemStyle: { color: '#D4AF37' },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(212,175,55,0.18)' },
+                                { offset: 1, color: 'rgba(212,175,55,0.01)' }
+                            ])
+                        },
+                        markLine: {
+                            silent: true,
+                            symbol: 'none',
+                            data: [{
+                                yAxis: target,
+                                lineStyle: { color: '#FF4538', type: 'dashed', width: 1.2 },
+                                label: {
+                                    show: true,
+                                    position: 'insideEnd',
+                                    formatter: '1億退休目標',
+                                    color: '#FF4538',
+                                    fontSize: 9,
+                                    padding: [0, 0, 10, 0]
+                                }
+                            }]
+                        }
+                    }
+                ]
+            };
+            retirementChart.setOption(option);
         }
     </script>
 </body>
