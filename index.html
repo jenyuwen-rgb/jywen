@@ -422,42 +422,70 @@
             }
         }
 
-        async function downloadDatabaseFromServer(cloudUpdatedTime) {
+        async function downloadDatabasePartsFromServer(version, totalParts) {
             document.getElementById('progressContainer').classList.remove('hidden');
             const statusEl = document.getElementById('loaderStatus');
             const progressBar = document.getElementById('progressBar');
-            statusEl.textContent = "正在自雲端 GitHub 下載游泳成績資料庫 (約 170MB)...";
+            statusEl.textContent = `準備自雲端同步資料庫 (分卷 0/${totalParts})...`;
+            progressBar.style.width = '0%';
             
             try {
-                const response = await fetch('https://github.com/jenyuwen-rgb/jywen/releases/download/latest/swim_results_birthday.db');
-                if (!response.ok) throw new Error("下載失敗");
-                
-                const contentLength = response.headers.get('content-length');
-                const total = contentLength ? parseInt(contentLength, 10) : 0;
-                let loaded = 0;
-                
-                const reader = response.body.getReader();
-                const chunks = [];
-                
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    chunks.push(value);
-                    loaded += value.length;
-                    if (total) {
-                        const pct = Math.round((loaded / total) * 100);
-                        progressBar.style.width = `${pct}%`;
-                        statusEl.textContent = `下載中: ${pct}% (${(loaded / 1024 / 1024).toFixed(1)}MB / ${(total / 1024 / 1024).toFixed(1)}MB)`;
-                    } else {
-                        statusEl.textContent = `下載中: ${(loaded / 1024 / 1024).toFixed(1)}MB`;
-                    }
+                const partUrls = [];
+                for (let i = 0; i < totalParts; i++) {
+                    partUrls.push(`static/db_parts/db.part${i}?v=${version}`);
                 }
                 
-                statusEl.textContent = "下載完成！正在初始化資料庫...";
-                const blob = new Blob(chunks);
-                const buffer = await blob.arrayBuffer();
+                let loadedBytes = Array(totalParts).fill(0);
+                let totalBytesExpected = 0;
                 
-                worker.postMessage({ type: 'INIT', data: new Uint8Array(buffer) });
+                // 併發啟動所有分卷的下載
+                const fetchPromises = partUrls.map(async (url, idx) => {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`分卷 ${idx} 下載失敗`);
+                    
+                    const contentLength = response.headers.get('content-length');
+                    const partLength = contentLength ? parseInt(contentLength, 10) : 45 * 1024 * 1024;
+                    totalBytesExpected += partLength;
+                    
+                    const reader = response.body.getReader();
+                    const chunks = [];
+                    
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        chunks.push(value);
+                        loadedBytes[idx] += value.length;
+                        
+                        // 計算總下載進度
+                        const totalLoaded = loadedBytes.reduce((a, b) => a + b, 0);
+                        const expectedTotal = Math.max(totalBytesExpected, 220 * 1024 * 1024);
+                        const pct = Math.min(99, Math.round((totalLoaded / expectedTotal) * 100));
+                        progressBar.style.width = `${pct}%`;
+                        statusEl.textContent = `雲端極速下載中: ${pct}% (${(totalLoaded / 1024 / 1024).toFixed(1)}MB / ${(expectedTotal / 1024 / 1024).toFixed(1)}MB)`;
+                    }
+                    
+                    const partBlob = new Blob(chunks);
+                    return new Uint8Array(await partBlob.arrayBuffer());
+                });
+                
+                const partsData = await Promise.all(fetchPromises);
+                
+                statusEl.textContent = "下載完成！正在合併分卷與初始化資料庫...";
+                progressBar.style.width = '100%';
+                
+                // 合併分卷
+                let totalSize = partsData.reduce((acc, part) => acc + part.length, 0);
+                const mergedArray = new Uint8Array(totalSize);
+                let offset = 0;
+                for (const part of partsData) {
+                    mergedArray.set(part, offset);
+                    offset += part.length;
+                }
+                
+                worker.postMessage({ type: 'INIT', data: mergedArray });
+                
+                statusEl.textContent = "正在快取最新資料庫，下次即可秒開...";
+                const blob = new Blob([mergedArray]);
                 
                 const openReq = indexedDB.open("SwimSQL", 1);
                 openReq.onupgradeneeded = e => {
@@ -470,14 +498,13 @@
                     const tx = db.transaction("files", "readwrite");
                     tx.objectStore("files").put(blob, "current_db");
                     tx.oncomplete = () => {
-                        if (cloudUpdatedTime) {
-                            localStorage.setItem('cached_db_time', cloudUpdatedTime);
-                        }
+                        localStorage.setItem('cached_db_time', String(version));
                         document.getElementById('dbLoaderArea').style.display = 'none';
                         doSearch();
                     };
                 };
             } catch (err) {
+                console.error(err);
                 statusEl.textContent = `❌ 自動同步下載失敗: ${err.message}。請確認您的網路連線，或重新整理網頁再試。`;
                 document.getElementById('manualUploadBtn').classList.remove('hidden');
             }
@@ -525,23 +552,21 @@
             if (progressContainer) progressContainer.classList.remove('hidden');
             if (statusEl) statusEl.textContent = "正在與雲端同步資料庫狀態...";
 
-            let cloudUpdatedTime = null;
+            let cloudVersion = null;
+            let totalParts = 0;
+            
             try {
-                const apiResp = await fetch('https://api.github.com/repos/jenyuwen-rgb/jywen/releases/tags/latest', {
+                // 輕量獲取雲端最新分卷版本與分卷數 (no-cache 防止瀏覽器緩存)
+                const apiResp = await fetch('static/db_parts/version.json', {
                     cache: 'no-store'
                 });
                 if (apiResp.ok) {
-                    const relData = await apiResp.json();
-                    const assets = relData.assets || [];
-                    for (const asset of assets) {
-                        if (asset.name === 'swim_results_birthday.db') {
-                            cloudUpdatedTime = asset.updated_at;
-                            break;
-                        }
-                    }
+                    const verData = await apiResp.json();
+                    cloudVersion = verData.version;
+                    totalParts = verData.parts;
                 }
             } catch (apiErr) {
-                console.warn("無法連接 GitHub API 檢查更新，將嘗試加載本地快取:", apiErr);
+                console.warn("無法連接雲端 version.json，將嘗試加載本地快取:", apiErr);
             }
 
             const localTime = localStorage.getItem('cached_db_time');
