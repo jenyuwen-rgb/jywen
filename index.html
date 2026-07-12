@@ -120,13 +120,13 @@
 
     <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E]/80 backdrop-blur-md rounded-xl text-center border border-[#38383A] shadow-sm">
         <input type="file" id="dbFileInput" hidden onchange="handleDBUpload(this.files)">
-        <button id="manualUploadBtn" onclick="document.getElementById('dbFileInput').click()" class="bg-[#D4AF37] text-black px-8 py-3 rounded-full font-bold hidden">手動載入本機 DB</button>
         <div id="progressContainer" class="mt-2">
             <div id="loaderStatus" class="text-sm text-gray-300 font-medium mb-3">正在與雲端同步資料庫狀態...</div>
             <div class="w-full bg-[#2C2C2E] rounded-full h-2 overflow-hidden">
                 <div id="progressBar" class="bg-[#D4AF37] h-full transition-all duration-300" style="width: 0%"></div>
             </div>
         </div>
+        <button id="manualUploadBtn" onclick="document.getElementById('dbFileInput').click()" class="mt-4 bg-transparent border border-[#555] hover:border-white text-gray-400 hover:text-white px-6 py-2 rounded-full text-xs font-bold transition-all duration-200">手動選擇裝置內檔案 (.db)</button>
     </div>
 
     <div class="header-title">游泳成績查詢</div>
@@ -139,7 +139,6 @@
         <span class="font-bold text-[#D4AF37] px-3 cursor-pointer" onclick="doSearch()">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
         <span class="font-bold text-gray-500 px-3 cursor-pointer" onclick="resetDB()">重置</span>
-        <span class="font-bold text-gray-500 px-3 cursor-pointer" onclick="resetDBManual()">重置手動</span>
     </div>
 
     <div id="main"></div>
@@ -704,15 +703,6 @@
 
         function collapseAll() { document.querySelectorAll('.drill-down.active').forEach(p => p.classList.remove('active')); }
         function resetDB() { if (confirm("重置清除資料庫？")) { indexedDB.deleteDatabase("SwimSQL"); localStorage.removeItem('cached_db_time'); location.reload(); } }
-        function resetDBManual() {
-            if (confirm("確認重置並手動選擇裝置內的資料庫檔案？")) {
-                indexedDB.deleteDatabase("SwimSQL");
-                localStorage.removeItem('cached_db_time');
-                document.getElementById('dbLoaderArea').style.display = 'block';
-                document.getElementById('manualUploadBtn').classList.add('hidden');
-                document.getElementById('dbFileInput').click();
-            }
-        }
         function toggleHistory() { let h = JSON.parse(localStorage.getItem('swim_h')||"[]"), html = `<div id="histModal" style="position:fixed; top:65px; left:16px; right:16px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000;"><div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;"><span style="color:#D4AF37; font-weight:bold;">歷史紀錄</span><span onclick="document.getElementById('histModal').remove()" style="color:#8E8E93; cursor:pointer;">關閉</span></div>`; h.forEach(n => html += `<div style="display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;"><span onclick="selectHist('${n}')" style="flex:1; cursor:pointer; color:#FFF;">${n}</span><span onclick="deleteHistory('${n}')" style="cursor:pointer;">🗑️</span></div>`); document.body.insertAdjacentHTML('beforeend', html+'</div>'); }
         function selectHist(n) { document.getElementById('searchInput').value = n; if(document.getElementById('histModal')) document.getElementById('histModal').remove(); doSearch(); }
         function deleteHistory(n) { let h = JSON.parse(localStorage.getItem('swim_h')||"[]").filter(x => x!==n); localStorage.setItem('swim_h', JSON.stringify(h)); if(document.getElementById('histModal')) document.getElementById('histModal').remove(); toggleHistory(); }
