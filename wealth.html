@@ -451,21 +451,21 @@
                             </div>
                         </div>
 
-                        <!-- 參數 2: 每月實際定期定額 (鎖定連動對帳單) -->
+                        <!-- 參數 2: 每月續投金額 (滑桿 + 上月實際定期定額自動預設) -->
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: #AEAEB2;">
-                                <span>2. 每月實際定期定額續投</span>
-                                <span style="display: flex; align-items: center; gap: 5px;">
-                                    <span style="width: 6px; height: 6px; background-color: #30D158; border-radius: 50%; display: inline-block; animation: blink-green 1.5s infinite ease-in-out;"></span>
-                                    <span style="color: #30D158; font-size: 10px; font-weight: 700;">自動連動對帳單</span>
+                                <span>2. 每月續投金額 (TWD)</span>
+                                <span style="color: #F2F2F7; font-weight: 800;">$<span id="sim-monthly-val">100,000</span> 元</span>
+                            </div>
+                            <input type="range" id="sim-monthly-input" min="5000" max="1000000" step="5000" value="100000" oninput="runRetirementSimulation()" style="width: 100%; accent-color: #D4AF37; background: #2C2C2E; border-radius: 4px; height: 6px; cursor: pointer; outline: none;">
+                            <div style="display: flex; justify-content: space-between; font-size: 9px; color: #636366;">
+                                <span>5,000 元</span>
+                                <span style="display: flex; align-items: center; gap: 4px; color: #30D158; font-weight: 600;">
+                                    <span style="width: 5px; height: 5px; background-color: #30D158; border-radius: 50%; display: inline-block; animation: blink-green 1.5s infinite ease-in-out;"></span>
+                                    <span>預設為上月對帳單實投額: $<span id="sim-last-month-ref">100,000</span></span>
                                 </span>
+                                <span>100 萬</span>
                             </div>
-                            <div style="background: #2C2C2E; border: 0.5px solid #3A3A3C; border-radius: 8px; padding: 10px; display: flex; justify-content: space-between; align-items: center; height: 34px;">
-                                <span style="font-size: 11px; color: #8E8E93;">近 6 個月實際每月買入均額</span>
-                                <span style="font-size: 13px; font-weight: 800; color: #F2F2F7;">$<span id="sim-monthly-val">100,000</span> 元</span>
-                            </div>
-                            <!-- 隱藏 input 作為資料來源，以防 slider 重複與舊 JS 取值報錯 -->
-                            <input type="hidden" id="sim-monthly-input" value="100000">
                         </div>
 
                         <!-- 參數 3: 美林時鐘資產策略 (預期年化報酬率) -->
@@ -2298,8 +2298,8 @@
             const principalInput = document.getElementById('sim-principal-input');
             if (principalInput) principalInput.value = inputPrincipal;
             
-            // 3. 估計每月續投金額：從最近 6 個月的對帳單月交易額計算平均
-            let avgMonthlyContrib = 0;
+            // 3. 估計每月續投金額：預設為上個月對帳單的實投金額
+            let lastMonthContrib = 0;
             if (allStmtData && allStmtData.length > 0) {
                 const monthMap = {};
                 allStmtData.forEach(row => {
@@ -2316,16 +2316,20 @@
                 });
                 
                 const months = Object.keys(monthMap).sort();
-                const last6 = months.slice(-6);
-                let totalContrib = 0;
-                last6.forEach(m => { totalContrib += monthMap[m]; });
-                if (last6.length > 0) avgMonthlyContrib = totalContrib / last6.length;
+                if (months.length > 0) {
+                    const lastMonth = months[months.length - 1];
+                    lastMonthContrib = monthMap[lastMonth] || 0;
+                }
             }
             
             // 如果為 0，預設每月投入 10 萬元
-            if (avgMonthlyContrib <= 0) avgMonthlyContrib = 100000;
+            if (lastMonthContrib <= 0) lastMonthContrib = 100000;
             
-            const inputMonthly = Math.max(5000, Math.min(1000000, Math.round(avgMonthlyContrib / 5000) * 5000));
+            // 更新 UI 上的上月參考值標記
+            const lastMonthRefEl = document.getElementById('sim-last-month-ref');
+            if (lastMonthRefEl) lastMonthRefEl.textContent = lastMonthContrib.toLocaleString();
+            
+            const inputMonthly = Math.max(5000, Math.min(1000000, Math.round(lastMonthContrib / 5000) * 5000));
             const monthlyInput = document.getElementById('sim-monthly-input');
             if (monthlyInput) monthlyInput.value = inputMonthly;
             
