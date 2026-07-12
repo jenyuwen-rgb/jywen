@@ -19,6 +19,11 @@
             50% { r: 14px; opacity: 0.55; }
             100% { r: 8px; opacity: 0.25; }
         }
+        @keyframes blink-green {
+            0% { opacity: 0.35; }
+            50% { opacity: 1.0; }
+            100% { opacity: 0.35; }
+        }
         .page-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -446,17 +451,21 @@
                             </div>
                         </div>
 
-                        <!-- 參數 2: 每月定期定額 -->
+                        <!-- 參數 2: 每月實際定期定額 (鎖定連動對帳單) -->
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: #AEAEB2;">
-                                <span>2. 每月續投金額 (TWD)</span>
-                                <span style="color: #F2F2F7; font-weight: 800;">$<span id="sim-monthly-val">100,000</span> 元</span>
+                                <span>2. 每月實際定期定額續投</span>
+                                <span style="display: flex; align-items: center; gap: 5px;">
+                                    <span style="width: 6px; height: 6px; background-color: #30D158; border-radius: 50%; display: inline-block; animation: blink-green 1.5s infinite ease-in-out;"></span>
+                                    <span style="color: #30D158; font-size: 10px; font-weight: 700;">自動連動對帳單</span>
+                                </span>
                             </div>
-                            <input type="range" id="sim-monthly-input" min="5000" max="1000000" step="5000" value="100000" oninput="runRetirementSimulation()" style="width: 100%; accent-color: #D4AF37; background: #2C2C2E; border-radius: 4px; height: 6px; cursor: pointer; outline: none;">
-                            <div style="display: flex; justify-content: space-between; font-size: 9px; color: #636366;">
-                                <span>5,000 元</span>
-                                <span>100 萬</span>
+                            <div style="background: #2C2C2E; border: 0.5px solid #3A3A3C; border-radius: 8px; padding: 10px; display: flex; justify-content: space-between; align-items: center; height: 34px;">
+                                <span style="font-size: 11px; color: #8E8E93;">近 6 個月實際每月買入均額</span>
+                                <span style="font-size: 13px; font-weight: 800; color: #F2F2F7;">$<span id="sim-monthly-val">100,000</span> 元</span>
                             </div>
+                            <!-- 隱藏 input 作為資料來源，以防 slider 重複與舊 JS 取值報錯 -->
+                            <input type="hidden" id="sim-monthly-input" value="100000">
                         </div>
 
                         <!-- 參數 3: 美林時鐘資產策略 (預期年化報酬率) -->
