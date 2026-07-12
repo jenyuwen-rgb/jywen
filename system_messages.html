@@ -60,6 +60,8 @@
         </div>
     </header>
 
+    <div id="db-warning-box" style="display:none; max-width:800px; margin: 0 auto 16px auto;"></div>
+
     <!-- 🤖 iOS/Mac 爬蟲即時狀態 -->
     <div class="card-container">
         <div onclick="toggleCrawlers()" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px;cursor:pointer;user-select:none;">
@@ -265,6 +267,18 @@ async function fetchSystemMessages() {
         const resp = await fetch('/api/system_messages');
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const data = await resp.json();
+        
+        // ── 0. 顯示磁碟權限警告
+        const warningBox = document.getElementById('db-warning-box');
+        if (warningBox) {
+            if (data.db_status === 'permission_denied') {
+                warningBox.style.display = 'block';
+                warningBox.style.cssText = 'padding:12px;margin-bottom:16px;border-radius:8px;border:1px solid rgba(255,149,0,0.3);font-size:12px;background:rgba(255,149,0,0.08);color:#FF9F0A;line-height:1.6;';
+                warningBox.innerHTML = '<strong>🔒 背景伺服器磁碟權限不足 (iCloud Access Denied)</strong><br>伺服器以 launchd 背景服務執行時，受 macOS 安全與隱私保護政策限制，無法直接存取位於 iCloud 的 `wealth_clock.db` 等理財與車價資料庫。此為 macOS 系統限制。爬蟲與檢索狀態暫時為唯讀快取或空值。若欲修復，請嘗試至「系統設定」->「隱私權與安全性」->「完全磁碟存取權限」授予終端機/Python 存取權，或以互動式終端機手動啟動服務。';
+            } else {
+                warningBox.style.display = 'none';
+            }
+        }
 
         // ── 1. iOS/Mac 爬蟲即時狀態
         const crawlerStatus = data.crawler_status || [];

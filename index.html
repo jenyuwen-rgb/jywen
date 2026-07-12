@@ -312,12 +312,12 @@
             const minWait = new Promise(r => setTimeout(r, 1500));
             const main = document.getElementById('main'); main.innerHTML = "";
             const sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}' LIMIT 1`);
-            if (!sexRes[0]) { loader.style.display = 'none'; return; }
+            if (!sexRes || !sexRes[0]) { loader.style.display = 'none'; return; }
             const sex = sexRes[0].values[0][0]; saveHistory(input);
             const strokes = ["蝶式", "仰式", "蛙式", "自由式", "混合式"];
             for (let [sIdx, stroke] of strokes.entries()) {
                 const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${input}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}`);
-                if (!res[0]) continue;
+                if (!res || !res[0]) continue;
                 const card = document.createElement('div'); card.className = "stroke-card";
                 card.cardHTML = "";
                 card.innerHTML = `<div class="stroke-title">${stroke}</div>`;

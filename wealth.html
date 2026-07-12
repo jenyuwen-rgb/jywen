@@ -14,6 +14,11 @@
             color: #f4f4f5;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
+        @keyframes compass-pulse {
+            0% { r: 8px; opacity: 0.25; }
+            50% { r: 14px; opacity: 0.55; }
+            100% { r: 8px; opacity: 0.25; }
+        }
         .page-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -147,23 +152,103 @@
 
         <!-- 景氣狀態儀表板 (極簡單行展示 - 一行搞定且字大一點) -->
         <!-- 景氣狀態儀表板 (三卡單行展示) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl text-center flex items-center justify-center gap-1.5 text-gray-400" style="height: 38px; font-size: 15px; font-weight: 700; padding: 0 12px;">
-                <span>🇹🇼 台灣景氣：</span>
-                <span id="tw-current-quad" style="color: #F2F2F7; font-weight: 700;">讀取中...</span>
+        <!-- 🎯 美林時鐘景氣羅盤儀表板 (macOS/Apple 頂級毛玻璃卡片) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            
+            <!-- 羅盤卡片 (左欄) -->
+            <div style="background:#1C1C1E; border:1px solid #2C2C2E; border-radius:16px; padding:20px; display:flex; flex-direction:column; align-items:center; position:relative;">
+                
+                <!-- 雙向切換開關 (美國/台灣) -->
+                <div style="display:flex; background:#2C2C2E; border:0.5px solid #3A3A3C; border-radius:20px; padding:2px; margin-bottom:15px; z-index:10;">
+                    <button id="toggle-us-btn" class="toggle-btnactive" onclick="switchCompass(true)" style="background:#D4AF37; color:#000; border:none; border-radius:18px; padding:6px 16px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s;">🇺🇸 美國經濟</button>
+                    <button id="toggle-tw-btn" class="" onclick="switchCompass(false)" style="background:none; color:#AEAEB2; border:none; border-radius:18px; padding:6px 16px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">🇹🇼 台灣經濟</button>
+                </div>
+                
+                <!-- SVG 羅盤主體 -->
+                <svg id="compass-svg" width="280" height="280" viewBox="0 0 300 300" style="background:radial-gradient(circle, rgba(28,28,30,0.5) 0%, rgba(10,10,12,0.8) 100%); border-radius:50%; border:1px solid #2C2C2E; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+                    <defs>
+                        <!-- 軌跡漸層色 -->
+                        <linearGradient id="tail-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#8E8E93" stop-opacity="0.1"/>
+                            <stop offset="50%" stop-color="#D4AF37" stop-opacity="0.5"/>
+                            <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+                        </linearGradient>
+                        
+                        <!-- 象限遮罩與漸層 -->
+                        <radialGradient id="dial-bg" cx="50%" cy="50%" r="50%">
+                            <stop offset="70%" stop-color="#1C1C1E" stop-opacity="0"/>
+                            <stop offset="100%" stop-color="#0A0A0C" stop-opacity="0.8"/>
+                        </radialGradient>
+                    </defs>
+                    
+                    <!-- 四個半透明象限背景區塊 -->
+                    <!-- 1. Reflation: Top-Left (Blue) -->
+                    <path d="M 150 150 L 150 30 A 120 120 0 0 0 30 150 Z" fill="rgba(106, 196, 250, 0.04)" stroke="rgba(106, 196, 250, 0.15)" stroke-width="0.5"/>
+                    <!-- 2. Recovery: Top-Right (Green) -->
+                    <path d="M 150 150 L 270 150 A 120 120 0 0 0 150 30 Z" fill="rgba(52, 199, 89, 0.04)" stroke="rgba(52, 199, 89, 0.15)" stroke-width="0.5"/>
+                    <!-- 3. Overheat: Bottom-Right (Red) -->
+                    <path d="M 150 150 L 150 270 A 120 120 0 0 0 270 150 Z" fill="rgba(255, 69, 58, 0.04)" stroke="rgba(255, 69, 58, 0.15)" stroke-width="0.5"/>
+                    <!-- 4. Stagflation: Bottom-Left (Orange) -->
+                    <path d="M 150 150 L 30 150 A 120 120 0 0 0 150 270 Z" fill="rgba(255, 159, 10, 0.04)" stroke="rgba(255, 159, 10, 0.15)" stroke-width="0.5"/>
+                    
+                    <!-- 象限中軸線 -->
+                    <line x1="30" y1="150" x2="270" y2="150" stroke="#3A3A3C" stroke-width="1.5" stroke-dasharray="3,3"/>
+                    <line x1="150" y1="30" x2="150" y2="270" stroke="#3A3A3C" stroke-width="1.5" stroke-dasharray="3,3"/>
+                    
+                    <!-- 外環圓圈 -->
+                    <circle cx="150" cy="150" r="120" fill="none" stroke="#2C2C2E" stroke-width="2"/>
+                    <circle cx="150" cy="150" r="122" fill="none" stroke="#111" stroke-width="0.5"/>
+                    
+                    <!-- 軸線標記 -->
+                    <text x="275" y="154" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="start">成長 ▲</text>
+                    <text x="25" y="154" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="end">成長 ▼</text>
+                    <text x="150" y="22" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="middle">通膨 ▼</text>
+                    <text x="150" y="286" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="middle">通膨 ▲</text>
+                    
+                    <!-- 象限文字標籤 -->
+                    <text x="90" y="80" fill="#6AC4FA" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">😴 衰退期</text>
+                    <text x="210" y="80" fill="#34C759" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">🌱 復甦期</text>
+                    <text x="210" y="225" fill="#FF453A" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">🔥 過熱期</text>
+                    <text x="90" y="225" fill="#FF9F0A" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">⚠️ 滯脹期</text>
+                </svg>
             </div>
-            <div class="bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl text-center flex items-center justify-center gap-1.5 text-gray-400" style="height: 38px; font-size: 15px; font-weight: 700; padding: 0 12px;">
-                <span>🔴🔵 台灣燈號：</span>
-                <span id="tw-light-score-quad" style="color: #F2F2F7; font-weight: 700;">讀取中...</span>
-            </div>
-            <div class="bg-[#1C1C1E] border border-[#2C2C2E] rounded-xl text-center flex items-center justify-center gap-1.5 text-gray-400" style="height: 38px; font-size: 15px; font-weight: 700; padding: 0 12px;">
-                <span style="display: flex; align-items: center; gap: 3px;">
-                    <span>📈 領先指標</span>
-                    <span id="leading-indicator-month" style="color: #8E8E93; font-size: 11px; font-weight: normal;"></span>
-                    <span>：</span>
-                </span>
-                <span id="leading-indicator-val" style="color: #FFD933; font-weight: 700;">讀取中...</span>
-                <span id="leading-indicator-trend" style="font-size: 12px;">―</span>
+            
+            <!-- 診斷與數值卡片 (右欄) -->
+            <div style="background:#1C1C1E; border:1px solid #2C2C2E; border-radius:16px; padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+                
+                <!-- 頂部：最新象限與描述 -->
+                <div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                        <span style="font-size:12px; font-weight:700; color:#AEAEB2;">🔴🔵 當前景氣象限</span>
+                        <span id="comp-current-quad" style="font-size:15px; font-weight:800; color:#F2F2F7;">讀取中...</span>
+                    </div>
+                    <div id="comp-quad-desc" style="font-size:12px; color:#8E8E93; line-height:1.6; background:#161618; border:0.5px solid #2C2C2E; border-radius:10px; padding:12px; min-height:60px;">
+                        正在讀取並解析總體經濟數據...
+                    </div>
+                </div>
+                
+                <!-- 中部：建議資產配置 (極醒目 macOS Badge) -->
+                <div style="margin: 15px 0;">
+                    <div style="font-size:12px; font-weight:700; color:#AEAEB2; margin-bottom:8px;">🎯 最佳配置資產</div>
+                    <div id="comp-best-assets" style="font-size:14px; font-weight:800; text-align:center; padding:10px; border-radius:10px; border:1px solid rgba(212,175,55,0.3); background:rgba(212,175,55,0.06); color:#D4AF37;">
+                        等待數據載入...
+                    </div>
+                </div>
+                
+                <!-- 底部：即時數據網格 -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div style="background:#2C2C2E; border:0.5px solid #3A3A3C; border-radius:10px; padding:8px 12px; display:flex; flex-direction:column;">
+                        <span style="font-size:11px; color:#8E8E93;">🇹🇼 台灣景氣燈號</span>
+                        <span id="tw-light-score-quad" style="font-size:13px; font-weight:700; color:#F2F2F7; margin-top:2px;">讀取中...</span>
+                    </div>
+                    <div style="background:#2C2C2E; border:0.5px solid #3A3A3C; border-radius:10px; padding:8px 12px; display:flex; flex-direction:column;">
+                        <span style="font-size:11px; color:#8E8E93;">📈 領先指標 <span id="leading-indicator-month" style="font-size:9px; color:#8E8E93; font-weight:normal;"></span></span>
+                        <div style="display:flex; align-items:center; gap:4px; margin-top:2px;">
+                            <span id="leading-indicator-val" style="font-size:13px; font-weight:700; color:#FFD933;">讀取中...</span>
+                            <span id="leading-indicator-trend" style="font-size:10px;">―</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -248,8 +333,13 @@
                 <!-- 統一 52px 高度 header 容器，確保與右側絕對水平對齊 -->
                 <div style="height: 52px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 8px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-                        <div>
-                            <h4 style="margin:0; font-size:0.95rem; font-weight:700; color:#D4AF37;">💸 外資淨匯入/匯出月報</h4>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <h4 id="fc-title-text" style="margin:0; font-size:0.95rem; font-weight:700; color:#D4AF37;">💸 外資淨匯入/匯出月報</h4>
+                            <!-- macOS Segmented Control -->
+                            <div class="mac-segmented-control" style="display:inline-flex; background:#1C1C1E; border:1px solid #3A3A3C; border-radius:8px; padding:2px; font-size:9px;">
+                                <button onclick="toggleFcSource('fsc')" id="btn-fc-fsc" class="mac-seg-btn mac-seg-active" style="background:#2C2C2E; color:#FFF; border:none; border-radius:6px; padding:2px 8px; cursor:pointer; font-weight:700; transition:all 0.15s; outline:none;">金管會本金 (月)</button>
+                                <button onclick="toggleFcSource('cbc')" id="btn-fc-cbc" class="mac-seg-btn" style="background:transparent; color:#AEAEB2; border:none; border-radius:6px; padding:2px 8px; cursor:pointer; transition:all 0.15s; outline:none;">央行總流入 (季)</button>
+                            </div>
                         </div>
                         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                             <div id="fc-range-btns" style="display:flex; gap:3px;">
@@ -262,7 +352,7 @@
                         </div>
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center; font-size:9px; color:#636366; height:16px; line-height:16px;">
-                        <span>外資實質本金每月淨匯入出及累積餘額</span>
+                        <span id="fc-desc-text">外資實質本金每月淨匯入出及累積餘額</span>
                         <span id="fc-data-range"></span>
                     </div>
                 </div>
@@ -483,6 +573,211 @@
 
         let dbData = [];
         let currentStock = '0050';
+        let isUSCompass = true;
+
+        function switchCompass(isUS) {
+            isUSCompass = isUS;
+            const usBtn = document.getElementById('toggle-us-btn');
+            const twBtn = document.getElementById('toggle-tw-btn');
+            if (isUS) {
+                usBtn.style.background = '#D4AF37';
+                usBtn.style.color = '#000';
+                usBtn.style.fontWeight = '700';
+                twBtn.style.background = 'none';
+                twBtn.style.color = '#AEAEB2';
+                twBtn.style.fontWeight = '600';
+            } else {
+                twBtn.style.background = '#D4AF37';
+                twBtn.style.color = '#000';
+                twBtn.style.fontWeight = '700';
+                usBtn.style.background = 'none';
+                usBtn.style.color = '#AEAEB2';
+                usBtn.style.fontWeight = '600';
+            }
+            drawCompass(isUS);
+        }
+
+        function drawCompass(isUS) {
+            if (!dbData || dbData.length === 0) return;
+            const recentData = dbData.slice(-5); // 過去 5 個月
+            
+            const svg = document.getElementById('compass-svg');
+            if (!svg) return;
+            
+            // 清理舊的軌跡與指示點
+            document.querySelectorAll('.compass-dynamic').forEach(el => el.remove());
+            
+            const points = [];
+            recentData.forEach((d) => {
+                let g = isUS ? d.us_growth : d.tw_growth;
+                let inf = isUS ? d.us_inflation : d.tw_inflation;
+                let quad = isUS ? d.us_quadrant : d.tw_quadrant;
+                
+                if (g === null || g === undefined) g = 1.5;
+                if (inf === null || inf === undefined) inf = 2.0;
+                if (quad === null || quad === undefined) quad = 1;
+                
+                // SVG 軸心 (150, 150)
+                let dx = 0;
+                let dy = 0;
+                
+                // 根據美國/台灣總經指標數值進行座標對照對應
+                const gThreshold = isUS ? 1.5 : 20.0;
+                const infThreshold = isUS ? 3.0 : 1.5;
+                
+                dx = (g - gThreshold) * (isUS ? 40 : 8);
+                dy = (inf - infThreshold) * (isUS ? 30 : 60);
+                
+                // 強制將點置於對應象限，避免邊界錯誤
+                if (quad === 1) { // 衰退期 (左上)
+                    if (dx > -15) dx = -15 - Math.abs(dx)*0.1;
+                    if (dy > -15) dy = -15 - Math.abs(dy)*0.1;
+                } else if (quad === 2) { // 復甦期 (右上)
+                    if (dx < 15) dx = 15 + Math.abs(dx)*0.1;
+                    if (dy > -15) dy = -15 - Math.abs(dy)*0.1;
+                } else if (quad === 3) { // 過熱期 (右下)
+                    if (dx < 15) dx = 15 + Math.abs(dx)*0.1;
+                    if (dy < 15) dy = 15 + Math.abs(dy)*0.1;
+                } else if (quad === 4) { // 滯脹期 (左下)
+                    if (dx > -15) dx = -15 - Math.abs(dx)*0.1;
+                    if (dy < 15) dy = 15 + Math.abs(dy)*0.1;
+                }
+                
+                // 限制半徑在 95 像素內
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                const maxDist = 95;
+                if (dist > maxDist) {
+                    dx = (dx / dist) * maxDist;
+                    dy = (dy / dist) * maxDist;
+                }
+                
+                points.push({
+                    x: 150 + dx,
+                    y: 150 + dy,
+                    month: d.yyyy_mm,
+                    quad: quad,
+                    g: g,
+                    inf: inf
+                });
+            });
+            
+            // 1. 繪製歷史軌跡線 (漸層發光)
+            if (points.length > 1) {
+                let dPath = `M ${points[0].x} ${points[0].y}`;
+                for (let i = 1; i < points.length; i++) {
+                    dPath += ` L ${points[i].x} ${points[i].y}`;
+                }
+                
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', dPath);
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', 'url(#tail-gradient)');
+                path.setAttribute('stroke-width', '4');
+                path.setAttribute('stroke-linecap', 'round');
+                path.setAttribute('stroke-linejoin', 'round');
+                path.setAttribute('class', 'compass-dynamic');
+                path.setAttribute('style', 'opacity: 0.75; filter: drop-shadow(0 0 6px rgba(212,175,55,0.4));');
+                svg.appendChild(path);
+            }
+            
+            // 2. 繪製歷史月份圓點 (透明度漸變)
+            for (let i = 0; i < points.length - 1; i++) {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', points[i].x);
+                circle.setAttribute('cy', points[i].y);
+                circle.setAttribute('r', '5');
+                circle.setAttribute('fill', '#AEAEB2');
+                circle.setAttribute('class', 'compass-dynamic');
+                circle.setAttribute('style', `opacity: ${(i+1) * 0.18};`);
+                
+                const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+                title.textContent = `歷史月份 ${points[i].month}\n成長率: ${points[i].g.toFixed(2)}%\n通膨率: ${points[i].inf.toFixed(2)}%`;
+                circle.appendChild(title);
+                
+                svg.appendChild(circle);
+            }
+            
+            // 3. 繪製當前最新月份指示點 (glowing cursor)
+            const latestPt = points[points.length - 1];
+            
+            // 外層呼吸暈圈
+            const glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            glow.setAttribute('cx', latestPt.x);
+            glow.setAttribute('cy', latestPt.y);
+            glow.setAttribute('r', '10');
+            glow.setAttribute('fill', '#D4AF37');
+            glow.setAttribute('class', 'compass-dynamic compass-pulse-active');
+            svg.appendChild(glow);
+            
+            // 內層白色實心點
+            const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            dot.setAttribute('cx', latestPt.x);
+            dot.setAttribute('cy', latestPt.y);
+            dot.setAttribute('r', '7');
+            dot.setAttribute('fill', '#FFFFFF');
+            dot.setAttribute('stroke', '#D4AF37');
+            dot.setAttribute('stroke-width', '3');
+            dot.setAttribute('class', 'compass-dynamic');
+            dot.setAttribute('style', 'filter: drop-shadow(0 0 8px #D4AF37); cursor: pointer;');
+            
+            const activeTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            activeTitle.textContent = `當前月份 ${latestPt.month}\n成長率: ${latestPt.g.toFixed(2)}%\n通膨率: ${latestPt.inf.toFixed(2)}%`;
+            dot.appendChild(activeTitle);
+            
+            svg.appendChild(dot);
+            
+            // 4. 更新右欄總經診斷看板
+            updateMacroDiagnostic(latestPt, isUS);
+        }
+
+        function updateMacroDiagnostic(pt, isUS) {
+            const quadNames = {
+                1: "🔵 衰退期 (Reflation)",
+                2: "🟢 復甦期 (Recovery)",
+                3: "🔴 過熱期 (Overheat)",
+                4: "🟠 滯脹期 (Stagflation)"
+            };
+            const quadDesc = {
+                1: "經濟成長低於趨勢，且通膨下滑。債券是最佳配置，其次是現金。",
+                2: "經濟增長加速，且通膨偏低。股票是最佳配置，表現最為亮眼。",
+                3: "經濟增長強勁，且通膨上升。商品/大宗物資是最佳配置，其次是股票。",
+                4: "經濟成長放緩，但通膨高企。現金是最佳配置，資產防禦性第一。"
+            };
+            const bestAssets = {
+                1: "📊 債券 (Bonds) > 現金",
+                2: "📈 股票 (Stocks) > 債券",
+                3: "🔥 商品 (Commodities) > 股票",
+                4: "💵 現金 (Cash) > 商品"
+            };
+            const quadColors = {
+                1: "#6AC4FA",
+                2: "#34C759",
+                3: "#FF453A",
+                4: "#FF9F0A"
+            };
+            
+            const quadEl = document.getElementById('comp-current-quad');
+            if (quadEl) {
+                quadEl.textContent = quadNames[pt.quad] || "未知";
+                quadEl.style.color = quadColors[pt.quad] || "#F2F2F7";
+            }
+            
+            const descEl = document.getElementById('comp-quad-desc');
+            if (descEl) {
+                descEl.textContent = `${isUS ? '🇺🇸 美國' : '🇹🇼 台灣'} ${quadDesc[pt.quad] || '無資料描述'}`;
+            }
+            
+            const assetEl = document.getElementById('comp-best-assets');
+            if (assetEl) {
+                assetEl.textContent = bestAssets[pt.quad] || "無配置建議";
+                assetEl.style.backgroundColor = (quadColors[pt.quad] || "#3A3A3C") + "15";
+                assetEl.style.color = quadColors[pt.quad] || "#FFFFFF";
+                assetEl.style.borderColor = (quadColors[pt.quad] || "#3A3A3C") + "50";
+            }
+            
+            // 與下方購買看板聯動高亮
+            renderWatchboard(pt.quad);
+        }
 
         // 載入資料庫資料
         async function loadData() {
@@ -516,6 +811,7 @@
                         }
                         
                         renderWatchboard(latest.us_quadrant);
+                        drawCompass(isUSCompass);
 
                         // 2. 最新台灣象限與景氣燈號，從後往前搜尋有資料的最新月份
                         let latestTw = null;
@@ -612,6 +908,8 @@
         let rawLeadingData = [];
         let rawStockLightData = [];
         let rawForeignCapitalData = [];
+        let rawBopData = [];
+        let fcSource = 'fsc'; // 'fsc' or 'cbc'
         let commonMonths = [];
         
         let globalCurrentYears = 1; // 預設 1 年
@@ -644,18 +942,35 @@
             if (commonMonths.length === 0) return;
             const s = _calcStartPct(commonMonths, years);
 
-            // 更新外資圖表的區間文字
-            const displayMonths = years > 0 ? commonMonths.slice(-years * 12) : commonMonths;
-            const rangeEl = document.getElementById('fc-data-range');
-            if (rangeEl && displayMonths.length > 0) {
-                rangeEl.textContent = `${displayMonths[0]} ～ ${displayMonths[displayMonths.length-1]}，共 ${displayMonths.length} 個月`;
+            // 更新外資圖表的區間文字與單獨 dataZoom
+            if (fcSource === 'cbc') {
+                if (rawBopData && rawBopData.length > 0) {
+                    const quarters = rawBopData.map(d => d.quarter);
+                    const displayQuarters = years > 0 ? quarters.slice(-years * 4) : quarters;
+                    const rangeEl = document.getElementById('fc-data-range');
+                    if (rangeEl && displayQuarters.length > 0) {
+                        rangeEl.textContent = `${displayQuarters[0]} ～ ${displayQuarters[displayQuarters.length-1]}，共 ${displayQuarters.length} 季`;
+                    }
+                    
+                    const totalQ = quarters.length;
+                    const showQ = years > 0 ? years * 4 : totalQ;
+                    const sQ = totalQ === 0 ? 0 : Math.max(0, Math.round(((totalQ - showQ) / totalQ) * 100));
+                    if (fcChart) fcChart.setOption({ dataZoom: [{ start: sQ, end: 100 }, { start: sQ, end: 100 }] });
+                }
+            } else {
+                const displayMonths = years > 0 ? commonMonths.slice(-years * 12) : commonMonths;
+                const rangeEl = document.getElementById('fc-data-range');
+                if (rangeEl && displayMonths.length > 0) {
+                    rangeEl.textContent = `${displayMonths[0]} ～ ${displayMonths[displayMonths.length-1]}，共 ${displayMonths.length} 個月`;
+                }
+                const zoomOption = { dataZoom: [{ start: s, end: 100 }, { start: s, end: 100 }] };
+                if (fcChart) fcChart.setOption(zoomOption);
             }
 
-            // 同步套用 dataZoom
+            // 同步套用其餘圖表的 dataZoom
             const zoomOption = { dataZoom: [{ start: s, end: 100 }, { start: s, end: 100 }] };
             if (twLightChart) twLightChart.setOption(zoomOption);
             if (dualChart) dualChart.setOption(zoomOption);
-            if (fcChart) fcChart.setOption(zoomOption);
             if (stmtChart) stmtChart.setOption(zoomOption);
             if (netAssetsChart) netAssetsChart.setOption(zoomOption);
         }
@@ -681,29 +996,33 @@
             if (fcChart) fcChart.showLoading({ text: '載入外資流向中…', textColor: '#AEAEB2', maskColor: 'rgba(0,0,0,0)' });
 
             try {
-                // 1. 同步併發拉取四個 API
-                const [respLeading, respDual, respFC, respStmt] = await Promise.all([
+                // 1. 同步併發拉取五個 API
+                const [respLeading, respDual, respFC, respBop, respStmt] = await Promise.all([
                     fetch('/api/leading_indicators'),
                     fetch(`/api/tw_stock_light_chart?stock=${stock}&years=30`),
                     fetch('/api/foreign_capital_flow?months=300'),
+                    fetch('/api/tw_bop_quarterly?quarters=120'),
                     fetch('/api/investment_statements?limit=2000')
                 ]);
 
-                const [jsonLeading, jsonDual, jsonFC, jsonStmt] = await Promise.all([
+                const [jsonLeading, jsonDual, jsonFC, jsonBop, jsonStmt] = await Promise.all([
                     respLeading.json(),
                     respDual.json(),
                     respFC.json(),
+                    respBop.json(),
                     respStmt.json()
                 ]);
 
                 if (jsonLeading.status !== 'success') throw new Error(jsonLeading.message);
                 if (jsonDual.status !== 'success') throw new Error(jsonDual.message);
                 if (jsonFC.status !== 'success') throw new Error(jsonFC.message);
+                if (jsonBop.status !== 'success') throw new Error(jsonBop.message);
                 if (jsonStmt.status !== 'success') throw new Error(jsonStmt.message);
 
                 rawLeadingData = jsonLeading.data;
                 rawStockLightData = jsonDual.data;
                 rawForeignCapitalData = jsonFC.data;
+                rawBopData = jsonBop.data;
                 allStmtData = jsonStmt.data || [];
 
                 // 🌟 更新「景氣領先指標（不含趨勢）」最新狀態卡片
@@ -737,12 +1056,11 @@
                     }
                 }
 
-                // 2. 尋求三張圖的「共同交集時間軸」
+                // 2. 尋求三張圖的「共同交集時間軸」 (放寬交集：不強求外資數據，外資數據無歷史時不應拖累景氣燈號與領先指標)
                 const m1 = new Set(rawLeadingData.map(d => d.yyyy_mm));
                 const m2 = new Set(rawStockLightData.map(d => d.month));
-                const m3 = new Set(rawForeignCapitalData.map(d => d.month));
 
-                commonMonths = [...m1].filter(m => m2.has(m) && m3.has(m)).sort();
+                commonMonths = [...m1].filter(m => m2.has(m)).sort();
 
                 if (commonMonths.length === 0) throw new Error("無重疊時間段數據");
 
@@ -753,7 +1071,7 @@
 
                 const alignedLeading = commonMonths.map(m => leadingMap.get(m));
                 const alignedStock = commonMonths.map(m => stockMap.get(m));
-                const alignedFC = commonMonths.map(m => fcMap.get(m));
+                const alignedFC = commonMonths.map(m => fcMap.get(m) || { cumulative: null, net: null });
 
                 // ── 繪製圖 1: 台灣景氣對策信號 × 景氣領先指標 ──
                 const scores1 = alignedLeading.map(d => d.tw_light_score || 0);
@@ -951,68 +1269,8 @@
                     }, true);
                 }
 
-                // ── 繪製圖 3: 外資進出台股月報 (匯率 32.5 換算為台幣億元) ──
-                const USD_TO_TWD = 32.5;
-                const cums3 = alignedFC.map(d => (d.cumulative || 0) * USD_TO_TWD);
-                const nets3 = alignedFC.map(d => (d.net || 0) * USD_TO_TWD);
-
-                if (fcChart) {
-                    fcChart.hideLoading();
-                    fcChart.setOption({
-                        backgroundColor: 'transparent',
-                        tooltip: {
-                            trigger: 'axis', axisPointer: { type: 'cross' },
-                            backgroundColor: 'rgba(28,28,30,0.95)', borderColor: '#3A3A3C',
-                            textStyle: { color: '#F2F2F7', fontSize: 12 },
-                            formatter: params => {
-                                const i = params[0].dataIndex;
-                                let html = `<b style="color:#D4AF37">${commonMonths[i]}</b><br/>`;
-                                params.forEach(p => {
-                                    if (p.seriesName === '當月本金淨流入/出') {
-                                        const val = p.value;
-                                        const color = val >= 0 ? '#30D158' : '#FF453A';
-                                        const dir = val >= 0 ? '▲ 淨匯入' : '▼ 淨匯出';
-                                        html += `${p.seriesName}：<b style="color:${color}">${dir} ${Math.abs(val).toFixed(2)} 億台幣</b><br/>`;
-                                    } else {
-                                        html += `${p.seriesName}：<b style="color:#FFD933">${p.value.toFixed(2)} 億台幣</b><br/>`;
-                                    }
-                                });
-                                return html;
-                            }
-                        },
-                        legend: { data: ['當月本金淨流入/出', '累積淨匯入'], textStyle: { color: '#AEAEB2', fontSize: 11 }, top: 0 },
-                        grid: UNIFIED_GRID,
-                        xAxis: {
-                            type: 'category', data: commonMonths,
-                            axisLabel: { color: '#8E8E93', fontSize: 10, rotate: 40,
-                                formatter: v => v.endsWith('-01') || v.endsWith('-07') ? v.slice(0,7) : '' },
-                            axisLine: { lineStyle: { color: '#3A3A3C' } }, axisTick: { show: false }
-                        },
-                        yAxis: [
-                            { type: 'value', name: '淨流入出 (億台幣)', nameTextStyle: { color: '#AEAEB2', fontSize: 9 },
-                              axisLabel: { color: '#AEAEB2', fontSize: 10, formatter: v => v >= 0 ? `+${v.toFixed(0)}` : `${v.toFixed(0)}` },
-                              splitLine: { lineStyle: { color: '#2A2A2C' } }, axisLine: { lineStyle: { color: '#3A3A3C' } } },
-                            { type: 'value', name: '累積淨額 (億台幣)', nameTextStyle: { color: '#FFD933', fontSize: 9 },
-                              axisLabel: { color: '#FFD933', fontSize: 10 }, splitLine: { show: false }, axisLine: { lineStyle: { color: '#3A3A3C' } } }
-                        ],
-                        series: [
-                            { name: '當月本金淨流入/出', type: 'bar', yAxisIndex: 0,
-                              data: nets3.map(n => ({
-                                  value: parseFloat(n.toFixed(2)),
-                                  itemStyle: { color: n >= 0 ? '#30D158' : '#FF453A', opacity: 0.75, borderRadius: n >= 0 ? [2,2,0,0] : [0,0,2,2] }
-                              })),
-                              barMaxWidth: 12,
-                              markLine: { silent: true, symbol: 'none', lineStyle: { color: '#636366', type: 'solid', width: 1 }, data: [{ yAxis: 0 }] }
-                            },
-                            { name: '累積淨匯入', type: 'line', yAxisIndex: 1, data: cums3, smooth: true, showSymbol: false, lineStyle: { color: '#FFD933', width: 2 } }
-                        ],
-                        dataZoom: [
-                            { type: 'slider', bottom: 8, height: 18, start: 0, end: 100,
-                              borderColor: '#3A3A3C', fillerColor: 'rgba(212,175,55,0.12)',
-                              handleStyle: { color: '#D4AF37' }, textStyle: { color: '#8E8E93', fontSize: 10 } }
-                        ]
-                    });
-                }
+                // ── 繪製圖 3: 外資流向圖 ──
+                renderFcChart();
 
                 // ── 繪製圖 4: 每月買入金額走勢 (定期定額) ──
                 loadStmtChart();
@@ -1022,7 +1280,11 @@
 
                 // ── 4. 開啟五大圖表間的滑動 & 縮放全連動 (SO PREMIUM!) ──
                 if (twLightChart && dualChart && fcChart && stmtChart && netAssetsChart) {
-                    echarts.connect([twLightChart, dualChart, fcChart, stmtChart, netAssetsChart]);
+                    if (fcSource === 'cbc') {
+                        echarts.connect([twLightChart, dualChart, stmtChart, netAssetsChart]);
+                    } else {
+                        echarts.connect([twLightChart, dualChart, fcChart, stmtChart, netAssetsChart]);
+                    }
                 }
 
                 // ── 5. 同步套用預設的 5 年年份區間 ──
@@ -1042,6 +1304,219 @@
                 if (fcChart) fcChart.hideLoading();
                 console.error("載入圖表異常", e);
             }
+        }
+
+
+        function renderFcChart() {
+            if (!fcChart) return;
+            fcChart.hideLoading();
+
+            if (fcSource === 'fsc') {
+                // 原金管會本金數據
+                const USD_TO_TWD = 32.5;
+                const cums3 = rawForeignCapitalData.map(d => d.cumulative !== null ? d.cumulative * USD_TO_TWD : null);
+                const nets3 = rawForeignCapitalData.map(d => d.net !== null ? d.net * USD_TO_TWD : null);
+                const months = rawForeignCapitalData.map(d => d.month);
+
+                // Update range subtitle
+                const rangeEl = document.getElementById('fc-data-range');
+                if (rangeEl && months.length > 0) {
+                    const years = globalCurrentYears;
+                    const displayMonths = years > 0 ? months.slice(-years * 12) : months;
+                    rangeEl.textContent = `${displayMonths[0]} ～ ${displayMonths[displayMonths.length-1]}，共 ${displayMonths.length} 個月`;
+                }
+
+                fcChart.setOption({
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'axis', axisPointer: { type: 'cross' },
+                        backgroundColor: 'rgba(28,28,30,0.95)', borderColor: '#3A3A3C',
+                        textStyle: { color: '#F2F2F7', fontSize: 12 },
+                        formatter: params => {
+                            const i = params[0].dataIndex;
+                            let html = `<b style="color:#D4AF37">${months[i]}</b><br/>`;
+                            params.forEach(p => {
+                                if (p.seriesName === '當月本金淨流入/出') {
+                                    const val = p.value;
+                                    const color = val >= 0 ? '#30D158' : '#FF453A';
+                                    const dir = val >= 0 ? '▲ 淨匯入' : '▼ 淨匯出';
+                                    html += `${p.seriesName}：<b style="color:${color}">${dir} ${Math.abs(val).toFixed(2)} 億台幣</b><br/>`;
+                                } else {
+                                    html += `${p.seriesName}：<b style="color:#FFD933">${p.value.toFixed(2)} 億台幣</b><br/>`;
+                                }
+                            });
+                            return html;
+                        }
+                    },
+                    legend: { data: ['當月本金淨流入/出', '累積淨匯入'], textStyle: { color: '#AEAEB2', fontSize: 11 }, top: 0 },
+                    grid: UNIFIED_GRID,
+                    xAxis: {
+                        type: 'category', data: months,
+                        axisLabel: { color: '#8E8E93', fontSize: 10, rotate: 40,
+                            formatter: v => v.endsWith('-01') || v.endsWith('-07') ? v.slice(0,7) : '' },
+                        axisLine: { lineStyle: { color: '#3A3A3C' } }, axisTick: { show: false }
+                    },
+                    yAxis: [
+                        { type: 'value', name: '淨流入出 (億台幣)', nameTextStyle: { color: '#AEAEB2', fontSize: 9 },
+                          axisLabel: { color: '#AEAEB2', fontSize: 10, formatter: v => v >= 0 ? `+${v.toFixed(0)}` : `${v.toFixed(0)}` },
+                          splitLine: { lineStyle: { color: '#2A2A2C' } }, axisLine: { lineStyle: { color: '#3A3A3C' } } },
+                        { type: 'value', name: '累積淨額 (億台幣)', nameTextStyle: { color: '#FFD933', fontSize: 9 },
+                          axisLabel: { color: '#FFD933', fontSize: 10 }, splitLine: { show: false }, axisLine: { lineStyle: { color: '#3A3A3C' } } }
+                    ],
+                    series: [
+                        { name: '當月本金淨流入/出', type: 'bar', yAxisIndex: 0,
+                          data: nets3.map(n => n !== null ? {
+                              value: parseFloat(n.toFixed(2)),
+                              itemStyle: { color: n >= 0 ? '#30D158' : '#FF453A', opacity: 0.75, borderRadius: n >= 0 ? [2,2,0,0] : [0,0,2,2] }
+                          } : null),
+                          barMaxWidth: 12,
+                          markLine: { silent: true, symbol: 'none', lineStyle: { color: '#636366', type: 'solid', width: 1 }, data: [{ yAxis: 0 }] }
+                        },
+                        { name: '累積淨匯入', type: 'line', yAxisIndex: 1, data: cums3, connectNulls: true, smooth: true, showSymbol: false, lineStyle: { color: '#FFD933', width: 2 } }
+                    ]
+                }, true);
+
+                // Set zoom pct
+                const s = _calcStartPct(months, globalCurrentYears);
+                fcChart.setOption({ dataZoom: [{ start: s, end: 100 }, { start: s, end: 100 }] });
+            } else if (fcSource === 'cbc') {
+                // 央行外資總流入結匯數據 (匯率 32.5 換算為台幣億元)
+                const USD_TO_TWD = 32.5;
+                const quarters = rawBopData.map(d => d.quarter);
+                const totalVals = rawBopData.map(d => d.total_inflow !== null ? d.total_inflow * USD_TO_TWD : null); // 億台幣
+                
+                // 計算滾動累積值 (億台幣)
+                let runningSum = 0;
+                const cums = totalVals.map(v => {
+                    if (v === null) return null;
+                    runningSum += v;
+                    return parseFloat(runningSum.toFixed(2));
+                });
+
+                // Update range subtitle
+                const rangeEl = document.getElementById('fc-data-range');
+                if (rangeEl && quarters.length > 0) {
+                    const years = globalCurrentYears;
+                    const displayQuarters = years > 0 ? quarters.slice(-years * 4) : quarters;
+                    rangeEl.textContent = `${displayQuarters[0]} ～ ${displayQuarters[displayQuarters.length-1]}，共 ${displayQuarters.length} 季`;
+                }
+
+                fcChart.setOption({
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'axis', axisPointer: { type: 'cross' },
+                        backgroundColor: 'rgba(28,28,30,0.95)', borderColor: '#3A3A3C',
+                        textStyle: { color: '#F2F2F7', fontSize: 12 },
+                        formatter: params => {
+                            const i = params[0].dataIndex;
+                            const d = rawBopData[i];
+                            const rate = 32.5;
+                            let html = `<b style="color:#D4AF37">${d.quarter}</b><br/>`;
+                            
+                            const totalValTwd = d.total_inflow * rate;
+                            const color = totalValTwd >= 0 ? '#30D158' : '#FF453A';
+                            const dir = totalValTwd >= 0 ? '▲ 淨流入' : '▼ 淨流出';
+                            html += `當季外資總結匯淨額：<b style="color:${color}">${dir} ${Math.abs(totalValTwd).toFixed(2)} 億台幣</b><br/>`;
+                            html += `<span style="font-size:10px; color:#8E8E93;">(原始金額: ${d.total_inflow.toFixed(2)} 億美元)</span><br/><br/>`;
+                            
+                            html += `• 直接投資 (FDI)：<b>${(d.direct_investment_liab * rate).toFixed(2)} 億台幣</b> <span style="font-size:9px; color:#8E8E93;">(${d.direct_investment_liab.toFixed(2)} 億美元)</span><br/>`;
+                            html += `• 證券投資 (股債)：<b>${(d.portfolio_investment * rate).toFixed(2)} 億台幣</b> <span style="font-size:9px; color:#8E8E93;">(${d.portfolio_investment.toFixed(2)} 億美元)</span><br/>`;
+                            html += `• 其他投資 (存款等)：<b>${(d.other_investment_liab * rate).toFixed(2)} 億台幣</b> <span style="font-size:9px; color:#8E8E93;">(${d.other_investment_liab.toFixed(2)} 億美元)</span><br/>`;
+                            html += `• 衍生金融商品：<b>${(d.derivatives_liab * rate).toFixed(2)} 億台幣</b> <span style="font-size:9px; color:#8E8E93;">(${d.derivatives_liab.toFixed(2)} 億美元)</span><br/><br/>`;
+                            
+                            const cumVal = params.find(p => p.seriesName === '累積結匯流入總額')?.value;
+                            if (cumVal !== undefined) {
+                                html += `累積結匯流入總額：<b style="color:#FFD933">${cumVal.toFixed(2)} 億台幣</b><br/>`;
+                            }
+                            return html;
+                        }
+                    },
+                    legend: { data: ['當季外資總結匯淨額', '累積結匯流入總額'], textStyle: { color: '#AEAEB2', fontSize: 11 }, top: 0 },
+                    grid: UNIFIED_GRID,
+                    xAxis: {
+                        type: 'category', data: quarters,
+                        axisLabel: { color: '#8E8E93', fontSize: 10, rotate: 20 },
+                        axisLine: { lineStyle: { color: '#3A3A3C' } }, axisTick: { show: false }
+                    },
+                    yAxis: [
+                        { type: 'value', name: '淨結匯額 (億台幣)', nameTextStyle: { color: '#AEAEB2', fontSize: 9 },
+                          axisLabel: { color: '#AEAEB2', fontSize: 10, formatter: v => v >= 0 ? `+${v.toFixed(0)}` : `${v.toFixed(0)}` },
+                          splitLine: { lineStyle: { color: '#2A2A2C' } }, axisLine: { lineStyle: { color: '#3A3A3C' } } },
+                        { type: 'value', name: '累積流入額 (億台幣)', nameTextStyle: { color: '#FFD933', fontSize: 9 },
+                          axisLabel: { color: '#FFD933', fontSize: 10 }, splitLine: { show: false }, axisLine: { lineStyle: { color: '#3A3A3C' } } }
+                    ],
+                    series: [
+                        { name: '當季外資總結匯淨額', type: 'bar', yAxisIndex: 0,
+                          data: totalVals.map(v => v !== null ? {
+                              value: parseFloat(v.toFixed(2)),
+                              itemStyle: { color: v >= 0 ? '#30D158' : '#FF453A', opacity: 0.75, borderRadius: v >= 0 ? [2,2,0,0] : [0,0,2,2] }
+                          } : null),
+                          barMaxWidth: 16,
+                          markLine: { silent: true, symbol: 'none', lineStyle: { color: '#636366', type: 'solid', width: 1 }, data: [{ yAxis: 0 }] }
+                        },
+                        { name: '累積結匯流入總額', type: 'line', yAxisIndex: 1, data: cums, connectNulls: true, smooth: true, showSymbol: false, lineStyle: { color: '#FFD933', width: 2 } }
+                    ]
+                }, true);
+
+                // Set zoom pct for quarters
+                const totalQ = quarters.length;
+                const showQ = globalCurrentYears > 0 ? globalCurrentYears * 4 : totalQ;
+                const sQ = totalQ === 0 ? 0 : Math.max(0, Math.round(((totalQ - showQ) / totalQ) * 100));
+                fcChart.setOption({ dataZoom: [{ start: sQ, end: 100 }, { start: sQ, end: 100 }] });
+            }
+        }
+
+
+        function toggleFcSource(source) {
+            if (fcSource === source) return;
+            fcSource = source;
+            
+            // Update segmented control buttons active state
+            const btnFsc = document.getElementById('btn-fc-fsc');
+            const btnCbc = document.getElementById('btn-fc-cbc');
+            
+            if (btnFsc && btnCbc) {
+                if (source === 'fsc') {
+                    btnFsc.className = 'mac-seg-btn mac-seg-active';
+                    btnFsc.style.background = '#2C2C2E';
+                    btnFsc.style.color = '#FFF';
+                    btnFsc.style.fontWeight = '700';
+                    
+                    btnCbc.className = 'mac-seg-btn';
+                    btnCbc.style.background = 'transparent';
+                    btnCbc.style.color = '#AEAEB2';
+                    btnCbc.style.fontWeight = 'normal';
+                    
+                    // Update descriptions
+                    document.getElementById('fc-title-text').textContent = '💸 外資淨匯入/匯出月報';
+                    document.getElementById('fc-desc-text').textContent = '外資實質本金每月淨匯入出及累積餘額';
+                } else {
+                    btnCbc.className = 'mac-seg-btn mac-seg-active';
+                    btnCbc.style.background = '#2C2C2E';
+                    btnCbc.style.color = '#FFF';
+                    btnCbc.style.fontWeight = '700';
+                    
+                    btnFsc.className = 'mac-seg-btn';
+                    btnFsc.style.background = 'transparent';
+                    btnFsc.style.color = '#AEAEB2';
+                    btnFsc.style.fontWeight = 'normal';
+                    
+                    // Update descriptions
+                    document.getElementById('fc-title-text').textContent = '🏦 外資總流入季報 (央行全口徑)';
+                    document.getElementById('fc-desc-text').textContent = '央行統計之外資來台投資總結匯淨額（含直接投資、證券投資、銀行存款等）';
+                }
+            }
+            
+            // Re-connect charts or disconnect
+            if (twLightChart && dualChart && fcChart && stmtChart && netAssetsChart) {
+                if (fcSource === 'cbc') {
+                    echarts.connect([twLightChart, dualChart, stmtChart, netAssetsChart]);
+                } else {
+                    echarts.connect([twLightChart, dualChart, fcChart, stmtChart, netAssetsChart]);
+                }
+            }
+
+            renderFcChart();
         }
 
 
