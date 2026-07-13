@@ -1742,12 +1742,16 @@
                 // 篩選
                 if (filterName && name !== filterName) return;
 
-                let month = date.slice(0, 7).replace('/', '-'); // 統一轉換成 YYYY-MM
-                const parts = month.split('-');
-                if (parts[0] && parts[0].length < 4) {
-                    const rocYear = parseInt(parts[0], 10);
-                    const adYear = rocYear + 1911;
-                    month = adYear + '-' + parts[1];
+                let month = '';
+                const dateParts = date.split(/[\/-]/);
+                if (dateParts.length >= 2) {
+                    let y = dateParts[0];
+                    let m = dateParts[1];
+                    if (y.length < 4) y = String(parseInt(y, 10) + 1911);
+                    if (m.length === 1) m = '0' + m;
+                    month = y + '-' + m;
+                } else {
+                    month = date.slice(0, 7).replace('/', '-');
                 }
                 
                 if (!monthMap[month]) monthMap[month] = {};
@@ -2342,10 +2346,16 @@
                     const amt = row['總金額'] || 0;
                     if (!date) return;
                     
-                    let month = date.slice(0, 7).replace('/', '-');
-                    const parts = month.split('-');
-                    if (parts[0] && parts[0].length < 4) {
-                        month = (parseInt(parts[0], 10) + 1911) + '-' + parts[1];
+                    let month = '';
+                    const dateParts = date.split(/[\/-]/);
+                    if (dateParts.length >= 2) {
+                        let y = dateParts[0];
+                        let m = dateParts[1];
+                        if (y.length < 4) y = String(parseInt(y, 10) + 1911);
+                        if (m.length === 1) m = '0' + m;
+                        month = y + '-' + m;
+                    } else {
+                        month = date.slice(0, 7).replace('/', '-');
                     }
                     monthMap[month] = (monthMap[month] || 0) + amt;
                 });
