@@ -2362,7 +2362,14 @@
                 
                 const months = Object.keys(monthMap).sort();
                 if (months.length > 0) {
-                    const lastMonth = months[months.length - 1];
+                    const now = new Date();
+                    const currentMonthStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+                    let lastMonth = months[months.length - 1];
+                    
+                    // 如果最後一個月是當前進行中的月份，且還有上個月，則取上個月（已完結的月份）的定期定額總額
+                    if (lastMonth === currentMonthStr && months.length > 1) {
+                        lastMonth = months[months.length - 2];
+                    }
                     lastMonthContrib = monthMap[lastMonth] || 0;
                 }
             }
