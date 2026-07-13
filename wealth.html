@@ -1751,8 +1751,8 @@
                 stockSet.add(name);
             });
 
-            // 🎯 X 軸 100% 綁定共同交集時間軸
-            const months = typeof commonMonths !== 'undefined' && commonMonths.length > 0 ? commonMonths : Object.keys(monthMap).sort();
+            // 使用對帳單資料中實際出現的所有月份作為 X 軸，避免被總經領先指標的發布延遲（Lag）所切斷
+            const months = Object.keys(monthMap).sort();
             const stocks = filterName ? [filterName] : [...stockSet];
 
             // 建立 series（映射至 commonMonths，缺失月份以 0 填充）
