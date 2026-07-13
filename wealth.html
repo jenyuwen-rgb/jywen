@@ -442,16 +442,16 @@
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: #AEAEB2;">
                                 <span>1. 初始投資本金 (TWD)</span>
-                                <span style="color: #F2F2F7; font-weight: 800;">$<span id="sim-principal-val">5,000,000</span> 元</span>
+                                <span style="color: #F2F2F7; font-weight: 800;">$<span id="sim-principal-val">22,600,000</span> 元</span>
                             </div>
-                            <input type="range" id="sim-principal-input" min="100000" max="30000000" step="100000" value="5000000" oninput="runRetirementSimulation()" style="width: 100%; accent-color: #D4AF37; background: #2C2C2E; border-radius: 4px; height: 6px; cursor: pointer; outline: none;">
+                            <input type="range" id="sim-principal-input" min="500000" max="100000000" step="500000" value="22500000" oninput="runRetirementSimulation()" style="width: 100%; accent-color: #D4AF37; background: #2C2C2E; border-radius: 4px; height: 6px; cursor: pointer; outline: none;">
                             <div style="display: flex; justify-content: space-between; font-size: 9px; color: #636366;">
-                                <span>10 萬</span>
+                                <span>50 萬</span>
                                 <span style="display: flex; align-items: center; gap: 4px; color: #30D158; font-weight: 600;">
                                     <span style="width: 5px; height: 5px; background-color: #30D158; border-radius: 50%; display: inline-block; animation: blink-green 1.5s infinite ease-in-out;"></span>
-                                    <span>預設為股票與信託總額: $<span id="sim-principal-ref">5,000,000</span></span>
+                                    <span>預設為證券資產總淨額: $<span id="sim-principal-ref">22,602,644</span></span>
                                 </span>
-                                <span>3,000 萬</span>
+                                <span>1 億</span>
                             </div>
                         </div>
 
@@ -2316,25 +2316,20 @@
         function initRetirementSimulator(netAssets, bankAssets) {
             let totalPrincipal = 0;
             
-            // 1. 取得最新元大股票市值 (上市櫃市值)
+            // 1. 取得最新元大證券資產總淨額作為預設初始本金
             if (netAssets && netAssets.length > 0) {
-                totalPrincipal += (netAssets[0]['上市櫃市值'] || 0);
+                totalPrincipal += (netAssets[0]['資產總淨額'] || 0);
             }
             
-            // 2. 取得最新兆豐信託投資 (特定金錢信託)
-            if (bankAssets && bankAssets.length > 0) {
-                totalPrincipal += (bankAssets[0]['特定金錢信託'] || 0);
-            }
-            
-            // 如果股票與信託總額為 0，預設 500 萬元起算
+            // 如果證券資產為 0，預設 500 萬元起算
             if (totalPrincipal <= 0) totalPrincipal = 5000000;
             
             // 更新 UI 上的本金參考值標記
             const principalRefEl = document.getElementById('sim-principal-ref');
             if (principalRefEl) principalRefEl.textContent = totalPrincipal.toLocaleString();
             
-            // 設定滑桿本金 (限制在 10 萬 ~ 3000 萬之間，四捨五入到萬位)
-            const inputPrincipal = Math.max(100000, Math.min(30000000, Math.round(totalPrincipal / 100000) * 100000));
+            // 設定滑桿本金 (限制在 50 萬 ~ 1 億之間，配合 50 萬的 step 進行四捨五入)
+            const inputPrincipal = Math.max(500000, Math.min(100000000, Math.round(totalPrincipal / 500000) * 500000));
             const principalInput = document.getElementById('sim-principal-input');
             if (principalInput) principalInput.value = inputPrincipal;
             
