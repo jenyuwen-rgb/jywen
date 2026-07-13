@@ -1753,22 +1753,49 @@
 
             // 使用對帳單資料中實際出現的所有月份作為 X 軸，避免被總經領先指標的發布延遲（Lag）所切斷
             const months = Object.keys(monthMap).sort();
-            const stocks = filterName ? [filterName] : [...stockSet];
+            let series = [];
+            let legendData = [];
 
-            // 建立 series（映射至 commonMonths，缺失月份以 0 填充）
-            const series = stocks.map(name => ({
-                name,
-                type: 'bar',
-                stack: filterName ? null : 'total',
-                barMaxWidth: filterName ? 28 : 40,
-                itemStyle: {
-                    color: STOCK_COLORS[name] || '#AEAEB2',
-                    borderRadius: [3, 3, 0, 0],
-                    opacity: 0.85,
-                },
-                data: months.map(m => Math.round(monthMap[m]?.[name] || 0)),
-                label: { show: false },
-            }));
+            if (filterName) {
+                // 篩選特定個股時：顯示該個股的獨立柱狀圖
+                legendData = [filterName];
+                series = [{
+                    name: filterName,
+                    type: 'bar',
+                    barMaxWidth: 28,
+                    itemStyle: {
+                        color: STOCK_COLORS[filterName] || '#AEAEB2',
+                        borderRadius: [3, 3, 0, 0],
+                        opacity: 0.85,
+                    },
+                    data: months.map(m => Math.round(monthMap[m]?.[filterName] || 0)),
+                    label: { show: false }
+                }];
+            } else {
+                // 未篩選時：合併為單一柱狀圖（每個月只有一根黃金實心柱，代表總投入金額）
+                legendData = ['定期定額總投入'];
+                series = [{
+                    name: '定期定額總投入',
+                    type: 'bar',
+                    barMaxWidth: 40,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#F3D17A' }, // 亮金色
+                            { offset: 1, color: '#C59A3F' }  // 深金色
+                        ]),
+                        borderRadius: [4, 4, 0, 0],
+                        opacity: 0.9,
+                    },
+                    data: months.map(m => {
+                        let monthSum = 0;
+                        for (const stock in monthMap[m]) {
+                            monthSum += monthMap[m][stock];
+                        }
+                        return Math.round(monthSum);
+                    }),
+                    label: { show: false }
+                }];
+            }
 
             stmtChart.setOption({
                 backgroundColor: 'transparent',
@@ -1778,21 +1805,31 @@
                     backgroundColor: 'rgba(28,28,30,0.95)', borderColor: '#3A3A3C',
                     textStyle: { color: '#F2F2F7', fontSize: 12 },
                     formatter: params => {
-                        let html = `<b style="color:#D4AF37">${params[0].name}</b><br/>`;
-                        let total = 0;
-                        params.forEach(p => {
-                            if (p.value > 0) {
-                                html += `<span style="color:${p.color}">●</span> ${p.seriesName}：<b>$${p.value.toLocaleString()}</b><br/>`;
-                                total += p.value;
-                            }
-                        });
-                        if (params.length > 1)
-                            html += `<span style="color:#8E8E93">合計：$${total.toLocaleString()}</span>`;
+                        const month = params[0].name;
+                        let html = `<b style="color:#D4AF37">${month}</b><br/>`;
+                        
+                        if (filterName) {
+                            const val = Math.round(monthMap[month]?.[filterName] || 0);
+                            html += `<span style="color:${STOCK_COLORS[filterName] || '#AEAEB2'}">●</span> ${filterName}：<b>$${val.toLocaleString()}</b><br/>`;
+                        } else {
+                            let total = 0;
+                            const monthStocks = monthMap[month] || {};
+                            const sortedStocks = Object.keys(monthStocks).sort((a,b) => monthStocks[b] - monthStocks[a]);
+                            sortedStocks.forEach(name => {
+                                const val = Math.round(monthStocks[name] || 0);
+                                if (val > 0) {
+                                    html += `<span style="color:${STOCK_COLORS[name] || '#AEAEB2'}">●</span> ${name}：<b>$${val.toLocaleString()}</b><br/>`;
+                                    total += val;
+                                }
+                            });
+                            html += `<hr style="border:none; border-top:0.5px solid #3A3A3C; margin:6px 0;" />`;
+                            html += `<span style="color:#AEAEB2">總投入額：<b>$${total.toLocaleString()}</b></span>`;
+                        }
                         return html;
                     }
                 },
                 legend: {
-                    data: stocks, top: 4,
+                    data: legendData, top: 4,
                     textStyle: { color: '#AEAEB2', fontSize: 10 },
                     itemWidth: 10, itemHeight: 10,
                 },
