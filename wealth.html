@@ -447,6 +447,10 @@
                             <input type="range" id="sim-principal-input" min="100000" max="30000000" step="100000" value="5000000" oninput="runRetirementSimulation()" style="width: 100%; accent-color: #D4AF37; background: #2C2C2E; border-radius: 4px; height: 6px; cursor: pointer; outline: none;">
                             <div style="display: flex; justify-content: space-between; font-size: 9px; color: #636366;">
                                 <span>10 萬</span>
+                                <span style="display: flex; align-items: center; gap: 4px; color: #30D158; font-weight: 600;">
+                                    <span style="width: 5px; height: 5px; background-color: #30D158; border-radius: 50%; display: inline-block; animation: blink-green 1.5s infinite ease-in-out;"></span>
+                                    <span>預設為股票與信託總額: $<span id="sim-principal-ref">5,000,000</span></span>
+                                </span>
                                 <span>3,000 萬</span>
                             </div>
                         </div>
@@ -2312,23 +2316,22 @@
         function initRetirementSimulator(netAssets, bankAssets) {
             let totalPrincipal = 0;
             
-            // 1. 取得最新元大資產
+            // 1. 取得最新元大股票市值 (上市櫃市值)
             if (netAssets && netAssets.length > 0) {
-                totalPrincipal += (netAssets[0]['資產總淨額'] || 0);
+                totalPrincipal += (netAssets[0]['上市櫃市值'] || 0);
             }
             
-            // 2. 取得最新兆豐資產
+            // 2. 取得最新兆豐信託投資 (特定金錢信託)
             if (bankAssets && bankAssets.length > 0) {
-                const b = bankAssets[0];
-                const dep = b['存款'] || 0;
-                const trust = b['特定金錢信託'] || 0;
-                const ins = b['人身保險'] || 0;
-                const loan = b['貸款'] || 0;
-                totalPrincipal += (dep + trust + ins - loan);
+                totalPrincipal += (bankAssets[0]['特定金錢信託'] || 0);
             }
             
-            // 如果資產為 0，預設 500 萬元起算
+            // 如果股票與信託總額為 0，預設 500 萬元起算
             if (totalPrincipal <= 0) totalPrincipal = 5000000;
+            
+            // 更新 UI 上的本金參考值標記
+            const principalRefEl = document.getElementById('sim-principal-ref');
+            if (principalRefEl) principalRefEl.textContent = totalPrincipal.toLocaleString();
             
             // 設定滑桿本金 (限制在 10 萬 ~ 3000 萬之間，四捨五入到萬位)
             const inputPrincipal = Math.max(100000, Math.min(30000000, Math.round(totalPrincipal / 100000) * 100000));
