@@ -116,58 +116,7 @@
         </div>
     </div>
 
-    <!-- 🛡️ 錯誤與預防管理帳本 -->
-    <div class="card-container">
-        <div onclick="toggleLedger()" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:6px;cursor:pointer;user-select:none;">
-            <div style="display:flex;align-items:center;gap:10px;">
-                <span id="ledger-status-dot" class="status-dot status-dot-gray" style="margin-left:0; margin-right:4px;"></span>
-                <span style="font-size:1rem;font-weight:700;color:#FFF;letter-spacing:0.5px;">防呆錯誤帳本</span>
-                <span id="ledger-toggle-arrow" style="font-size:11px;color:#8E8E93;transition:transform 0.2s;display:inline-block;transform:rotate(0deg);">▶</span>
-                <span id="ledger-total-badge" style="font-size:11px;color:#FF453A;background:rgba(255,69,58,0.1);border:1px solid rgba(255,69,58,0.3);border-radius:12px;padding:2px 10px;font-weight:bold;">自 2026-07-09 起累計: -- 次</span>
-                <span id="ledger-days-badge" style="font-size:11px;color:#30D158;background:rgba(48,209,88,0.1);border:1px solid rgba(48,209,88,0.3);border-radius:12px;padding:2px 10px;font-weight:bold;">🟢 已維持 -- 天無新增錯誤</span>
-            </div>
-        </div>
-        
-        <div id="ledger-collapse-content" style="display:none; transition: all 0.3s ease;">
-            <p style="font-size:12px;color:#636366;margin:8px 0 16px 0;">記錄並檢討所有被使用者發現的錯誤，實施自動化稽核杜絕重犯。防呆三不原則：不單憑推測發布、不允許單點崩潰、不忽略跨來源對齊。</p>
-            
-            <div style="overflow-x:auto;">
-                <table style="width:100%; border-collapse:collapse; text-align:left; font-size:12px;">
-                    <thead>
-                        <tr style="border-bottom:1px solid #2C2C2E; color:#8E8E93;">
-                            <th style="padding:10px 8px; font-weight:600; width:60px;">編號</th>
-                            <th style="padding:10px 8px; font-weight:600; width:90px;">日期</th>
-                            <th style="padding:10px 8px; font-weight:600;">錯誤現象描述</th>
-                            <th style="padding:10px 8px; font-weight:600; width:150px;">影響範圍</th>
-                            <th style="padding:10px 8px; font-weight:600; width:160px;">根本原因分類</th>
-                            <th style="padding:10px 8px; font-weight:600; width:80px;">狀態</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ledger-rows-container">
-                        <tr>
-                            <td colspan="6" style="text-align:center; color:#636366; padding:20px;">⏳ 正在載入帳本紀錄...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 
-    <script>
-    function toggleLedger() {
-        const content = document.getElementById('ledger-collapse-content');
-        const arrow = document.getElementById('ledger-toggle-arrow');
-        if (!content || !arrow) return;
-        
-        if (content.style.display === 'none') {
-            content.style.display = 'block';
-            arrow.style.transform = 'rotate(90deg)';
-        } else {
-            content.style.display = 'none';
-            arrow.style.transform = 'rotate(0deg)';
-        }
-    }
-    </script>
 
     <!-- 🛡️ 資安稽核 -->
     <div class="card-container">
@@ -454,66 +403,7 @@ async function fetchSystemMessages() {
             scansList.innerHTML = '<div class="text-gray-500 text-xs">尚無細項檢查記錄</div>';
         }
 
-        // ── 5. 錯誤與預防管理帳本渲染
-        const ledgerData = data.error_prevention_ledger || { total_errors: 0, errors: [] };
-        const ledgerBadge = document.getElementById('ledger-total-badge');
-        const daysBadge = document.getElementById('ledger-days-badge');
-        const ledgerContainer = document.getElementById('ledger-rows-container');
-        
-        let ledgerFailed = false;
-        if (ledgerData.errors) {
-            ledgerData.errors.forEach(e => {
-                if (e.status !== '已改善') ledgerFailed = true;
-            });
-        }
-        const ledgerDot = document.getElementById('ledger-status-dot');
-        if (ledgerDot) {
-            ledgerDot.className = 'status-dot ' + (ledgerFailed ? 'status-dot-red' : (ledgerData.errors && ledgerData.errors.length > 0 ? 'status-dot-green' : 'status-dot-gray'));
-        }
-        
-        if (ledgerBadge) {
-            ledgerBadge.textContent = '自 2026-07-09 起累計: ' + ledgerData.total_errors + ' 次';
-        }
-        
-        if (daysBadge) {
-            let lastErrorDateStr = '2026-07-09';
-            if (ledgerData.errors && ledgerData.errors.length > 0) {
-                const dates = ledgerData.errors.map(e => e.date).filter(Boolean);
-                if (dates.length > 0) {
-                    dates.sort();
-                    lastErrorDateStr = dates[dates.length - 1];
-                }
-            }
-            
-            const lastDate = new Date(lastErrorDateStr);
-            const today = new Date();
-            lastDate.setHours(0,0,0,0);
-            today.setHours(0,0,0,0);
-            
-            const diffTime = Math.abs(today - lastDate);
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            daysBadge.textContent = '🟢 已維持 ' + diffDays + ' 天無新增錯誤';
-        }
-        
-        if (ledgerContainer) {
-            if (ledgerData.errors.length > 0) {
-                ledgerContainer.innerHTML = '';
-                ledgerData.errors.forEach(e => {
-                    const tr = document.createElement('tr');
-                    tr.style.cssText = 'border-bottom:1px solid rgba(255,255,255,0.03); color:#E5E5EA;';
-                    tr.innerHTML = 
-                        '<td style="padding:10px 8px; font-family:monospace; font-weight:bold; color:#BF5AF2;">' + esc(e.id) + '</td>' +
-                        '<td style="padding:10px 8px; color:#8E8E93;">' + esc(e.date) + '</td>' +
-                        '<td style="padding:10px 8px; font-weight:600;">' + esc(e.desc) + '</td>' +
-                        '<td style="padding:10px 8px; color:#AEAEB2;">' + esc(e.scope) + '</td>' +
-                        '<td style="padding:10px 8px; color:#8E8E93;">' + esc(e.category) + '</td>' +
-                        '<td style="padding:10px 8px;"><span style="color:#30D158; background:rgba(48,209,88,0.1); border:1px solid rgba(48,209,88,0.3); border-radius:4px; padding:2px 6px; font-size:10px; font-weight:bold;">' + esc(e.status) + '</span></td>';
-                    ledgerContainer.appendChild(tr);
-                });
-            } else {
-                ledgerContainer.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#30D158; padding:20px;">✨ 目前尚無任何錯誤記錄。</td></tr>';
-            }
-        }
+
 
 
     } catch (err) {
