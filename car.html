@@ -377,7 +377,14 @@
         function hideToast() {
             const toast = document.getElementById('toast');
             toast.classList.remove('translate-y-0', 'opacity-100');
-            toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
         // Fetch overall volume statistics per year per brand (動態下鑽聯動版)
@@ -441,7 +448,13 @@
                         'Dodge': '道奇 (Dodge)',
                         'Jeep': '吉普 (Jeep)'
                     };
-                    brandSelect.innerHTML = metadata.brands.map(b => `<option value="${b}">${BRAND_CN[b] || b}</option>`).join('');
+                    brandSelect.textContent = '';
+                    metadata.brands.forEach(b => {
+                        const opt = document.createElement('option');
+                        opt.value = b;
+                        opt.textContent = BRAND_CN[b] || b;
+                        brandSelect.appendChild(opt);
+                    });
                     
                     if (isInitialLoad && metadata.brands.includes('Porsche')) {
                         brandSelect.value = 'Porsche';
@@ -461,11 +474,27 @@
             const rowDiv = document.createElement('div');
             rowDiv.className = 'watchlist-row flex items-center gap-2 bg-[#2C2C2E] p-2.5 rounded-lg border border-[#3A3A3C]';
             
-            rowDiv.innerHTML = `
-                <input type="text" placeholder="品牌 (e.g. BMW)" value="${brand}" class="watchlist-brand-input w-[120px] bg-[#2C2C2E] border border-[#3A3A3C] rounded px-2 py-1 text-xs text-[#F2F2F7] placeholder-zinc-600 focus:outline-none focus:border-[#D4AF37]" />
-                <input type="text" placeholder="車系，用逗號隔開 (e.g. M3, M4)" value="${models}" class="watchlist-models-input flex-1 bg-[#2C2C2E] border border-[#3A3A3C] rounded px-2 py-1 text-xs text-[#F2F2F7] placeholder-zinc-600 focus:outline-none focus:border-[#D4AF37]" />
-                <button onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-400 text-xs px-1" title="刪除">🗑️</button>
-            `;
+            const inputBrand = document.createElement('input');
+            inputBrand.type = 'text';
+            inputBrand.placeholder = '品牌 (e.g. BMW)';
+            inputBrand.value = brand;
+            inputBrand.className = 'watchlist-brand-input w-[120px] bg-[#2C2C2E] border border-[#3A3A3C] rounded px-2 py-1 text-xs text-[#F2F2F7] placeholder-zinc-600 focus:outline-none focus:border-[#D4AF37]';
+            
+            const inputModels = document.createElement('input');
+            inputModels.type = 'text';
+            inputModels.placeholder = '車系，用逗號隔開 (e.g. M3, M4)';
+            inputModels.value = models;
+            inputModels.className = 'watchlist-models-input flex-1 bg-[#2C2C2E] border border-[#3A3A3C] rounded px-2 py-1 text-xs text-[#F2F2F7] placeholder-zinc-600 focus:outline-none focus:border-[#D4AF37]';
+            
+            const btnDel = document.createElement('button');
+            btnDel.className = 'text-red-500 hover:text-red-400 text-xs px-1';
+            btnDel.title = '刪除';
+            btnDel.textContent = '🗑️';
+            btnDel.onclick = function() { rowDiv.remove(); };
+            
+            rowDiv.appendChild(inputBrand);
+            rowDiv.appendChild(inputModels);
+            rowDiv.appendChild(btnDel);
             container.appendChild(rowDiv);
         }
 
@@ -537,10 +566,14 @@
             const brand = document.getElementById('select-brand').value;
             const modelSelect = document.getElementById('select-model');
             
-            if (metadata.models[brand]) {
-                modelSelect.innerHTML = metadata.models[brand].map(m => `<option value="${m}">${m}</option>`).join('');
-            } else {
-                modelSelect.innerHTML = '';
+            modelSelect.textContent = '';
+            if (brand && metadata.models[brand]) {
+                metadata.models[brand].forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m;
+                    opt.textContent = m;
+                    modelSelect.appendChild(opt);
+                });
             }
             
             if (isInitialLoad && brand === 'Porsche' && metadata.models['Porsche'] && metadata.models['Porsche'].includes('718')) {

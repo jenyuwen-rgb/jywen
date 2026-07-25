@@ -44,8 +44,21 @@
 
         .matrix-table { width: 100%; min-width: 750px; border-collapse: collapse; text-align: center; }
         .matrix-table td { padding: 8px 4px; border-bottom: 0.5px solid #222; }
-        .drill-down { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .drill-down.active { max-height: 30000px; padding: 15px 0; }
+        .drill-down {
+            display: grid;
+            grid-template-rows: 0fr;
+            opacity: 0;
+            transition: grid-template-rows 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .drill-down > div { 
+            overflow: hidden; 
+            min-height: 0;
+        }
+        .drill-down.active {
+            grid-template-rows: 1fr;
+            opacity: 1;
+        }
         
         #queryLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
         #lottie-swimmer { width: 320px; height: 320px; margin-bottom: -40px; }
@@ -360,8 +373,18 @@
 
         async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
             const p = document.getElementById(`p-${id}`), c = document.getElementById(`c-${id}`);
-            if (p.classList.contains('active') && c.getAttribute('data-mode') === mode && c.getAttribute('data-birth') === p2) { p.classList.remove('active'); return; }
-            p.classList.add('active'); c.setAttribute('data-mode', mode); c.setAttribute('data-birth', p2);
+            if (!p || !c) return;
+            const currentMode = c.getAttribute('data-mode');
+            const currentBirth = c.getAttribute('data-birth');
+            const targetBirth = (p2 !== undefined && p2 !== null) ? String(p2) : '';
+
+            if (p.classList.contains('active') && currentMode === mode && currentBirth === targetBirth) {
+                p.classList.remove('active');
+                return;
+            }
+            p.classList.add('active');
+            c.setAttribute('data-mode', mode);
+            c.setAttribute('data-birth', targetBirth);
             if (mode === 'rank' || mode === 'natRank') {
                 const sorted = await getRankData(dist, stroke, p1, p2, p3, mode==='natRank');
                 const adYear = toAD(p2);

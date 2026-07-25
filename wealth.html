@@ -155,110 +155,218 @@
             </div>
         </header>
 
-        <!-- 景氣狀態儀表板 (極簡單行展示 - 一行搞定且字大一點) -->
-        <!-- 景氣狀態儀表板 (三卡單行展示) -->
-        <!-- 🎯 美林時鐘景氣羅盤儀表板 (macOS/Apple 頂級毛玻璃卡片) -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <!-- 🎯 美林時鐘景氣象限羅盤 (macOS 頂級毛玻璃戰情卡) -->
+        <div style="background:rgba(28,28,30,0.8); backdrop-filter:blur(16px); border:1px solid #2C2C2E; border-radius:18px; padding:20px; margin-bottom:20px; box-shadow:0 8px 32px rgba(0,0,0,0.4);">
             
-            <!-- 羅盤卡片 (左欄) -->
-            <div style="background:#1C1C1E; border:1px solid #2C2C2E; border-radius:16px; padding:20px; display:flex; flex-direction:column; align-items:center; position:relative;">
-                
-                <!-- 雙向切換開關 (美國/台灣) -->
-                <div style="display:flex; background:#2C2C2E; border:0.5px solid #3A3A3C; border-radius:20px; padding:2px; margin-bottom:15px; z-index:10;">
-                    <button id="toggle-us-btn" class="toggle-btnactive" onclick="switchCompass(true)" style="background:#D4AF37; color:#000; border:none; border-radius:18px; padding:6px 16px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s;">🇺🇸 美國經濟</button>
-                    <button id="toggle-tw-btn" class="" onclick="switchCompass(false)" style="background:none; color:#AEAEB2; border:none; border-radius:18px; padding:6px 16px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">🇹🇼 台灣經濟</button>
-                </div>
-                
-                <!-- SVG 羅盤主體 -->
-                <svg id="compass-svg" width="280" height="280" viewBox="0 0 300 300" style="background:radial-gradient(circle, rgba(28,28,30,0.5) 0%, rgba(10,10,12,0.8) 100%); border-radius:50%; border:1px solid #2C2C2E; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-                    <defs>
-                        <!-- 軌跡漸層色 -->
-                        <linearGradient id="tail-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#8E8E93" stop-opacity="0.1"/>
-                            <stop offset="50%" stop-color="#D4AF37" stop-opacity="0.5"/>
-                            <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.9"/>
-                        </linearGradient>
-                        
-                        <!-- 象限遮罩與漸層 -->
-                        <radialGradient id="dial-bg" cx="50%" cy="50%" r="50%">
-                            <stop offset="70%" stop-color="#1C1C1E" stop-opacity="0"/>
-                            <stop offset="100%" stop-color="#0A0A0C" stop-opacity="0.8"/>
-                        </radialGradient>
-                    </defs>
-                    
-                    <!-- 四個半透明象限背景區塊 -->
-                    <!-- 1. Reflation: Top-Left (Blue) -->
-                    <path d="M 150 150 L 150 30 A 120 120 0 0 0 30 150 Z" fill="rgba(106, 196, 250, 0.04)" stroke="rgba(106, 196, 250, 0.15)" stroke-width="0.5"/>
-                    <!-- 2. Recovery: Top-Right (Green) -->
-                    <path d="M 150 150 L 270 150 A 120 120 0 0 0 150 30 Z" fill="rgba(52, 199, 89, 0.04)" stroke="rgba(52, 199, 89, 0.15)" stroke-width="0.5"/>
-                    <!-- 3. Overheat: Bottom-Right (Red) -->
-                    <path d="M 150 150 L 150 270 A 120 120 0 0 0 270 150 Z" fill="rgba(255, 69, 58, 0.04)" stroke="rgba(255, 69, 58, 0.15)" stroke-width="0.5"/>
-                    <!-- 4. Stagflation: Bottom-Left (Orange) -->
-                    <path d="M 150 150 L 30 150 A 120 120 0 0 0 150 270 Z" fill="rgba(255, 159, 10, 0.04)" stroke="rgba(255, 159, 10, 0.15)" stroke-width="0.5"/>
-                    
-                    <!-- 象限中軸線 -->
-                    <line x1="30" y1="150" x2="270" y2="150" stroke="#3A3A3C" stroke-width="1.5" stroke-dasharray="3,3"/>
-                    <line x1="150" y1="30" x2="150" y2="270" stroke="#3A3A3C" stroke-width="1.5" stroke-dasharray="3,3"/>
-                    
-                    <!-- 外環圓圈 -->
-                    <circle cx="150" cy="150" r="120" fill="none" stroke="#2C2C2E" stroke-width="2"/>
-                    <circle cx="150" cy="150" r="122" fill="none" stroke="#111" stroke-width="0.5"/>
-                    
-                    <!-- 軸線標記 -->
-                    <text x="275" y="154" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="start">成長 ▲</text>
-                    <text x="25" y="154" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="end">成長 ▼</text>
-                    <text x="150" y="22" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="middle">通膨 ▼</text>
-                    <text x="150" y="286" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="middle">通膨 ▲</text>
-                    
-                    <!-- 象限文字標籤 -->
-                    <text x="90" y="80" fill="#6AC4FA" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">😴 衰退期</text>
-                    <text x="210" y="80" fill="#34C759" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">🌱 復甦期</text>
-                    <text x="210" y="225" fill="#FF453A" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">🔥 過熱期</text>
-                    <text x="90" y="225" fill="#FF9F0A" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">⚠️ 滯脹期</text>
-                </svg>
-            </div>
-            
-            <!-- 診斷與數值卡片 (右欄) -->
-            <div style="background:#1C1C1E; border:1px solid #2C2C2E; border-radius:16px; padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
-                
-                <!-- 頂部：最新象限與描述 -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
                 <div>
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-                        <span style="font-size:12px; font-weight:700; color:#AEAEB2;">🔴🔵 當前景氣象限</span>
-                        <span id="comp-current-quad" style="font-size:15px; font-weight:800; color:#F2F2F7;">讀取中...</span>
+                    <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:#FFD933; display:flex; align-items:center; gap:8px;">
+                        🎯 美林時鐘景氣象限羅盤 <span style="font-size:11px; background:rgba(255,217,51,0.15); color:#FFD933; padding:2px 8px; border-radius:10px; border:0.5px solid rgba(255,217,51,0.3);">總經象限與資產配置</span>
+                    </h3>
+                    <p style="margin:4px 0 0 0; font-size:11px; color:#8E8E93;">根據通膨率與 GDP 成長率判定當前經濟所處週期與亮點軌跡</p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: stretch;">
+                
+                <!-- 羅盤卡片 (左欄) -->
+                <div style="background:#161618; border:1px solid #2C2C2E; border-radius:14px; padding:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;">
+                    
+                    <!-- 雙向切換開關 (美國/台灣) -->
+                    <div style="display:flex; background:#2C2C2E; border:0.5px solid #3A3A3C; border-radius:20px; padding:2px; margin-bottom:15px; z-index:10;">
+                        <button id="toggle-us-btn" class="" onclick="switchCompass(true)" style="background:none; color:#AEAEB2; border:none; border-radius:18px; padding:6px 16px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s;">🇺🇸 美國經濟</button>
+                        <button id="toggle-tw-btn" class="toggle-btnactive" onclick="switchCompass(false)" style="background:#D4AF37; color:#000; border:none; border-radius:18px; padding:6px 16px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.2s;">🇹🇼 台灣經濟</button>
                     </div>
-                    <div id="comp-quad-desc" style="font-size:12px; color:#8E8E93; line-height:1.6; background:#161618; border:0.5px solid #2C2C2E; border-radius:10px; padding:12px; min-height:60px;">
-                        正在讀取並解析總體經濟數據...
-                    </div>
+                    
+                    <!-- SVG 羅盤主體 -->
+                    <svg id="compass-svg" width="280" height="280" viewBox="0 0 300 300" style="background:radial-gradient(circle, rgba(28,28,30,0.5) 0%, rgba(10,10,12,0.8) 100%); border-radius:50%; border:1px solid #2C2C2E; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+                        <defs>
+                            <!-- 軌跡漸層色 -->
+                            <linearGradient id="tail-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#8E8E93" stop-opacity="0.1"/>
+                                <stop offset="50%" stop-color="#D4AF37" stop-opacity="0.5"/>
+                                <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.9"/>
+                            </linearGradient>
+                            
+                            <!-- 象限遮罩與漸層 -->
+                            <radialGradient id="dial-bg" cx="50%" cy="50%" r="50%">
+                                <stop offset="70%" stop-color="#1C1C1E" stop-opacity="0"/>
+                                <stop offset="100%" stop-color="#0A0A0C" stop-opacity="0.8"/>
+                            </radialGradient>
+                        </defs>
+                        
+                        <!-- 四個半透明象限背景區塊 -->
+                        <path d="M 150 150 L 150 30 A 120 120 0 0 0 30 150 Z" fill="rgba(106, 196, 250, 0.04)" stroke="rgba(106, 196, 250, 0.15)" stroke-width="0.5"/>
+                        <path d="M 150 150 L 270 150 A 120 120 0 0 0 150 30 Z" fill="rgba(52, 199, 89, 0.04)" stroke="rgba(52, 199, 89, 0.15)" stroke-width="0.5"/>
+                        <path d="M 150 150 L 150 270 A 120 120 0 0 0 270 150 Z" fill="rgba(255, 69, 58, 0.04)" stroke="rgba(255, 69, 58, 0.15)" stroke-width="0.5"/>
+                        <path d="M 150 150 L 30 150 A 120 120 0 0 0 150 270 Z" fill="rgba(255, 159, 10, 0.04)" stroke="rgba(255, 159, 10, 0.15)" stroke-width="0.5"/>
+                        
+                        <!-- 象限中軸線 -->
+                        <line x1="30" y1="150" x2="270" y2="150" stroke="#3A3A3C" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <line x1="150" y1="30" x2="150" y2="270" stroke="#3A3A3C" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        
+                        <!-- 外環圓圈 -->
+                        <circle cx="150" cy="150" r="120" fill="none" stroke="#2C2C2E" stroke-width="2"/>
+                        <circle cx="150" cy="150" r="122" fill="none" stroke="#111" stroke-width="0.5"/>
+                        
+                        <!-- 軸線標記 -->
+                        <text x="275" y="154" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="start">成長 ▲</text>
+                        <text x="25" y="154" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="end">成長 ▼</text>
+                        <text x="150" y="22" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="middle">通膨 ▼</text>
+                        <text x="150" y="286" fill="#AEAEB2" font-size="10" font-weight="700" text-anchor="middle">通膨 ▲</text>
+                        
+                        <!-- 象限文字標籤 -->
+                        <text x="90" y="80" fill="#6AC4FA" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">😴 衰退期</text>
+                        <text x="210" y="80" fill="#34C759" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">🌱 復甦期</text>
+                        <text x="210" y="225" fill="#FF453A" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">🔥 過熱期</text>
+                        <text x="90" y="225" fill="#FF9F0A" font-size="12" font-weight="700" text-anchor="middle" opacity="0.65">⚠️ 滯脹期</text>
+                    </svg>
                 </div>
                 
-                <!-- 中部：建議資產配置 (極醒目 macOS Badge) -->
-                <div style="margin: 15px 0;">
-                    <div style="font-size:12px; font-weight:700; color:#AEAEB2; margin-bottom:8px;">🎯 最佳配置資產</div>
-                    <div id="comp-best-assets" style="font-size:14px; font-weight:800; text-align:center; padding:10px; border-radius:10px; border:1px solid rgba(212,175,55,0.3); background:rgba(212,175,55,0.06); color:#D4AF37;">
-                        等待數據載入...
-                    </div>
-                </div>
-                
-                <!-- 底部：即時數據網格 -->
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div style="background:#2C2C2E; border:0.5px solid #3A3A3C; border-radius:10px; padding:8px 12px; display:flex; flex-direction:column;">
-                        <span style="font-size:11px; color:#8E8E93;">🇹🇼 台灣景氣燈號</span>
-                        <span id="tw-light-score-quad" style="font-size:13px; font-weight:700; color:#F2F2F7; margin-top:2px;">讀取中...</span>
-                    </div>
-                    <div style="background:#2C2C2E; border:0.5px solid #3A3A3C; border-radius:10px; padding:8px 12px; display:flex; flex-direction:column;">
-                        <span style="font-size:11px; color:#8E8E93;">📈 領先指標 <span id="leading-indicator-month" style="font-size:9px; color:#8E8E93; font-weight:normal;"></span></span>
-                        <div style="display:flex; align-items:center; gap:4px; margin-top:2px;">
-                            <span id="leading-indicator-val" style="font-size:13px; font-weight:700; color:#FFD933;">讀取中...</span>
-                            <span id="leading-indicator-trend" style="font-size:10px;">―</span>
+                <!-- 診斷與數值卡片 (右欄) -->
+                <div style="background:#1C1C1E; border:1px solid #2C2C2E; border-radius:14px; padding:16px; display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
+                    
+                    <!-- 頂部：最新象限與描述 -->
+                    <div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                            <span style="font-size:11px; font-weight:700; color:#AEAEB2;">🔴🔵 當前景氣象限</span>
+                            <span id="comp-current-quad" style="font-size:15px; font-weight:800; color:#FFD933;">讀取中...</span>
+                        </div>
+                        <div id="comp-quad-desc" style="font-size:11px; color:#8E8E93; line-height:1.5; background:#161618; border:0.5px solid #2C2C2E; border-radius:10px; padding:10px; min-height:50px;">
+                            正在讀取並解析總體經濟數據...
                         </div>
                     </div>
+                    
+                    <!-- 中部：建議資產配置 -->
+                    <div>
+                        <div style="font-size:11px; font-weight:700; color:#AEAEB2; margin-bottom:6px;">🎯 最佳配置資產</div>
+                        <div id="comp-best-assets" style="font-size:13px; font-weight:800; text-anchor:center; padding:10px; border-radius:10px; border:1px solid rgba(212,175,55,0.3); background:rgba(212,175,55,0.06); color:#D4AF37; text-align:center;">
+                            等待數據載入...
+                        </div>
+                    </div>
+                    
+                    <!-- 底部：即時數據網格 -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div style="background:#161618; border:0.5px solid #2C2C2E; border-radius:10px; padding:8px 12px; display:flex; flex-direction:column;">
+                            <span style="font-size:11px; color:#8E8E93;">🇹🇼 台灣景氣燈號</span>
+                            <span id="tw-light-score-quad" style="font-size:13px; font-weight:700; color:#F2F2F7; margin-top:2px;">讀取中...</span>
+                        </div>
+                        <div style="background:#161618; border:0.5px solid #2C2C2E; border-radius:10px; padding:8px 12px; display:flex; flex-direction:column;">
+                            <span style="font-size:11px; color:#8E8E93;">📈 領先指標 <span id="leading-indicator-month" style="font-size:9px; color:#8E8E93; font-weight:normal;"></span></span>
+                            <div style="display:flex; align-items:center; gap:4px; margin-top:2px;">
+                                <span id="leading-indicator-val" style="font-size:13px; font-weight:700; color:#FFD933;">讀取中...</span>
+                                <span id="leading-indicator-trend" style="font-size:10px;">―</span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
             </div>
+
         </div>
 
-        <!-- 📊 景氣與資產對齊聯動看板 (2x2 Grid) -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 16px; margin-bottom: 20px;">
+        <!-- 🧭 台灣與總體市場形勢羅盤 (Market Climate Cockpit - 3秒直覺儀表) -->
+        <div style="background:rgba(28,28,30,0.8); backdrop-filter:blur(16px); border:1px solid #2C2C2E; border-radius:18px; padding:20px; margin-bottom:20px; box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:#FFD933; display:flex; align-items:center; gap:8px;">
+                        🧭 台灣與全球市場形勢羅盤 <span style="font-size:11px; background:rgba(255,217,51,0.15); color:#FFD933; padding:2px 8px; border-radius:10px; border:0.5px solid rgba(255,217,51,0.3);">全自動戰情室</span>
+                    </h3>
+                    <p style="margin:4px 0 0 0; font-size:11px; color:#8E8E93;">一秒看懂市場位階：結合台灣景氣燈號、領先指標、大盤融資維持率、VIX恐慌度與外資動向</p>
+                </div>
+                <button onclick="toggleDetailCharts()" id="btn-toggle-charts" style="background:#2C2C2E; color:#D4AF37; border:1px solid #3A3A3C; border-radius:10px; padding:6px 14px; font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:6px;">
+                    <span id="toggle-charts-icon">🔼</span> <span id="toggle-charts-text">收合詳細走勢圖</span>
+                </button>
+            </div>
+
+            <!-- 羅盤主體與 3 秒健康卡 (Grid) -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:20px; align-items:stretch;">
+                
+                <!-- 左欄: 4象限市場形勢羅盤 (Canvas) -->
+                <div style="background:#161618; border:1px solid #2C2C2E; border-radius:14px; padding:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;">
+                    <div style="font-size:12px; font-weight:700; color:#D4AF37; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <span>市場座標：</span><span id="cockpit-quadrant-title" style="color:#FFF;">載入中...</span>
+                    </div>
+
+                    <!-- 羅盤繪製 Canvas -->
+                    <canvas id="cockpit-canvas" width="280" height="280" style="background:#0A0A0C; border-radius:50%; border:1px solid #2C2C2E; box-shadow:0 0 20px rgba(0,0,0,0.6);"></canvas>
+                    
+                    <div style="display:flex; justify-content:space-between; width:100%; font-size:10px; color:#636366; margin-top:8px; padding:0 10px;">
+                        <span>◀ 經濟衰退</span>
+                        <span>情緒/槓桿高升 ▲</span>
+                        <span>經濟熱絡 ▶</span>
+                    </div>
+                </div>
+
+                <!-- 右欄: 3秒快報健康卡片 -->
+                <div style="display:flex; flex-direction:column; gap:12px; justify-content:space-between;">
+                    
+                    <!-- 卡片 1: 台灣景氣對策信號 × 領先指標 -->
+                    <div style="background:#1C1C1E; border:1px solid #2C2C2E; border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-size:11px; color:#8E8E93; font-weight:600;">🔴🟡🟢 台灣景氣燈號 × 領先指標</div>
+                            <div id="cockpit-tw-light-val" style="font-size:1.1rem; font-weight:800; color:#FF3B30; margin-top:2px;">
+                                景氣紅燈 (38分)
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10px; color:#8E8E93;">不含趨勢指數</div>
+                            <div id="cockpit-leading-val" style="font-size:0.95rem; font-weight:700; color:#30D158; margin-top:2px;">
+                                103.8 📈 向上
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 卡片 2: 大盤融資維持率 × VIX 恐慌指標 -->
+                    <div style="background:#1C1C1E; border:1px solid #2C2C2E; border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-size:11px; color:#8E8E93; font-weight:600;">⚖️ 大盤融資維持率 × 恐慌指數</div>
+                            <div id="cockpit-margin-val" style="font-size:1.1rem; font-weight:800; color:#30D158; margin-top:2px;">
+                                168.5% 🟢 籌碼健康
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10px; color:#8E8E93;">VIX 恐慌指數</div>
+                            <div id="cockpit-vix-val" style="font-size:0.95rem; font-weight:700; color:#FFD933; margin-top:2px;">
+                                16.2 (低恐慌)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 卡片 3: 外資淨匯入 × 個人買入金額 -->
+                    <div style="background:#1C1C1E; border:1px solid #2C2C2E; border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-size:11px; color:#8E8E93; font-weight:600;">💵 外資淨匯入 × 本月投入</div>
+                            <div id="cockpit-foreign-val" style="font-size:1.1rem; font-weight:800; color:#30D158; margin-top:2px;">
+                                +650.5 億 (當月)
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10px; color:#8E8E93;">個人本月買入</div>
+                            <div id="cockpit-invest-val" style="font-size:0.95rem; font-weight:700; color:#FFD933; margin-top:2px;">
+                                $304,901 TWD
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 卡片 4: 戰略建議框 -->
+                    <div style="background:rgba(255,217,51,0.06); border:1px solid rgba(255,217,51,0.25); border-radius:12px; padding:12px; font-size:11px; color:#F2F2F7; line-height:1.5;">
+                        <span style="color:#FFD933; font-weight:700;">💡 當前投資戰略：</span>
+                        <span id="cockpit-advice-text">總經熱絡且大盤維持率充足，市場情緒樂觀。建議維持定期定額紀律，不宜過度過激追高槓桿。</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- 📊 景氣與資產對齊聯動看板 (預設展開) -->
+        <div id="collapsible-detail-charts" style="display:block; transition:all 0.3s ease;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 16px; margin-bottom: 20px;">
+
             
             <!-- 圖 1: 台灣景氣對策信號 × 景氣領先指標 -->
             <div class="card-container" id="tw-light-chart-section" style="margin-bottom: 0; padding: 16px;">
@@ -388,32 +496,8 @@
                 </div>
                 <div id="chart-stmt-trend" style="width:100%; height:190px;"></div>
             </div>
-            
-            <!-- 圖 5: 帳戶淨資產總額趨勢 (ECharts) -->
-            <div class="card-container" id="net-assets-section" style="margin-bottom: 0; padding: 16px;">
-                <!-- 統一 52px 高度 header 容器，與其他圖表完美水平對齊 -->
-                <div style="height: 52px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 8px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-                        <div>
-                            <h4 style="margin:0; font-size:0.95rem; font-weight:700; color:#D4AF37;">💼 帳戶淨資產總額趨勢</h4>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <button id="btn-sync-statements" onclick="triggerSyncStatements()"
-                                style="background:#2C2C2E; color:#30D158; border:1px solid #30D158; border-radius:6px;
-                                       padding:3px 8px; font-size:10px; cursor:pointer; font-weight:700; transition:all 0.15s; display:flex; align-items:center; gap:4px; height:20px; line-height:12px; outline:none;">
-                                <span id="sync-icon">🔄</span> <span id="sync-text">同步對帳單</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:9px; color:#636366; height:16px; line-height:16px;">
-                        <span>來源：元大綜合月對帳單 PDF 解析</span>
-                        <span id="net-assets-last-update">自動更新</span>
-                    </div>
-                </div>
-                <div id="chart-net-assets" style="width:100%; height:190px;"></div>
-            </div>
+        </div> <!-- End of collapsible-detail-charts -->
 
-        </div>
 
         <!-- 💵 美林時鐘自動複利退休模擬器 (macOS 頂級毛玻璃卡片) -->
         <div class="card-container" id="retirement-simulator-section" style="padding: 20px; margin-bottom: 24px; background: #1C1C1E; border: 1px solid #2C2C2E; border-radius: 16px;">
@@ -512,32 +596,36 @@
         </div>
 
 
-        <!-- 📈 定期定額持股看板摘要 -->
-        <div class="card-container mb-6" id="holdings-section" style="padding: 16px;">
-            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+
+
+
+
+        <!-- 💼 帳戶最新資產配置明細表 (Asset Allocation Ledger) -->
+        <div class="card-container mb-6" style="padding: 20px; margin-bottom:20px; background:rgba(28,28,30,0.8); backdrop-filter:blur(16px); border:1px solid #2C2C2E; border-radius:18px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
                 <div>
-                    <h3 style="margin:0 0 2px 0; font-size:0.95rem; font-weight:700; color:#D4AF37;">📈 定期定額持股看板摘要</h3>
-                    <p style="margin:0; font-size:11px; color:#8E8E93;">來源：Gmail 元大對帳單 ｜ 資料區間：<span id="stmt-range">讀取中...</span></p>
+                    <h3 style="margin:0 0 4px 0; font-size:1.15rem; font-weight:800; color:#FFD933; display:flex; align-items:center; gap:8px;">💼 帳戶最新資產配置明細表 <span style="font-size:11px; background:rgba(255,217,51,0.15); color:#FFD933; padding:2px 8px; border-radius:10px; border:0.5px solid rgba(255,217,51,0.3);">資產帳冊與走勢</span></h3>
+                    <p style="margin:0; font-size:11px; color:#8E8E93;">從 Gmail 月度綜合對帳單與銀行存款通知，實時匯總的最新資產明細配置與歷史趨勢</p>
                 </div>
-                <div style="font-size:11px; color:#8E8E93; text-align:right;">
-                    總投入：<span id="stmt-total-invest" style="color:#30D158; font-weight:700; font-size:13px;">--</span>
-                </div>
+                <button id="btn-sync-statements" onclick="triggerSyncStatements()"
+                    style="background:#2C2C2E; color:#30D158; border:1px solid #30D158; border-radius:8px;
+                           padding:6px 14px; font-size:11px; cursor:pointer; font-weight:700; transition:all 0.15s; display:flex; align-items:center; gap:6px; outline:none;">
+                    <span id="sync-icon">🔄</span> <span id="sync-text">同步對帳單</span>
+                </button>
             </div>
 
-            <!-- 持股卡片 Grid -->
-            <div id="holdings-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px;">
-                <div style="grid-column:1/-1; text-align:center; color:#636366; font-size:12px; padding:15px;">⏳ 載入中...</div>
+            <!-- 帳戶淨資產歷史走勢獨立圖表 (不與外部總經 X 軸連聯動) -->
+            <div style="background:#161618; border:1px solid #2C2C2E; border-radius:14px; padding:16px; margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:11px; color:#8E8E93;">
+                    <span style="font-weight:700; color:#FFD933;">📈 帳戶淨資產總額歷史趨勢</span>
+                    <span id="net-assets-last-update">自動更新</span>
+                </div>
+                <div id="chart-net-assets" style="width:100%; height:220px;"></div>
             </div>
-        </div>
-
-        <!-- 💼 帳戶最新資產配置明細表 -->
-        <div class="card-container mb-6" style="padding: 20px;">
-            <h3 style="margin:0 0 4px 0; font-size:1rem; font-weight:700; color:#D4AF37;">💼 帳戶最新資產配置明細表 (Asset Allocation Ledger)</h3>
-            <p style="margin:0 0 16px 0; font-size:12px; color:#8E8E93;">從 Gmail 月度綜合對帳單與銀行存款通知，實時匯總的最新資產明細配置</p>
             
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:16px;">
                 <!-- 元大綜合資產 -->
-                <div style="background:#2C2C2E; border:1px solid #3A3A3C; border-radius:12px; padding:16px;">
+                <div style="background:#161618; border:1px solid #2C2C2E; border-radius:14px; padding:16px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                         <h4 style="margin:0; font-size:0.9rem; font-weight:700; color:#FFD933;">元大綜合證券資產 (最新)</h4>
                         <span id="yuanta-latest-month" style="font-size:11px; color:#8E8E93; font-weight:bold;">―</span>
@@ -548,7 +636,7 @@
                 </div>
 
                 <!-- 兆豐銀行存款 -->
-                <div style="background:#2C2C2E; border:1px solid #3A3A3C; border-radius:12px; padding:16px;">
+                <div style="background:#161618; border:1px solid #2C2C2E; border-radius:14px; padding:16px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                         <h4 style="margin:0; font-size:0.9rem; font-weight:700; color:#6AC4FA;">兆豐銀行存款帳戶 (最新)</h4>
                         <span id="mega-latest-month" style="font-size:11px; color:#8E8E93; font-weight:bold;">―</span>
@@ -675,7 +763,7 @@
 
         let dbData = [];
         let currentStock = '0050';
-        let isUSCompass = true;
+        let isUSCompass = false;
 
         function switchCompass(isUS) {
             isUSCompass = isUS;
@@ -1381,11 +1469,11 @@
                 await loadNetAssetsChart();
 
                 // ── 4. 開啟五大圖表間的滑動 & 縮放全連動 (SO PREMIUM!) ──
-                if (twLightChart && dualChart && fcChart && stmtChart && netAssetsChart) {
+                if (twLightChart && dualChart && fcChart && stmtChart) {
                     if (fcSource === 'cbc') {
-                        echarts.connect([twLightChart, dualChart, stmtChart, netAssetsChart]);
+                        echarts.connect([twLightChart, dualChart, stmtChart]);
                     } else {
-                        echarts.connect([twLightChart, dualChart, fcChart, stmtChart, netAssetsChart]);
+                        echarts.connect([twLightChart, dualChart, fcChart, stmtChart]);
                     }
                 }
 
@@ -1610,11 +1698,11 @@
             }
             
             // Re-connect charts or disconnect
-            if (twLightChart && dualChart && fcChart && stmtChart && netAssetsChart) {
+            if (twLightChart && dualChart && fcChart && stmtChart) {
                 if (fcSource === 'cbc') {
-                    echarts.connect([twLightChart, dualChart, stmtChart, netAssetsChart]);
+                    echarts.connect([twLightChart, dualChart, stmtChart]);
                 } else {
-                    echarts.connect([twLightChart, dualChart, fcChart, stmtChart, netAssetsChart]);
+                    echarts.connect([twLightChart, dualChart, fcChart, stmtChart]);
                 }
             }
 
@@ -1867,6 +1955,12 @@
 
         async function initAllWealthSystem() {
             try {
+                await loadUserHoldingsForWatchboard();
+            } catch (err) {
+                console.error("載入庫存與質押資料異常", err);
+            }
+
+            try {
                 await loadAllWealthCharts();
             } catch (err) {
                 console.error("載入圖表異常", err);
@@ -1882,6 +1976,12 @@
                 await initAssetLedger();
             } catch (err) {
                 console.error("載入最新資產明細異常", err);
+            }
+
+            try {
+                await initMarketSentiment();
+            } catch (err) {
+                console.error("載入大盤維持率異常", err);
             }
         }
 
@@ -1923,8 +2023,13 @@
                             <span style="color:#8E8E93;">信託帳戶現值</span>
                             <span style="color:#FFF;">$${Math.round(latestNet['信託現值'] || 0).toLocaleString()} 元</span>
                         </div>
-                        <div style="font-size:10px; color:#636366; text-align:right; margin-top:4px;">
+                        <div style="font-size:10px; color:#636366; text-align:right; margin-top:4px; margin-bottom:4px;">
                             更新時間：${latestNet['更新時間'] || '—'} ｜ 來源：${latestNet['資料來源'] || '—'}
+                        </div>
+                        <div style="text-align:right; border-top:1px solid rgba(255,255,255,0.05); padding-top:6px;">
+                            <a href="javascript:void(0);" id="yuanta-collateral-toggle" onclick="toggleCollateralDetails()" style="color:#FFD933; font-size:11px; text-decoration:none; font-weight:700;">🔍 展開擔保品明細</a>
+                        </div>
+                        <div id="yuanta-collateral-details" style="display:none; margin-top:8px; background:rgba(0,0,0,0.15); padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,0.03); font-size:11px;">
                         </div>
                     `;
                 } else if (yuantaBody) {
@@ -2258,9 +2363,65 @@
         const WB_PHASE_BADGE = { Reflation:"😴 衰退期", Recovery:"🌱 復甦期", Overheat:"🔥 過熱期", Stagflation:"⚠️ 滯脹期" };
         const WB_PHASE_COLOR = { Reflation:"#6AC4FA", Recovery:"#34C759", Overheat:"#FF453A", Stagflation:"#FF9F0A" };
 
+        let USER_HOLDINGS_CACHE = null;
+        let CURRENT_QUADRANT = 1;
+
+        const CODE_ALIAS_MAP = {
+            "0050": "元大台灣50",
+            "2330": "台積電",
+            "00762": "元大全球AI",
+            "00646": "元大S&P 500",
+            "2480": "揚博",
+            "2884": "玉山金",
+            "00713": "元大台灣高息低波",
+            "0056": "元大高股息",
+            "00878": "國泰永續高股息",
+            "2880": "合庫金",
+            "5880": "合庫金",
+            "1231": "聯華食",
+            "00679B": "元大美債20年"
+        };
+
+        async function loadUserHoldingsForWatchboard() {
+            if (USER_HOLDINGS_CACHE !== null) return USER_HOLDINGS_CACHE;
+            try {
+                const resp = await fetch('/api/yuanta_collateral_holdings');
+                const json = await resp.json();
+                if (json.status === 'success' && json.holdings) {
+                    USER_HOLDINGS_CACHE = {};
+                    json.holdings.forEach(h => {
+                        USER_HOLDINGS_CACHE[h['股票名稱']] = h;
+                    });
+                    window.USER_HOLDINGS_CACHE = USER_HOLDINGS_CACHE;
+                } else {
+                    USER_HOLDINGS_CACHE = {};
+                    window.USER_HOLDINGS_CACHE = USER_HOLDINGS_CACHE;
+                }
+            } catch(e) {
+                console.error("載入庫存與質押資料出錯: ", e);
+                USER_HOLDINGS_CACHE = {};
+                window.USER_HOLDINGS_CACHE = USER_HOLDINGS_CACHE;
+            }
+            if (CURRENT_QUADRANT) {
+                renderWatchboard(CURRENT_QUADRANT);
+            }
+            return USER_HOLDINGS_CACHE;
+        }
+
+        window.loadUserHoldingsForWatchboard = loadUserHoldingsForWatchboard;
+
+        window.renderWatchboard = renderWatchboard;
+
         function renderWatchboard(quadrantNum) {
-            const phase = WB_PHASE_MAP[quadrantNum];
+            if (quadrantNum) CURRENT_QUADRANT = quadrantNum;
+            const targetQuad = quadrantNum || CURRENT_QUADRANT || 1;
+            const phase = WB_PHASE_MAP[targetQuad];
             if (!phase) return;
+
+            if (USER_HOLDINGS_CACHE === null) {
+                loadUserHoldingsForWatchboard();
+            }
+
             const badge = document.getElementById('wb-current-phase-badge');
             if (badge) {
                 badge.textContent = "目前景氣：" + WB_PHASE_BADGE[phase];
@@ -2292,7 +2453,33 @@
                 const typeTag = item.type === 'bond'
                     ? '<span style="font-size:9px; background:rgba(106,196,250,0.15); color:#6AC4FA; border:1px solid rgba(106,196,250,0.3); border-radius:4px; padding:1px 5px; margin-left:4px;">債券</span>'
                     : '<span style="font-size:9px; background:rgba(52,199,89,0.12); color:#34C759; border:1px solid rgba(52,199,89,0.25); border-radius:4px; padding:1px 5px; margin-left:4px;">股票</span>';
-                tdName.innerHTML = `<div style="font-weight:600; color:#F2F2F7; font-size:13px;">${item.name}${typeTag}</div><div style="font-size:11px; color:#636366; margin-top:2px;">${item.code}</div>`;
+                
+                // 庫存與質押股數標籤 (集保庫存 + 質押擔保品 = 總持有股數)
+                let holdingBadgeHtml = '<div style="font-size:10px; color:#636366; margin-top:3px;">未持有庫存</div>';
+                const cache = USER_HOLDINGS_CACHE || {};
+                const hData = cache[item.name] || cache[CODE_ALIAS_MAP[item.code]];
+                if (hData) {
+                    const jibaoShares = hData['集保庫存'] || 0;
+                    const collateralShares = hData['餘額股數'] || 0;
+                    const totalHolding = jibaoShares + collateralShares;
+                    const pledgedShares = hData['已使用股數'] || 0;
+
+                    if (totalHolding > 0) {
+                        let subDetail = `(集保 ${jibaoShares.toLocaleString()} 股 + 擔保品 ${collateralShares.toLocaleString()} 股`;
+                        if (pledgedShares > 0) {
+                            subDetail += ` ｜ <span style="color:#FF453A; font-weight:800;">質押 ${pledgedShares.toLocaleString()} 股</span>`;
+                        }
+                        subDetail += `)`;
+
+                        holdingBadgeHtml = `
+                            <div style="margin-top:5px; font-size:11px; font-weight:700; color:#FFD933; background:rgba(255,217,51,0.12); border:1px solid rgba(255,217,51,0.35); border-radius:6px; padding:3px 8px; display:inline-block; line-height:1.4;">
+                                💼 總持有 <strong>${totalHolding.toLocaleString()}</strong> 股
+                                <div style="font-size:9.5px; font-weight:600; color:#AEAEB2; margin-top:1px;">${subDetail}</div>
+                            </div>`;
+                    }
+                }
+
+                tdName.innerHTML = `<div style="font-weight:600; color:#F2F2F7; font-size:13px;">${item.name}${typeTag}</div><div style="font-size:11px; color:#8E8E93; margin-top:1px;">代號：${item.code}</div>${holdingBadgeHtml}`;
                 tr.appendChild(tdName);
                 phases.forEach(p => {
                     const pri = item.priority[p];
@@ -2565,6 +2752,537 @@
             };
             retirementChart.setOption(option);
         }
+
+        // ================================================================
+        // 📈 大盤融資維持率與情緒指標
+        // ================================================================
+        let sentimentChart = null;
+        let isSentimentChartVisible = false;
+        let sentimentDataCache = null;
+
+        async function initMarketSentiment() {
+            try {
+                const resp = await fetch('/api/market_sentiment');
+                const json = await resp.json();
+                if (json.status !== 'success') throw new Error(json.message);
+                
+                sentimentDataCache = json;
+                const latest = json.latest;
+                
+                if (latest) {
+                    const ratio = latest.margin_maintenance_ratio;
+                    const balance = latest.margin_balance;
+                    const ma20 = latest.ma20;
+                    const ma90 = latest.ma90;
+                    
+                    document.getElementById('latest-margin-ratio').textContent = `${ratio.toFixed(2)} %`;
+                    document.getElementById('sentiment-ma20').textContent = `${ma20 ? ma20.toFixed(2) : '―'} %`;
+                    document.getElementById('sentiment-ma90').textContent = `${ma90 ? ma90.toFixed(2) : '―'} %`;
+                    document.getElementById('latest-margin-balance').textContent = `${balance.toFixed(2)} 億元`;
+                    
+                    const glowEl = document.getElementById('sentiment-glow');
+                    const badgeEl = document.getElementById('sentiment-badge');
+                    const descEl = document.getElementById('sentiment-desc');
+                    
+                    let glowColor, badgeBg, badgeColor, statusText, descText;
+                    
+                    if (ratio > 160) {
+                        glowColor = '#30D158'; // Emerald Green
+                        badgeBg = 'rgba(48, 209, 88, 0.12)';
+                        badgeColor = '#30D158';
+                        statusText = '籌碼健康';
+                        descText = '市場槓桿處於安全區，融資戶多數帳面獲利良好，籌碼結構穩定健康。';
+                    } else if (ratio >= 150) {
+                        glowColor = '#FF9500'; // Amber Orange
+                        badgeBg = 'rgba(255, 149, 0, 0.12)';
+                        badgeColor = '#FF9500';
+                        statusText = '警訊回檔';
+                        descText = '大盤面臨短線修正，部分融資部位開始承受浮虧壓力，槓桿風險逐漸浮現，請留意持股調節。';
+                    } else if (ratio >= 135) {
+                        glowColor = '#FF453A'; // Red
+                        badgeBg = 'rgba(255, 69, 58, 0.12)';
+                        badgeColor = '#FF453A';
+                        statusText = '斷頭恐慌';
+                        descText = '融資追繳潮與斷頭壓力大增！市場情緒極度恐慌，短線面臨非理性殺盤壓力，但也意味著浮額正在進行清洗。';
+                    } else {
+                        glowColor = '#BF5AF2'; // Purple / Indigo
+                        badgeBg = 'rgba(191, 90, 242, 0.15)';
+                        badgeColor = '#BF5AF2';
+                        statusText = '歷史級黃金買點';
+                        descText = '市場融資崩盤！發生多殺多斷頭潮！歷史經驗顯示此時槓桿已被徹底洗淨，市場極度恐慌中孕育著中長線的黃金大底！';
+                    }
+                    
+                    glowEl.style.backgroundColor = glowColor;
+                    glowEl.style.boxShadow = `0 0 10px ${glowColor}, 0 0 20px ${glowColor}`;
+                    badgeEl.style.backgroundColor = badgeBg;
+                    badgeEl.style.color = badgeColor;
+                    badgeEl.textContent = statusText;
+                    descEl.textContent = descText;
+                } else {
+                    document.getElementById('sentiment-desc').textContent = '暫無大盤維持率數據，請等待背景更新或手動同步。';
+                }
+            } catch (e) {
+                console.error("載入大盤維持率出錯: ", e);
+                document.getElementById('sentiment-desc').textContent = `⚠️ 載入大盤數據失敗: ${e.message}`;
+            }
+        }
+        
+        function toggleSentimentChart() {
+            const container = document.getElementById('sentiment-chart-container');
+            const btnText = document.getElementById('sentiment-toggle-text');
+            if (isSentimentChartVisible) {
+                container.style.display = 'none';
+                btnText.textContent = '展開詳細趨勢圖';
+                isSentimentChartVisible = false;
+            } else {
+                container.style.display = 'block';
+                btnText.textContent = '收合詳細趨勢圖';
+                isSentimentChartVisible = true;
+                renderSentimentChart();
+            }
+        }
+        
+        function renderSentimentChart() {
+            const chartDom = document.getElementById('chart-sentiment-trend');
+            if (!chartDom || !sentimentDataCache) return;
+            
+            if (!sentimentChart) {
+                sentimentChart = echarts.init(chartDom, 'dark');
+            }
+            
+            const history = sentimentDataCache.history || [];
+            const dates = history.map(item => item.date);
+            const ratios = history.map(item => item.margin_maintenance_ratio);
+            const ma20s = history.map(item => item.ma20);
+            const ma90s = history.map(item => item.ma90);
+            
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(28,28,30,0.9)',
+                    borderColor: '#2C2C2E',
+                    borderWidth: 1,
+                    formatter: function(params) {
+                        let res = `<div style="font-size:11px; font-weight:bold; color:#AEAEB2;">${params[0].name}</div>`;
+                        params.forEach(p => {
+                            res += `<div style="display:flex; justify-content:space-between; gap:12px; font-size:10px; margin-top:3px; color:#F2F2F7;">
+                                <span>${p.marker} ${p.seriesName}</span>
+                                <span style="font-weight:bold;">${p.value ? p.value.toFixed(2) : '―'} %</span>
+                            </div>`;
+                        });
+                        return res;
+                    }
+                },
+                legend: {
+                    data: ['維持率', 'MA20 情緒線', 'MA90 多空線'],
+                    textStyle: { color: '#8E8E93', fontSize: 10 },
+                    bottom: 0,
+                    itemWidth: 12,
+                    itemHeight: 8
+                },
+                grid: {
+                    top: '10%',
+                    left: '5%',
+                    right: '5%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: dates,
+                    axisLine: { lineStyle: { color: '#3A3A3C' } },
+                    axisLabel: { color: '#8E8E93', fontSize: 9 }
+                },
+                yAxis: {
+                    type: 'value',
+                    min: function(value) {
+                        return Math.floor(Math.min(value.min, 130) / 10) * 10;
+                    },
+                    max: function(value) {
+                        return Math.ceil(Math.max(value.max, 180) / 10) * 10;
+                    },
+                    splitLine: { lineStyle: { color: '#2C2C2E', type: 'dashed' } },
+                    axisLabel: { color: '#8E8E93', fontSize: 9, formatter: '{value}%' }
+                },
+                series: [
+                    {
+                        name: '維持率',
+                        type: 'line',
+                        data: ratios,
+                        showSymbol: false,
+                        lineStyle: { width: 1.5, color: '#30D158' },
+                        itemStyle: { color: '#30D158' },
+                        markLine: {
+                            symbol: 'none',
+                            data: [
+                                { yAxis: 130, name: '斷頭警戒線', lineStyle: { color: '#FF453A', type: 'solid', width: 1 } },
+                                { yAxis: 160, name: '籌碼安全線', lineStyle: { color: '#30D158', type: 'dashed', width: 0.8 } }
+                            ],
+                            label: { position: 'end', color: '#8E8E93', fontSize: 8 }
+                        }
+                    },
+                    {
+                        name: 'MA20 情緒線',
+                        type: 'line',
+                        data: ma20s,
+                        showSymbol: false,
+                        lineStyle: { width: 1.2, color: '#FF9500', type: 'dashed' },
+                        itemStyle: { color: '#FF9500' }
+                    },
+                    {
+                        name: 'MA90 多空線',
+                        type: 'line',
+                        data: ma90s,
+                        showSymbol: false,
+                        lineStyle: { width: 1.5, color: '#0A84FF' },
+                        itemStyle: { color: '#0A84FF' }
+                    }
+                ]
+            };
+            
+            sentimentChart.setOption(option);
+            window.addEventListener('resize', () => sentimentChart && sentimentChart.resize());
+        }
+
+        // ================================================================
+        // 🔍 元大證券借貸擔保品明細展開/收合
+        // ================================================================
+        let isCollateralVisible = false;
+
+        async function toggleCollateralDetails() {
+            const container = document.getElementById('yuanta-collateral-details');
+            const toggleBtn = document.getElementById('yuanta-collateral-toggle');
+            if (isCollateralVisible) {
+                container.style.display = 'none';
+                toggleBtn.textContent = '🔍 展開擔保品明細';
+                isCollateralVisible = false;
+            } else {
+                container.style.display = 'block';
+                toggleBtn.textContent = '收合擔保品明細';
+                isCollateralVisible = true;
+
+                try {
+                    container.innerHTML = '<div style="text-align:center; color:#636366; padding:12px;">⏳ 正在向證交所查詢即時股價與市值...</div>';
+
+                    // 呼叫新的市值 API（使用 TWSE 官方收盤價）
+                    const resp = await fetch('/api/collateral_market_value');
+                    const json = await resp.json();
+                    if (json.status !== 'success') throw new Error(json.message);
+
+                    const s = json.summary || {};
+                    const holdings = json.holdings || [];
+
+                    if (holdings.length === 0) {
+                        container.innerHTML = '<div style="text-align:center; color:#636366; padding:8px;">目前尚無擔保品明細資料</div>';
+                        return;
+                    }
+
+                    const fmt = (n) => Math.round(n).toLocaleString();
+                    const fmtPrice = (p) => p > 0 ? `$${p.toFixed(2)}` : '—';
+
+                    // ── 三欄彙整摘要 ──
+                    let html = `
+                        <div style="font-size:10px; color:#FFD933; font-weight:800; margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid rgba(255,215,0,0.2);">
+                            ${json.month} 借貸擔保品市值總覽（TWSE 官方收盤價）
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:10px;">
+                            <!-- 總擔保品 -->
+                            <div style="background:rgba(255,255,255,0.04); border:0.5px solid rgba(255,255,255,0.08); border-radius:8px; padding:8px; text-align:center;">
+                                <div style="font-size:9px; color:#8E8E93; margin-bottom:3px;">📦 全部擔保品</div>
+                                <div style="font-size:13px; font-weight:800; color:#F2F2F7;">${fmt(s['總股數'])} 股</div>
+                                <div style="font-size:11px; color:#AEAEB2; margin-top:2px;">$${fmt(s['總市值'])} 元</div>
+                            </div>
+                            <!-- 已質押 -->
+                            <div style="background:rgba(255,69,58,0.06); border:0.5px solid rgba(255,69,58,0.2); border-radius:8px; padding:8px; text-align:center;">
+                                <div style="font-size:9px; color:#FF6B6B; margin-bottom:3px;">🔒 已質押（不可動用）</div>
+                                <div style="font-size:13px; font-weight:800; color:#FF453A;">${fmt(s['質押股數'])} 股</div>
+                                <div style="font-size:11px; color:#FF8A80; margin-top:2px;">$${fmt(s['質押市值'])} 元</div>
+                            </div>
+                            <!-- 自由 -->
+                            <div style="background:rgba(48,209,88,0.06); border:0.5px solid rgba(48,209,88,0.2); border-radius:8px; padding:8px; text-align:center;">
+                                <div style="font-size:9px; color:#30D158; margin-bottom:3px;">🟢 自由（可隨時動用）</div>
+                                <div style="font-size:13px; font-weight:800; color:#30D158;">${fmt(s['自由股數'])} 股</div>
+                                <div style="font-size:11px; color:#69DB7C; margin-top:2px;">$${fmt(s['自由市值'])} 元</div>
+                            </div>
+                        </div>
+
+                        <!-- 各股票明細表 -->
+                        <table style="width:100%; border-collapse:collapse; font-size:11px;">
+                            <thead>
+                                <tr style="border-bottom:1px solid rgba(255,255,255,0.1); color:#636366; font-size:10px;">
+                                    <th style="padding:4px 0; text-align:left; font-weight:600;">股票</th>
+                                    <th style="padding:4px 4px; text-align:right; font-weight:600;">收盤價</th>
+                                    <th style="padding:4px 0; text-align:right; font-weight:600; color:#AEAEB2;">📦 全部</th>
+                                    <th style="padding:4px 0; text-align:right; font-weight:600; color:#FF6B6B;">🔒 質押</th>
+                                    <th style="padding:4px 0; text-align:right; font-weight:600; color:#30D158;">🟢 自由</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    holdings.forEach(h => {
+                        const name = h['股票名稱'];
+                        const code = h['股票代號'];
+                        const price = h['收盤價'] || 0;
+                        const bal = h['餘額股數'] || 0;
+                        const used = h['已使用股數'] || 0;
+                        const rem = h['剩餘股數'] || 0;
+                        const balVal = h['總市值'] || 0;
+                        const usedVal = h['質押市值'] || 0;
+                        const remVal = h['自由市值'] || 0;
+
+                        html += `
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.04); color:#F2F2F7;">
+                                <td style="padding:6px 0; font-weight:700;">
+                                    ${name}
+                                    <div style="font-size:9px; color:#636366; font-weight:400;">${code}</div>
+                                </td>
+                                <td style="padding:6px 4px; text-align:right; color:#FFD933; font-weight:600;">${fmtPrice(price)}</td>
+                                <td style="padding:6px 0; text-align:right;">
+                                    <div style="color:#AEAEB2;">${fmt(bal)} 股</div>
+                                    <div style="font-size:10px; color:#8E8E93;">$${fmt(balVal)}</div>
+                                </td>
+                                <td style="padding:6px 0; text-align:right;">
+                                    <div style="color:${used > 0 ? '#FF453A' : '#636366'};">${fmt(used)} 股</div>
+                                    <div style="font-size:10px; color:${used > 0 ? '#FF8A80' : '#636366'};">$${fmt(usedVal)}</div>
+                                </td>
+                                <td style="padding:6px 0; text-align:right;">
+                                    <div style="color:#30D158;">${fmt(rem)} 股</div>
+                                    <div style="font-size:10px; color:#69DB7C;">$${fmt(remVal)}</div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                            </tbody>
+                        </table>
+                    `;
+
+                    // ── 底部：維持率提醒 ──
+                    const latestRatio = sentimentDataCache && sentimentDataCache.latest
+                        ? sentimentDataCache.latest.margin_maintenance_ratio
+                        : null;
+
+                    let ratioColor = '#8E8E93';
+                    let ratioText = '未取得數據';
+                    if (latestRatio !== null) {
+                        if (latestRatio > 160)       { ratioColor = '#30D158'; ratioText = `${latestRatio.toFixed(2)}% 🟢 籌碼健康`; }
+                        else if (latestRatio >= 150) { ratioColor = '#FF9500'; ratioText = `${latestRatio.toFixed(2)}% 🟡 警訊回檔`; }
+                        else if (latestRatio >= 135) { ratioColor = '#FF453A'; ratioText = `${latestRatio.toFixed(2)}% 🔴 斷頭恐慌`; }
+                        else                          { ratioColor = '#BF5AF2'; ratioText = `${latestRatio.toFixed(2)}% 💥 歷史黃金底`; }
+                    }
+
+                    // 計算個人質押擔保品維持率
+                    const loanAmount = 3150000; // 借款餘額 315 萬
+                    const personalRatio = s['質押市值'] > 0
+                        ? ((s['質押市值'] / loanAmount) * 100).toFixed(1)
+                        : '—';
+
+                    html += `
+                        <div style="margin-top:10px; background:rgba(255,215,0,0.05); border:0.5px solid rgba(255,215,0,0.2); border-radius:8px; padding:8px 10px; font-size:10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <span style="color:#8E8E93;">📈 目前大盤融資維持率</span>
+                                <span style="color:${ratioColor}; font-weight:800;">${ratioText}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="color:#8E8E93;">🏦 個人擔保品維持率（質押市值÷借款）</span>
+                                <span style="color:#FFD933; font-weight:800;">${personalRatio}%</span>
+                            </div>
+                        </div>
+                    `;
+
+                    container.innerHTML = html;
+
+                } catch (e) {
+                    container.innerHTML = `<div style="text-align:center; color:#FF453A; padding:8px;">⚠️ 載入失敗: ${e.message}</div>`;
+                }
+            }
+        }
+
+        // ================================================================
+        // 🧭 台灣與總體市場形勢羅盤 (Market Climate Cockpit) 邏輯
+        // ================================================================
+        let isDetailChartsVisible = true;
+        let isChartsLoaded = false;
+
+        function toggleDetailCharts() {
+            const container = document.getElementById('collapsible-detail-charts');
+            const btnText = document.getElementById('toggle-charts-text');
+            const btnIcon = document.getElementById('toggle-charts-icon');
+            if (isDetailChartsVisible) {
+                container.style.display = 'none';
+                btnText.textContent = '展開歷史詳細走勢圖 (4張)';
+                btnIcon.textContent = '🔽';
+                isDetailChartsVisible = false;
+            } else {
+                container.style.display = 'block';
+                btnText.textContent = '收合詳細走勢圖';
+                btnIcon.textContent = '🔼';
+                isDetailChartsVisible = true;
+                
+                // 首次展開時載入圖表數據
+                if (!isChartsLoaded) {
+                    loadAllWealthCharts();
+                    isChartsLoaded = true;
+                }
+                
+                // 觸發 ECharts 畫布自適應 resize 與平滑滾動到走勢圖區域
+                setTimeout(() => {
+                    twLightChart && twLightChart.resize();
+                    dualChart && dualChart.resize();
+                    fcChart && fcChart.resize();
+                    stmtChart && stmtChart.resize();
+                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 150);
+            }
+        }
+
+        async function loadMarketCockpit() {
+            try {
+                const resp = await fetch('/api/market_cockpit_summary');
+                const data = await resp.json();
+                if (data.status !== 'success') return;
+
+                const c = data.cockpit || {};
+                const m = data.metrics || {};
+
+                // 填寫 4 象限標題與建議
+                document.getElementById('cockpit-quadrant-title').textContent = c.quadrant_name || '載入中';
+                document.getElementById('cockpit-advice-text').textContent = c.strategy_advice || '';
+
+                // 卡片 1: 景氣燈號 & 領先指標
+                const twL = m.tw_light || {};
+                const lead = m.leading_indicator || {};
+                document.getElementById('cockpit-tw-light-val').textContent = `景氣${twL.color || ''} (${twL.score || 0}分)`;
+                document.getElementById('cockpit-leading-val').textContent = `${lead.non_trend || 100} 📈 ${lead.trend || ''}`;
+
+                // 卡片 2: 維持率 & VIX
+                const mm = m.margin_maintenance || {};
+                document.getElementById('cockpit-margin-val').textContent = `${mm.rate || 160}% 🟢 ${mm.status || ''}`;
+                document.getElementById('cockpit-vix-val').textContent = `${mm.vix || 16} (低恐慌)`;
+
+                // 卡片 3: 外資 & 個人買入
+                const fc = m.foreign_capital || {};
+                const mi = m.monthly_investment || {};
+                const fcVal = fc.current_month_net > 0 ? `+${fc.current_month_net}` : `${fc.current_month_net}`;
+                document.getElementById('cockpit-foreign-val').textContent = `${fcVal} 億 (當月)`;
+                document.getElementById('cockpit-invest-val').textContent = `$${(mi.amount || 0).toLocaleString()} TWD`;
+
+                // 繪製 4 象限 Canvas 羅盤
+                drawCockpitCanvas(c.current_point, c.trail || []);
+
+            } catch (err) {
+                console.error('[Cockpit] 載入市場形勢羅盤失敗:', err);
+            }
+        }
+
+        function drawCockpitCanvas(currentPoint, trail) {
+            const canvas = document.getElementById('cockpit-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+            const r = w / 2 - 15;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // 1. 繪製背景圓盤與兩條十字軸
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.fillStyle = '#0E0E10';
+            ctx.fill();
+            ctx.strokeStyle = '#2C2C2E';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 十字刻度虛線
+            ctx.beginPath();
+            ctx.setLineDash([4, 4]);
+            ctx.moveTo(cx, cy - r); ctx.lineTo(cx, cy + r);
+            ctx.moveTo(cx - r, cy); ctx.lineTo(cx + r, cy);
+            ctx.strokeStyle = '#3A3A3C';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 2. 標註 4 個象限標籤文字
+            ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            
+            // 右上: 狂熱區
+            ctx.fillStyle = 'rgba(255, 69, 58, 0.4)';
+            ctx.fillText('🔥 狂熱過熱區', cx + r*0.5, cy - r*0.5);
+            
+            // 右下: 復甦區
+            ctx.fillStyle = 'rgba(48, 209, 88, 0.4)';
+            ctx.fillText('🌱 復甦起漲區', cx + r*0.5, cy + r*0.5);
+
+            // 左上: 槓桿區
+            ctx.fillStyle = 'rgba(255, 159, 10, 0.4)';
+            ctx.fillText('⚠️ 槓桿警戒區', cx - r*0.5, cy - r*0.5);
+
+            // 左下: 防守區
+            ctx.fillStyle = 'rgba(10, 132, 255, 0.4)';
+            ctx.fillText('🛡️ 防守沉澱區', cx - r*0.5, cy + r*0.5);
+
+            // 3. 繪製拖尾軌跡 (Trail)
+            if (trail && trail.length > 1) {
+                ctx.beginPath();
+                trail.forEach((pt, idx) => {
+                    const px = cx + (pt.x / 100) * (r - 20);
+                    const py = cy - (pt.y / 100) * (r - 20);
+                    if (idx === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                });
+                ctx.strokeStyle = 'rgba(212, 175, 55, 0.5)';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+
+                // 畫前幾個月的小圓點
+                trail.slice(0, -1).forEach(pt => {
+                    const px = cx + (pt.x / 100) * (r - 20);
+                    const py = cy - (pt.y / 100) * (r - 20);
+                    ctx.beginPath();
+                    ctx.arc(px, py, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(212, 175, 55, 0.4)';
+                    ctx.fill();
+                });
+            }
+
+            // 4. 繪製當前核心光點 (Glowing Dot)
+            if (currentPoint) {
+                const px = cx + (currentPoint.x / 100) * (r - 20);
+                const py = cy - (currentPoint.y / 100) * (r - 20);
+
+                // 外發光環
+                ctx.beginPath();
+                ctx.arc(px, py, 12, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 217, 51, 0.25)';
+                ctx.fill();
+
+                // 中實心環
+                ctx.beginPath();
+                ctx.arc(px, py, 7, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFD933';
+                ctx.fill();
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        // 頁面加載時自動執行羅盤與全圖表資料載入
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMarketCockpit();
+            loadNetAssetsChart();
+            loadAllWealthCharts();
+        });
     </script>
 </body>
 </html>
+
