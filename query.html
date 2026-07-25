@@ -126,6 +126,11 @@
     </div>
 
     <div class="header-title">游泳成績查詢</div>
+    <div id="latestRaceTag" style="text-align: center; margin: -6px 0 12px 0;">
+        <span style="background: rgba(28,28,30,0.85); border: 1px solid #3A3A3C; padding: 5px 16px; border-radius: 20px; font-size: 0.8rem; color: #FFD933; display: inline-block; box-shadow: 0 2px 8px rgba(0,0,0,0.4); backdrop-filter: blur(8px);">
+            🏆 資料庫最新賽事：<span id="latestRaceName" style="color: #FFFFFF; font-weight: 600;">載入中...</span>
+        </span>
+    </div>
     <div class="nav-header">
         <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()">🕒</span>
         <div style="position: relative; flex: 1; min-width: 0; display: flex; align-items: center;">
@@ -167,12 +172,35 @@
         swimmerAnim = lottie.loadAnimation({ container: document.getElementById('lottie-swimmer'), renderer: 'svg', loop: true, autoplay: false, animationData: swimmerJSON });
         swimmerAnim.addEventListener('DOMLoaded', () => swimmerAnim.goToAndStop(32, true));
 
+        let hasLoadedLatestRace = false;
+        async function loadLatestRaceInfo() {
+            if (hasLoadedLatestRace) return;
+            try {
+                const res = await remoteQuery(`SELECT 賽事名稱, 年份 FROM swimming_scores WHERE 年份 IS NOT NULL AND 年份 != '' ORDER BY 年份 DESC LIMIT 1`);
+                if (res && res[0] && res[0].values && res[0].values.length > 0) {
+                    const raceName = res[0].values[0][0];
+                    const raceDate = formatDateStr(res[0].values[0][1]);
+                    const el = document.getElementById('latestRaceName');
+                    if (el) {
+                        el.innerHTML = `<strong>${raceName}</strong> <span style="color:#A1A1A6; margin-left:4px;">(${raceDate})</span>`;
+                        hasLoadedLatestRace = true;
+                    }
+                }
+            } catch (e) {
+                console.warn('無法載入最新賽事資訊:', e);
+            }
+        }
+
         function initWorker() {
             const blob = new Blob([document.getElementById('worker-script').textContent], { type: 'text/javascript' });
             worker = new Worker(URL.createObjectURL(blob));
             worker.onmessage = function(e) {
                 const { type, res, id } = e.data;
-                if (type === 'READY') { document.getElementById('dbLoaderArea').style.display = 'none'; doSearch(); }
+                if (type === 'READY') { 
+                    document.getElementById('dbLoaderArea').style.display = 'none'; 
+                    loadLatestRaceInfo();
+                    doSearch(); 
+                }
                 else if (type === 'RESULT') { if(queryCallbacks[id]) queryCallbacks[id](res); }
             };
         }
@@ -262,6 +290,7 @@
         }
 
         async function doSearch() {
+            loadLatestRaceInfo();
             const input = normalizeName(document.getElementById('searchInput').value); if (!input || !worker) return;
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
