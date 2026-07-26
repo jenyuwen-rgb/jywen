@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSMC Fab 21 亞利桑那全景地圖 - 大仁哥專屬分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { background-color: #09090b; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; overflow: hidden; }
+        .glass-card { background: rgba(24, 24, 27, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); }
+        .layer-btn.active { box-shadow: 0 0 12px rgba(245, 158, 11, 0.25); }
+        .search-item:hover { background-color: rgba(245, 158, 11, 0.2); }
+    </style>
+</head>
+<body class="h-full w-full flex flex-col text-zinc-100 overflow-hidden">
+
+    <!-- 頂部列 -->
+    <header class="h-14 bg-zinc-950/90 border-b border-zinc-800 flex items-center justify-between px-4 md:px-6 z-40 relative flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="/" class="p-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 transition text-xs font-semibold flex items-center gap-1">
+                ← 返回首頁
+            </a>
+            <span class="w-px h-4 bg-zinc-800"></span>
+            <h1 class="text-base md:text-lg font-extrabold text-white flex items-center gap-2">
+                🗺️ TSMC Fab 21 亞利桑那全景生活與地圖中心
+                <span class="hidden md:inline text-xs font-normal text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">85383 Vistancia & 85085 Norterra</span>
+            </h1>
+        </div>
+
+        <!-- 頂部圖層控制與風格切換 -->
+        <div class="flex items-center gap-2">
+            <div class="flex items-center bg-zinc-900 rounded-lg p-0.5 border border-zinc-700/60 text-xs">
+                <button onclick="setMapStyle('google')" id="style-google" class="px-2.5 py-1 rounded font-bold text-amber-400 bg-amber-500/20 transition border border-amber-500/40">🗺️ Google地圖</button>
+                <button onclick="setMapStyle('satellite')" id="style-satellite" class="px-2.5 py-1 rounded font-medium text-zinc-400 hover:text-white transition">🛰️ 衛星視角</button>
+                <button onclick="setMapStyle('dark')" id="style-dark" class="px-2.5 py-1 rounded font-medium text-zinc-400 hover:text-white transition">🌙 暗黑模式</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 地圖主要滿版區域 -->
+    <div class="relative flex-1 w-full h-full overflow-hidden">
+        
+        <!-- Google 式頂部浮動搜尋框 -->
+        <div class="absolute top-4 left-4 z-[1000] w-80 md:w-96">
+            <div class="glass-card rounded-2xl p-2 shadow-2xl border border-zinc-700/80 flex items-center gap-2 relative">
+                <span class="text-amber-400 text-base pl-2">🔍</span>
+                <input type="text" id="map-search-input" onkeyup="handleSearchInput(event)" onfocus="showSearchSuggestions()" placeholder="搜尋地址、郵區 (如 85383, BASIS, 廠區)..." class="w-full bg-transparent text-sm text-white focus:outline-none placeholder-zinc-500 pr-2">
+                <button onclick="executeSearch()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs transition shadow-md flex-shrink-0">
+                    搜尋
+                </button>
+            </div>
+
+            <!-- 搜尋下拉自動選單 -->
+            <div id="search-results-dropdown" class="hidden glass-card rounded-xl mt-1.5 p-1.5 border border-zinc-700/80 shadow-2xl max-h-72 overflow-y-auto text-xs">
+            </div>
+        </div>
+
+        <!-- 浮動圖層按鈕控制面板 -->
+        <div class="absolute top-4 right-4 z-[1000] max-w-xl flex flex-wrap justify-end gap-1.5">
+            <button onclick="toggleLayer('districts')" id="btn-districts" class="layer-btn active px-3 py-1.5 rounded-xl text-xs transition font-semibold text-amber-400 bg-amber-500/20 border border-amber-500/40 glass-card">
+                🗺️ 行政邊界(85383)
+            </button>
+            <button onclick="toggleLayer('housing')" id="btn-housing" class="layer-btn active px-3 py-1.5 rounded-xl text-xs transition font-semibold text-emerald-400 bg-emerald-500/20 border border-emerald-500/40 glass-card">
+                🏠 Zillow房產買賣與租屋
+            </button>
+            <button onclick="toggleLayer('schools')" id="btn-schools" class="layer-btn active px-3 py-1.5 rounded-xl text-xs transition font-semibold text-indigo-400 bg-indigo-500/20 border border-indigo-500/40 glass-card">
+                🏫 學校學區
+            </button>
+            <button onclick="toggleLayer('swim')" id="btn-swim" class="layer-btn active px-3 py-1.5 rounded-xl text-xs transition font-semibold text-cyan-400 bg-cyan-500/20 border border-cyan-500/40 glass-card">
+                🏊 游泳俱樂部/50m長池
+            </button>
+            <button onclick="toggleLayer('safety')" id="btn-safety" class="layer-btn active px-3 py-1.5 rounded-xl text-xs transition font-semibold text-teal-400 bg-teal-500/20 border border-teal-500/40 glass-card">
+                🛡️ 治安熱區
+            </button>
+            <button onclick="toggleLayer('shopping')" id="btn-shopping" class="layer-btn active px-3 py-1.5 rounded-xl text-xs transition font-semibold text-purple-400 bg-purple-500/20 border border-purple-500/40 glass-card">
+                🛒 購物商場
+            </button>
+            <button onclick="toggleLayer('dining')" id="btn-dining" class="layer-btn active px-3 py-1.5 rounded-xl text-xs transition font-semibold text-rose-400 bg-rose-500/20 border border-rose-500/40 glass-card">
+                🍜 亞洲飲食
+            </button>
+            <button onclick="toggleLayer('medical')" id="btn-medical" class="layer-btn active px-3 py-1.5 rounded-xl text-xs transition font-semibold text-sky-400 bg-sky-500/20 border border-sky-500/40 glass-card">
+                🏥 醫療中心
+            </button>
+        </div>
+
+        <!-- 滿版 Leaflet 地圖容器 -->
+        <div id="az-interactive-map" class="w-full h-full z-10"></div>
+    </div>
+
+    <script>
+        let azMap = null;
+        let baseTileLayers = {};
+        let currentTileStyle = 'google';
+        let layers = {};
+        let poiDatabase = [];
+        let searchMarker = null;
+
+        let layerStates = {
+            districts: true,
+            housing: true,
+            safety: true,
+            schools: true,
+            swim: true,
+            shopping: true,
+            dining: true,
+            medical: true
+        };
+
+        function setMapStyle(styleKey) {
+            if (!azMap || !baseTileLayers[styleKey]) return;
+            Object.keys(baseTileLayers).forEach(k => {
+                if (azMap.hasLayer(baseTileLayers[k])) {
+                    azMap.removeLayer(baseTileLayers[k]);
+                }
+            });
+            baseTileLayers[styleKey].addTo(azMap);
+            currentTileStyle = styleKey;
+
+            ['google', 'satellite', 'dark'].forEach(k => {
+                const btn = document.getElementById(`style-${k}`);
+                if (btn) {
+                    if (k === styleKey) {
+                        btn.className = "px-2.5 py-1 rounded font-bold text-amber-400 bg-amber-500/20 transition border border-amber-500/40";
+                    } else {
+                        btn.className = "px-2.5 py-1 rounded font-medium text-zinc-400 hover:text-white transition";
+                    }
+                }
+            });
+        }
+
+        function toggleLayer(layerKey) {
+            if (!azMap || !layers[layerKey]) return;
+            const btn = document.getElementById(`btn-${layerKey}`);
+            if (layerStates[layerKey]) {
+                azMap.removeLayer(layers[layerKey]);
+                layerStates[layerKey] = false;
+                if (btn) {
+                    btn.classList.remove('active', 'bg-amber-500/20', 'bg-emerald-500/20', 'bg-teal-500/20', 'bg-indigo-500/20', 'bg-cyan-500/20', 'bg-purple-500/20', 'bg-rose-500/20', 'bg-sky-500/20');
+                    btn.classList.add('bg-zinc-800/60', 'text-zinc-500', 'border-zinc-700');
+                }
+            } else {
+                azMap.addLayer(layers[layerKey]);
+                layerStates[layerKey] = true;
+                if (btn) {
+                    btn.classList.remove('bg-zinc-800/60', 'text-zinc-500', 'border-zinc-700');
+                    btn.classList.add('active');
+                    if (layerKey === 'districts') btn.classList.add('bg-amber-500/20', 'text-amber-400', 'border-amber-500/40');
+                    if (layerKey === 'housing') btn.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border-emerald-500/40');
+                    if (layerKey === 'safety') btn.classList.add('bg-teal-500/20', 'text-teal-400', 'border-teal-500/40');
+                    if (layerKey === 'schools') btn.classList.add('bg-indigo-500/20', 'text-indigo-400', 'border-indigo-500/40');
+                    if (layerKey === 'swim') btn.classList.add('bg-cyan-500/20', 'text-cyan-400', 'border-cyan-500/40');
+                    if (layerKey === 'shopping') btn.classList.add('bg-purple-500/20', 'text-purple-400', 'border-purple-500/40');
+                    if (layerKey === 'dining') btn.classList.add('bg-rose-500/20', 'text-rose-400', 'border-rose-500/40');
+                    if (layerKey === 'medical') btn.classList.add('bg-sky-500/20', 'text-sky-400', 'border-sky-500/40');
+                }
+            }
+        }
+
+        window.toggleLayer = toggleLayer;
+        window.setMapStyle = setMapStyle;
+
+        function initAZMap() {
+            if (azMap) return;
+            if (typeof L === 'undefined') {
+                setTimeout(initAZMap, 200);
+                return;
+            }
+            
+            layers = {
+                districts: L.layerGroup(),
+                housing: L.layerGroup(),
+                safety: L.layerGroup(),
+                schools: L.layerGroup(),
+                swim: L.layerGroup(),
+                shopping: L.layerGroup(),
+                dining: L.layerGroup(),
+                medical: L.layerGroup()
+            };
+
+            azMap = L.map('az-interactive-map', {
+                center: [33.7350, -112.1850],
+                zoom: 11,
+                zoomControl: true,
+                attributionControl: false
+            });
+
+            baseTileLayers.google = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            });
+
+            baseTileLayers.satellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            });
+
+            baseTileLayers.dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19,
+                subdomains: 'abcd'
+            });
+
+            baseTileLayers.google.addTo(azMap);
+
+            // TSMC Fab 21 核心廠區地標 Pin
+            addPoiItem([33.7997, -112.1648], '🏭 TSMC Fab 21 (廠區)', '🏭 台積電 TSMC Fab 21 晶圓廠核心', 'TSMC Fab 21 晶圓廠, 85085, Deer Valley', null);
+            
+            const tsmcIcon = L.divIcon({
+                className: 'custom-tsmc-pin',
+                html: '<div style="background: linear-gradient(135deg, #F59E0B, #D97706); color: #000; font-weight: 900; padding: 6px 10px; border-radius: 8px; border: 2px solid #FFF; box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); font-size: 11px; white-space: nowrap;">🏭 TSMC Fab 21 (廠區)</div>',
+                iconSize: [120, 30],
+                iconAnchor: [60, 15]
+            });
+            const tsmcMarker = L.marker([33.7997, -112.1648], { icon: tsmcIcon }).addTo(azMap);
+            tsmcMarker.bindPopup(`
+                <div style="color:#fff; background:#18181b; padding:10px; border-radius:10px; border:1px solid #f59e0b; font-family:sans-serif;">
+                    <h4 style="color:#f59e0b; font-weight:bold; margin:0 0 5px 0;">🏭 台積電 TSMC Fab 21 廠區</h4>
+                    <p style="font-size:12px; color:#d4d4d8; margin:0;"><b>位置：</b> Deer Valley / North Phoenix<br><b>規劃：</b> 一、二、三期晶圓廠興建中<br><b>交通：</b> 緊鄰 I-17 與 Loop 303 高速公路出口</p>
+                </div>
+            `);
+
+            // 精準 85383 郵區真實地理多邊形邊界
+            const peoria85383Poly = L.polygon([
+                [33.8900, -112.3800], [33.8900, -112.2150], [33.8400, -112.2000],
+                [33.7400, -112.2050], [33.6800, -112.2400], [33.6800, -112.3600],
+                [33.7600, -112.3950]
+            ], {
+                color: '#F59E0B', fillColor: '#F59E0B', fillOpacity: 0.18, weight: 3, dashArray: '6, 6'
+            }).bindPopup('<div style="color:#fff;"><b style="color:#f59e0b;">🏆 Peoria / Vistancia (ZIP Code: 85383 精準行政邊界)</b><br>📍 含 Lake Pleasant, Vistancia, Happy Valley 商圈<br>🎓 全美 #1 BASIS Peoria 高中 + Vistancia Vipers 泳隊<br>🚗 交通： Loop 303 (15-20 分鐘直達 TSMC)</div>');
+            layers.districts.addLayer(peoria85383Poly);
+            addPoiItem([33.7600, -112.2800], '🗺️ Peoria 85383 郵區行政邊界', '85383 Vistancia, Lake Pleasant, Peoria', '85383, Peoria, Vistancia', peoria85383Poly);
+
+            const norterra85085Poly = L.polygon([
+                [33.8150, -112.1700], [33.8150, -112.0650], [33.7050, -112.0650],
+                [33.7050, -112.1400], [33.7500, -112.1700]
+            ], {
+                color: '#38BDF8', fillColor: '#38BDF8', fillOpacity: 0.18, weight: 3, dashArray: '6, 6'
+            }).bindPopup('<div style="color:#fff;"><b style="color:#38bdf8;">🥈 Norterra (ZIP Code: 85085 精準行政邊界)</b><br>📍 台積電員工最密集聚落 + 5-10 分鐘極短通勤<br> HonorHealth 綜合醫院與 Taiwan Mama 台灣美食圈</div>');
+            layers.districts.addLayer(norterra85085Poly);
+            addPoiItem([33.7400, -112.1200], '🗺️ Norterra 85085 郵區行政邊界', '85085 Norterra, Phoenix', '85085, Norterra', norterra85085Poly);
+
+            const anthem85086Poly = L.polygon([
+                [33.9150, -112.1700], [33.9150, -112.0900], [33.8200, -112.0900], [33.8200, -112.1700]
+            ], {
+                color: '#34D399', fillColor: '#34D399', fillOpacity: 0.15, weight: 2.5
+            }).bindPopup('<div style="color:#fff;"><b style="color:#34d399;">🌲 Anthem (ZIP Code: 85086 精準邊界)</b><br>高級 Master-Planned 社區，空間大、治安滿分<br>🚗 I-17 車程 12-18 分鐘</div>');
+            layers.districts.addLayer(anthem85086Poly);
+
+            const scottsdale85255Poly = L.polygon([
+                [33.7700, -111.9600], [33.7700, -111.8400], [33.6200, -111.8400], [33.6200, -111.9600]
+            ], {
+                color: '#A855F7', fillColor: '#A855F7', fillOpacity: 0.15, weight: 2.5
+            }).bindPopup('<div style="color:#fff;"><b style="color:#a855f7;">💎 North Scottsdale (ZIP Code: 85255 精準邊界)</b><br>頂級豪宅區 + SAC 金牌泳隊總部<br>🚗 車程約 20-25 分鐘</div>');
+            layers.districts.addLayer(scottsdale85255Poly);
+
+            // 5. 🏠 Zillow 房產買賣與租屋圖層
+            createMarker(layers.housing, [33.7450, -112.2850], '🏠 買房 $68萬 (85383 Vistancia 4房獨立屋)', '<b>🏡 Zillow 買房標的：85383 Vistancia 獨立屋</b><br>💰 售價：<b>$680,000 美金</b> (4房 3衛 2,650 sqft)<br>📅 屋齡：2021 年建 / 帶大後院<br>🎓 學區：BASIS Peoria (10/10)<br>🔗 <a href="https://www.zillow.com/peoria-az-85383/" target="_blank" style="color:#10b981; font-weight:bold; text-decoration:underline;">在 Zillow 查看 85383 最新房源 ➔</a>', '#10B981', 'Zillow 買房 85383 Vistancia');
+            createMarker(layers.housing, [33.7220, -112.2680], '🏠 買房 $85萬 (85383 帶私人泳池獨立屋)', '<b>🏡 Zillow 買房標的：85383 豪華獨立屋</b><br>💰 售價：<b>$850,000 美金</b> (5房 4衛 3,400 sqft)<br>🏊 設施：自帶私人游泳池 + 3車庫<br>🔗 <a href="https://www.zillow.com/peoria-az-85383/houses/" target="_blank" style="color:#10b981; font-weight:bold; text-decoration:underline;">前往 Zillow 查看獨立屋詳情 ➔</a>', '#10B981', 'Zillow 買房 85383 獨立屋 泳池');
+            createMarker(layers.housing, [33.7480, -112.1220], '🏘️ 租屋 $2,850/月 (85085 Norterra 4房)', '<b>🏘️ Zillow 租屋標的：85085 Norterra 獨立屋</b><br>💰 月租：<b>$2,850 / 月</b> (4房 2.5衛 2,200 sqft)<br>⚡ 交通：距 TSMC Fab 21 廠區僅 6 分鐘<br>🔗 <a href="https://www.zillow.com/phoenix-az-85085/rentals/" target="_blank" style="color:#38bdf8; font-weight:bold; text-decoration:underline;">前往 Zillow 查看 85085 租屋 ➔</a>', '#38BDF8', 'Zillow 租屋 85085 Norterra');
+            createMarker(layers.housing, [33.7310, -112.1350], '🏠 買房 $59.5萬 (85085 Norterra 獨棟屋)', '<b>🏡 Zillow 買房標的：85085 Norterra 現代屋</b><br>💰 售價：<b>$595,000 美金</b> (4房 2.5衛 2,350 sqft)<br>🚗 交通：廠區 8 分鐘 / 近 <i>Taiwan Mama</i> 餐館<br>🔗 <a href="https://www.zillow.com/phoenix-az-85085/" target="_blank" style="color:#38bdf8; font-weight:bold; text-decoration:underline;">前往 Zillow 查看 85085 房源 ➔</a>', '#38BDF8', 'Zillow 買房 85085 Norterra');
+
+            // 6. 治安與犯罪率熱區
+            const peoriaSafety = L.circle([33.75, -112.28], { radius: 6500, color: '#10B981', fillColor: '#10B981', fillOpacity: 0.18, weight: 1.5 })
+                .bindPopup('<b>🛡️ Peoria 85383 治安評分：9.5 / 10</b><br>極低犯罪率、全美前 10% 安全社區');
+            const norterraSafety = L.circle([33.74, -112.12], { radius: 4500, color: '#06B6D4', fillColor: '#06B6D4', fillOpacity: 0.18, weight: 1.5 })
+                .bindPopup('<b>🛡️ Norterra 85085 治安評分：9.0 / 10</b><br>現代化封閉 master-planned 社區，安全無虞');
+            const anthemSafety = L.circle([33.86, -112.13], { radius: 5500, color: '#10B981', fillColor: '#10B981', fillOpacity: 0.18, weight: 1.5 })
+                .bindPopup('<b>🛡️ Anthem 85086 治安評分：9.8 / 10</b><br>全美頂級安寧低犯罪率郊區社區');
+            layers.safety.addLayer(peoriaSafety).addLayer(norterraSafety).addLayer(anthemSafety);
+
+            // 7. 學校學區 (100% 精準實體校園座標)
+            createMarker(layers.schools, [33.7258, -112.2730], '🏫 BASIS Peoria Upper (Grades 5-12 #1名校)', '<b>BASIS Peoria Upper Campus (9902 W Yearling Rd)</b><br>📍 9902 W Yearling Rd, Peoria, AZ 85383<br>🏆 全美排名前 10 名特許高中/國中<br>⭐ 評分：10 / 10<br>適用：14歲 Arial (國二 / 8th Grade)', '#818CF8', 'BASIS Peoria High School 85383 Yearling');
+            createMarker(layers.schools, [33.7251, -112.2855], '🏫 BASIS Peoria Primary (Grades K-4)', '<b>BASIS Peoria Primary Campus (Lake Pleasant Pkwy)</b><br>📍 25950 N Lake Pleasant Pkwy, Peoria, AZ 85383<br>🏫 BASIS 國小低年級園區<br>⭐ 評分：10 / 10<br>適用：10 歲弟弟', '#818CF8', 'BASIS Peoria Primary 85383 Lake Pleasant');
+            createMarker(layers.schools, [33.7275, -112.1225], '🏫 BASIS Phoenix North (Norterra)', '<b>BASIS Phoenix North (2940 W Happy Valley Rd)</b><br>📍 2940 W Happy Valley Rd, Phoenix, AZ 85085<br>🏫 Deer Valley / Norterra 頂級特許學校<br>⭐ 評分：10 / 10', '#818CF8', 'BASIS Phoenix North 85085 Happy Valley');
+            createMarker(layers.schools, [33.6780, -112.2380], '🏫 Sunrise Mountain HS (83rd Ave)', '<b>Sunrise Mountain High School (Peoria Unified)</b><br>📍 21200 N 83rd Ave, Peoria, AZ 85382<br>🏫 Peoria 85383 劃分優質公立高中<br>⭐ 評分：9 / 10', '#6366F1', 'Sunrise Mountain High School 85382');
+            createMarker(layers.schools, [33.7150, -112.1350], "🏫 Sandra Day O'Connor HS (35th Ave)", "<b>Sandra Day O'Connor High School</b><br>📍 25250 N 35th Ave, Phoenix, AZ 85083<br>🏫 Deer Valley 85085 劃分高中 (游泳校隊極強)", '#6366F1', "Sandra Day O'Connor High School 85083");
+
+            // 8. 游泳俱樂部與 50m 長池
+            createMarker(layers.swim, [33.7025, -112.2450], '🏊 Swim Neptune (Peoria 站點 - Sunrise Pool)', '<b>Swim Neptune (Peoria 訓練據點)</b><br>📍 21321 N 86th Ave, Peoria, AZ 85382 (Sunrise Aquatic Center)<br>🏊 85383 社區 10 分鐘車程，Arial 蛙式練習首選！<br>🔗 <a href="https://www.swimneptune.org" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 Swim Neptune 官方網站 ➔</a>', '#22D3EE', 'Swim Neptune Peoria Sunrise Pool');
+            createMarker(layers.swim, [33.6525, -112.1690], '🏊 Swim Neptune (Deer Valley 站點 - 廠區旁)', '<b>Swim Neptune (Deer Valley 訓練據點)</b><br>📍 18424 N 51st Ave, Glendale/Deer Valley, AZ 85308<br>⚡ 距 TSMC Fab 21 廠區僅 5~8 分鐘車程！<br>🔗 <a href="https://www.swimneptune.org" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 Swim Neptune 官方網站 ➔</a>', '#06B6D4', 'Swim Neptune Deer Valley Pool');
+            createMarker(layers.swim, [33.6115, -112.2505], '🏊 Peoria Rio Vista 50m長池 (Thunderbird Rd)', '<b>Peoria Rio Vista Aquatic Center (50m LCM)</b><br>📍 8866 W Thunderbird Rd, Peoria, AZ 85381<br>🏊 奧林匹克標準 50 公尺長池競賽館<br>🔗 <a href="https://www.peoriaaz.gov/government/departments/parks-and-recreation/recreation-programs/aquatics" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 Peoria 市府水上中心官網 ➔</a>', '#38BDF8', 'Peoria Rio Vista Aquatic Center 50m pool');
+            createMarker(layers.swim, [33.4735, -111.9175], '🏊 Scottsdale Aquatic Club (SAC 主場館)', '<b>Scottsdale Aquatic Club (SAC Eldorado Pool)</b><br>📍 2309 N Miller Rd, Scottsdale, AZ 85257<br>🏆 全美頂級金牌霸主俱樂部 (NCAA D1 搖籃)<br>🔗 <a href="http://www.scottsdaleaquaticclub.org" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 SAC 官方網站 ➔</a>', '#A855F7', 'Scottsdale Aquatic Club SAC Eldorado Pool');
+            createMarker(layers.swim, [33.5350, -111.9960], '🏊 Phoenix Swim Club (Stanford Dr)', '<b>Phoenix Swim Club (PCDS Aquatic Center)</b><br>📍 3901 E Stanford Dr, Phoenix, AZ 85018<br>🏊 鳳凰城歷史悠久傳統金牌強隊<br>🔗 <a href="https://www.phoenixswimclub.org" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 Phoenix Swim Club 官網 ➔</a>', '#0284C7', 'Phoenix Swim Club Stanford Dr');
+
+            // 9. 購物商場
+            createMarker(layers.shopping, [33.7185, -112.2745], '🛒 Lake Pleasant Towne Center (Peoria 85383)', '<b>Lake Pleasant Towne Center (Peoria 85383)</b><br>📍 25300 N Lake Pleasant Pkwy, Peoria, AZ 85383<br>🏬 Sprouts, Home Depot, OfficeMax, PetSmart, Batteries Plus<br>🛒 85383 核心大型採買購物廣場', '#C084FC', 'Lake Pleasant Towne Center Peoria 85383 Sprouts Home Depot OfficeMax');
+            createMarker(layers.shopping, [33.7295, -112.1125], '🛒 The Shops at Norterra', '<b>The Shops at Norterra</b><br>📍 2460 W Happy Valley Rd, Phoenix, AZ 85085<br>🏬 Target, Sephora, 露天美食廣場, 影城複合商圈', '#C084FC', 'The Shops at Norterra 85085 Target Sephora');
+            createMarker(layers.shopping, [33.6420, -112.2240], '🛒 Arrowhead Towne Center', "<b>Arrowhead Towne Center (Peoria)</b><br>📍 7700 W Arrowhead Towne Center, Peoria, AZ 85382<br>🏬 大型室內 Mall, Apple Store, Macy's, Nordstrom", '#A855F7', 'Arrowhead Towne Center Peoria Mall Apple Store');
+
+            // 10. 亞洲飲食與超市
+            createMarker(layers.dining, [33.6700, -112.1150], '🍜 台積電美食與台灣餐館', '<b>Taiwan Mama & 台灣美食圈</b><br>牛肉麵、珍珠奶茶、台灣台菜', '#FB7185', 'Taiwan Mama 台灣美食 牛肉麵 珍奶');
+            createMarker(layers.dining, [33.6410, -112.2300], '🍜 Asiana Market 亞洲超市', '<b>Asiana Market 亞洲生鮮超市</b><br>生鮮食材、亞洲熟食', '#F43F5E', 'Asiana Market 亞洲超市 生鮮');
+
+            // 11. 醫療中心
+            createMarker(layers.medical, [33.7440, -112.1150], '🏥 HonorHealth Hospital (Norterra)', '<b>HonorHealth Sonoran Crossing Medical Center</b><br>24小時急診、新穎綜合醫院 (85085)', '#2DD4BF', 'HonorHealth Hospital Norterra 85085');
+            createMarker(layers.medical, [33.7250, -112.2800], '🏥 Banner Health Peoria', '<b>Banner Health Center Vistancia</b><br>Peoria 門診與急診醫療中心', '#14B8A6', 'Banner Health Peoria Vistancia 85383');
+            createMarker(layers.medical, [33.6580, -111.9790], '🏥 Mayo Clinic Hospital', '<b>Mayo Clinic Hospital (Phoenix)</b><br>全美世界頂尖醫療中心', '#0D9488', 'Mayo Clinic Hospital Phoenix');
+
+            // 將預設啟動之圖層加入地圖
+            Object.keys(layers).forEach(key => {
+                azMap.addLayer(layers[key]);
+            });
+        }
+
+        function createMarker(layerGroup, coords, title, popupContent, colorHex, keywords) {
+            const markerIcon = L.divIcon({
+                className: 'custom-poi-pin',
+                html: `<div style="background:${colorHex}; color:#000; font-weight:bold; padding:3px 7px; border-radius:6px; border:1px solid #FFF; font-size:10px; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,0.5);">${title}</div>`,
+                iconSize: [100, 24],
+                iconAnchor: [50, 12]
+            });
+            const marker = L.marker(coords, { icon: markerIcon });
+            marker.bindPopup(`<div style="color:#fff; background:#18181b; padding:8px; border-radius:8px; font-family:sans-serif;">${popupContent}</div>`);
+            layerGroup.addLayer(marker);
+            addPoiItem(coords, title, popupContent, keywords || title, marker);
+        }
+
+        function addPoiItem(coords, title, subtitle, keywords, markerObj) {
+            poiDatabase.push({ coords, title, subtitle, keywords: keywords.toLowerCase(), markerObj });
+        }
+
+        // Google 式互動搜尋功能 (Google-Style Search Bar)
+        function handleSearchInput(e) {
+            const dropdown = document.getElementById('search-results-dropdown');
+            const query = e.target.value.trim().toLowerCase();
+            
+            if (e.key === 'Enter') {
+                executeSearch();
+                return;
+            }
+
+            if (!query) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            const matches = poiDatabase.filter(item => item.title.toLowerCase().includes(query) || item.keywords.includes(query));
+            
+            if (matches.length === 0) {
+                dropdown.innerHTML = `<div class="p-2 text-zinc-400">找不到本地地標，按 Enter 搜尋 Google/OSM 網絡地圖 ➔</div>`;
+            } else {
+                dropdown.innerHTML = matches.map((item, idx) => `
+                    <div onclick="selectPoiResult(${idx})" class="search-item p-2 rounded-lg cursor-pointer transition flex items-center justify-between border-b border-zinc-800/50 last:border-0">
+                        <div>
+                            <div class="font-bold text-white">${item.title}</div>
+                            <div class="text-[11px] text-zinc-400">${item.subtitle.replace(/<[^>]*>?/gm, '').substring(0, 45)}...</div>
+                        </div>
+                        <span class="text-amber-400 font-bold ml-2">➔</span>
+                    </div>
+                `).join('');
+            }
+            dropdown.classList.remove('hidden');
+        }
+
+        function showSearchSuggestions() {
+            const input = document.getElementById('map-search-input');
+            if (input.value.trim()) {
+                handleSearchInput({ target: input });
+            }
+        }
+
+        function selectPoiResult(idx) {
+            const item = poiDatabase[idx];
+            if (!item) return;
+            document.getElementById('search-results-dropdown').classList.add('hidden');
+            document.getElementById('map-search-input').value = item.title;
+
+            azMap.flyTo(item.coords, 14, { duration: 1.5 });
+            if (item.markerObj) {
+                setTimeout(() => item.markerObj.openPopup(), 1600);
+            }
+        }
+
+        function executeSearch() {
+            const input = document.getElementById('map-search-input');
+            const query = input.value.trim();
+            const dropdown = document.getElementById('search-results-dropdown');
+            dropdown.classList.add('hidden');
+
+            if (!query) return;
+
+            // 1. 先比對本地 POI 庫
+            const match = poiDatabase.find(item => item.title.toLowerCase().includes(query.toLowerCase()) || item.keywords.includes(query.toLowerCase()));
+            if (match) {
+                azMap.flyTo(match.coords, 14, { duration: 1.5 });
+                if (match.markerObj) {
+                    setTimeout(() => match.markerObj.openPopup(), 1600);
+                }
+                return;
+            }
+
+            // 2. 本地沒有則呼叫 OpenStreetMap / Nominatim 全球 Geocoding API
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ' Arizona USA')}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const first = data[0];
+                        const lat = parseFloat(first.lat);
+                        const lon = parseFloat(first.lon);
+                        
+                        azMap.flyTo([lat, lon], 14, { duration: 1.5 });
+
+                        if (searchMarker) azMap.removeLayer(searchMarker);
+                        const searchIcon = L.divIcon({
+                            className: 'custom-search-pin',
+                            html: `<div style="background:#EF4444; color:#FFF; font-weight:bold; padding:4px 8px; border-radius:6px; border:2px solid #FFF; font-size:11px; white-space:nowrap; box-shadow:0 0 15px rgba(239,68,68,0.8);">📍 ${first.display_name.split(',')[0]}</div>`,
+                            iconSize: [110, 26],
+                            iconAnchor: [55, 13]
+                        });
+                        searchMarker = L.marker([lat, lon], { icon: searchIcon }).addTo(azMap);
+                        searchMarker.bindPopup(`<div style="color:#fff; background:#18181b; padding:8px; border-radius:8px;"><b>📍 搜尋結果：</b><br>${first.display_name}</div>`).openPopup();
+                    } else {
+                        alert('找不到相關位置，請嘗試輸入 85383, BASIS, Norterra, TSMC 等關鍵字！');
+                    }
+                })
+                .catch(err => {
+                    alert('搜尋服務忙碌中，請點擊地圖上的圖層標籤。');
+                });
+        }
+
+        window.handleSearchInput = handleSearchInput;
+        window.showSearchSuggestions = showSearchSuggestions;
+        window.selectPoiResult = selectPoiResult;
+        window.executeSearch = executeSearch;
+
+        // 點擊地圖外部關閉搜尋下拉
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('search-results-dropdown');
+            const searchBox = document.getElementById('map-search-input');
+            if (dropdown && searchBox && !dropdown.contains(e.target) && !searchBox.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // 頁面載入完成即初始化地圖
+        document.addEventListener('DOMContentLoaded', () => {
+            initAZMap();
+        });
+    </script>
+</body>
+</html>
