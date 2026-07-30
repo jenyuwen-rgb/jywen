@@ -269,19 +269,28 @@
                 .bindPopup('<b>🛡️ Anthem 85086 治安評分：9.8 / 10</b><br>全美頂級安寧低犯罪率郊區社區');
             layers.safety.addLayer(peoriaSafety).addLayer(norterraSafety).addLayer(anthemSafety);
 
-            // 7. 學校學區 (100% 精準實體校園座標)
-            createMarker(layers.schools, [33.7258, -112.2730], '🏫 BASIS Peoria Upper (Grades 5-12 #1名校)', '<b>BASIS Peoria Upper Campus (9902 W Yearling Rd)</b><br>📍 9902 W Yearling Rd, Peoria, AZ 85383<br>🏆 全美排名前 10 名特許高中/國中<br>⭐ 評分：10 / 10<br>適用：14歲 Arial (國二 / 8th Grade)', '#818CF8', 'BASIS Peoria High School 85383 Yearling');
+            // 7. 學校學區 (100% 精準實體校園座標與游泳特色)
+            createMarker(layers.schools, [33.7844, -112.1294], '🏫 Sonoran Foothills School (K-8 首選)', '<b>Sonoran Foothills School (K-8)</b><br>📍 3215 W North Valley Pkwy, Phoenix, AZ 85085<br>🏫 Deer Valley 85085 最熱門公立中小學<br>⭐ 評分：9-10 / 10 (TSMC 員工家庭密度最高)<br>🚗 車程：距 TSMC 廠區僅 5~8 分鐘', '#6366F1', 'Sonoran Foothills School K8 85085 Deer Valley TSMC 學校');
+            createMarker(layers.schools, [33.6897, -111.9634], '🏫 Pinnacle High School (🏊 Division I 游泳州冠軍強校)', '<b>Pinnacle High School (Paradise Valley Unified)</b><br>📍 3535 E Mayo Blvd, Phoenix, AZ 85050<br>🏫 North Phoenix / Desert Ridge 頂級公立高中<br>⭐ 評分：8 / 10<br>🏊 <b>游泳強校</b>：屢獲 AIA Division I 州總冠軍！<br>🚗 車程：距 TSMC 廠區約 15~20 分鐘', '#6366F1', 'Pinnacle High School 游泳 強校 州冠軍 Desert Ridge Mayo Blvd 85050');
+            createMarker(layers.schools, [33.7020, -112.1932], '🏫 Mountain Ridge High School (🏊 Division I 游泳強校)', '<b>Mountain Ridge High School (Deer Valley Unified)</b><br>📍 22800 N 67th Ave, Glendale, AZ 85310<br>🏫 Deer Valley 85310 劃分優質公立高中<br>⭐ 評分：8 / 10<br>🏊 <b>游泳強校</b>：AIA Division I 傳統競賽強校<br>🚗 車程：距 TSMC 廠區約 15 分鐘', '#6366F1', 'Mountain Ridge High School 游泳 強校 67th Ave 85310 Deer Valley');
+            createMarker(layers.schools, [33.6845, -112.2661], '🏫 Liberty High School (🏊 西谷游泳/水球強校)', '<b>Liberty High School (Peoria Unified)</b><br>📍 9654 W Deer Valley Rd, Peoria, AZ 85383<br>🏫 Peoria 85383 劃分頂級公立高中<br>⭐ 評分：9 / 10<br>🏊 <b>游泳強校</b>：西谷體育與游泳水球頂尖強校<br>🚗 車程：距 TSMC 廠區約 15~20 分鐘 (Loop 303)', '#6366F1', 'Liberty High School 游泳 水球 強校 Deer Valley Rd 85383 Peoria');
+            createMarker(layers.schools, [33.7175, -112.2730], '🏫 BASIS Peoria Upper (Grades 5-12 #1名校)', '<b>BASIS Peoria Upper Campus (9902 W Yearling Rd)</b><br>📍 9902 W Yearling Rd, Peoria, AZ 85383<br>🏆 全美排名前 10 名特許高中/國中<br>⭐ 評分：10 / 10 (配合 Swim Neptune 培訓)<br>適用：14歲 Arial (國二 / 8th Grade)', '#818CF8', 'BASIS Peoria High School 85383 Yearling 特特學校 游泳');
             createMarker(layers.schools, [33.7251, -112.2855], '🏫 BASIS Peoria Primary (Grades K-4)', '<b>BASIS Peoria Primary Campus (Lake Pleasant Pkwy)</b><br>📍 25950 N Lake Pleasant Pkwy, Peoria, AZ 85383<br>🏫 BASIS 國小低年級園區<br>⭐ 評分：10 / 10<br>適用：10 歲弟弟', '#818CF8', 'BASIS Peoria Primary 85383 Lake Pleasant');
             createMarker(layers.schools, [33.7275, -112.1225], '🏫 BASIS Phoenix North (Norterra)', '<b>BASIS Phoenix North (2940 W Happy Valley Rd)</b><br>📍 2940 W Happy Valley Rd, Phoenix, AZ 85085<br>🏫 Deer Valley / Norterra 頂級特許學校<br>⭐ 評分：10 / 10', '#818CF8', 'BASIS Phoenix North 85085 Happy Valley');
-            createMarker(layers.schools, [33.6780, -112.2380], '🏫 Sunrise Mountain HS (83rd Ave)', '<b>Sunrise Mountain High School (Peoria Unified)</b><br>📍 21200 N 83rd Ave, Peoria, AZ 85382<br>🏫 Peoria 85383 劃分優質公立高中<br>⭐ 評分：9 / 10', '#6366F1', 'Sunrise Mountain High School 85382');
-            createMarker(layers.schools, [33.7150, -112.1350], "🏫 Sandra Day O'Connor HS (35th Ave)", "<b>Sandra Day O'Connor High School</b><br>📍 25250 N 35th Ave, Phoenix, AZ 85083<br>🏫 Deer Valley 85085 劃分高中 (游泳校隊極強)", '#6366F1', "Sandra Day O'Connor High School 85083");
+            createMarker(layers.schools, [33.7278, -112.1152], '🏫 Great Hearts Archway Norterra (古典特許)', '<b>Great Hearts Archway Norterra</b><br>📍 2540 W Happy Valley Rd, Phoenix, AZ 85085<br>🏫 Norterra 頂級古典特許學校 (Liberal Arts)<br>⭐ 評分：9 / 10<br>🚗 車程：距 TSMC 廠區約 8 分鐘', '#818CF8', 'Great Hearts Archway Norterra 85085 Happy Valley');
+            createMarker(layers.schools, [33.7478, -112.3551], '🏫 Vistancia Elementary (K-8 85383優質小學)', '<b>Vistancia Elementary School (Peoria Unified)</b><br>📍 30009 N Sunrise Point, Peoria, AZ 85383<br>🏫 Peoria 85383 頂級社區公立小學/國中<br>⭐ 評分：9 / 10<br>🚗 車程：距 TSMC 廠區約 18 分鐘', '#6366F1', 'Vistancia Elementary School 85383 Peoria K8');
+            createMarker(layers.schools, [33.6845, -112.2380], '🏫 Sunrise Mountain HS (83rd Ave)', '<b>Sunrise Mountain High School (Peoria Unified)</b><br>📍 21200 N 83rd Ave, Peoria, AZ 85382<br>🏫 Peoria 85383 劃分優質公立高中<br>⭐ 評分：9 / 10', '#6366F1', 'Sunrise Mountain High School 85382');
+            createMarker(layers.schools, [33.7150, -112.1350], "🏫 Sandra Day O\'Connor HS (35th Ave 🏊游泳強校)", "<b>Sandra Day O\'Connor High School</b><br>📍 25250 N 35th Ave, Phoenix, AZ 85083<br>🏫 Deer Valley 85085 劃分高中 (🏊 游泳校隊極強)", '#6366F1', "Sandra Day O\'Connor High School 85083 游泳");
+            createMarker(layers.schools, [33.5828, -111.9056], '🏫 Chaparral High School (🏊 全美游泳王朝 20+次州冠軍)', '<b>Chaparral High School (Scottsdale Unified)</b><br>📍 6935 E Gold Dust Ave, Scottsdale, AZ 85253<br>🏫 Scottsdale 傳統名校<br>🏆 🏊 <b>游泳王朝</b>：拿過 20+ 次 AIA 州總冠軍，全美頂尖游泳選手搖籃', '#6366F1', 'Chaparral High School Scottsdale 游泳 王朝 州冠軍 85253');
 
             // 8. 游泳俱樂部與 50m 長池
-            createMarker(layers.swim, [33.7025, -112.2450], '🏊 Swim Neptune (Peoria 站點 - Sunrise Pool)', '<b>Swim Neptune (Peoria 訓練據點)</b><br>📍 21321 N 86th Ave, Peoria, AZ 85382 (Sunrise Aquatic Center)<br>🏊 85383 社區 10 分鐘車程，Arial 蛙式練習首選！<br>🔗 <a href="https://www.swimneptune.org" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 Swim Neptune 官方網站 ➔</a>', '#22D3EE', 'Swim Neptune Peoria Sunrise Pool');
-            createMarker(layers.swim, [33.6525, -112.1690], '🏊 Swim Neptune (Deer Valley 站點 - 廠區旁)', '<b>Swim Neptune (Deer Valley 訓練據點)</b><br>📍 18424 N 51st Ave, Glendale/Deer Valley, AZ 85308<br>⚡ 距 TSMC Fab 21 廠區僅 5~8 分鐘車程！<br>🔗 <a href="https://www.swimneptune.org" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 Swim Neptune 官方網站 ➔</a>', '#06B6D4', 'Swim Neptune Deer Valley Pool');
+            createMarker(layers.swim, [33.8588, -112.1385], '🏊 Anthem Dolphins Swim Club (41130 N Freedom Way)', '<b>Anthem Dolphins Swim Club (Anthem Community Center)</b><br>📍 41130 N Freedom Way, Anthem, AZ 85086<br>🏊 <b>地緣最近首選</b>：距 TSMC 廠區僅 12-15 分鐘車程！<br>🏆 隸屬 Anthem 社區中心，具備 25 米標準競賽池，USA Swimming 註冊球隊，接送負擔最小！', '#10B981', 'Anthem Dolphins Swim Club Anthem Community Center 41130 N Freedom Way 85086');
+            createMarker(layers.swim, [33.6780, -112.2445], '🏊 Peoria Swim Team / Vistancia Vipers (Sunrise Pool)', '<b>Peoria Swim Team / Vistancia Vipers (Sunrise Pool)</b><br>📍 21321 N 86th Dr, Peoria, AZ 85382 (Sunrise Aquatic Center 公立泳池)<br>🏊 <b>西區優質選擇</b>：服務 Peoria 與 North Phoenix 區域，設有從入門技術班到分齡競賽隊的完整梯隊，設施維護完善！<br>🔗 <a href="https://www.swimneptune.com" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 泳隊官方網站 ➔</a>', '#22D3EE', 'Peoria Swim Team Vistancia Vipers Swim Neptune Peoria Sunrise Pool 21321 N 86th Dr 85382');
+            createMarker(layers.swim, [33.6525, -112.1690], '🏊 Swim Neptune (Deer Valley 站點 - 廠區旁)', '<b>Swim Neptune (Deer Valley 訓練據點)</b><br>📍 18424 N 51st Ave, Glendale/Deer Valley, AZ 85308<br>⚡ 距 TSMC Fab 21 廠區僅 5~8 分鐘車程！<br>🔗 <a href="https://www.swimneptune.com" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 Swim Neptune 官方網站 ➔</a>', '#06B6D4', 'Swim Neptune Deer Valley Pool');
             createMarker(layers.swim, [33.6115, -112.2505], '🏊 Peoria Rio Vista 50m長池 (Thunderbird Rd)', '<b>Peoria Rio Vista Aquatic Center (50m LCM)</b><br>📍 8866 W Thunderbird Rd, Peoria, AZ 85381<br>🏊 奧林匹克標準 50 公尺長池競賽館<br>🔗 <a href="https://www.peoriaaz.gov/government/departments/parks-and-recreation/recreation-programs/aquatics" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 Peoria 市府水上中心官網 ➔</a>', '#38BDF8', 'Peoria Rio Vista Aquatic Center 50m pool');
+            createMarker(layers.swim, [33.7975, -111.9515], '🏊 Desert Foothills Family YMCA (34250 N 60th St)', '<b>Desert Foothills Family YMCA (Scottsdale / Cave Creek)</b><br>📍 34250 N 60th St, Scottsdale, AZ 85266<br>🏊 <b>東北區優質選擇</b>：結合綜合運動中心設施，游泳隊著重運動員長期發展與團隊氛圍，適合兼顧多項運動發展的家庭！', '#F59E0B', 'Desert Foothills Family YMCA Scottsdale 34250 N 60th St 85266');
             createMarker(layers.swim, [33.4735, -111.9175], '🏊 Scottsdale Aquatic Club (SAC 主場館)', '<b>Scottsdale Aquatic Club (SAC Eldorado Pool)</b><br>📍 2309 N Miller Rd, Scottsdale, AZ 85257<br>🏆 全美頂級金牌霸主俱樂部 (NCAA D1 搖籃)<br>🔗 <a href="http://www.scottsdaleaquaticclub.org" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 SAC 官方網站 ➔</a>', '#A855F7', 'Scottsdale Aquatic Club SAC Eldorado Pool');
-            createMarker(layers.swim, [33.5350, -111.9960], '🏊 Phoenix Swim Club (Stanford Dr)', '<b>Phoenix Swim Club (PCDS Aquatic Center)</b><br>📍 3901 E Stanford Dr, Phoenix, AZ 85018<br>🏊 鳳凰城歷史悠久傳統金牌強隊<br>🔗 <a href="https://www.phoenixswimclub.org" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 Phoenix Swim Club 官網 ➔</a>', '#0284C7', 'Phoenix Swim Club Stanford Dr');
+            createMarker(layers.swim, [33.5350, -111.9960], '🏊 Phoenix Swim Club / PSC (Stanford Dr 頂尖競技首選)', '<b>Phoenix Swim Club (PSC) - Dady Aquatic Center</b><br>📍 3901 E Stanford Dr, Paradise Valley, AZ 85253 (Phoenix Country Day School)<br>🏆 <b>頂尖競技首選</b>：設有兩座戶外溫水池（包含 50 米 8 道奧運標準池），擁有頂級教練團隊，曾培育多位全美與奧運選手！<br>🔗 <a href="https://www.phoenixswimclub.org" target="_blank" style="color:#38bdf8; text-decoration:underline;">前往 PSC 官方網站 ➔</a>', '#0284C7', 'Phoenix Swim Club PSC Stanford Dr Dady Aquatic Center 3901 E Stanford Dr 85253');
 
             // 9. 購物商場
             createMarker(layers.shopping, [33.7185, -112.2745], '🛒 Lake Pleasant Towne Center (Peoria 85383)', '<b>Lake Pleasant Towne Center (Peoria 85383)</b><br>📍 25300 N Lake Pleasant Pkwy, Peoria, AZ 85383<br>🏬 Sprouts, Home Depot, OfficeMax, PetSmart, Batteries Plus<br>🛒 85383 核心大型採買購物廣場', '#C084FC', 'Lake Pleasant Towne Center Peoria 85383 Sprouts Home Depot OfficeMax');
@@ -289,13 +298,13 @@
             createMarker(layers.shopping, [33.6420, -112.2240], '🛒 Arrowhead Towne Center', "<b>Arrowhead Towne Center (Peoria)</b><br>📍 7700 W Arrowhead Towne Center, Peoria, AZ 85382<br>🏬 大型室內 Mall, Apple Store, Macy's, Nordstrom", '#A855F7', 'Arrowhead Towne Center Peoria Mall Apple Store');
 
             // 10. 亞洲飲食與超市
-            createMarker(layers.dining, [33.6700, -112.1150], '🍜 台積電美食與台灣餐館', '<b>Taiwan Mama & 台灣美食圈</b><br>牛肉麵、珍珠奶茶、台灣台菜', '#FB7185', 'Taiwan Mama 台灣美食 牛肉麵 珍奶');
-            createMarker(layers.dining, [33.6410, -112.2300], '🍜 Asiana Market 亞洲超市', '<b>Asiana Market 亞洲生鮮超市</b><br>生鮮食材、亞洲熟食', '#F43F5E', 'Asiana Market 亞洲超市 生鮮');
+            createMarker(layers.dining, [33.7295, -112.1125], '🍜 台積電美食與台灣餐館', '<b>Taiwan Mama & 台灣美食圈</b><br>📍 2450 W Happy Valley Rd, Phoenix, AZ 85085 (The Shops at Norterra)<br>🍜 牛肉麵、珍珠奶茶、台灣台菜', '#FB7185', 'Taiwan Mama 台灣美食 牛肉麵 珍奶 85085 Norterra');
+            createMarker(layers.dining, [33.5815, -112.1525], '🍜 Asiana Market 亞洲超市', '<b>Asiana Market 亞洲生鮮超市</b><br>📍 4316 W Peoria Ave, Glendale, AZ 85302 (43rd Ave & Peoria Ave)<br>🥬 生鮮食材、亞洲熟食', '#F43F5E', 'Asiana Market 亞洲超市 生鮮 43rd Ave Peoria Ave');
 
             // 11. 醫療中心
-            createMarker(layers.medical, [33.7440, -112.1150], '🏥 HonorHealth Hospital (Norterra)', '<b>HonorHealth Sonoran Crossing Medical Center</b><br>24小時急診、新穎綜合醫院 (85085)', '#2DD4BF', 'HonorHealth Hospital Norterra 85085');
-            createMarker(layers.medical, [33.7250, -112.2800], '🏥 Banner Health Peoria', '<b>Banner Health Center Vistancia</b><br>Peoria 門診與急診醫療中心', '#14B8A6', 'Banner Health Peoria Vistancia 85383');
-            createMarker(layers.medical, [33.6580, -111.9790], '🏥 Mayo Clinic Hospital', '<b>Mayo Clinic Hospital (Phoenix)</b><br>全美世界頂尖醫療中心', '#0D9488', 'Mayo Clinic Hospital Phoenix');
+            createMarker(layers.medical, [33.7850, -112.1280], '🏥 HonorHealth Hospital (Norterra)', '<b>HonorHealth Sonoran Crossing Medical Center</b><br>📍 33400 N 32nd Ave, Phoenix, AZ 85085<br>🏥 24小時急診、新穎綜合醫院 (85085)', '#2DD4BF', 'HonorHealth Hospital Norterra 85085 Sonoran Crossing');
+            createMarker(layers.medical, [33.7340, -112.3380], '🏥 Banner Health Peoria', '<b>Banner Health Center Vistancia</b><br>📍 28400 N Vistancia Blvd, Peoria, AZ 85383<br>🏥 Peoria 門診與急診醫療中心 (85383)', '#14B8A6', 'Banner Health Peoria Vistancia 85383');
+            createMarker(layers.medical, [33.6580, -111.9790], '🏥 Mayo Clinic Hospital', '<b>Mayo Clinic Hospital (Phoenix)</b><br>📍 5777 E Mayo Blvd, Phoenix, AZ 85054<br>🏥 全美世界頂尖醫療中心', '#0D9488', 'Mayo Clinic Hospital Phoenix Mayo Blvd');
 
             // 將預設啟動之圖層加入地圖
             Object.keys(layers).forEach(key => {
@@ -317,13 +326,75 @@
         }
 
         function addPoiItem(coords, title, subtitle, keywords, markerObj) {
-            poiDatabase.push({ coords, title, subtitle, keywords: keywords.toLowerCase(), markerObj });
+            const cleanText = (title + ' ' + subtitle + ' ' + (keywords || '')).replace(/<[^>]*>?/gm, ' ').toLowerCase();
+            poiDatabase.push({
+                coords,
+                title,
+                subtitle,
+                keywords: (keywords || '').toLowerCase(),
+                fullText: cleanText,
+                markerObj
+            });
+        }
+
+        // 智慧型多分詞權重比對函數 (Smart Multi-Token Fuzzy Matching)
+        function searchLocalPoi(queryRaw) {
+            if (!queryRaw) return [];
+            const queryClean = queryRaw.toLowerCase().trim();
+            
+            // 1. 完全包含直接命中
+            const exactMatches = poiDatabase.filter(item => item.fullText.includes(queryClean) || item.title.toLowerCase().includes(queryClean));
+            if (exactMatches.length > 0) return exactMatches;
+
+            // 提取核心 Token，過濾標點符號與括號
+            const tokens = queryClean.split(/[\s,()\[\]\-_📍🏫🏊🛒🏘️🏠🏥🍜]+/).filter(t => t.length > 0);
+            if (tokens.length === 0) return [];
+
+            // 2. 多分詞權重計分比對
+            const scored = poiDatabase.map(item => {
+                let score = 0;
+                tokens.forEach(token => {
+                    if (item.title.toLowerCase().includes(token)) score += 10;
+                    if (item.keywords.includes(token)) score += 7;
+                    if (item.fullText.includes(token)) score += 3;
+                });
+                return { item, score };
+            }).filter(res => res.score > 0);
+
+            scored.sort((a, b) => b.score - a.score);
+            return scored.map(res => res.item);
+        }
+
+        // 自動地址清洗 (Address Query Cleaner)
+        function cleanAddressQuery(queryRaw) {
+            let q = queryRaw.replace(/[\(（].*?[\)）]/g, ' '); // 剔除括號內容
+            q = q.replace(/[📍🏫🏊🛒🏘️🏠🏥🍜]/g, ' '); // 剔除表情符號
+            q = q.replace(/ave\b/gi, 'Dr').replace(/dr\b/gi, 'Dr'); // 自動兼顧 Ave/Dr 混用
+            return q.trim();
+        }
+
+        // Mac 風格 Toast 浮動訊息提醒
+        function showToastNotification(msg) {
+            let toast = document.getElementById('az-toast-notification');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'az-toast-notification';
+                toast.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[2000] glass-card px-5 py-3 rounded-2xl shadow-2xl border border-amber-500/40 text-amber-400 font-semibold text-xs transition-all duration-300 pointer-events-none opacity-0';
+                document.body.appendChild(toast);
+            }
+            toast.innerHTML = `🔍 ${msg}`;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 3800);
         }
 
         // Google 式互動搜尋功能 (Google-Style Search Bar)
         function handleSearchInput(e) {
             const dropdown = document.getElementById('search-results-dropdown');
-            const query = e.target.value.trim().toLowerCase();
+            const query = e.target.value.trim();
             
             if (e.key === 'Enter') {
                 executeSearch();
@@ -335,20 +406,23 @@
                 return;
             }
 
-            const matches = poiDatabase.filter(item => item.title.toLowerCase().includes(query) || item.keywords.includes(query));
+            const matches = searchLocalPoi(query);
             
             if (matches.length === 0) {
-                dropdown.innerHTML = `<div class="p-2 text-zinc-400">找不到本地地標，按 Enter 搜尋 Google/OSM 網絡地圖 ➔</div>`;
+                dropdown.innerHTML = `<div class="p-2.5 text-zinc-400 text-xs">找不到本地地標，按 Enter 搜尋 Google/OSM 全球網絡地圖 ➔</div>`;
             } else {
-                dropdown.innerHTML = matches.map((item, idx) => `
-                    <div onclick="selectPoiResult(${idx})" class="search-item p-2 rounded-lg cursor-pointer transition flex items-center justify-between border-b border-zinc-800/50 last:border-0">
-                        <div>
-                            <div class="font-bold text-white">${item.title}</div>
-                            <div class="text-[11px] text-zinc-400">${item.subtitle.replace(/<[^>]*>?/gm, '').substring(0, 45)}...</div>
+                dropdown.innerHTML = matches.slice(0, 6).map((item) => {
+                    const poiIndex = poiDatabase.indexOf(item);
+                    return `
+                        <div onclick="selectPoiResult(${poiIndex})" class="search-item p-2.5 rounded-lg cursor-pointer transition flex items-center justify-between border-b border-zinc-800/50 last:border-0">
+                            <div>
+                                <div class="font-bold text-white text-xs">${item.title}</div>
+                                <div class="text-[11px] text-zinc-400">${item.subtitle.replace(/<[^>]*>?/gm, '').substring(0, 48)}...</div>
+                            </div>
+                            <span class="text-amber-400 font-bold ml-2 text-xs">➔</span>
                         </div>
-                        <span class="text-amber-400 font-bold ml-2">➔</span>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
             dropdown.classList.remove('hidden');
         }
@@ -380,18 +454,21 @@
 
             if (!query) return;
 
-            // 1. 先比對本地 POI 庫
-            const match = poiDatabase.find(item => item.title.toLowerCase().includes(query.toLowerCase()) || item.keywords.includes(query.toLowerCase()));
-            if (match) {
+            // 1. 先比對本地 POI 庫 (智慧多分詞與模糊匹配)
+            const matches = searchLocalPoi(query);
+            if (matches.length > 0) {
+                const match = matches[0];
                 azMap.flyTo(match.coords, 14, { duration: 1.5 });
                 if (match.markerObj) {
                     setTimeout(() => match.markerObj.openPopup(), 1600);
                 }
+                showToastNotification(`已成功定位本地地標：<b>${match.title}</b>`);
                 return;
             }
 
             // 2. 本地沒有則呼叫 OpenStreetMap / Nominatim 全球 Geocoding API
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ' Arizona USA')}`)
+            const cleanQuery = cleanAddressQuery(query);
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanQuery + ' Arizona USA')}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data && data.length > 0) {
@@ -409,13 +486,14 @@
                             iconAnchor: [55, 13]
                         });
                         searchMarker = L.marker([lat, lon], { icon: searchIcon }).addTo(azMap);
-                        searchMarker.bindPopup(`<div style="color:#fff; background:#18181b; padding:8px; border-radius:8px;"><b>📍 搜尋結果：</b><br>${first.display_name}</div>`).openPopup();
+                        searchMarker.bindPopup(`<div style="color:#fff; background:#18181b; padding:8px; border-radius:8px;"><b>📍 全球地圖搜尋定位：</b><br>${first.display_name}</div>`).openPopup();
+                        showToastNotification(`已在地圖上定位外網地址：<b>${first.display_name.split(',')[0]}</b>`);
                     } else {
-                        alert('找不到相關位置，請嘗試輸入 85383, BASIS, Norterra, TSMC 等關鍵字！');
+                        showToastNotification(`找不到「${query}」，請嘗試輸入 85383, BASIS, Norterra, TSMC 等關鍵字！`);
                     }
                 })
                 .catch(err => {
-                    alert('搜尋服務忙碌中，請點擊地圖上的圖層標籤。');
+                    showToastNotification('搜尋服務忙碌中，請點擊地圖上的圖層標籤。');
                 });
         }
 

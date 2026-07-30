@@ -289,9 +289,28 @@
             return h + "</table></div></div>";
         }
 
+        let telemetryTimer = null;
+        let lastLoggedSwimmer = "";
+        function sendTelemetry(swimmerName) {
+            if (!swimmerName || swimmerName === lastLoggedSwimmer) return;
+            if (telemetryTimer) clearTimeout(telemetryTimer);
+            telemetryTimer = setTimeout(() => {
+                lastLoggedSwimmer = swimmerName;
+                fetch('/api/log_query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        swimmer: swimmerName,
+                        page: window.location.pathname || 'query.html'
+                    })
+                }).catch(err => console.warn("Telemetry log skipped:", err));
+            }, 800);
+        }
+
         async function doSearch() {
             loadLatestRaceInfo();
             const input = normalizeName(document.getElementById('searchInput').value); if (!input || !worker) return;
+            sendTelemetry(input);
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
