@@ -82,14 +82,23 @@ class handler(BaseHTTPRequestHandler):
 
             # 發送至 Telegram API
             try:
+                import ssl
+                ssl_ctx = ssl._create_unverified_context()
                 tg_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
                 req_data = json.dumps({
                     "chat_id": TELEGRAM_USER_ID,
                     "text": msg_text,
                     "parse_mode": "HTML"
                 }).encode('utf-8')
-                req = urllib.request.Request(tg_url, data=req_data, headers={'Content-Type': 'application/json'})
-                with urllib.request.urlopen(req, timeout=5) as resp:
+                req = urllib.request.Request(
+                    tg_url, 
+                    data=req_data, 
+                    headers={
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+                    }
+                )
+                with urllib.request.urlopen(req, timeout=5, context=ssl_ctx) as resp:
                     pass
             except Exception as tg_err:
                 print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")

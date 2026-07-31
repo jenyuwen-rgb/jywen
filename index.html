@@ -569,6 +569,7 @@
         }
 
         async function startSystem() {
+            sendTelemetry('[頁面造訪]');
             if (isLocal) {
                 const statusEl = document.getElementById('loaderStatus');
                 if (statusEl) statusEl.textContent = "🚀 偵測為本地執行，免下載直接查詢本機資料庫中...";

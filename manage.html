@@ -880,8 +880,50 @@
                         </div>
                         <div id="log-site_e" class="log-console"></div>
                     </div>
-                </div>
             </section>
+
+            <!-- Vercel 雲端訪客與熱搜選手分析區段 -->
+            <div style="margin-top: 2rem; margin-bottom: 1.5rem;">
+                <h1 style="font-size: 1.5rem; font-weight: bold; margin: 0; background: linear-gradient(135deg, #38BDF8 0%, #0284C7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">
+                    🌐 Vercel 雲端訪客 IP/區域與熱搜選手分析
+                </h1>
+                <p style="color: #8E8E93; font-size: 0.85rem; margin-top: 4px;">即時統計流量來源地區、訪客 IP 遮罩與熱門搜尋選手排行榜</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <!-- 訪客區域 Top 5 -->
+                <div class="card" style="padding: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #38BDF8; font-weight: bold;">🌍 訪客區域來源 Top 5</h3>
+                        <span id="cloud-total-hits" style="background: rgba(56,189,248,0.15); color: #38BDF8; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">總連線: -- 次</span>
+                    </div>
+                    <div id="cloud-locations-list" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="color: #8E8E93; font-size: 0.85rem;">載入中...</div>
+                    </div>
+                </div>
+
+                <!-- 熱搜選手排行 Top 10 -->
+                <div class="card" style="padding: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #FFD933; font-weight: bold;">🔥 熱搜選手排行榜 Top 10</h3>
+                        <span style="color: #8E8E93; font-size: 0.75rem;">即時更新</span>
+                    </div>
+                    <div id="cloud-swimmers-list" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="color: #8E8E93; font-size: 0.85rem;">載入中...</div>
+                    </div>
+                </div>
+
+                <!-- 即時連線日誌 -->
+                <div class="card" style="padding: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #10B981; font-weight: bold;">⚡ 即時連線與搜尋日誌</h3>
+                        <button onclick="loadCloudAnalytics()" style="background: transparent; border: 1px solid #333; color: #CCC; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">重新整理</button>
+                    </div>
+                    <div id="cloud-recent-logs" style="display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto;">
+                        <div style="color: #8E8E93; font-size: 0.85rem;">載入中...</div>
+                    </div>
+                </div>
+            </div>
 
             <!-- 游泳行事曆區段 -->
             <div class="calendar-section-header">
@@ -2005,7 +2047,7 @@
 
             try {
                 // 呼叫 Vercel /api/races?site=xxx，由伺服器端爬取賽事清單
-                const resp = await fetch(`${API_BASE}/api/races?site=${siteId}`);
+                const resp = await fetch(`${API_BASE}/api/races?site=${siteId}&_t=${Date.now()}`);
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 const data = await resp.json();
 
@@ -2193,8 +2235,73 @@
         }
 
 
+        async function loadCloudAnalytics() {
+            try {
+                const resp = await fetch('/api/cloud_analytics');
+                if (!resp.ok) return;
+                const data = await resp.json();
+                if (data.status !== 'success') return;
+
+                const totalEl = document.getElementById('cloud-total-hits');
+                if (totalEl) totalEl.textContent = `總連線: ${data.total_hits || 0} 次`;
+
+                // 1. Locations Top 5
+                const locEl = document.getElementById('cloud-locations-list');
+                if (locEl) {
+                    if (data.locations && data.locations.length > 0) {
+                        locEl.innerHTML = data.locations.slice(0, 5).map((item, idx) => `
+                            <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: #18181B; border-radius: 6px; font-size: 0.85rem; border: 1px solid #27272A;">
+                                <span><b style="color:#38BDF8;">#${idx+1}</b> ${item.location}</span>
+                                <span style="color:#FFF; font-weight:bold;">${item.count} 次</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        locEl.innerHTML = '<div style="color: #8E8E93; font-size: 0.85rem;">尚無連線地區紀錄</div>';
+                    }
+                }
+
+                // 2. Swimmers Top 10
+                const swEl = document.getElementById('cloud-swimmers-list');
+                if (swEl) {
+                    if (data.swimmers && data.swimmers.length > 0) {
+                        swEl.innerHTML = data.swimmers.slice(0, 8).map((item, idx) => `
+                            <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: #18181B; border-radius: 6px; font-size: 0.85rem; border: 1px solid #27272A;">
+                                <span><b style="color:#FFD933;">#${idx+1}</b> <b>【${item.swimmer}】</b></span>
+                                <span style="color:#FFF; font-weight:bold;">${item.count} 次</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        swEl.innerHTML = '<div style="color: #8E8E93; font-size: 0.85rem;">尚無選手搜尋紀錄</div>';
+                    }
+                }
+
+                // 3. Recent Logs
+                const recEl = document.getElementById('cloud-recent-logs');
+                if (recEl) {
+                    if (data.recent && data.recent.length > 0) {
+                        recEl.innerHTML = data.recent.slice(0, 10).map(item => `
+                            <div style="padding: 6px 8px; border-bottom: 1px solid #27272A; font-size: 0.78rem; display: flex; justify-content: space-between; gap: 8px;">
+                                <span style="color:#8E8E93; font-size:0.72rem;">${(item.time || '').substring(5,16)}</span>
+                                <span style="color:#38BDF8; font-weight:500;">${item.location || '未知區域'}</span>
+                                <span style="color:#FFF; font-weight:bold;">${item.swimmer ? '【' + item.swimmer + '】' : '[造訪]'}</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        recEl.innerHTML = '<div style="color: #8E8E93; font-size: 0.85rem;">尚無即時連線日誌</div>';
+                    }
+                }
+            } catch (e) {
+                console.warn("無法加載雲端分析數據:", e);
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            // 立即非同步載入資料庫，並於就緒後自動載入行事曆
+            // 載入 Vercel 雲端訪客分析數據
+            loadCloudAnalytics();
+            // 綁定定時刷新 (每 30 秒自動刷新)
+            setInterval(loadCloudAnalytics, 30000);
+            
+            // 區域資料庫載入
             ensureDBLoaded().then(() => {
                 loadCalendarFromDB();
             });
