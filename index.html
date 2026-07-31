@@ -289,22 +289,24 @@
             return h + "</table></div></div>";
         }
 
-        let telemetryTimer = null;
         let lastLoggedSwimmer = "";
         function sendTelemetry(swimmerName) {
-            if (!swimmerName || swimmerName === lastLoggedSwimmer) return;
-            if (telemetryTimer) clearTimeout(telemetryTimer);
-            telemetryTimer = setTimeout(() => {
-                lastLoggedSwimmer = swimmerName;
+            if (!swimmerName) return;
+            if (swimmerName === '[頁面造訪]') {
                 fetch('/api/log_query', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        swimmer: swimmerName,
-                        page: window.location.pathname || 'query.html'
-                    })
+                    body: JSON.stringify({ swimmer: '[頁面造訪]', page: window.location.pathname || 'query.html' })
                 }).catch(err => console.warn("Telemetry log skipped:", err));
-            }, 800);
+                return;
+            }
+            if (swimmerName === lastLoggedSwimmer) return;
+            lastLoggedSwimmer = swimmerName;
+            fetch('/api/log_query', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ swimmer: swimmerName, page: window.location.pathname || 'query.html' })
+            }).catch(err => console.warn("Telemetry log skipped:", err));
         }
 
         async function doSearch() {
