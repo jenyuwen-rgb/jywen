@@ -8,7 +8,7 @@ import re
 from datetime import datetime, timezone, timedelta
 
 # Telegram 設定
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8939873453:AAHOt98T8oFq4_KzS0Y4X1Z0Y0_Z0Y0_Z0Y0")
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8939873453:AAH5EXWOMoJ6D3I3i1FoQihMLa_lmumCt5A")
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID", "8270092740")
 
 def mask_ip(ip_str):
@@ -46,7 +46,7 @@ class handler(BaseHTTPRequestHandler):
         except Exception:
             payload = {}
 
-        swimmer = payload.get("swimmer", "").strip()
+        swimmer = payload.get("swimmer", "").strip() or "[頁面造訪]"
         page = payload.get("page", "query.html")
 
         # 抓取 IP 與 Vercel Edge 地理位置 Header
@@ -70,12 +70,12 @@ class handler(BaseHTTPRequestHandler):
         tz_taipei = timezone(timedelta(hours=8))
         now_str = datetime.now(tz_taipei).strftime("%Y-%m-%d %H:%M:%S")
 
-        # 若有查詢選手，發送 Telegram 機器人即時推播
-        if swimmer and swimmer != "[頁面造訪]":
+        # 發送 Telegram 機器人即時推播 (只要有連線或搜尋即發送)
+        if swimmer:
             msg_text = (
                 f"🔔 <b>[Vercel 雲端連線通知]</b>\n\n"
                 f"📍 <b>來源地區</b>：{location_str} (IP: <code>{ip_masked}</code>)\n"
-                f"🔍 <b>查詢選手</b>：<b>【{swimmer}】</b>\n"
+                f"🔍 <b>查詢/造訪</b>：<b>【{swimmer}】</b>\n"
                 f"📄 <b>頁面</b>：<code>{page}</code>\n"
                 f"⏰ <b>時間</b>：{now_str}"
             )
