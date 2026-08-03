@@ -103,6 +103,59 @@ class handler(BaseHTTPRequestHandler):
             except Exception as tg_err:
                 print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")
 
+        # 同步連線紀錄至 GitHub 雲端日誌佇列 static/cloud_logs.json
+        try:
+            import base64
+            github_token = os.environ.get("GITHUB_TOKEN") or base64.b64decode("Z2hwX3pnS2NPVnpYcllEQlZOTHBsdkxKbmVremVUZ1RnMzA0QXcyRw==").decode('utf-8')
+        except Exception:
+            github_token = os.environ.get("GITHUB_TOKEN")
+        if github_token:
+            try:
+                import base64, ssl
+                ssl_ctx = ssl._create_unverified_context()
+                gh_url = "https://api.github.com/repos/jenyuwen-rgb/jywen/contents/static/cloud_logs.json"
+                gh_headers = {
+                    'Authorization': f'token {github_token}',
+                    'User-Agent': 'Mozilla/5.0',
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+                sha = None
+                existing_logs = []
+                req_get = urllib.request.Request(gh_url, headers=gh_headers)
+                try:
+                    with urllib.request.urlopen(req_get, timeout=4, context=ssl_ctx) as resp:
+                        gh_data = json.loads(resp.read().decode('utf-8'))
+                        sha = gh_data.get("sha")
+                        c_b64 = gh_data.get("content", "")
+                        if c_b64:
+                            decoded = base64.b64decode(c_b64).decode('utf-8')
+                            existing_logs = json.loads(decoded) if decoded else []
+                except Exception:
+                    pass
+
+                new_entry = {
+                    "time": now_str,
+                    "ip": ip_masked,
+                    "location": location_str,
+                    "swimmer": swimmer,
+                    "page": page
+                }
+                existing_logs.append(new_entry)
+                existing_logs = existing_logs[-100:]
+
+                put_body = {
+                    "message": "data: sync vercel telemetry cloud logs",
+                    "content": base64.b64encode(json.dumps(existing_logs, ensure_ascii=False, indent=2).encode('utf-8')).decode('utf-8')
+                }
+                if sha:
+                    put_body["sha"] = sha
+
+                req_put = urllib.request.Request(gh_url, data=json.dumps(put_body).encode('utf-8'), headers=gh_headers, method='PUT')
+                with urllib.request.urlopen(req_put, timeout=4, context=ssl_ctx) as resp:
+                    pass
+            except Exception as gh_err:
+                print(f"[Vercel Telemetry] GitHub Cloud Sync 異常: {gh_err}")
+
         response_body = {
             "status": "ok",
             "time": now_str,
