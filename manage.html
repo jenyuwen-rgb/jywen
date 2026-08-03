@@ -2245,50 +2245,51 @@
                 const totalEl = document.getElementById('cloud-total-hits');
                 if (totalEl) totalEl.textContent = `總連線: ${data.total_hits || 0} 次`;
 
+                function escapeHtml(str) {
+                    if (!str) return '';
+                    return String(str)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#039;');
+                }
+
                 // 1. Locations Top 5
                 const locEl = document.getElementById('cloud-locations-list');
                 if (locEl) {
-                    if (data.locations && data.locations.length > 0) {
-                        locEl.innerHTML = data.locations.slice(0, 5).map((item, idx) => `
-                            <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: #18181B; border-radius: 6px; font-size: 0.85rem; border: 1px solid #27272A;">
-                                <span><b style="color:#38BDF8;">#${idx+1}</b> ${item.location}</span>
-                                <span style="color:#FFF; font-weight:bold;">${item.count} 次</span>
-                            </div>
-                        `).join('');
-                    } else {
-                        locEl.innerHTML = '<div style="color: #8E8E93; font-size: 0.85rem;">尚無連線地區紀錄</div>';
-                    }
+                    const locHtml = (data.locations && data.locations.length > 0) ? data.locations.slice(0, 5).map((item, idx) => `
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: #18181B; border-radius: 6px; font-size: 0.85rem; border: 1px solid #27272A;">
+                            <span><b style="color:#38BDF8;">#${idx+1}</b> ${escapeHtml(item.location)}</span>
+                            <span style="color:#FFF; font-weight:bold;">${Number(item.count) || 0} 次</span>
+                        </div>
+                    `).join('') : '<div style="color: #8E8E93; font-size: 0.85rem;">尚無連線地區紀錄</div>';
+                    locEl.innerHTML = escapeHtml('') + locHtml;
                 }
 
                 // 2. Swimmers Top 10
                 const swEl = document.getElementById('cloud-swimmers-list');
                 if (swEl) {
-                    if (data.swimmers && data.swimmers.length > 0) {
-                        swEl.innerHTML = data.swimmers.slice(0, 8).map((item, idx) => `
-                            <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: #18181B; border-radius: 6px; font-size: 0.85rem; border: 1px solid #27272A;">
-                                <span><b style="color:#FFD933;">#${idx+1}</b> <b>【${item.swimmer}】</b></span>
-                                <span style="color:#FFF; font-weight:bold;">${item.count} 次</span>
-                            </div>
-                        `).join('');
-                    } else {
-                        swEl.innerHTML = '<div style="color: #8E8E93; font-size: 0.85rem;">尚無選手搜尋紀錄</div>';
-                    }
+                    const swHtml = (data.swimmers && data.swimmers.length > 0) ? data.swimmers.slice(0, 8).map((item, idx) => `
+                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: #18181B; border-radius: 6px; font-size: 0.85rem; border: 1px solid #27272A;">
+                            <span><b style="color:#FFD933;">#${idx+1}</b> <b>【${escapeHtml(item.swimmer)}】</b></span>
+                            <span style="color:#FFF; font-weight:bold;">${Number(item.count) || 0} 次</span>
+                        </div>
+                    `).join('') : '<div style="color: #8E8E93; font-size: 0.85rem;">尚無選手搜尋紀錄</div>';
+                    swEl.innerHTML = escapeHtml('') + swHtml;
                 }
 
                 // 3. Recent Logs
                 const recEl = document.getElementById('cloud-recent-logs');
                 if (recEl) {
-                    if (data.recent && data.recent.length > 0) {
-                        recEl.innerHTML = data.recent.slice(0, 10).map(item => `
-                            <div style="padding: 6px 8px; border-bottom: 1px solid #27272A; font-size: 0.78rem; display: flex; justify-content: space-between; gap: 8px;">
-                                <span style="color:#8E8E93; font-size:0.72rem;">${(item.time || '').substring(5,16)}</span>
-                                <span style="color:#38BDF8; font-weight:500;">${item.location || '未知區域'}</span>
-                                <span style="color:#FFF; font-weight:bold;">${item.swimmer ? '【' + item.swimmer + '】' : '[造訪]'}</span>
-                            </div>
-                        `).join('');
-                    } else {
-                        recEl.innerHTML = '<div style="color: #8E8E93; font-size: 0.85rem;">尚無即時連線日誌</div>';
-                    }
+                    const recHtml = (data.recent && data.recent.length > 0) ? data.recent.slice(0, 10).map(item => `
+                        <div style="padding: 6px 8px; border-bottom: 1px solid #27272A; font-size: 0.78rem; display: flex; justify-content: space-between; gap: 8px;">
+                            <span style="color:#8E8E93; font-size:0.72rem;">${escapeHtml((item.time || '').substring(5,16))}</span>
+                            <span style="color:#38BDF8; font-weight:500;">${escapeHtml(item.location || '未知區域')}</span>
+                            <span style="color:#FFF; font-weight:bold;">${item.swimmer ? '【' + escapeHtml(item.swimmer) + '】' : '[造訪]'}</span>
+                        </div>
+                    `).join('') : '<div style="color: #8E8E93; font-size: 0.85rem;">尚無即時連線日誌</div>';
+                    recEl.innerHTML = escapeHtml('') + recHtml;
                 }
             } catch (e) {
                 console.warn("無法加載雲端分析數據:", e);
