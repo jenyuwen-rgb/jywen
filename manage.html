@@ -882,48 +882,7 @@
                     </div>
             </section>
 
-            <!-- Vercel 雲端訪客與熱搜選手分析區段 -->
-            <div style="margin-top: 2rem; margin-bottom: 1.5rem;">
-                <h1 style="font-size: 1.5rem; font-weight: bold; margin: 0; background: linear-gradient(135deg, #38BDF8 0%, #0284C7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block;">
-                    🌐 Vercel 雲端訪客 IP/區域與熱搜選手分析
-                </h1>
-                <p style="color: #8E8E93; font-size: 0.85rem; margin-top: 4px;">即時統計流量來源地區、訪客 IP 遮罩與熱門搜尋選手排行榜</p>
-            </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                <!-- 訪客區域 Top 5 -->
-                <div class="card" style="padding: 1.25rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3 style="margin: 0; font-size: 1.1rem; color: #38BDF8; font-weight: bold;">🌍 訪客區域來源 Top 5</h3>
-                        <span id="cloud-total-hits" style="background: rgba(56,189,248,0.15); color: #38BDF8; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">總連線: -- 次</span>
-                    </div>
-                    <div id="cloud-locations-list" style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="color: #8E8E93; font-size: 0.85rem;">載入中...</div>
-                    </div>
-                </div>
-
-                <!-- 熱搜選手排行 Top 10 -->
-                <div class="card" style="padding: 1.25rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3 style="margin: 0; font-size: 1.1rem; color: #FFD933; font-weight: bold;">🔥 熱搜選手排行榜 Top 10</h3>
-                        <span style="color: #8E8E93; font-size: 0.75rem;">即時更新</span>
-                    </div>
-                    <div id="cloud-swimmers-list" style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="color: #8E8E93; font-size: 0.85rem;">載入中...</div>
-                    </div>
-                </div>
-
-                <!-- 即時連線日誌 -->
-                <div class="card" style="padding: 1.25rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3 style="margin: 0; font-size: 1.1rem; color: #10B981; font-weight: bold;">⚡ 即時連線與搜尋日誌</h3>
-                        <button onclick="loadCloudAnalytics()" style="background: transparent; border: 1px solid #333; color: #CCC; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">重新整理</button>
-                    </div>
-                    <div id="cloud-recent-logs" style="display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto;">
-                        <div style="color: #8E8E93; font-size: 0.85rem;">載入中...</div>
-                    </div>
-                </div>
-            </div>
 
             <!-- 游泳行事曆區段 -->
             <div class="calendar-section-header">
@@ -2237,7 +2196,7 @@
 
         async function loadCloudAnalytics() {
             try {
-                const resp = await fetch('/api/cloud_analytics');
+                const resp = await fetch('/api/cloud_analytics?t=' + Date.now(), { cache: 'no-store' });
                 if (!resp.ok) return;
                 const data = await resp.json();
                 if (data.status !== 'success') return;
@@ -2255,27 +2214,83 @@
                         .replace(/'/g, '&#039;');
                 }
 
-                // 1. Locations Top 5
+                // 1. Locations Top 5 (視覺化比例條 + 說明)
                 const locEl = document.getElementById('cloud-locations-list');
                 if (locEl) {
-                    const locHtml = (data.locations && data.locations.length > 0) ? data.locations.slice(0, 5).map((item, idx) => `
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: #18181B; border-radius: 6px; font-size: 0.85rem; border: 1px solid #27272A;">
-                            <span><b style="color:#38BDF8;">#${idx+1}</b> ${escapeHtml(item.location)}</span>
-                            <span style="color:#FFF; font-weight:bold;">${Number(item.count) || 0} 次</span>
+                    const maxLoc = (data.locations && data.locations.length > 0) ? (Number(data.locations[0].count) || 1) : 1;
+                    const locHtml = (data.locations && data.locations.length > 0) ? data.locations.slice(0, 5).map((item, idx) => {
+                        const cnt = Number(item.count) || 0;
+                        const pct = Math.min(100, Math.max(10, Math.round((cnt / maxLoc) * 100)));
+                        return `
+                        <div style="position: relative; overflow: hidden; padding: 8px 12px; background: #18181B; border-radius: 8px; font-size: 0.85rem; border: 1px solid #27272A; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="position: absolute; left: 0; top: 0; bottom: 0; width: ${pct}%; background: linear-gradient(90deg, rgba(56,189,248,0.2) 0%, rgba(2,132,199,0.05) 100%); border-radius: 8px; pointer-events: none;"></div>
+                            <span style="position: relative; z-index: 1; display: flex; align-items: center; gap: 6px;">
+                                <b style="color:#38BDF8; font-size:0.8rem;">#${idx+1}</b> 
+                                <span style="color:#E4E4E7; font-weight:500;">${escapeHtml(item.location)}</span>
+                            </span>
+                            <span style="position: relative; z-index: 1; color:#38BDF8; font-weight:bold; font-size:0.85rem;">${cnt} 次</span>
                         </div>
-                    `).join('') : '<div style="color: #8E8E93; font-size: 0.85rem;">尚無連線地區紀錄</div>';
+                        `;
+                    }).join('') + `
+                    <div style="font-size:0.72rem; color:#71717A; margin-top:6px; line-height:1.4;">
+                        💡 註：4G/5G 行動網路由電信北部機房發出，Wi-Fi 可精確定位全台縣市
+                    </div>
+                    ` : '<div style="color: #8E8E93; font-size: 0.85rem;">尚無連線地區紀錄</div>';
                     locEl.innerHTML = escapeHtml('') + locHtml;
                 }
 
-                // 2. Swimmers Top 10
+                // 2. Swimmers Top 10 (動態熱搜標籤氣泡雲 Swimmer Hot Search Bubble Cloud)
                 const swEl = document.getElementById('cloud-swimmers-list');
                 if (swEl) {
-                    const swHtml = (data.swimmers && data.swimmers.length > 0) ? data.swimmers.slice(0, 8).map((item, idx) => `
-                        <div style="display: flex; justify-content: space-between; padding: 6px 10px; background: #18181B; border-radius: 6px; font-size: 0.85rem; border: 1px solid #27272A;">
-                            <span><b style="color:#FFD933;">#${idx+1}</b> <b>【${escapeHtml(item.swimmer)}】</b></span>
-                            <span style="color:#FFF; font-weight:bold;">${Number(item.count) || 0} 次</span>
+                    const maxSw = (data.swimmers && data.swimmers.length > 0) ? (Number(data.swimmers[0].count) || 1) : 1;
+                    const swHtml = (data.swimmers && data.swimmers.length > 0) ? `
+                        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; padding: 14px 10px; min-height: 180px; background: rgba(24,24,27,0.7); border-radius: 12px; border: 1px solid #27272A;">
+                            ${data.swimmers.slice(0, 10).map((item, idx) => {
+                                const cnt = Number(item.count) || 0;
+                                const ratio = maxSw > 0 ? (cnt / maxSw) : 1;
+                                
+                                if (idx === 0) {
+                                    // 🥇 第 1 名：巨型亮金發光膠囊 (Champion Golden Pill)
+                                    return `
+                                    <div style="order: -1; display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: linear-gradient(135deg, rgba(234,179,8,0.22) 0%, rgba(180,83,9,0.08) 100%); border: 1.5px solid #FDE047; box-shadow: 0 0 20px rgba(234,179,8,0.3); border-radius: 30px; font-size: 1.15rem; font-weight: 800; color: #FDE047; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+                                        <span>🥇 🔥 【${escapeHtml(item.swimmer)}】</span>
+                                        <span style="background: rgba(253,224,71,0.2); padding: 2px 8px; border-radius: 12px; font-size: 0.85rem;">${cnt} 次</span>
+                                    </div>
+                                    `;
+                                }
+
+                                // 2~10 名：動態放縮氣泡膠囊
+                                const fontSize = (0.78 + ratio * 0.18).toFixed(2);
+                                const paddingV = Math.round(6 + ratio * 3);
+                                const paddingH = Math.round(10 + ratio * 5);
+                                
+                                let borderStyle = "1px solid rgba(56,189,248,0.3)";
+                                let pillBg = "rgba(15,23,42,0.7)";
+                                let textColor = "#E4E4E7";
+                                let badge = `#${idx+1}`;
+
+                                if (idx === 1) {
+                                    badge = "🥈 #2";
+                                    borderStyle = "1px solid rgba(203,213,225,0.45)";
+                                    pillBg = "linear-gradient(135deg, rgba(203,213,225,0.15) 0%, rgba(148,163,184,0.05) 100%)";
+                                    textColor = "#F1F5F9";
+                                } else if (idx === 2) {
+                                    badge = "🥉 #3";
+                                    borderStyle = "1px solid rgba(249,115,22,0.45)";
+                                    pillBg = "linear-gradient(135deg, rgba(249,115,22,0.15) 0%, rgba(194,65,12,0.05) 100%)";
+                                    textColor = "#FFEDD5";
+                                }
+
+                                return `
+                                <div style="display: inline-flex; align-items: center; gap: 6px; padding: ${paddingV}px ${paddingH}px; background: ${pillBg}; border: ${borderStyle}; border-radius: 20px; font-size: ${fontSize}rem; color: ${textColor}; transition: transform 0.25s, box-shadow 0.25s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 12px rgba(56,189,248,0.25)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
+                                    <span style="font-size:0.75rem; opacity:0.8;">${badge}</span>
+                                    <b style="font-weight:600;">【${escapeHtml(item.swimmer)}】</b>
+                                    <span style="font-size:0.75rem; opacity:0.7;">${cnt}次</span>
+                                </div>
+                                `;
+                            }).join('')}
                         </div>
-                    `).join('') : '<div style="color: #8E8E93; font-size: 0.85rem;">尚無選手搜尋紀錄</div>';
+                    ` : '<div style="color: #8E8E93; font-size: 0.85rem;">尚無選手搜尋紀錄</div>';
                     swEl.innerHTML = escapeHtml('') + swHtml;
                 }
 

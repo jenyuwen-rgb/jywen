@@ -12,7 +12,7 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8939873453:AAH5EXWOMo
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID", "8270092740")
 
 # JSONBlob 雲端橋樑設定 (無需 Token，公開讀寫，永遠不會被撤銷)
-JSONBLOB_ID = os.environ.get("JSONBLOB_ID", "019fc7cd-0365-74bf-b991-b922e8f1a40c")
+JSONBLOB_ID = os.environ.get("JSONBLOB_ID", "019fd1ff-27cd-7921-a1ce-c0a46b9741b0")
 JSONBLOB_API = f"https://jsonblob.com/api/jsonBlob/{JSONBLOB_ID}"
 
 def mask_ip(ip_str):
@@ -139,18 +139,38 @@ class handler(BaseHTTPRequestHandler):
                 existing_logs.append(new_entry)
                 existing_logs = existing_logs[-200:]  # 保留最新 200 筆
 
-                req_put = urllib.request.Request(
-                    JSONBLOB_API,
-                    data=json.dumps(existing_logs, ensure_ascii=False).encode('utf-8'),
-                    headers={
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'User-Agent': 'Mozilla/5.0'
-                    },
-                    method='PUT'
-                )
-                with urllib.request.urlopen(req_put, timeout=5, context=ssl_ctx) as resp:
-                    pass
+                put_data = json.dumps(existing_logs, ensure_ascii=False).encode('utf-8')
+                try:
+                    req_put = urllib.request.Request(
+                        JSONBLOB_API,
+                        data=put_data,
+                        headers={
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'User-Agent': 'Mozilla/5.0'
+                        },
+                        method='PUT'
+                    )
+                    with urllib.request.urlopen(req_put, timeout=5, context=ssl_ctx) as resp:
+                        pass
+                except urllib.error.HTTPError as http_err:
+                    if http_err.code in (404, 410):
+                        # 自我修復：當舊 Blob 過期 (404/410) 時，自動重新創建全新的 JSONBlob 通道
+                        req_post = urllib.request.Request(
+                            "https://jsonblob.com/api/jsonBlob",
+                            data=put_data,
+                            headers={
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'User-Agent': 'Mozilla/5.0'
+                            },
+                            method='POST'
+                        )
+                        with urllib.request.urlopen(req_post, timeout=5, context=ssl_ctx) as post_resp:
+                            new_loc = post_resp.headers.get('Location')
+                            print(f"[Vercel Telemetry] ⚠️ JSONBlob 通道已過期，自動重建新通道 Location: {new_loc}")
+                    else:
+                        raise http_err
         except Exception as jb_err:
             print(f"[Vercel Telemetry] JSONBlob 同步異常: {jb_err}")
 
