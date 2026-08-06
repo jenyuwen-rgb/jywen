@@ -134,7 +134,7 @@
     <div class="nav-header">
         <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()">🕒</span>
         <div style="position: relative; flex: 1; min-width: 0; display: flex; align-items: center;">
-            <input type="text" id="searchInput" placeholder="請輸入選手姓名 (例如: 王冠閎)" autocomplete="off">
+            <input type="text" id="searchInput" value="" placeholder="請輸入選手姓名 (例如: 王冠閎)" autocomplete="off">
             <div id="autocomplete-list" class="autocomplete-items hidden"></div>
         </div>
         <span class="font-bold text-[#D4AF37] px-3 cursor-pointer" onclick="doSearch()">查詢</span>
@@ -192,6 +192,8 @@
         }
 
         function initWorker() {
+            const inputEl = document.getElementById('searchInput');
+            if (inputEl) inputEl.value = ''; // 強制清空 Chrome 瀏覽器自動記憶的歷史表單輸入值
             const blob = new Blob([document.getElementById('worker-script').textContent], { type: 'text/javascript' });
             worker = new Worker(URL.createObjectURL(blob));
             worker.onmessage = function(e) {
