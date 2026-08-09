@@ -148,10 +148,21 @@
         importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
         let db = null;
         self.onmessage = async function(e) {
-            const { type, data, query, id } = e.data;
+            const { type, data, parts, query, id } = e.data;
             if (type === 'INIT') {
                 const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
                 db = new SQL.Database(data);
+                self.postMessage({ type: 'READY' });
+            } else if (type === 'INIT_PARTS') {
+                const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
+                let totalSize = parts.reduce((acc, p) => acc + p.length, 0);
+                const merged = new Uint8Array(totalSize);
+                let offset = 0;
+                for (const p of parts) {
+                    merged.set(p, offset);
+                    offset += p.length;
+                }
+                db = new SQL.Database(merged);
                 self.postMessage({ type: 'READY' });
             } else if (type === 'QUERY') {
                 try {
@@ -504,39 +515,34 @@
                     partsData.push(new Uint8Array(await partBlob.arrayBuffer()));
                 }
                 
-                statusEl.textContent = "下載完成！正在合併分卷與初始化資料庫...";
+                statusEl.textContent = "下載完成！正在快取與初始化資料庫...";
                 progressBar.style.width = '100%';
                 
-                // 合併分卷
-                let totalSize = partsData.reduce((acc, part) => acc + part.length, 0);
-                const mergedArray = new Uint8Array(totalSize);
-                let offset = 0;
-                for (const part of partsData) {
-                    mergedArray.set(part, offset);
-                    offset += part.length;
-                }
+                // 1. 優先寫入版本號至 localStorage，防止 Mobile Safari 因實體記憶體回收導致重載死循環
+                localStorage.setItem('cached_db_time', String(version));
                 
-                worker.postMessage({ type: 'INIT', data: mergedArray });
+                // 2. 零拷貝建立 Blob 物件 (免複製 Uint8Array 內存，節省 310MB+ RAM)
+                const dbBlob = new Blob(partsData);
                 
-                statusEl.textContent = "正在快取最新資料庫，下次即可秒開...";
-                const blob = new Blob([mergedArray]);
-                
-                const openReq = indexedDB.open("SwimSQL", 1);
-                openReq.onupgradeneeded = e => {
-                    if (!e.target.result.objectStoreNames.contains("files")) {
-                        e.target.result.createObjectStore("files");
-                    }
-                };
-                openReq.onsuccess = e => {
-                    const db = e.target.result;
-                    const tx = db.transaction("files", "readwrite");
-                    tx.objectStore("files").put(blob, "current_db");
-                    tx.oncomplete = () => {
-                        localStorage.setItem('cached_db_time', String(version));
-                        document.getElementById('dbLoaderArea').style.display = 'none';
-                        doSearch();
+                try {
+                    const openReq = indexedDB.open("SwimSQL", 1);
+                    openReq.onupgradeneeded = e => {
+                        if (!e.target.result.objectStoreNames.contains("files")) {
+                            e.target.result.createObjectStore("files");
+                        }
                     };
-                };
+                    openReq.onsuccess = e => {
+                        const db = e.target.result;
+                        const tx = db.transaction("files", "readwrite");
+                        tx.objectStore("files").put(dbBlob, "current_db");
+                    };
+                } catch (idbErr) {
+                    console.warn("IndexedDB 快取失敗:", idbErr);
+                }
+
+                // 3. 透過 Transferable Objects 轉移 ArrayBuffer 所有權至 Web Worker，主執行緒記憶體瞬間釋放歸零
+                const transferList = partsData.map(p => p.buffer);
+                worker.postMessage({ type: 'INIT_PARTS', parts: partsData }, transferList);
             } catch (err) {
                 console.error(err);
                 statusEl.textContent = `❌ 自動同步下載失敗: ${err.message}。請確認您的網路連線，或重新整理網頁再試。`;
@@ -724,7 +730,8 @@
                             try {
                                 if (getReq.result) {
                                     const buf = await (getReq.result instanceof Blob ? getReq.result.arrayBuffer() : getReq.result);
-                                    worker.postMessage({ type: 'INIT', data: new Uint8Array(buf) });
+                                    const u8 = new Uint8Array(buf);
+                                    worker.postMessage({ type: 'INIT', data: u8 }, [u8.buffer]);
                                     document.getElementById('dbLoaderArea').style.display = 'none';
                                     clearTimeout(timer);
                                     resolve();
