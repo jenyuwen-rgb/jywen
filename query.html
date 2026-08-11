@@ -322,10 +322,12 @@
             }).catch(err => console.warn("Telemetry log skipped:", err));
         }
 
-        async function doSearch() {
+        async function doSearch(forcedBirthYear) {
             loadLatestRaceInfo();
             const input = normalizeName(document.getElementById('searchInput').value);
             if (!input) {
+                const birthArea = document.getElementById('birthYearSelectArea');
+                if (birthArea) birthArea.style.display = 'none';
                 const main = document.getElementById('main');
                 if (main) {
                     main.innerHTML = `
@@ -344,6 +346,48 @@
             }
             if (!worker) return;
             sendTelemetry(input);
+
+            // 1. 查詢該姓名在資料庫中拥有的所有不重複非空出生年
+            const birthRes = await remoteQuery(`SELECT DISTINCT 出生年 FROM swimming_scores WHERE 姓名='${input}' AND 出生年 IS NOT NULL AND 出生年 != '' ORDER BY 出生年 DESC`);
+            let years = [];
+            if (birthRes && birthRes[0] && birthRes[0].values) {
+                years = birthRes[0].values.map(v => String(v[0]).replace(/\.0$/, '').trim()).filter(Boolean);
+                years = [...new Set(years)].sort((a, b) => b - a);
+            }
+
+            let selectedBirthYear = forcedBirthYear || null;
+            if (!selectedBirthYear && years.length > 0) {
+                selectedBirthYear = years[0]; // 預設為最新出生年
+            }
+
+            // 2. 控制極簡出生年下拉選單 (多於 1 個出生年時才顯示)
+            let birthArea = document.getElementById('birthYearSelectArea');
+            if (!birthArea) {
+                birthArea = document.createElement('div');
+                birthArea.id = 'birthYearSelectArea';
+                const mainEl = document.getElementById('main');
+                if (mainEl && mainEl.parentNode) {
+                    mainEl.parentNode.insertBefore(birthArea, mainEl);
+                }
+            }
+
+            if (years.length >= 2) {
+                let optionsHtml = years.map(y => `<option value="${y}" ${y === selectedBirthYear ? 'selected' : ''}>${y} 年次</option>`).join('');
+                birthArea.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:space-between; background:#1C1C1E; border:0.5px solid #38383A; border-radius:12px; padding:8px 16px; margin:12px 12px 0 12px; box-shadow:0 2px 10px rgba(0,0,0,0.3);">
+                        <span style="color:#D4AF37; font-weight:bold; font-size:14px; display:inline-flex; align-items:center; gap:4px;">
+                            <span>🗓️</span> 偵測到同名選手，請選擇年次：
+                        </span>
+                        <select id="birthYearSelect" onchange="doSearch(this.value)" style="background:#2C2C2E; color:#FFF; font-weight:bold; font-size:14px; border:1px solid #444; border-radius:8px; padding:4px 10px; outline:none; cursor:pointer;">
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                `;
+                birthArea.style.display = 'block';
+            } else {
+                birthArea.style.display = 'none';
+            }
+
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
@@ -352,9 +396,12 @@
             const sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}' LIMIT 1`);
             if (!sexRes || !sexRes[0]) { loader.style.display = 'none'; return; }
             const sex = sexRes[0].values[0][0]; saveHistory(input);
+
+            const birthFilter = selectedBirthYear ? ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')` : "";
+
             const strokes = ["蝶式", "仰式", "蛙式", "自由式", "混合式"];
             for (let [sIdx, stroke] of strokes.entries()) {
-                const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${input}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}`);
+                const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${input}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}${birthFilter}`);
                 if (!res || !res[0]) continue;
                 const card = document.createElement('div'); card.className = "stroke-card";
                 card.cardHTML = "";

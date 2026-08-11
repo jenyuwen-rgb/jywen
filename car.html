@@ -501,7 +501,7 @@
         async function openWatchlistModal() {
             const modal = document.getElementById('watchlist-modal');
             const container = document.getElementById('watchlist-rows-container');
-            container.innerHTML = ''; // Clear old rows
+            container.textContent = ''; // Clear old rows safely
             
             try {
                 const response = await fetch('/api/watchlist');
@@ -533,15 +533,12 @@
                 const brandInput = rows[i].querySelector('.watchlist-brand-input').value.trim();
                 const modelsInput = rows[i].querySelector('.watchlist-models-input').value.trim();
                 
-                if (!brandInput) continue;
-                
-                const modelsArr = modelsInput.split(',')
-                    .map(m => m.trim())
-                    .filter(m => m.length > 0);
-                    
-                newWatchlist[brandInput] = modelsArr;
+                if (brandInput) {
+                    const modelsArr = modelsInput.split(',').map(s => s.trim()).filter(Boolean);
+                    newWatchlist[brandInput] = modelsArr;
+                }
             }
-
+            
             try {
                 const response = await fetch('/api/watchlist', {
                     method: 'POST',
@@ -551,7 +548,7 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    showToast("儲存成功", "關注清單已更新！請按刷新按鈕以下載新車型資料。");
+                    showToast("成功", "追蹤清單已儲存！");
                     closeWatchlistModal();
                     loadMetadata();
                 } else {
@@ -563,17 +560,24 @@
         }
 
         function onBrandChange() {
-            const brand = document.getElementById('select-brand').value;
+            const brandSelect = document.getElementById('select-brand');
+            const brand = brandSelect.value;
             const modelSelect = document.getElementById('select-model');
             
             modelSelect.textContent = '';
-            if (brand && metadata.models[brand]) {
+            
+            if (metadata.models[brand]) {
                 metadata.models[brand].forEach(m => {
                     const opt = document.createElement('option');
                     opt.value = m;
                     opt.textContent = m;
                     modelSelect.appendChild(opt);
                 });
+            } else {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = '無車型資料';
+                modelSelect.appendChild(opt);
             }
             
             if (isInitialLoad && brand === 'Porsche' && metadata.models['Porsche'] && metadata.models['Porsche'].includes('718')) {
@@ -587,12 +591,21 @@
             const model = document.getElementById('select-model').value;
             const trimSelect = document.getElementById('select-trim');
             
-            let optionsHtml = '<option value="">全部規格</option>';
+            trimSelect.textContent = '';
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = '';
+            defaultOpt.textContent = '全部規格';
+            trimSelect.appendChild(defaultOpt);
+
             if (metadata.trims[model]) {
                 const uniqueTrims = [...new Set(metadata.trims[model])];
-                optionsHtml += uniqueTrims.map(t => `<option value="${t}">${t}</option>`).join('');
+                uniqueTrims.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t;
+                    opt.textContent = t;
+                    trimSelect.appendChild(opt);
+                });
             }
-            trimSelect.innerHTML = optionsHtml;
             
             loadDashboardData();
         }
@@ -601,7 +614,7 @@
         async function triggerCrawler() {
             const btn = document.getElementById('btn-refresh');
             btn.disabled = true;
-            btn.innerHTML = `<span>⏳ 正在下載車價...</span>`;
+            btn.textContent = '⏳ 正在下載車價...';
             
             try {
                 const response = await fetch('/api/run_car_crawler', { method: 'POST' });
