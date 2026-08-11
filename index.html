@@ -137,6 +137,8 @@
             <input type="text" id="searchInput" value="" placeholder="請輸入選手姓名 (例如: 王冠閎)" autocomplete="off">
             <div id="autocomplete-list" class="autocomplete-items hidden"></div>
         </div>
+        <select id="birthYearSelect" class="hidden" onchange="doSearch(this.value)" style="background:#1C1C1E; color:#D4AF37; font-weight:bold; font-size:13px; border:0.5px solid #38383A; border-radius:8px; padding:4px 8px; outline:none; cursor:pointer; margin:0 4px; flex-shrink:0;">
+        </select>
         <span class="font-bold text-[#D4AF37] px-3 cursor-pointer" onclick="doSearch()">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
         <span class="font-bold text-gray-500 px-3 cursor-pointer" onclick="resetDB()">重置</span>
@@ -360,32 +362,16 @@
                 selectedBirthYear = years[0]; // 預設為最新出生年
             }
 
-            // 2. 控制極簡出生年下拉選單 (多於 1 個出生年時才顯示)
-            let birthArea = document.getElementById('birthYearSelectArea');
-            if (!birthArea) {
-                birthArea = document.createElement('div');
-                birthArea.id = 'birthYearSelectArea';
-                const mainEl = document.getElementById('main');
-                if (mainEl && mainEl.parentNode) {
-                    mainEl.parentNode.insertBefore(birthArea, mainEl);
-                }
-            }
-
+            // 2. 控制極簡出生年下拉選單 (置於輸入框與查詢按鈕之間，多於 1 個出生年時才顯示)
+            const birthSelect = document.getElementById('birthYearSelect');
             if (years.length >= 2) {
-                let optionsHtml = years.map(y => `<option value="${y}" ${y === selectedBirthYear ? 'selected' : ''}>${y} 年次</option>`).join('');
-                birthArea.innerHTML = `
-                    <div style="display:flex; align-items:center; justify-content:space-between; background:#1C1C1E; border:0.5px solid #38383A; border-radius:12px; padding:8px 16px; margin:12px 12px 0 12px; box-shadow:0 2px 10px rgba(0,0,0,0.3);">
-                        <span style="color:#D4AF37; font-weight:bold; font-size:14px; display:inline-flex; align-items:center; gap:4px;">
-                            <span>🗓️</span> 偵測到同名選手，請選擇年次：
-                        </span>
-                        <select id="birthYearSelect" onchange="doSearch(this.value)" style="background:#2C2C2E; color:#FFF; font-weight:bold; font-size:14px; border:1px solid #444; border-radius:8px; padding:4px 10px; outline:none; cursor:pointer;">
-                            ${optionsHtml}
-                        </select>
-                    </div>
-                `;
-                birthArea.style.display = 'block';
+                let optionsHtml = years.map(y => `<option value="${y}" ${y === selectedBirthYear ? 'selected' : ''}>${y}年次</option>`).join('');
+                if (birthSelect) {
+                    birthSelect.innerHTML = optionsHtml;
+                    birthSelect.classList.remove('hidden');
+                }
             } else {
-                birthArea.style.display = 'none';
+                if (birthSelect) birthSelect.classList.add('hidden');
             }
 
             const loader = document.getElementById('queryLoader');
