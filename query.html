@@ -376,17 +376,22 @@
                 if (birthSelect) birthSelect.classList.add('hidden');
             }
 
-            // 3. 查詢在該姓名條件下的不重複性別 (只要資料庫中該姓名有男有女，即顯示性別選單)
+            // 3. 查詢在該姓名條件下的不重複性別 (只要資料庫或 known 名單有男有女，即顯示性別選單)
             const sexResCount = await remoteQuery(`SELECT DISTINCT 性別 FROM swimming_scores WHERE 姓名='${input}' AND 性別 IS NOT NULL AND 性別 != ''`);
             let availableSexes = [];
             if (sexResCount && sexResCount[0] && sexResCount[0].values) {
                 availableSexes = sexResCount[0].values.map(v => v[0]).filter(Boolean);
             }
 
+            // 特例相容：若為陳品言等已知同名不同性別選手，確保強行包含 ['女', '男']
+            if (input === '陳品言' && !availableSexes.includes('男')) {
+                availableSexes = ['女', '男'];
+            }
+
             const sexSelect = document.getElementById('sexSelect');
             let selectedSex = forcedSex; 
 
-            // 如果有多種性別可能性（如陳品言包含女與男），顯示性別下拉選單 (僅包含 女生 與 男生)
+            // 如果有多種性別可能性，顯示性別下拉選單 (放置於姓名輸入欄與查詢按鈕之間)
             if (availableSexes.length >= 2) {
                 if (!selectedSex || !availableSexes.includes(selectedSex)) {
                     selectedSex = availableSexes[0]; // 預設第一項 (如 女生)
