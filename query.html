@@ -384,12 +384,14 @@
             }
 
             const sexSelect = document.getElementById('sexSelect');
-            let selectedSex = forcedSex; // 若使用者未手動選擇，forcedSex 為 undefined/null/""
+            let selectedSex = forcedSex; 
 
-            // 如果有多種性別可能性（如陳品言包含女與男），顯示性別下拉選單
+            // 如果有多種性別可能性（如陳品言包含女與男），顯示性別下拉選單 (僅包含 女生 與 男生)
             if (availableSexes.length >= 2) {
-                let optionsHtml = `<option value="" ${!selectedSex ? 'selected' : ''}>全部性別</option>`;
-                optionsHtml += availableSexes.map(s => `<option value="${s}" ${s === selectedSex ? 'selected' : ''}>${s}生</option>`).join('');
+                if (!selectedSex || !availableSexes.includes(selectedSex)) {
+                    selectedSex = availableSexes[0]; // 預設第一項 (如 女生)
+                }
+                let optionsHtml = availableSexes.map(s => `<option value="${s}" ${s === selectedSex ? 'selected' : ''}>${s}生</option>`).join('');
                 if (sexSelect) {
                     sexSelect.innerHTML = optionsHtml;
                     sexSelect.style.display = 'inline-block';
