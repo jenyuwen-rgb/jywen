@@ -376,9 +376,8 @@
                 if (birthSelect) birthSelect.classList.add('hidden');
             }
 
-            // 3. 查詢在該姓名 (與選定出生年) 條件下的不重複性別
-            const sexMatchFilter = selectedBirthYear ? ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')` : '';
-            const sexResCount = await remoteQuery(`SELECT DISTINCT 性別 FROM swimming_scores WHERE 姓名='${input}'${sexMatchFilter} AND 性別 IS NOT NULL AND 性別 != ''`);
+            // 3. 查詢在該姓名條件下的不重複性別 (只要資料庫中該姓名有男有女，即顯示性別選單)
+            const sexResCount = await remoteQuery(`SELECT DISTINCT 性別 FROM swimming_scores WHERE 姓名='${input}' AND 性別 IS NOT NULL AND 性別 != ''`);
             let availableSexes = [];
             if (sexResCount && sexResCount[0] && sexResCount[0].values) {
                 availableSexes = sexResCount[0].values.map(v => v[0]).filter(Boolean);
