@@ -414,22 +414,21 @@
             const minWait = new Promise(r => setTimeout(r, 1500));
             const main = document.getElementById('main'); main.innerHTML = "";
 
-            const birthFilter = selectedBirthYear ? ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')` : "";
             const sexFilterClause = selectedSex ? ` AND 性別 = '${selectedSex}'` : "";
 
-            let sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}'${birthFilter}${sexFilterClause} LIMIT 1`);
-            let activeBirthFilter = birthFilter;
+            let sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}'${sexFilterClause} LIMIT 1`);
+            if (!sexRes || !sexRes[0] || !sexRes[0].values || sexRes[0].values.length === 0) { 
+                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300); return; 
+            }
+            const sex = selectedSex || sexRes[0].values[0][0]; saveHistory(input);
 
-            // 若選擇了特定性別 (如男生) 但加上出生年過濾後無成績，自動取消出生年限制以完整呈現在該性別下的所有紀錄
-            if ((!sexRes || !sexRes[0] || !sexRes[0].values || sexRes[0].values.length === 0) && selectedSex) {
-                sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}'${sexFilterClause} LIMIT 1`);
-                if (sexRes && sexRes[0] && sexRes[0].values && sexRes[0].values.length > 0) {
-                    activeBirthFilter = ""; // 保底全量呈現在該性別下的所有成績
+            let activeBirthFilter = selectedBirthYear ? ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')` : "";
+            if (selectedBirthYear && selectedSex) {
+                const testRes = await remoteQuery(`SELECT rowid FROM swimming_scores WHERE 姓名='${input}'${activeBirthFilter}${sexFilterClause} LIMIT 1`);
+                if (!testRes || !testRes[0] || !testRes[0].values || testRes[0].values.length === 0) {
+                    activeBirthFilter = "";
                 }
             }
-
-            if (!sexRes || !sexRes[0] || !sexRes[0].values || sexRes[0].values.length === 0) { loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300); return; }
-            const sex = selectedSex || sexRes[0].values[0][0]; saveHistory(input);
 
             const strokes = ["蝶式", "仰式", "蛙式", "自由式", "混合式"];
             for (let [sIdx, stroke] of strokes.entries()) {
