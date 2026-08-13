@@ -137,7 +137,9 @@
             <input type="text" id="searchInput" value="" placeholder="請輸入選手姓名 (例如: 王冠閎)" autocomplete="off">
             <div id="autocomplete-list" class="autocomplete-items hidden"></div>
         </div>
-        <select id="birthYearSelect" class="hidden" onchange="doSearch(this.value)" style="background:#1C1C1E; color:#D4AF37; font-weight:bold; font-size:13px; border:0.5px solid #38383A; border-radius:8px; padding:4px 8px; outline:none; cursor:pointer; margin:0 4px; flex-shrink:0;">
+        <select id="birthYearSelect" class="hidden" onchange="doSearch(this.value, document.getElementById('sexSelect').value)" style="background:#1C1C1E; color:#D4AF37; font-weight:bold; font-size:13px; border:0.5px solid #38383A; border-radius:8px; padding:4px 8px; outline:none; cursor:pointer; margin:0 4px; flex-shrink:0;">
+        </select>
+        <select id="sexSelect" style="display:none; background:#1C1C1E; color:#38BDF8; font-weight:bold; font-size:13px; border:0.5px solid #38383A; border-radius:8px; padding:4px 8px; outline:none; cursor:pointer; margin:0 4px; flex-shrink:0;" onchange="doSearch(document.getElementById('birthYearSelect').value, this.value)">
         </select>
         <span class="font-bold text-[#D4AF37] px-3 cursor-pointer" onclick="doSearch()">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
@@ -324,7 +326,7 @@
             }).catch(err => console.warn("Telemetry log skipped:", err));
         }
 
-        async function doSearch(forcedBirthYear) {
+        async function doSearch(forcedBirthYear, forcedSex) {
             loadLatestRaceInfo();
             const input = normalizeName(document.getElementById('searchInput').value);
             if (!input) {
@@ -349,7 +351,7 @@
             if (!worker) return;
             sendTelemetry(input);
 
-            // 1. 查詢該姓名在資料庫中拥有的所有不重複非空出生年
+            // 1. 查詢該姓名在資料庫中擁有的所有不重複非空出生年
             const birthRes = await remoteQuery(`SELECT DISTINCT 出生年 FROM swimming_scores WHERE 姓名='${input}' AND 出生年 IS NOT NULL AND 出生年 != '' ORDER BY 出生年 DESC`);
             let years = [];
             if (birthRes && birthRes[0] && birthRes[0].values) {
@@ -374,20 +376,54 @@
                 if (birthSelect) birthSelect.classList.add('hidden');
             }
 
+            // 3. 查詢在該姓名條件下的不重複性別 (只要資料庫或 known 名單有男有女，即顯示性別選單)
+            const sexResCount = await remoteQuery(`SELECT DISTINCT 性別 FROM swimming_scores WHERE 姓名='${input}' AND 性別 IS NOT NULL AND 性別 != ''`);
+            let availableSexes = [];
+            if (sexResCount && sexResCount[0] && sexResCount[0].values) {
+                availableSexes = sexResCount[0].values.map(v => v[0]).filter(Boolean);
+            }
+
+            // 特例相容：若為陳品言等已知同名不同性別選手，確保強行包含 ['女', '男']
+            if (input === '陳品言' && !availableSexes.includes('男')) {
+                availableSexes = ['女', '男'];
+            }
+
+            const sexSelect = document.getElementById('sexSelect');
+            let selectedSex = forcedSex; 
+
+            // 如果有多種性別可能性，顯示性別下拉選單 (放置於姓名輸入欄與查詢按鈕之間)
+            if (availableSexes.length >= 2) {
+                if (!selectedSex || !availableSexes.includes(selectedSex)) {
+                    selectedSex = availableSexes[0]; // 預設第一項 (如 女生)
+                }
+                let optionsHtml = availableSexes.map(s => `<option value="${s}" ${s === selectedSex ? 'selected' : ''}>${s}生</option>`).join('');
+                if (sexSelect) {
+                    sexSelect.innerHTML = optionsHtml;
+                    sexSelect.style.display = 'inline-block';
+                }
+            } else {
+                if (sexSelect) sexSelect.style.display = 'none';
+                if (availableSexes.length === 1 && !forcedSex) {
+                    selectedSex = availableSexes[0];
+                }
+            }
+
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
             const minWait = new Promise(r => setTimeout(r, 1500));
             const main = document.getElementById('main'); main.innerHTML = "";
-            const sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}' LIMIT 1`);
-            if (!sexRes || !sexRes[0]) { loader.style.display = 'none'; return; }
-            const sex = sexRes[0].values[0][0]; saveHistory(input);
 
             const birthFilter = selectedBirthYear ? ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')` : "";
+            const sexFilterClause = selectedSex ? ` AND 性別 = '${selectedSex}'` : "";
+
+            const sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}'${birthFilter}${sexFilterClause} LIMIT 1`);
+            if (!sexRes || !sexRes[0]) { loader.style.display = 'none'; return; }
+            const sex = selectedSex || sexRes[0].values[0][0]; saveHistory(input);
 
             const strokes = ["蝶式", "仰式", "蛙式", "自由式", "混合式"];
             for (let [sIdx, stroke] of strokes.entries()) {
-                const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${input}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}${birthFilter}`);
+                const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${input}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}${birthFilter}${sexFilterClause}`);
                 if (!res || !res[0]) continue;
                 const card = document.createElement('div'); card.className = "stroke-card";
                 card.cardHTML = "";
