@@ -439,7 +439,12 @@
                 card.innerHTML = `<div class="stroke-title">${stroke}</div>`;
                 const trayInner = document.createElement('div'); trayInner.style.minWidth = "710px";
                 const scrollTray = document.createElement('div'); scrollTray.style.overflowX = "auto";
-                let allData = res[0].values.map(v => { let o = {}; res[0].columns.forEach((col, i) => o[col] = v[i]); o.totalSec = timeToSec(o.成績); return o; });
+                let allData = res[0].values.map(v => { 
+                    let o = {}; 
+                    res[0].columns.forEach((col, i) => o[col] = v[i]); 
+                    o.totalSec = timeToSec(o.成績); 
+                    return o; 
+                }).filter(o => o.totalSec && !isNaN(o.totalSec) && o.totalSec > 0);
                 
                 const dists = [...new Set(allData.map(r => r.項目.match(/(\d+)公尺/)?.[1]))].filter(Boolean).sort((a,b)=>a-b);
                 for (let [dIdx, dist] of dists.entries()) {
