@@ -710,7 +710,7 @@
                 if (apiResp.ok) {
                     const verData = await apiResp.json();
                     cloudVersion = verData.version;
-                    totalParts = verData.parts;
+                    totalParts = verData.total_parts || verData.parts || 21;
                 }
             } catch (apiErr) {
                 console.warn("無法連接雲端 version.json，將嘗試加載本地快取:", apiErr);
