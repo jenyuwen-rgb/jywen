@@ -36,11 +36,20 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-Type', 'application/json; charset=utf-8')
-        self._send_cors_headers()
-        self.end_headers()
-        self.wfile.write(json.dumps({"status": "active", "service": "Vercel Query Telemetry API"}).encode('utf-8'))
+        parsed_path = urllib.parse.urlparse(self.path)
+        query_params = urllib.parse.parse_qs(parsed_path.query)
+        swimmer = query_params.get('swimmer', [''])[0].strip()
+        location = query_params.get('location', [''])[0].strip()
+        page = query_params.get('page', ['/'])[0].strip()
+        
+        if swimmer:
+            self.process_log(swimmer=swimmer, page=page, custom_loc=location)
+        else:
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self._send_cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps({"status": "active", "service": "Vercel Query Telemetry API"}).encode('utf-8'))
 
     def do_POST(self):
         try:
@@ -52,6 +61,9 @@ class handler(BaseHTTPRequestHandler):
 
         swimmer = payload.get("swimmer", "").strip() or "[頁面造訪]"
         page = payload.get("page", "query.html")
+        self.process_log(swimmer=swimmer, page=page)
+
+    def process_log(self, swimmer, page="query.html", custom_loc=""):
 
         # 抓取 IP 與 Vercel Edge 地理位置 Header
         raw_ip = self.headers.get('x-forwarded-for') or self.headers.get('x-real-ip') or self.client_address[0]
@@ -68,6 +80,8 @@ class handler(BaseHTTPRequestHandler):
         if city:
             loc_parts.append(city)
         location_str = " ".join(loc_parts) if loc_parts else "未知區域"
+        if custom_loc:
+            location_str = custom_loc
 
         # 台北時間 GMT+8
         tz_taipei = timezone(timedelta(hours=8))
