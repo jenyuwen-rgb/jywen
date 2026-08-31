@@ -24,6 +24,8 @@ def mask_ip(ip_str):
         return f"{parts[0]}.{parts[1]}.*.{parts[3]}"
     return ip
 
+GLOBAL_LOG_QUEUE = []
+
 class handler(BaseHTTPRequestHandler):
     def _send_cors_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -38,10 +40,20 @@ class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed_path = urllib.parse.urlparse(self.path)
         query_params = urllib.parse.parse_qs(parsed_path.query)
+        action = query_params.get('action', [''])[0].strip()
         swimmer = query_params.get('swimmer', [''])[0].strip()
         location = query_params.get('location', [''])[0].strip()
         page = query_params.get('page', ['/'])[0].strip()
         
+        # 地端 5001 背景 Daemon 每 2 秒 Pull 最新雲端日誌
+        if action == 'pull':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self._send_cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps({"status": "success", "logs": GLOBAL_LOG_QUEUE}, ensure_ascii=False).encode('utf-8'))
+            return
+
         if swimmer:
             self.process_log(swimmer=swimmer, page=page, custom_loc=location)
         else:
@@ -49,7 +61,7 @@ class handler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self._send_cors_headers()
             self.end_headers()
-            self.wfile.write(json.dumps({"status": "active", "service": "Vercel Query Telemetry API"}).encode('utf-8'))
+            self.wfile.write(json.dumps({"status": "active", "service": "Vercel Query Telemetry API", "queue_len": len(GLOBAL_LOG_QUEUE)}).encode('utf-8'))
 
     def do_POST(self):
         try:
@@ -118,7 +130,17 @@ class handler(BaseHTTPRequestHandler):
             except Exception as tg_err:
                 print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")
 
-        # ② 秒級直連地端 5001 Webhook 嘗試 (1秒極速全球同步 + 動態自癒重試)
+        # 追加落庫至雲端記憶佇列 (方便地端秒級拉取)
+        if swimmer:
+            GLOBAL_LOG_QUEUE.append({
+                "time": now_str,
+                "ip": ip_masked,
+                "location": location_str,
+                "swimmer": swimmer,
+                "page": page
+            })
+            if len(GLOBAL_LOG_QUEUE) > 50:
+                GLOBAL_LOG_QUEUE.pop(0)
         if swimmer:
             webhook_payload = json.dumps({
                 "time": now_str,
