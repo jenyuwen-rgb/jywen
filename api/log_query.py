@@ -217,6 +217,7 @@ class handler(BaseHTTPRequestHandler):
                             method='POST'
                         )
                         with urllib.request.urlopen(req_post, timeout=5, context=ssl_ctx) as post_resp:
+                            pass
                     else:
                         print(f"[Vercel Telemetry] JSONBlob HTTP Error: {http_err}")
         except Exception as jb_err:
