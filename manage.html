@@ -2314,8 +2314,8 @@
         window.addEventListener('DOMContentLoaded', () => {
             // 載入 Vercel 雲端訪客分析數據
             loadCloudAnalytics();
-            // 綁定定時刷新 (每 30 秒自動刷新)
-            setInterval(loadCloudAnalytics, 30000);
+            // 綁定定時刷新 (每 5 秒自動刷新，確保延遲 < 5 秒)
+            setInterval(loadCloudAnalytics, 5000);
             
             // 區域資料庫載入
             ensureDBLoaded().then(() => {

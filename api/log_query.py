@@ -104,7 +104,7 @@ class handler(BaseHTTPRequestHandler):
             except Exception as tg_err:
                 print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")
 
-        # ② 秒級直連地端 5001 Webhook 嘗試 (低於 1 秒極速同步)
+        # ② 秒級直連地端 5001 Webhook 嘗試 (1秒極速全球同步)
         if swimmer:
             try:
                 webhook_payload = json.dumps({
@@ -115,14 +115,18 @@ class handler(BaseHTTPRequestHandler):
                     "page": page
                 }).encode('utf-8')
                 wh_req = urllib.request.Request(
-                    "http://127.0.0.1:5001/api/vercel_webhook",
+                    "https://jywen-swim-telemetry.loca.lt/api/vercel_webhook",
                     data=webhook_payload,
-                    headers={'Content-Type': 'application/json', 'User-Agent': 'Vercel-Telemetry/1.0'}
+                    headers={
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'Vercel-Telemetry/1.0',
+                        'bypass-tunnel-reminder': 'true'
+                    }
                 )
-                with urllib.request.urlopen(wh_req, timeout=1, context=ssl_ctx) as wh_resp:
+                with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
                     pass
-            except Exception:
-                pass
+            except Exception as wh_err:
+                print(f"[Vercel Telemetry] 1秒 Webhook 同步失敗: {wh_err}")
 
         # ② 同步連線紀錄至 JSONBlob 雲端橋樑（無需 Token，永久穩定）
         try:
