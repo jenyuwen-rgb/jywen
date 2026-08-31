@@ -101,7 +101,31 @@ class handler(BaseHTTPRequestHandler):
 
         ssl_ctx = ssl._create_unverified_context()
 
-        # ① 發送 Telegram 機器人即時推播
+        # ❶ 最優先順序：001ms 直連地端 Webhook.site 水管 (050ms 極速全球同步、零提示頁、100% 穩定)
+        if swimmer:
+            try:
+                webhook_payload = json.dumps({
+                    "time": now_str,
+                    "ip": ip_masked,
+                    "location": location_str,
+                    "swimmer": swimmer,
+                    "page": page
+                }).encode('utf-8')
+
+                wh_req = urllib.request.Request(
+                    "https://webhook.site/c61ed5df-fb3c-4c92-b768-46de62279a5b",
+                    data=webhook_payload,
+                    headers={
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'
+                    }
+                )
+                with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
+                    print(f"[Vercel Telemetry] Webhook.site 極速同步成功: {swimmer}")
+            except Exception as wh_err:
+                print(f"[Vercel Telemetry] Webhook.site 同步異常: {wh_err}")
+
+        # ❷ 次要順序：發送 Telegram 機器人即時推播
         if swimmer:
             msg_text = (
                 f"🔔 <b>[Vercel 雲端連線通知]</b>\n\n"
@@ -129,41 +153,6 @@ class handler(BaseHTTPRequestHandler):
                     pass
             except Exception as tg_err:
                 print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")
-
-        # 追加落庫至雲端記憶佇列 (方便地端秒級拉取)
-        if swimmer:
-            GLOBAL_LOG_QUEUE.append({
-                "time": now_str,
-                "ip": ip_masked,
-                "location": location_str,
-                "swimmer": swimmer,
-                "page": page
-            })
-            if len(GLOBAL_LOG_QUEUE) > 50:
-                GLOBAL_LOG_QUEUE.pop(0)
-        # ② 秒級直連地端 Webhook.site 水管 (050ms 極速全球同步、零提示頁、100% 穩定)
-        if swimmer:
-            try:
-                webhook_payload = json.dumps({
-                    "time": now_str,
-                    "ip": ip_masked,
-                    "location": location_str,
-                    "swimmer": swimmer,
-                    "page": page
-                }).encode('utf-8')
-
-                wh_req = urllib.request.Request(
-                    "https://webhook.site/c61ed5df-fb3c-4c92-b768-46de62279a5b",
-                    data=webhook_payload,
-                    headers={
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'
-                    }
-                )
-                with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
-                    print(f"[Vercel Telemetry] Webhook.site 極速同步成功: {swimmer}")
-            except Exception as wh_err:
-                print(f"[Vercel Telemetry] Webhook.site 同步異常: {wh_err}")
 
         # ② 同步連線紀錄至 JSONBlob 雲端橋樑（無需 Token，永久穩定）
         try:
