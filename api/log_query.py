@@ -104,6 +104,26 @@ class handler(BaseHTTPRequestHandler):
             except Exception as tg_err:
                 print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")
 
+        # ② 秒級直連地端 5001 Webhook 嘗試 (低於 1 秒極速同步)
+        if swimmer:
+            try:
+                webhook_payload = json.dumps({
+                    "time": now_str,
+                    "ip": ip_masked,
+                    "location": location_str,
+                    "swimmer": swimmer,
+                    "page": page
+                }).encode('utf-8')
+                wh_req = urllib.request.Request(
+                    "http://127.0.0.1:5001/api/vercel_webhook",
+                    data=webhook_payload,
+                    headers={'Content-Type': 'application/json', 'User-Agent': 'Vercel-Telemetry/1.0'}
+                )
+                with urllib.request.urlopen(wh_req, timeout=1, context=ssl_ctx) as wh_resp:
+                    pass
+            except Exception:
+                pass
+
         # ② 同步連線紀錄至 JSONBlob 雲端橋樑（無需 Token，永久穩定）
         try:
             new_entry = {

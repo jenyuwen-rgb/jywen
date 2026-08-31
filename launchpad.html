@@ -229,6 +229,8 @@
         .launchpad-grid.has-active-card .launch-card.card-3 { transform: translate3d(-240px, 240px, 0) scale(0.3); }
         .launchpad-grid.has-active-card .launch-card.card-4 { transform: translate3d(0, 280px, 0) scale(0.3); }
         .launchpad-grid.has-active-card .launch-card.card-5 { transform: translate3d(240px, 240px, 0) scale(0.3); }
+        .launchpad-grid.has-active-card .launch-card.card-6 { transform: translate3d(-120px, 300px, 0) scale(0.3); }
+        .launchpad-grid.has-active-card .launch-card.card-7 { transform: translate3d(120px, 300px, 0) scale(0.3); }
 
         /* ── 全螢幕分頁內容容器 (Scale & Fade Expansion) ── */
         .content-container {
@@ -393,6 +395,12 @@
                 <span class="launch-card-label" style="display:block !important; width:100% !important; text-align:center !important; white-space:nowrap !important; word-break:keep-all !important; letter-spacing:-0.2px !important; font-size:17px !important; font-weight:800 !important; margin-top:6px;">AZ 搬遷分析</span>
             </div>
 
+            <!-- 8. IG無縫貼文 (SCRL) -->
+            <div class="launch-card card-7" onclick="switchTab('scrl', this)">
+                <div class="icon-box"><img class="launch-card-icon" src="static/scrl_icon.png?v=2" alt="IG無縫貼文" /></div>
+                <span class="launch-card-label" style="display:block !important; width:100% !important; text-align:center !important; white-space:nowrap !important; word-break:keep-all !important; letter-spacing:-0.2px !important; font-size:17px !important; font-weight:800 !important; margin-top:6px;">IG無縫貼文</span>
+            </div>
+
         </div>
     </div>
 
@@ -408,6 +416,7 @@
         <iframe id="iframe-car" class="tab-panel" src=""></iframe>
         <iframe id="iframe-system_messages" class="tab-panel" src=""></iframe>
         <iframe id="iframe-az_study" class="tab-panel" src=""></iframe>
+        <iframe id="iframe-scrl" class="tab-panel" src=""></iframe>
     </div>
 
     <script>
@@ -418,7 +427,8 @@
             'wealth': '/wealth.html',
             'car': '/car.html',
             'system_messages': '/system_messages.html',
-            'az_study': '/az_presentation'
+            'az_study': '/az_presentation',
+            'scrl': '/scrl.html'
         };
         
         const loadedTabs = {};
@@ -504,12 +514,14 @@
                 'view_db': 2,
                 'wealth': 3,
                 'car': 4,
-                'system_messages': 5
+                'system_messages': 5,
+                'az_study': 6,
+                'scrl': 7
             };
             return indices[tabId] !== undefined ? indices[tabId] : 0;
         }
         
-        // 監聽來自子分頁頂部導覽列跳轉的 postMessage 跨分頁調用
+        // 監聽來自子分頁的 postMessage 調用
         window.addEventListener('message', (event) => {
             const targetTabId = event.data.switchTab;
             if (targetTabId) {
@@ -520,6 +532,15 @@
                         switchTab(targetTabId);
                     }, 400); // 配合收起動畫耗時，呈現完美的跳躍彈出視覺
                 }
+            }
+
+            // 處理關閉按鈕的隱藏與顯示 (防止子分頁預覽彈窗時誤觸)
+            if (event.data && event.data.type === 'hideCloseBtn') {
+                const btn = document.getElementById('close-tab-btn');
+                if (btn) btn.classList.remove('visible');
+            } else if (event.data && event.data.type === 'showCloseBtn') {
+                const btn = document.getElementById('close-tab-btn');
+                if (btn) btn.classList.add('visible');
             }
         });
     </script>

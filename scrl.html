@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IG 無縫長圖貼文產生器 (仿 SCRL)</title>
+    <!-- 載入 JSZip 用於前端打包下載 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        /* macOS & iOS 暗黑磨砂玻璃設計系統 */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-dark: #0A0A0C;
+            --bg-sidebar: rgba(20, 20, 25, 0.85);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #F2F2F7;
+            --text-muted: #8E8E93;
+            --accent-color: #D4AF37;
+            --accent-hover: #FFD933;
+            --radius-ui: 12px;
+            --radius-card: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Outfit', 'Noto Sans TC', -apple-system, sans-serif;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* ── 側邊控制面板 ── */
+        .sidebar {
+            width: 340px;
+            height: 100%;
+            background: var(--bg-sidebar);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            gap: 24px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .sidebar-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #FFF 0%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* 比例與切格選擇按鈕組 */
+        .btn-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            padding: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #FFF;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 滑桿與數值 */
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider-wrapper input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.1);
+            height: 4px;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .slider-val {
+            font-size: 0.88rem;
+            font-family: monospace;
+            color: var(--text-main);
+            min-width: 32px;
+            text-align: right;
+        }
+
+        /* 背景顏色調色盤 */
+        .bg-config {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .color-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .color-label-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .color-picker-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .color-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .color-picker-btn input[type="color"] {
+            opacity: 0;
+            position: absolute;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+        /* 操作按鈕 */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #B89228 100%);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: var(--radius-ui);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(212, 175, 55, 0.35);
+            background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-color) 100%);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: var(--radius-ui);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 檔案上傳隱藏 input */
+        .file-upload-input {
+            display: none;
+        }
+
+        /* 選中項目控制項 */
+        .object-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-danger {
+            background: rgba(255, 69, 58, 0.15);
+            color: #FF453A;
+            border: 1px solid rgba(255, 69, 58, 0.3);
+            padding: 10px;
+            border-radius: var(--radius-ui);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            grid-column: span 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 69, 58, 0.25);
+            border-color: rgba(255, 69, 58, 0.5);
+        }
+
+        /* ── 中央主畫布區域 ── */
+        .main-workspace {
+            flex: 1;
+            height: 100%;
+            overflow: auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: radial-gradient(circle at center, #18181C 0%, #0A0A0C 100%);
+            /* 輕微點狀網格背景 */
+            background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* 畫布視窗縮放限制器 */
+        .workspace-viewport {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transform-origin: center center;
+        }
+
+        /* 實體畫布區 */
+        .workspace-board {
+            position: relative;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 覆蓋切片虛線 */
+        .slices-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            pointer-events: none;
+            z-index: 99; /* 虛線置頂 */
+        }
+
+        .slice-cell {
+            flex: 1;
+            height: 100%;
+            border-right: 1px dashed rgba(255, 255, 255, 0.25);
+            position: relative;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+        }
+
+        .slice-cell:last-child {
+            border-right: none;
+        }
+
+        .slice-number {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* 畫布內圖片物件 */
+        .scrl-object {
+            position: absolute;
+            cursor: move;
+            transform-origin: center center;
+            user-select: none;
+            touch-action: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scrl-object img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            display: block;
+        }
+
+        /* 選中狀態邊框 */
+        .scrl-object.selected {
+            outline: 2px solid #FFF;
+            outline-offset: -1px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        /* 拍立得卡片風樣式 */
+        .scrl-object.polaroid-style {
+            box-sizing: border-box !important;
+            background: #FFF !important;
+            padding: 10px 10px 30px 10px !important;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid rgba(0, 0, 0, 0.15) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            align-items: center !important;
+        }
+
+        .scrl-object.polaroid-style img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+
+        /* ── 彈出預覽視窗 (Smartphone Shell Preview) ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .phone-shell {
+            width: 320px;
+            height: 640px;
+            background: #000;
+            border-radius: 44px;
+            border: 8px solid #222;
+            box-shadow: 0 30px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.85);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.active .phone-shell {
+            transform: scale(1);
+        }
+
+        /* 手機頂部島 (Dynamic Island) */
+        .phone-island {
+            width: 100px;
+            height: 25px;
+            background: #000;
+            border-radius: 15px;
+            margin: 12px auto 0;
+            flex-shrink: 0;
+            z-index: 102;
+        }
+
+        /* 手機模擬 IG 貼文頂部 */
+        .phone-ig-header {
+            height: 52px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 0.5px solid rgba(255,255,255,0.08);
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            gap: 10px;
+        }
+
+        .phone-ig-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #FFF 100%);
+            flex-shrink: 0;
+        }
+
+        /* 模擬 IG 水平滑動貼文區域 (核心！) */
+        .phone-ig-carousel {
+            flex: 1;
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            display: flex;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            /* 隱藏滾動條 */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .phone-ig-carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .phone-slice-img {
+            flex-shrink: 0;
+            scroll-snap-align: start;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        /* 預覽指示器 dots */
+        .phone-ig-dots {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            transition: all 0.2s;
+        }
+
+        .dot.active {
+            background: var(--accent-color);
+            transform: scale(1.2);
+        }
+
+        /* 手機底部模擬 */
+        .phone-home-bar {
+            height: 15px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding-bottom: 8px;
+        }
+
+        .home-bar-line {
+            width: 100px;
+            height: 4px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 2px;
+        }
+
+        /* 關閉 Modal 按鈕 */
+        .close-modal-btn {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(30, 30, 32, 0.7);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-modal-btn:hover {
+            color: #FFF;
+            background: rgba(44, 44, 46, 0.9);
+            transform: scale(1.06);
+        }
+
+        /* ── Mac 風格微光 Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(30, 30, 35, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            color: var(--text-main);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .toast.loading .toast-spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── 側邊控制面板 ── -->
+    <div class="sidebar">
+        <div>
+            <h1 class="sidebar-title">IG無縫貼文</h1>
+            <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">仿 SCRL 設計。拖曳照片跨格排版，自動無縫分割切片。</p>
+        </div>
+
+        <!-- 1. 版面設定 -->
+        <div class="control-group">
+            <span class="control-label">版面尺寸與切格</span>
+            <div class="btn-tabs">
+                <button class="tab-btn active" id="ratio-1-1-btn" onclick="setRatio('1:1')">1:1 正方形</button>
+                <button class="tab-btn" id="ratio-4-5-btn" onclick="setRatio('4:5')">4:5 豎直貼文</button>
+            </div>
+            <div style="margin-top: 8px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                    <span style="font-size:0.85rem; color:var(--text-muted)">切片數量</span>
+                    <span style="font-size:0.85rem; font-weight:700" id="cols-val-text">3 格</span>
+                </div>
+                <div class="slider-wrapper">
+                    <input type="range" id="slices-slider" min="2" max="10" value="3" oninput="setSlices(this.value)">
+                    <span class="slider-val">3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1.5 排版模板 -->
+        <div class="control-group">
+            <span class="control-label">智能排版模板</span>
+            <div class="btn-tabs" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                <button class="tab-btn active" id="tpl-classic-btn" onclick="setTemplate('classic')">經典平鋪</button>
+                <button class="tab-btn" id="tpl-magazine-btn" onclick="setTemplate('magazine')">雜誌風</button>
+                <button class="tab-btn" id="tpl-polaroid-btn" onclick="setTemplate('polaroid')">拍立得</button>
+            </div>
+        </div>
+
+        <!-- 2. 背景設定 -->
+        <div class="control-group">
+            <span class="control-label">背景設計</span>
+            <div class="btn-tabs">
+                <button class="tab-btn active" id="bg-solid-btn" onclick="setBgType('solid')">純色</button>
+                <button class="tab-btn" id="bg-grad-btn" onclick="setBgType('gradient')">線性漸層</button>
+            </div>
+            <div class="bg-config" style="margin-top: 8px;">
+                <div class="color-row">
+                    <span class="color-label-sub" id="color-a-label">背景顏色</span>
+                    <div class="color-picker-btn">
+                        <div class="color-indicator" id="color-a-indicator" style="background-color: #0A0A0C;"></div>
+                        <input type="color" id="color-a-input" value="#0A0A0C" oninput="updateBgColors()">
+                    </div>
+                </div>
+                <div class="color-row" id="color-b-row" style="display: none;">
+                    <span class="color-label-sub">漸層顏色 B</span>
+                    <div class="color-picker-btn">
+                        <div class="color-indicator" id="color-b-indicator" style="background-color: #242430;"></div>
+                        <input type="color" id="color-b-input" value="#242430" oninput="updateBgColors()">
+                    </div>
+                </div>
+                <div id="grad-angle-wrapper" style="display: none;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 6px;">
+                        <span style="font-size:0.85rem; color:var(--text-muted)">漸層角度</span>
+                        <span style="font-size:0.85rem; font-weight:700" id="angle-val-text">90°</span>
+                    </div>
+                    <div class="slider-wrapper">
+                        <input type="range" id="angle-slider" min="0" max="360" value="90" oninput="setGradAngle(this.value)">
+                        <span class="slider-val">90°</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 照片管理 -->
+        <div class="control-group">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                <span class="control-label" style="margin-bottom:0;">照片元件</span>
+                <span style="font-size:0.82rem; color:var(--text-muted); font-weight:700;" id="total-photos-text">已導入：0 張</span>
+            </div>
+            <button class="btn-secondary" onclick="triggerFileUpload()">
+                <span>＋</span> 新增照片 (可多選)
+            </button>
+            <input type="file" id="file-upload" class="file-upload-input" multiple accept="image/*" onchange="handleFiles(this.files)">
+        </div>
+
+        <!-- 4. 選中物件屬性調整 -->
+        <div class="control-group" id="object-control-panel" style="display: none;">
+            <span class="control-label" id="selected-obj-title">選中照片屬性</span>
+            
+            <!-- 縮放 -->
+            <div>
+                <span style="font-size:0.82rem; color:var(--text-muted)">縮放大小</span>
+                <div class="slider-wrapper">
+                    <input type="range" id="obj-scale" min="10" max="300" value="100" oninput="updateSelectedObject('scale', this.value)">
+                    <span class="slider-val" id="obj-scale-val">1.0x</span>
+                </div>
+            </div>
+
+            <!-- 旋轉 -->
+            <div>
+                <span style="font-size:0.82rem; color:var(--text-muted)">旋轉角度</span>
+                <div class="slider-wrapper">
+                    <input type="range" id="obj-rotate" min="-180" max="180" value="0" oninput="updateSelectedObject('rotate', this.value)">
+                    <span class="slider-val" id="obj-rotate-val">0°</span>
+                </div>
+            </div>
+
+            <!-- 透明度 -->
+            <div>
+                <span style="font-size:0.82rem; color:var(--text-muted)">不透明度</span>
+                <div class="slider-wrapper">
+                    <input type="range" id="obj-opacity" min="0" max="100" value="100" oninput="updateSelectedObject('opacity', this.value)">
+                    <span class="slider-val" id="obj-opacity-val">100%</span>
+                </div>
+            </div>
+
+            <!-- 圖層與刪除 -->
+            <div class="object-actions">
+                <button class="btn-secondary" style="padding: 8px;" onclick="arrangeSelectedObject('forward')">上移一層</button>
+                <button class="btn-secondary" style="padding: 8px;" onclick="arrangeSelectedObject('backward')">下移一層</button>
+                <button class="btn-danger" onclick="deleteSelectedObject()">
+                    <span>🗑️</span> 刪除照片
+                </button>
+            </div>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 8px 0;">
+
+        <!-- 5. 輸出發布 -->
+        <div class="control-group" style="margin-top: auto; gap: 12px;">
+            <button class="btn-secondary" onclick="showLivePreview()">
+                <span>👁️</span> 模擬滑動預覽
+            </button>
+            <button class="btn-primary" onclick="exportZip()">
+                <span>📦</span> 打包導出貼文 (ZIP)
+            </button>
+        </div>
+    </div>
+
+    <!-- ── 中央主畫布區域 ── -->
+    <div class="main-workspace" id="workspace-container" onclick="deselectAll(event)">
+        <div class="workspace-viewport" id="workspace-viewport">
+            <div class="workspace-board" id="workspace-board">
+                <!-- 覆蓋的虛線切格 -->
+                <div class="slices-overlay" id="slices-overlay">
+                    <!-- 這裡會動態生成切格 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 彈出預覽視窗 (Smartphone Shell Preview) ── -->
+    <div class="modal-overlay" id="preview-modal" onclick="hideLivePreview(event)">
+        <button class="close-modal-btn" onclick="hideLivePreview(event)">✕</button>
+        
+        <div class="phone-shell">
+            <!-- 頂部島 -->
+            <div class="phone-island"></div>
+            <!-- IG Header -->
+            <div class="phone-ig-header">
+                <div class="phone-ig-avatar"></div>
+                <div>IG無縫滑動貼文預覽</div>
+            </div>
+            
+            <!-- 水平滑動區域 -->
+            <div class="phone-ig-carousel" id="phone-ig-carousel" onscroll="updatePhoneDots()">
+                <!-- 動態載入裁切後的切片圖片 -->
+            </div>
+            
+            <!-- 指示器 Dots -->
+            <div class="phone-ig-dots" id="phone-ig-dots">
+                <!-- 動態 dots -->
+            </div>
+            
+            <!-- 底部 Home Bar -->
+            <div class="phone-home-bar">
+                <div class="home-bar-line"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Mac 風格微光 Toast ── -->
+    <div class="toast" id="toast">
+        <div class="toast-spinner"></div>
+        <span id="toast-text">通知訊息</span>
+    </div>
+
+    <script>
+        // ── 核心狀態管理 ──
+        const state = {
+            singleRatio: '1:1', // '1:1' (1080x1080) 或 '4:5' (1080x1350)
+            slices: 3,         // 2 - 10
+            bgType: 'solid',    // 'solid' 或 'gradient'
+            colorA: '#0A0A0C',
+            colorB: '#242430',
+            gradAngle: 90,
+            layoutTemplate: 'classic', // 'classic', 'magazine', 'polaroid'
+            objects: [],        // 畫布中的照片元件清單
+            selectedId: null,   // 當前選中的照片元件 ID
+            nextObjId: 1
+        };
+
+        // 畫布基礎尺寸定義 (用於畫布比例計算，高解析導出會乘以倍率)
+        const VIEWPORT_HEIGHT = 450; // CSS 固定基準高度
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            renderWorkspace();
+            
+            // 綁定 Color A/B 的點擊觸發
+            document.getElementById('color-a-indicator').parentElement.addEventListener('click', () => {
+                document.getElementById('color-a-input').click();
+            });
+            document.getElementById('color-b-indicator').parentElement.addEventListener('click', () => {
+                document.getElementById('color-b-input').click();
+            });
+        });
+
+        // ── 介面渲染與計算 ──
+        function renderWorkspace() {
+            const board = document.getElementById('workspace-board');
+            const overlay = document.getElementById('slices-overlay');
+            const viewport = document.getElementById('workspace-viewport');
+
+            // 1. 計算單格寬度
+            let singleW = VIEWPORT_HEIGHT; // 1:1
+            let singleH = VIEWPORT_HEIGHT;
+            if (state.singleRatio === '4:5') {
+                singleW = VIEWPORT_HEIGHT * 4 / 5; // 4:5 時，高度 450，寬度為 360
+            }
+
+            const totalW = singleW * state.slices;
+            const totalH = singleH;
+
+            // 2. 調整 DOM 尺寸
+            viewport.style.width = `${totalW}px`;
+            viewport.style.height = `${totalH}px`;
+
+            // 3. 設定背景色
+            updateBgColors();
+
+            // 4. 動態生成切片指示器
+            overlay.innerHTML = '';
+            for (let i = 0; i < state.slices; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'slice-cell';
+                
+                const num = document.createElement('div');
+                num.className = 'slice-number';
+                num.innerText = `Slide ${i+1}/${state.slices}`;
+                cell.appendChild(num);
+                
+                overlay.appendChild(cell);
+            }
+
+            // 5. 自適應縮放 (確保能完全放入 workspace 容器)
+            autoScaleViewport();
+        }
+
+        // 畫布大小自適應縮放
+        function autoScaleViewport() {
+            const container = document.getElementById('workspace-container');
+            const viewport = document.getElementById('workspace-viewport');
+            
+            const gap = 80;
+            const targetW = container.clientWidth - gap;
+            const targetH = container.clientHeight - gap;
+            
+            const viewportW = viewport.clientWidth;
+            const viewportH = viewport.clientHeight;
+            
+            const scale = Math.min(targetW / viewportW, targetH / viewportH, 1);
+            viewport.style.transform = `scale(${scale})`;
+        }
+        window.addEventListener('resize', autoScaleViewport);
+
+        // ── 版面屬性更新 ──
+        function setRatio(ratio) {
+            state.singleRatio = ratio;
+            document.getElementById('ratio-1-1-btn').classList.toggle('active', ratio === '1:1');
+            document.getElementById('ratio-4-5-btn').classList.toggle('active', ratio === '4:5');
+            renderWorkspace();
+        }
+
+        function setSlices(val) {
+            state.slices = parseInt(val);
+            document.getElementById('slices-slider').value = val;
+            document.getElementById('slices-slider').nextElementSibling.innerText = val;
+            document.getElementById('cols-val-text').innerText = `${val} 格`;
+            renderWorkspace();
+        }
+
+        function setTemplate(tpl) {
+            state.layoutTemplate = tpl;
+            document.getElementById('tpl-classic-btn').classList.toggle('active', tpl === 'classic');
+            document.getElementById('tpl-magazine-btn').classList.toggle('active', tpl === 'magazine');
+            document.getElementById('tpl-polaroid-btn').classList.toggle('active', tpl === 'polaroid');
+            
+            applyLayoutTemplate();
+        }
+
+        function applyLayoutTemplate() {
+            // 1. 區分已載入與未載入物件，未載入者先隱藏 (防止 NaN 寬度或未解碼大圖破壞佈局)
+            state.objects.forEach(obj => {
+                const isLoaded = obj.imgEl.complete && obj.imgEl.naturalWidth > 0;
+                obj.el.style.display = isLoaded ? 'flex' : 'none';
+            });
+            
+            const loadedObjects = state.objects.filter(obj => obj.imgEl.complete && obj.imgEl.naturalWidth > 0);
+            if (loadedObjects.length === 0) return;
+            
+            const board = document.getElementById('workspace-board');
+            const singleW = state.singleRatio === '4:5' ? 360 : 450;
+            const boardH = board.clientHeight || 450;
+            const tpl = state.layoutTemplate || 'classic';
+            
+            // 重置所有拍立得樣式
+            loadedObjects.forEach(obj => {
+                obj.el.classList.remove('polaroid-style');
+            });
+            
+            let totalWidth = 0;
+            const items = loadedObjects.map(obj => {
+                const img = obj.imgEl;
+                const ratio = img.naturalWidth / img.naturalHeight || 1;
+                const baseH = boardH;
+                const baseW = boardH * ratio;
+                return { obj, baseW, baseH };
+            });
+            
+            // 計算佈局基礎寬度 (考量縮放與重疊)
+            items.forEach((item, i) => {
+                const { baseW } = item;
+                if (tpl === 'classic') {
+                    totalWidth += baseW;
+                } else if (tpl === 'magazine') {
+                    if (i % 3 === 0) {
+                        totalWidth += baseW * 0.8;
+                    } else if (i % 3 === 1) {
+                        totalWidth += baseW * 0.6 * 0.65;
+                    } else {
+                        totalWidth += baseW * 0.8 * 0.55;
+                    }
+                } else if (tpl === 'polaroid') {
+                    totalWidth += baseW * 0.7 * 0.75;
+                }
+            });
+            
+            // 自動計算最優 slices 數量並套用
+            const targetSlices = Math.max(2, Math.min(10, Math.ceil(totalWidth / singleW)));
+            state.slices = targetSlices;
+            
+            // 同步更新 UI
+            document.getElementById('slices-slider').value = targetSlices;
+            document.getElementById('slices-slider').nextElementSibling.innerText = targetSlices;
+            document.getElementById('cols-val-text').innerText = `${targetSlices} 格`;
+            
+            renderWorkspace();
+            
+            const canvasWidth = targetSlices * singleW;
+            const fillScale = canvasWidth / totalWidth;
+            
+            let currentX = 0;
+            items.forEach((item, i) => {
+                const { obj, baseW, baseH } = item;
+                
+                obj.width = baseW;
+                obj.height = baseH;
+                obj.rotate = 0;
+                obj.opacity = 1.0;
+                
+                if (tpl === 'classic') {
+                    // 經典無縫
+                    obj.scale = fillScale;
+                    obj.el.style.width = `${obj.width}px`;
+                    obj.el.style.height = `${obj.height}px`;
+                    
+                    obj.x = currentX + obj.width * (obj.scale - 1) / 2;
+                    obj.y = (boardH - obj.height) / 2;
+                    
+                    currentX += obj.width * obj.scale;
+                } else if (tpl === 'magazine') {
+                    // 雜誌風大中小交錯 (修正 Y 軸以防裁切)
+                    if (i % 3 === 0) {
+                        obj.scale = 1.0 * fillScale;
+                        obj.el.style.width = `${obj.width}px`;
+                        obj.el.style.height = `${obj.height}px`;
+                        obj.x = currentX + obj.width * (obj.scale - 1) / 2;
+                        obj.y = (boardH - obj.height) / 2; // 居中 (Scale-compensated)
+                        
+                        currentX += obj.width * obj.scale * 0.8;
+                    } else if (i % 3 === 1) {
+                        obj.scale = 0.65 * fillScale;
+                        obj.el.style.width = `${obj.width}px`;
+                        obj.el.style.height = `${obj.height}px`;
+                        obj.x = currentX + obj.width * (obj.scale - 1) / 2;
+                        
+                        const targetY = 30; // 頂部保留 30px
+                        obj.y = targetY + obj.height * (obj.scale - 1) / 2;
+                        
+                        currentX += obj.width * obj.scale * 0.6;
+                    } else {
+                        obj.scale = 0.55 * fillScale;
+                        obj.el.style.width = `${obj.width}px`;
+                        obj.el.style.height = `${obj.height}px`;
+                        obj.x = currentX - 30 * fillScale + obj.width * (obj.scale - 1) / 2;
+                        
+                        const targetBottom = boardH - 30; // 底部保留 30px
+                        const targetY = targetBottom - obj.height * obj.scale;
+                        obj.y = targetY + obj.height * (obj.scale - 1) / 2;
+                        
+                        currentX += obj.width * obj.scale * 0.8;
+                    }
+                } else if (tpl === 'polaroid') {
+                    // 隨性拍立得 (修正 Y 軸以防底框裁切)
+                    obj.el.classList.add('polaroid-style');
+                    obj.scale = 0.7 * fillScale;
+                    obj.rotate = i % 2 === 0 ? 5 : -5;
+                    
+                    obj.el.style.width = `${obj.width}px`;
+                    obj.el.style.height = `${obj.height}px`;
+                    
+                    obj.x = currentX + obj.width * (obj.scale - 1) / 2;
+                    if (i % 2 === 0) {
+                        const targetY = 20; // 頂部保留 20px
+                        obj.y = targetY + obj.height * (obj.scale - 1) / 2;
+                    } else {
+                        const targetBottom = boardH - 20; // 底部保留 20px 以防白框與陰影裁切
+                        const targetY = targetBottom - obj.height * obj.scale;
+                        obj.y = targetY + obj.height * (obj.scale - 1) / 2;
+                    }
+                    
+                    currentX += obj.width * obj.scale * 0.75;
+                }
+                
+                updateObjectStyle(obj);
+            });
+        }
+
+        function updateTotalPhotosCount() {
+            const el = document.getElementById('total-photos-text');
+            if (el) {
+                el.innerText = `已導入：${state.objects.length} 張`;
+            }
+        }
+
+        function setBgType(type) {
+            state.bgType = type;
+            document.getElementById('bg-solid-btn').classList.toggle('active', type === 'solid');
+            document.getElementById('bg-grad-btn').classList.toggle('active', type === 'gradient');
+            
+            document.getElementById('color-b-row').style.display = type === 'gradient' ? 'flex' : 'none';
+            document.getElementById('grad-angle-wrapper').style.display = type === 'gradient' ? 'block' : 'none';
+            document.getElementById('color-a-label').innerText = type === 'solid' ? '背景顏色' : '漸層顏色 A';
+            
+            updateBgColors();
+        }
+
+        function updateBgColors() {
+            const colorA = document.getElementById('color-a-input').value;
+            const colorB = document.getElementById('color-b-input').value;
+            
+            document.getElementById('color-a-indicator').style.backgroundColor = colorA;
+            document.getElementById('color-b-indicator').style.backgroundColor = colorB;
+            
+            state.colorA = colorA;
+            state.colorB = colorB;
+
+            const board = document.getElementById('workspace-board');
+            if (state.bgType === 'solid') {
+                board.style.background = colorA;
+            } else {
+                board.style.background = `linear-gradient(${state.gradAngle}deg, ${colorA} 0%, ${colorB} 100%)`;
+            }
+        }
+
+        function setGradAngle(angle) {
+            state.gradAngle = angle;
+            document.getElementById('angle-slider').value = angle;
+            document.getElementById('angle-slider').nextElementSibling.innerText = `${angle}°`;
+            document.getElementById('angle-val-text').innerText = `${angle}°`;
+            updateBgColors();
+        }
+
+        // ── 照片物件生成與交互 ──
+        function triggerFileUpload() {
+            document.getElementById('file-upload').click();
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const currentCount = state.objects.length;
+                const totalCount = currentCount + files.length;
+                
+                // 自動調整切片數 (限制在 IG 輪播 2-10 格之間)
+                const targetSlices = Math.max(2, Math.min(10, totalCount));
+                
+                // 直接調用 setSlices，會自動重繪畫布並完美更新 Slider 及上方 cols-val-text 文字
+                setSlices(targetSlices);
+                
+                // 預先規劃這批照片的佈局位置 (防重疊智慧拼貼演算法 - 方案二)
+                state.layoutPlan = state.layoutPlan || {};
+                for (let i = 0; i < files.length; i++) {
+                    const globalIndex = currentCount + i;
+                    const slideIndex = globalIndex % targetSlices;
+                    const itemIndex = Math.floor(globalIndex / targetSlices);
+                    
+                    // 計算該切片格子內總共會分到的相片數
+                    const totalInSlide = Math.floor(totalCount / targetSlices) + 
+                                         (slideIndex < (totalCount % targetSlices) ? 1 : 0);
+                    
+                    state.layoutPlan[files[i].name] = {
+                        slideIndex: slideIndex,
+                        itemIndex: itemIndex,
+                        totalInSlide: totalInSlide
+                    };
+                }
+            }
+
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    addObject(e.target.result, file.name);
+                };
+                reader.readAsDataURL(file);
+            }
+            // 清空以容許重選相同圖片
+            document.getElementById('file-upload').value = '';
+        }
+
+        // 新增照片到畫布
+        function addObject(src, filename) {
+            const board = document.getElementById('workspace-board');
+            const id = state.nextObjId++;
+
+            // 建立 DOM 節點
+            const el = document.createElement('div');
+            el.className = 'scrl-object';
+            el.id = `obj-${id}`;
+            
+            const img = document.createElement('img');
+            img.src = src;
+            el.appendChild(img);
+            board.appendChild(el);
+
+            // 照片預設狀態 (適中大小)
+            const obj = {
+                id: id,
+                filename: filename,
+                el: el,
+                imgEl: img,
+                x: 80,
+                y: 60,
+                width: 260,
+                height: 260,
+                scale: 1.0,
+                rotate: 0,
+                opacity: 1.0,
+                zIndex: id
+            };
+
+            img.onload = () => {
+                const ratio = img.naturalWidth / img.naturalHeight;
+                if (ratio > 1) {
+                    obj.height = obj.width / ratio;
+                } else {
+                    obj.width = obj.height * ratio;
+                }
+                el.style.width = `${obj.width}px`;
+                el.style.height = `${obj.height}px`;
+                
+                // 統一執行智能排版模板定位
+                applyLayoutTemplate();
+            };
+
+            // 綁定選中與拖曳事件 (使用 PointerEvents 完美支援觸控與鼠標)
+            el.addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+                selectObject(id);
+                startDrag(obj, e);
+            });
+
+            state.objects.push(obj);
+            selectObject(id);
+            updateTotalPhotosCount();
+            showToast("📸 已新增照片物件！");
+        }
+
+        // 更新 DOM Transform 與 Z-index
+        function updateObjectStyle(obj) {
+            obj.el.style.transform = `translate3d(${obj.x}px, ${obj.y}px, 0) scale(${obj.scale}) rotate(${obj.rotate}deg)`;
+            obj.el.style.opacity = obj.opacity;
+            obj.el.style.zIndex = obj.zIndex;
+        }
+
+        // ── 拖曳操作 (PointerEvents) ──
+        function startDrag(obj, event) {
+            event.preventDefault();
+            obj.el.setPointerCapture(event.pointerId);
+
+            const startX = event.clientX;
+            const startY = event.clientY;
+            const initX = obj.x;
+            const initY = obj.y;
+
+            function onPointerMove(e) {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                obj.x = initX + dx;
+                obj.y = initY + dy;
+                updateObjectStyle(obj);
+            }
+
+            function onPointerUp(e) {
+                obj.el.releasePointerCapture(e.pointerId);
+                obj.el.removeEventListener('pointermove', onPointerMove);
+                obj.el.removeEventListener('pointerup', onPointerUp);
+            }
+
+            obj.el.addEventListener('pointermove', onPointerMove);
+            obj.el.addEventListener('pointerup', onPointerUp);
+        }
+
+        // ── 選中狀態管理 ──
+        function selectObject(id) {
+            state.selectedId = id;
+            
+            // 更新畫布選中邊框
+            state.objects.forEach(obj => {
+                obj.el.classList.toggle('selected', obj.id === id);
+            });
+
+            const obj = state.objects.find(o => o.id === id);
+            if (!obj) return;
+
+            // 展開並更新屬性調整滑桿
+            document.getElementById('object-control-panel').style.display = 'block';
+            document.getElementById('selected-obj-title').innerText = `選中照片: ${obj.filename.substring(0, 10)}...`;
+
+            document.getElementById('obj-scale').value = Math.round(obj.scale * 100);
+            document.getElementById('obj-scale-val').innerText = `${obj.scale.toFixed(1)}x`;
+            
+            document.getElementById('obj-rotate').value = obj.rotate;
+            document.getElementById('obj-rotate-val').innerText = `${obj.rotate}°`;
+            
+            document.getElementById('obj-opacity').value = Math.round(obj.opacity * 100);
+            document.getElementById('obj-opacity-val').innerText = `${Math.round(obj.opacity * 100)}%`;
+        }
+
+        function deselectAll(event) {
+            // 如果點擊了空白區，取消選中
+            if (event.target === document.getElementById('workspace-container') || event.target === document.getElementById('workspace-board')) {
+                state.selectedId = null;
+                state.objects.forEach(obj => obj.el.classList.remove('selected'));
+                document.getElementById('object-control-panel').style.display = 'none';
+            }
+        }
+
+        // 側邊欄調整選中元件屬性
+        function updateSelectedObject(prop, value) {
+            if (!state.selectedId) return;
+            const obj = state.objects.find(o => o.id === state.selectedId);
+            if (!obj) return;
+
+            if (prop === 'scale') {
+                obj.scale = parseFloat(value) / 100;
+                document.getElementById('obj-scale-val').innerText = `${obj.scale.toFixed(1)}x`;
+            } else if (prop === 'rotate') {
+                obj.rotate = parseInt(value);
+                document.getElementById('obj-rotate-val').innerText = `${value}°`;
+            } else if (prop === 'opacity') {
+                obj.opacity = parseFloat(value) / 100;
+                document.getElementById('obj-opacity-val').innerText = `${value}%`;
+            }
+
+            updateObjectStyle(obj);
+        }
+
+        // 圖層層級調整
+        function arrangeSelectedObject(dir) {
+            if (!state.selectedId) return;
+            const obj = state.objects.find(o => o.id === state.selectedId);
+            if (!obj) return;
+
+            if (dir === 'forward') {
+                obj.zIndex += 2;
+            } else if (dir === 'backward') {
+                obj.zIndex = Math.max(1, obj.zIndex - 2);
+            }
+            updateObjectStyle(obj);
+        }
+
+        // 刪除選中元件
+        function deleteSelectedObject() {
+            if (!state.selectedId) return;
+            const index = state.objects.findIndex(o => o.id === state.selectedId);
+            if (index === -1) return;
+
+            const obj = state.objects[index];
+            obj.el.remove(); // 從 DOM 移除
+            state.objects.splice(index, 1);
+            
+            state.selectedId = null;
+            document.getElementById('object-control-panel').style.display = 'none';
+            updateTotalPhotosCount();
+            showToast("🗑️ 已刪除照片物件");
+        }
+
+        // ── 模擬滑動預覽 Modal ──
+        function showLivePreview() {
+            const modal = document.getElementById('preview-modal');
+            const carousel = document.getElementById('phone-ig-carousel');
+            const dotsContainer = document.getElementById('phone-ig-dots');
+
+            // 隱藏主頁面的關閉分頁按鈕 (防止誤觸導致編輯進度丟失)
+            window.parent.postMessage({ type: 'hideCloseBtn' }, '*');
+
+            // 1. 生成大 Canvas 並進行切片
+            showToast("📱 正在生成預覽圖...", true);
+            
+            setTimeout(() => {
+                generateSlices((slicesDataUrls) => {
+                    hideToast();
+                    
+                    carousel.innerHTML = '';
+                    dotsContainer.innerHTML = '';
+
+                    // 單格預覽尺寸高達 304px (配合手機模擬框架)
+                    const previewH = 304;
+                    const previewW = state.singleRatio === '1:1' ? 304 : 304 * 4 / 5;
+
+                    slicesDataUrls.forEach((dataUrl, idx) => {
+                        const img = document.createElement('img');
+                        img.src = dataUrl;
+                        img.className = 'phone-slice-img';
+                        img.style.width = `${previewW}px`;
+                        img.style.height = `${previewH}px`;
+                        carousel.appendChild(img);
+
+                        const dot = document.createElement('div');
+                        dot.className = `dot ${idx === 0 ? 'active' : ''}`;
+                        dotsContainer.appendChild(dot);
+                    });
+
+                    // 強制手機輪播寬度
+                    carousel.style.width = `${previewW}px`;
+
+                    modal.classList.add('active');
+                });
+            }, 300);
+        }
+
+        // ── 核心 Canvas 導出切片算法 ──
+        function generateSlices(callback) {
+            // 1. 計算切片輸出高解析度 (1080 寬)
+            const singleW = 1080;
+            const singleH = state.singleRatio === '1:1' ? 1080 : 1350;
+
+            const totalW = singleW * state.slices;
+            const totalH = singleH;
+
+            // 2. 建立大隱藏 Canvas
+            const mainCanvas = document.createElement('canvas');
+            mainCanvas.width = totalW;
+            mainCanvas.height = totalH;
+            const ctx = mainCanvas.getContext('2d');
+
+            // 3. 繪製畫布背景 (純色或漸層)
+            if (state.bgType === 'solid') {
+                ctx.fillStyle = state.colorA;
+                ctx.fillRect(0, 0, totalW, totalH);
+            } else {
+                // 將漸層角度 (deg) 轉為 Canvas 坐標向量
+                const angleRad = (state.gradAngle * Math.PI) / 180;
+                const r = Math.sqrt(totalW*totalW + totalH*totalH) / 2;
+                const cx = totalW / 2;
+                const cy = totalH / 2;
+                
+                const x0 = cx - Math.cos(angleRad) * r;
+                const y0 = cy - Math.sin(angleRad) * r;
+                const x1 = cx + Math.cos(angleRad) * r;
+                const y1 = cy + Math.sin(angleRad) * r;
+
+                const grad = ctx.createLinearGradient(x0, y0, x1, y1);
+                grad.addColorStop(0, state.colorA);
+                grad.addColorStop(1, state.colorB);
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, totalW, totalH);
+            }
+
+            // 4. 取得視窗顯示比例比例因子 F (高解析導出係數)
+            const board = document.getElementById('workspace-board');
+            const scaleFactor = totalH / board.clientHeight;
+
+            // 5. 排序物件 (根據 zIndex 從低到高繪製)
+            const sortedObjects = [...state.objects].sort((a, b) => a.zIndex - b.zIndex);
+
+            // 6. 遞迴繪製所有圖片到大 Canvas
+            let loadedCount = 0;
+            if (sortedObjects.length === 0) {
+                // 若無照片，直接進行切片
+                sliceAndReturn();
+                return;
+            }
+
+            sortedObjects.forEach(obj => {
+                ctx.save();
+                ctx.globalAlpha = obj.opacity;
+
+                // 換算成高解析度大畫布下的真實中心位置
+                const w = obj.width * scaleFactor;
+                const h = obj.height * scaleFactor;
+                
+                const centerX = (obj.x + obj.width / 2) * scaleFactor;
+                const centerY = (obj.y + obj.height / 2) * scaleFactor;
+
+                ctx.translate(centerX, centerY);
+                ctx.rotate((obj.rotate * Math.PI) / 180);
+                
+                // 繪製 (如果是拍立得樣式，先畫白底)
+                const isPolaroid = obj.el.classList.contains('polaroid-style');
+                if (isPolaroid) {
+                    const pad = 10 * scaleFactor;
+                    const bottomPad = 30 * scaleFactor;
+                    
+                    const cardW = w * obj.scale;
+                    const cardH = h * obj.scale;
+                    
+                    // 1. 繪製拍立得白卡片底色
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(-cardW / 2, -cardH / 2, cardW, cardH);
+                    
+                    // 2. 繪製邊框陰影 / 微弱灰色邊線
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)';
+                    ctx.lineWidth = 1 * scaleFactor;
+                    ctx.strokeRect(-cardW / 2, -cardH / 2, cardW, cardH);
+                    
+                    // 3. 繪製卡片內的照片 (縮小並偏上對齊)
+                    const imgW = cardW - pad * 2;
+                    const imgH = cardH - pad - bottomPad;
+                    const imgX = -cardW / 2 + pad;
+                    const imgY = -cardH / 2 + pad;
+                    
+                    ctx.drawImage(obj.imgEl, imgX, imgY, imgW, imgH);
+                } else {
+                    ctx.drawImage(obj.imgEl, -w * obj.scale / 2, -h * obj.scale / 2, w * obj.scale, h * obj.scale);
+                }
+                ctx.restore();
+            });
+
+            sliceAndReturn();
+
+            function sliceAndReturn() {
+                const results = [];
+                // 7. 將大 Canvas 切割成 N 等分
+                for (let i = 0; i < state.slices; i++) {
+                    const sliceCanvas = document.createElement('canvas');
+                    sliceCanvas.width = singleW;
+                    sliceCanvas.height = singleH;
+                    const sCtx = sliceCanvas.getContext('2d');
+
+                    sCtx.drawImage(mainCanvas, i * singleW, 0, singleW, singleH, 0, 0, singleW, singleH);
+                    results.push(sliceCanvas.toDataURL('image/jpeg', 0.95));
+                }
+                callback(results);
+            }
+        }
+
+        function hideLivePreview(event) {
+            // 如果有點擊事件，且點擊的不是 overlay 黑色背景或 close 按鈕，則不關閉 (防止點選手機殼內部關閉)
+            if (event && event.target !== document.getElementById('preview-modal') && !event.target.classList.contains('close-modal-btn')) {
+                return;
+            }
+            document.getElementById('preview-modal').classList.remove('active');
+            window.parent.postMessage({ type: 'showCloseBtn' }, '*');
+        }
+
+        function updatePhoneDots() {
+            const carousel = document.getElementById('phone-ig-carousel');
+            const dots = document.querySelectorAll('#phone-ig-dots .dot');
+            const itemW = carousel.firstElementChild.clientWidth;
+            
+            const activeIdx = Math.round(carousel.scrollLeft / itemW);
+            dots.forEach((dot, idx) => {
+                dot.classList.toggle('active', idx === activeIdx);
+            });
+        }
+
+        // ── 打包導出 ZIP 下載 ──
+        function exportZip() {
+            if (typeof JSZip === 'undefined') {
+                showToast("❌ 錯誤：JSZip 庫尚未加載完成，請檢查網路連線。");
+                return;
+            }
+
+            showToast("📦 正在切割並打包成 ZIP...", true);
+
+            setTimeout(() => {
+                generateSlices((slicesDataUrls) => {
+                    const zip = new JSZip();
+
+                    slicesDataUrls.forEach((dataUrl, idx) => {
+                        const base64Data = dataUrl.split(',')[1];
+                        zip.file(`ig_slice_${idx+1}.jpg`, base64Data, { base64: true });
+                    });
+
+                    zip.generateAsync({ type: "blob" }).then((content) => {
+                        hideToast();
+                        
+                        // 原生 JS 觸發 A 標籤 Blob 下載
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(content);
+                        link.download = 'ig_seamless_carousel.zip';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        showToast("🎉 打包導出成功！已自動下載。");
+                    }).catch(err => {
+                        hideToast();
+                        showToast(`❌ 打包失敗: ${err.message}`);
+                    });
+                });
+            }, 300);
+        }
+
+        // ── Mac 風格 Toast 提示 ──
+        let toastTimeout;
+        function showToast(text, isLoading = false) {
+            const toast = document.getElementById('toast');
+            const textEl = document.getElementById('toast-text');
+            
+            textEl.innerText = text;
+            toast.classList.toggle('loading', isLoading);
+            toast.classList.add('show');
+
+            clearTimeout(toastTimeout);
+            if (!isLoading) {
+                toastTimeout = setTimeout(hideToast, 4000);
+            }
+        }
+
+        function hideToast() {
+            document.getElementById('toast').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
