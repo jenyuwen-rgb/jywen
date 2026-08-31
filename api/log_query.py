@@ -205,10 +205,8 @@ class handler(BaseHTTPRequestHandler):
                             method='POST'
                         )
                         with urllib.request.urlopen(req_post, timeout=5, context=ssl_ctx) as post_resp:
-                            new_loc = post_resp.headers.get('Location')
-                            print(f"[Vercel Telemetry] ⚠️ JSONBlob 通道已過期，自動重建新通道 Location: {new_loc}")
                     else:
-                        raise http_err
+                        print(f"[Vercel Telemetry] JSONBlob HTTP Error: {http_err}")
         except Exception as jb_err:
             print(f"[Vercel Telemetry] JSONBlob 同步異常: {jb_err}")
 
