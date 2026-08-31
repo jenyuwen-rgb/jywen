@@ -128,13 +128,13 @@ class handler(BaseHTTPRequestHandler):
                     "swimmer": swimmer,
                     "page": page
                 }).encode('utf-8')
+                # 使用 100% 免費、全球連通且無任何提示頁的 localhost.run 隧道
                 wh_req = urllib.request.Request(
-                    "https://jywen-swim-telemetry.loca.lt/api/vercel_webhook",
+                    "https://c3d292217fb245.lhr.life/api/vercel_webhook",
                     data=webhook_payload,
                     headers={
                         'Content-Type': 'application/json',
-                        'User-Agent': 'Vercel-Telemetry/1.0',
-                        'bypass-tunnel-reminder': 'true'
+                        'User-Agent': 'Vercel-Telemetry/1.0'
                     }
                 )
                 with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
