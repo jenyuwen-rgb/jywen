@@ -233,6 +233,7 @@ class handler(BaseHTTPRequestHandler):
 
         response_body = {
             "status": "ok",
+            "vercel_build_version": "v2026.08.31.2240",
             "webhook_debug": wh_debug_msg,
             "time": now_str,
             "ip": ip_masked,
