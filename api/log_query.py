@@ -38,14 +38,19 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        parsed_path = urllib.parse.urlparse(self.path)
+        # 提取 URL Query String (相容 self.path 與 x-matched-path Header)
+        full_path = self.headers.get('x-matched-path', '') or self.path
+        parsed_path = urllib.parse.urlparse(full_path)
         query_params = urllib.parse.parse_qs(parsed_path.query)
-        action = query_params.get('action', [''])[0].strip()
-        swimmer = query_params.get('swimmer', [''])[0].strip()
-        location = query_params.get('location', [''])[0].strip()
-        page = query_params.get('page', ['/'])[0].strip()
         
-        # 地端 5001 背景 Daemon 每 2 秒 Pull 最新雲端日誌
+        # 同時從原生的 self.path 再解析一次備用
+        raw_query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+        
+        action = query_params.get('action', [''])[0].strip() or raw_query.get('action', [''])[0].strip()
+        swimmer = query_params.get('swimmer', [''])[0].strip() or raw_query.get('swimmer', [''])[0].strip() or "[頁面造訪]"
+        location = query_params.get('location', [''])[0].strip() or raw_query.get('location', [''])[0].strip()
+        page = query_params.get('page', ['/'])[0].strip() or raw_query.get('page', ['/'])[0].strip()
+        
         if action == 'pull':
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -54,14 +59,8 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"status": "success", "logs": GLOBAL_LOG_QUEUE}, ensure_ascii=False).encode('utf-8'))
             return
 
-        if swimmer:
-            self.process_log(swimmer=swimmer, page=page, custom_loc=location)
-        else:
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self._send_cors_headers()
-            self.end_headers()
-            self.wfile.write(json.dumps({"status": "active", "service": "Vercel Query Telemetry API", "queue_len": len(GLOBAL_LOG_QUEUE)}).encode('utf-8'))
+        # 只要不是 pull，無條件執行連線記錄 Process Log！
+        self.process_log(swimmer=swimmer, page=page, custom_loc=location)
 
     def do_POST(self):
         parsed_path = urllib.parse.urlparse(self.path)
