@@ -118,7 +118,7 @@ class handler(BaseHTTPRequestHandler):
             except Exception as tg_err:
                 print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")
 
-        # ② 秒級直連地端 5001 Webhook 嘗試 (雙中繼 1秒極速全球同步)
+        # ② 秒級直連地端 5001 Webhook 嘗試 (1秒極速全球同步 + 動態自癒重試)
         if swimmer:
             webhook_payload = json.dumps({
                 "time": now_str,
@@ -128,18 +128,28 @@ class handler(BaseHTTPRequestHandler):
                 "page": page
             }).encode('utf-8')
 
-            for target_url in [
-                "https://jywen-swim-telemetry.loca.lt/api/vercel_webhook",
-                "https://c3d292217fb245.lhr.life/api/vercel_webhook"
-            ]:
+            target_urls = [
+                "https://5cf732e49596c8.lhr.life/api/vercel_webhook"
+            ]
+
+            # 動態獲取 GitHub 上的最新 tunnel 網址
+            try:
+                raw_req = urllib.request.Request("https://raw.githubusercontent.com/jenyuwen-rgb/jywen/main/static/tunnel_url.txt", headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(raw_req, timeout=2, context=ssl_ctx) as raw_resp:
+                    latest_domain = raw_resp.read().decode('utf-8').strip()
+                    if latest_domain and latest_domain.startswith("https://"):
+                        target_urls.insert(0, f"{latest_domain}/api/vercel_webhook")
+            except Exception:
+                pass
+
+            for target_url in target_urls:
                 try:
                     wh_req = urllib.request.Request(
                         target_url,
                         data=webhook_payload,
                         headers={
                             'Content-Type': 'application/json',
-                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-                            'bypass-tunnel-reminder': 'true'
+                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
                         }
                     )
                     with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
