@@ -64,16 +64,21 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"status": "active", "service": "Vercel Query Telemetry API", "queue_len": len(GLOBAL_LOG_QUEUE)}).encode('utf-8'))
 
     def do_POST(self):
+        parsed_path = urllib.parse.urlparse(self.path)
+        query_params = urllib.parse.parse_qs(parsed_path.query)
+
         try:
             content_length = int(self.headers.get('Content-Length', 0))
-            post_data = self.rfile.read(content_length).decode('utf-8')
+            post_data = self.rfile.read(content_length).decode('utf-8') if content_length > 0 else ""
             payload = json.loads(post_data) if post_data else {}
         except Exception:
             payload = {}
 
-        swimmer = payload.get("swimmer", "").strip() or "[頁面造訪]"
-        page = payload.get("page", "query.html")
-        self.process_log(swimmer=swimmer, page=page)
+        swimmer = payload.get("swimmer", "").strip() or query_params.get("swimmer", [""])[0].strip() or "[頁面造訪]"
+        page = payload.get("page", "").strip() or query_params.get("page", ["query.html"])[0].strip()
+        location = payload.get("location", "").strip() or query_params.get("location", [""])[0].strip()
+
+        self.process_log(swimmer=swimmer, page=page, custom_loc=location)
 
     def process_log(self, swimmer, page="query.html", custom_loc=""):
 
