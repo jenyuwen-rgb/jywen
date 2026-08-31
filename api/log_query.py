@@ -106,6 +106,7 @@ class handler(BaseHTTPRequestHandler):
 
         ssl_ctx = ssl._create_unverified_context()
 
+        wh_debug_msg = "not_run"
         # ❶ 最優先順序：001ms 直連地端 Webhook.site 水管 (050ms 極速全球同步、零提示頁、100% 穩定)
         if swimmer:
             try:
@@ -126,8 +127,10 @@ class handler(BaseHTTPRequestHandler):
                     }
                 )
                 with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
+                    wh_debug_msg = f"success_{wh_resp.status}"
                     print(f"[Vercel Telemetry] Webhook.site 極速同步成功: {swimmer}")
             except Exception as wh_err:
+                wh_debug_msg = f"error_{wh_err}"
                 print(f"[Vercel Telemetry] Webhook.site 同步異常: {wh_err}")
 
         # ❷ 次要順序：發送 Telegram 機器人即時推播
@@ -230,6 +233,7 @@ class handler(BaseHTTPRequestHandler):
 
         response_body = {
             "status": "ok",
+            "webhook_debug": wh_debug_msg,
             "time": now_str,
             "ip": ip_masked,
             "location": location_str,
