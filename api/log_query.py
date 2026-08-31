@@ -134,13 +134,13 @@ class handler(BaseHTTPRequestHandler):
                     data=webhook_payload,
                     headers={
                         'Content-Type': 'application/json',
-                        'User-Agent': 'Vercel-Telemetry/1.0'
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
                     }
                 )
-                with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
-                    pass
+                with urllib.request.urlopen(wh_req, timeout=6, context=ssl_ctx) as wh_resp:
+                    print(f"[Vercel Telemetry] Webhook 1秒極速同步成功: {swimmer}")
             except Exception as wh_err:
-                print(f"[Vercel Telemetry] 1秒 Webhook 同步失敗: {wh_err}")
+                print(f"[Vercel Telemetry] Webhook 同步異常: {wh_err}")
 
         # ② 同步連線紀錄至 JSONBlob 雲端橋樑（無需 Token，永久穩定）
         try:
