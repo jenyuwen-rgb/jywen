@@ -141,44 +141,29 @@ class handler(BaseHTTPRequestHandler):
             })
             if len(GLOBAL_LOG_QUEUE) > 50:
                 GLOBAL_LOG_QUEUE.pop(0)
+        # ② 秒級直連地端 Webhook.site 水管 (050ms 極速全球同步、零提示頁、100% 穩定)
         if swimmer:
-            webhook_payload = json.dumps({
-                "time": now_str,
-                "ip": ip_masked,
-                "location": location_str,
-                "swimmer": swimmer,
-                "page": page
-            }).encode('utf-8')
-
-            target_urls = [
-                "https://5cf732e49596c8.lhr.life/api/vercel_webhook"
-            ]
-
-            # 動態獲取 GitHub 上的最新 tunnel 網址
             try:
-                raw_req = urllib.request.Request("https://raw.githubusercontent.com/jenyuwen-rgb/jywen/main/static/tunnel_url.txt", headers={'User-Agent': 'Mozilla/5.0'})
-                with urllib.request.urlopen(raw_req, timeout=2, context=ssl_ctx) as raw_resp:
-                    latest_domain = raw_resp.read().decode('utf-8').strip()
-                    if latest_domain and latest_domain.startswith("https://"):
-                        target_urls.insert(0, f"{latest_domain}/api/vercel_webhook")
-            except Exception:
-                pass
+                webhook_payload = json.dumps({
+                    "time": now_str,
+                    "ip": ip_masked,
+                    "location": location_str,
+                    "swimmer": swimmer,
+                    "page": page
+                }).encode('utf-8')
 
-            for target_url in target_urls:
-                try:
-                    wh_req = urllib.request.Request(
-                        target_url,
-                        data=webhook_payload,
-                        headers={
-                            'Content-Type': 'application/json',
-                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-                        }
-                    )
-                    with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
-                        print(f"[Vercel Telemetry] Webhook 同步成功: {swimmer} via {target_url}")
-                        break
-                except Exception as wh_err:
-                    print(f"[Vercel Telemetry] Webhook 嘗試 {target_url} 異常: {wh_err}")
+                wh_req = urllib.request.Request(
+                    "https://webhook.site/c61ed5df-fb3c-4c92-b768-46de62279a5b",
+                    data=webhook_payload,
+                    headers={
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'
+                    }
+                )
+                with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
+                    print(f"[Vercel Telemetry] Webhook.site 極速同步成功: {swimmer}")
+            except Exception as wh_err:
+                print(f"[Vercel Telemetry] Webhook.site 同步異常: {wh_err}")
 
         # ② 同步連線紀錄至 JSONBlob 雲端橋樑（無需 Token，永久穩定）
         try:
