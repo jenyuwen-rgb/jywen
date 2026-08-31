@@ -118,29 +118,35 @@ class handler(BaseHTTPRequestHandler):
             except Exception as tg_err:
                 print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")
 
-        # ② 秒級直連地端 5001 Webhook 嘗試 (1秒極速全球同步)
+        # ② 秒級直連地端 5001 Webhook 嘗試 (雙中繼 1秒極速全球同步)
         if swimmer:
-            try:
-                webhook_payload = json.dumps({
-                    "time": now_str,
-                    "ip": ip_masked,
-                    "location": location_str,
-                    "swimmer": swimmer,
-                    "page": page
-                }).encode('utf-8')
-                # 使用 100% 免費、全球連通且無任何提示頁的 localhost.run 隧道
-                wh_req = urllib.request.Request(
-                    "https://c3d292217fb245.lhr.life/api/vercel_webhook",
-                    data=webhook_payload,
-                    headers={
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-                    }
-                )
-                with urllib.request.urlopen(wh_req, timeout=6, context=ssl_ctx) as wh_resp:
-                    print(f"[Vercel Telemetry] Webhook 1秒極速同步成功: {swimmer}")
-            except Exception as wh_err:
-                print(f"[Vercel Telemetry] Webhook 同步異常: {wh_err}")
+            webhook_payload = json.dumps({
+                "time": now_str,
+                "ip": ip_masked,
+                "location": location_str,
+                "swimmer": swimmer,
+                "page": page
+            }).encode('utf-8')
+
+            for target_url in [
+                "https://jywen-swim-telemetry.loca.lt/api/vercel_webhook",
+                "https://c3d292217fb245.lhr.life/api/vercel_webhook"
+            ]:
+                try:
+                    wh_req = urllib.request.Request(
+                        target_url,
+                        data=webhook_payload,
+                        headers={
+                            'Content-Type': 'application/json',
+                            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+                            'bypass-tunnel-reminder': 'true'
+                        }
+                    )
+                    with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
+                        print(f"[Vercel Telemetry] Webhook 同步成功: {swimmer} via {target_url}")
+                        break
+                except Exception as wh_err:
+                    print(f"[Vercel Telemetry] Webhook 嘗試 {target_url} 異常: {wh_err}")
 
         # ② 同步連線紀錄至 JSONBlob 雲端橋樑（無需 Token，永久穩定）
         try:
