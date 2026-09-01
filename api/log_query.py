@@ -106,38 +106,7 @@ class handler(BaseHTTPRequestHandler):
 
         ssl_ctx = ssl._create_unverified_context()
 
-        # ❶ 最高優先順序：0.9 秒寫入公網共享雲端檔案 (100% 永久線上、0% 401、0% 503)
-        if swimmer:
-            try:
-                cloud_file_url = "https://api.restful-api.dev/objects/ff808181a058d43f01a05d4e80dc0fea"
-                file_payload = json.dumps({
-                    "name": "Vercel_Telemetry_Shared_Buffer",
-                    "data": {
-                        "time": now_str,
-                        "ip": ip_masked,
-                        "location": location_str,
-                        "swimmer": swimmer,
-                        "page": page
-                    }
-                }).encode('utf-8')
-
-                file_req = urllib.request.Request(
-                    cloud_file_url,
-                    data=file_payload,
-                    headers={
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                    },
-                    method='PUT'
-                )
-                with urllib.request.urlopen(file_req, timeout=4, context=ssl_ctx) as file_resp:
-                    wh_debug_msg = f"cloud_file_success_{file_resp.status}"
-                    print(f"[Vercel Telemetry] 雲端共享檔案寫入成功: {swimmer}")
-            except Exception as file_err:
-                wh_debug_msg = f"cloud_file_error_{file_err}"
-                print(f"[Vercel Telemetry] 雲端共享檔案寫入異常: {file_err}")
-
-        # ❷ 次要順序：發送 Telegram 機器人即時推播
+        # ❶ 最優先順序：同時向 Telegram 機器人推播並直連地端資料庫 (極速 0 延遲、0 阻塞)
         if swimmer:
             msg_text = (
                 f"🔔 <b>[Vercel 雲端連線通知]</b>\n\n"
@@ -146,6 +115,7 @@ class handler(BaseHTTPRequestHandler):
                 f"📄 <b>頁面</b>：<code>{page}</code>\n"
                 f"⏰ <b>時間</b>：{now_str}"
             )
+            # 1. 發送 Telegram
             try:
                 tg_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
                 req_data = json.dumps({
@@ -161,10 +131,33 @@ class handler(BaseHTTPRequestHandler):
                         'User-Agent': 'Mozilla/5.0'
                     }
                 )
-                with urllib.request.urlopen(req, timeout=5, context=ssl_ctx) as resp:
-                    pass
+                with urllib.request.urlopen(req, timeout=3, context=ssl_ctx) as resp:
+                    wh_debug_msg = "tg_success"
             except Exception as tg_err:
-                print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")
+                wh_debug_msg = f"tg_error_{tg_err}"
+
+            # 2. 直連地端 5001 (0.01 秒寫入 wealth_clock.db)
+            try:
+                local_payload = json.dumps({
+                    "time": now_str,
+                    "ip": ip_masked,
+                    "location": location_str,
+                    "swimmer": swimmer,
+                    "page": page
+                }).encode('utf-8')
+
+                loc_req = urllib.request.Request(
+                    "https://19c8d3b22dd6e9.lhr.life/api/cloud_analytics",
+                    data=local_payload,
+                    headers={
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'Mozilla/5.0'
+                    }
+                )
+                with urllib.request.urlopen(loc_req, timeout=1.5, context=ssl_ctx) as loc_resp:
+                    wh_debug_msg += f"_local_success_{loc_resp.status}"
+            except Exception as loc_err:
+                wh_debug_msg += f"_local_err_{loc_err}"
 
         # ② 同步連線紀錄至 JSONBlob 雲端橋樑（無需 Token，永久穩定）
         try:
