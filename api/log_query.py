@@ -125,11 +125,11 @@ class handler(BaseHTTPRequestHandler):
                     data=file_payload,
                     headers={
                         'Content-Type': 'application/json',
-                        'User-Agent': 'Mozilla/5.0'
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                     },
                     method='PUT'
                 )
-                with urllib.request.urlopen(file_req, timeout=3, context=ssl_ctx) as file_resp:
+                with urllib.request.urlopen(file_req, timeout=4, context=ssl_ctx) as file_resp:
                     wh_debug_msg = f"cloud_file_success_{file_resp.status}"
                     print(f"[Vercel Telemetry] 雲端共享檔案寫入成功: {swimmer}")
             except Exception as file_err:
