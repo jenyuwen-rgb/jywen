@@ -100,8 +100,17 @@
             border-bottom: none;
         }
         .autocomplete-item:hover, .autocomplete-active {
-            background: #D4AF37 !important;
-            color: #000 !important;
+            background: #2C2C2E;
+            color: #FFD933;
+        }
+
+        /* 電腦大螢幕 (min-width: 1024px) 置中極簡排版 (完全保留原始經典配色與樣式) */
+        @media (min-width: 1024px) {
+            #dbLoaderArea, #main, .search-container, .header-title {
+                max-width: 860px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
         }
         .autocomplete-item strong {
             color: #D4AF37;
@@ -600,8 +609,8 @@
                         partLoaded += value.length;
                         totalLoaded += value.length;
                         
-                        // 估算總大小為 252.5MB
-                        const pct = Math.min(99, Math.round((totalLoaded / (252.5 * 1024 * 1024)) * 100));
+                        // 精準動態計算百分比 (11 分卷總大小約 153MB)
+                        const pct = Math.min(99, Math.round((totalLoaded / (153 * 1024 * 1024)) * 100));
                         progressBar.style.width = `${pct}%`;
                         statusEl.textContent = `雲端下載中: ${pct}% (分卷 ${i+1}/${totalParts})`;
                     }
@@ -610,7 +619,7 @@
                     partsData.push(new Uint8Array(await partBlob.arrayBuffer()));
                 }
                 
-                statusEl.textContent = "下載完成！正在快取與初始化資料庫...";
+                statusEl.textContent = "🎉 下載完成！正在初始化資料庫引擎...";
                 progressBar.style.width = '100%';
                 
                 // 1. 優先寫入版本號至 localStorage，防止 Mobile Safari 因實體記憶體回收導致重載死循環
