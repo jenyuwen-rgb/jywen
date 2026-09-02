@@ -15,6 +15,14 @@
         .header-title { text-align: center; background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 32px; font-weight: 900; margin: 15px 0; display: block; }
         .stroke-card { background-color: #1C1C1E; border: 0.5px solid #38383A; border-radius: 12px; margin: 16px 12px; padding: 16px; }
         .stroke-title { font-size: 26px; font-weight: 900;  margin-bottom: 2px; }
+        .stroke-title-wrap { max-width: 900px; width: 100%; margin: 0 auto 6px auto; }
+        .scroll-tray-wrap { width: 100%; overflow-x: auto; display: flex; justify-content: center; }
+        .tray-inner-container { min-width: 710px; max-width: 900px; width: 100%; margin: 0 auto; }
+        @media (max-width: 768px) {
+            .scroll-tray-wrap { justify-content: flex-start; }
+            .tray-inner-container { margin: 0; }
+            .stroke-title-wrap { margin: 0 0 6px 0; }
+        }
         
         .race-row { display: grid; grid-template-columns: 55px 50px 105px 80px 85px 115px 85px 115px; align-items: center; padding: 3px 0; border-bottom: 0.5px solid #38383A; font-size: 14px; color: #FFF; white-space: nowrap; }
         .col-dist-main { text-decoration: underline; font-weight: 800; cursor: pointer; }
@@ -436,9 +444,9 @@
                 if (!res || !res[0]) continue;
                 const card = document.createElement('div'); card.className = "stroke-card";
                 card.cardHTML = "";
-                card.innerHTML = `<div class="stroke-title">${stroke}</div>`;
-                const trayInner = document.createElement('div'); trayInner.style.minWidth = "710px";
-                const scrollTray = document.createElement('div'); scrollTray.style.overflowX = "auto";
+                card.innerHTML = `<div class="stroke-title-wrap"><div class="stroke-title">${stroke}</div></div>`;
+                const trayInner = document.createElement('div'); trayInner.className = "tray-inner-container"; trayInner.style.minWidth = "710px";
+                const scrollTray = document.createElement('div'); scrollTray.className = "scroll-tray-wrap";
                 let allData = res[0].values.map(v => { 
                     let o = {}; 
                     res[0].columns.forEach((col, i) => o[col] = v[i]); 
