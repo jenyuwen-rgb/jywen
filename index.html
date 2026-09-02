@@ -706,73 +706,83 @@
         }
 
         async function startSystem() {
-            sendTelemetry('[頁面造訪]');
+            setTimeout(() => sendTelemetry('[頁面造訪]'), 10);
+            const statusEl = document.getElementById('loaderStatus');
+            const progressContainer = document.getElementById('progressContainer');
+            if (progressContainer) progressContainer.classList.remove('hidden');
+            if (statusEl) statusEl.textContent = "⏳ 正在啟動資料庫引擎...";
+
             if (isLocal) {
-                const statusEl = document.getElementById('loaderStatus');
                 if (statusEl) statusEl.textContent = "🚀 偵測為本地執行，免下載直接查詢本機資料庫中...";
                 document.getElementById('dbLoaderArea').style.display = 'none';
                 doSearch();
                 return;
             }
-            const statusEl = document.getElementById('loaderStatus');
-            const progressContainer = document.getElementById('progressContainer');
-            if (progressContainer) progressContainer.classList.remove('hidden');
-            
-            if (statusEl) statusEl.textContent = "⏳ [1/4] 正在檢查網路與連線雲端...";
+
+            if (statusEl) statusEl.textContent = "⏳ [1/4] 正在連線雲端檢查最新資料庫版本...";
 
             let cloudVersion = null;
             let totalParts = 0;
             
             try {
-                // 輕量獲取雲端最新分卷版本與分卷數 (超時 3 秒，使用前置斜線定位)
-                const apiResp = await fetchWithTimeout('/static/db_parts/version.json', {
+                // 輕量獲取雲端最新分卷版本與分卷數 (帶 Cache-Buster & 2.5s Timeout)
+                const apiResp = await fetchWithTimeout(`static/db_parts/version.json?t=${Date.now()}`, {
                     cache: 'no-store',
-                    timeout: 3000
+                    timeout: 2500
                 });
                 if (apiResp.ok) {
                     const verData = await apiResp.json();
                     cloudVersion = verData.version;
-                    totalParts = verData.total_parts || verData.parts || 21;
+                    totalParts = verData.total_parts || verData.parts || 11;
                 }
             } catch (apiErr) {
-                console.warn("無法連接雲端 version.json，將嘗試加載本地快取:", apiErr);
+                console.warn("連線雲端 version.json 超時或失敗，將載入本地快取:", apiErr);
             }
 
-            if (statusEl) statusEl.textContent = "⏳ [2/4] 正在比對版本與檢查快取...";
+            if (statusEl) statusEl.textContent = "⏳ [2/4] 正在檢查本地快取資料庫...";
             const localTime = localStorage.getItem('cached_db_time');
 
             // 如果有雲端版本，且本地時間一致，且 IndexedDB 裡有資料庫，就直接載入
             if (cloudVersion && localTime === String(cloudVersion)) {
                 const hasCached = await checkIndexedDBHasCached();
                 if (hasCached) {
-                    if (statusEl) statusEl.textContent = "⏳ [3/4] 偵測為最新版，正在讀取快取資料庫...";
+                    if (statusEl) statusEl.textContent = "⏳ [3/4] 已為最新版本，正在載入快取資料庫...";
                     try {
                         await loadCachedDatabase();
                         return;
                     } catch (cacheLoadErr) {
-                        console.warn("讀取快取資料庫失敗，將重新下載:", cacheLoadErr);
+                        console.warn("讀取快取失敗，將重新下載:", cacheLoadErr);
                     }
                 }
             }
 
             // 否則，下載新分卷
             if (cloudVersion && totalParts > 0) {
-                if (statusEl) statusEl.textContent = "⏳ [4/4] 正在自雲端下載最新分卷檔案...";
+                if (statusEl) statusEl.textContent = `⏳ [4/4] 正在下載最新資料庫 (共 ${totalParts} 個分卷)...`;
                 try {
                     await downloadDatabasePartsFromServer(cloudVersion, totalParts);
+                    return;
                 } catch (dlErr) {
-                    if (statusEl) statusEl.textContent = `❌ 自動同步下載失敗: ${dlErr.message}`;
+                    console.warn("下載分卷失敗:", dlErr);
+                    if (statusEl) statusEl.textContent = `⚠️ 雲端分卷下載受阻，嘗試載入本地快取...`;
+                }
+            }
+
+            // 兜底載入本地快取
+            const hasCached = await checkIndexedDBHasCached();
+            if (hasCached) {
+                if (statusEl) statusEl.textContent = "⚠️ 已載入本地歷史快取資料庫。";
+                try {
+                    await loadCachedDatabase();
+                } catch (cacheLoadErr) {
+                    if (statusEl) statusEl.textContent = "❌ 無法下載雲端資料庫，請點擊下方手動選擇 .db 檔案。";
+                    document.getElementById('manualUploadBtn').classList.remove('hidden');
                 }
             } else {
-                // 兜底載入本地快取
-                const hasCached = await checkIndexedDBHasCached();
-                if (hasCached) {
-                    if (statusEl) statusEl.textContent = "⚠️ 連線雲端失敗，正在載入本地歷史快取...";
-                    try {
-                        await loadCachedDatabase();
-                    } catch (cacheLoadErr) {
-                        if (statusEl) statusEl.textContent = "❌ 快取載入失敗，且無法連線雲端。";
-                    }
+                if (statusEl) statusEl.textContent = "⚠️ 請點擊下方按鈕手動選擇資料庫檔案 (.db)。";
+                document.getElementById('manualUploadBtn').classList.remove('hidden');
+            }
+        }
                 } else {
                     if (statusEl) statusEl.textContent = "❌ 無法與雲端同步，且無本地快取資料。";
                     document.getElementById('manualUploadBtn').classList.remove('hidden');
