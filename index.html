@@ -170,20 +170,27 @@
         let db = null;
         self.onmessage = async function(e) {
             const { type, data, parts, query, id } = e.data;
-            if (type === 'INIT') {
-                const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
-                db = new SQL.Database(data);
-                self.postMessage({ type: 'READY' });
-            } else if (type === 'INIT_PARTS') {
-                const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
-                let totalSize = parts.reduce((acc, p) => acc + p.length, 0);
-                const merged = new Uint8Array(totalSize);
-                let offset = 0;
-                for (const p of parts) {
-                    merged.set(p, offset);
-                    offset += p.length;
+            if (type === 'INIT' || type === 'INIT_PARTS') {
+                let SQL = null;
+                try {
+                    SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
+                } catch(err) {
+                    console.warn("CDN sql.js 載入失敗，降級載入同目錄 sql-wasm.wasm:", err);
+                    SQL = await initSqlJs({ locateFile: f => `./${f}` });
                 }
-                db = new SQL.Database(merged);
+
+                if (type === 'INIT') {
+                    db = new SQL.Database(data);
+                } else {
+                    let totalSize = parts.reduce((acc, p) => acc + p.length, 0);
+                    const merged = new Uint8Array(totalSize);
+                    let offset = 0;
+                    for (const p of parts) {
+                        merged.set(p, offset);
+                        offset += p.length;
+                    }
+                    db = new SQL.Database(merged);
+                }
                 self.postMessage({ type: 'READY' });
             } else if (type === 'QUERY') {
                 try {
