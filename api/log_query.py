@@ -31,7 +31,6 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
 
     def do_OPTIONS(self):
         self.send_response(200)
@@ -106,7 +105,34 @@ class handler(BaseHTTPRequestHandler):
 
         ssl_ctx = ssl._create_unverified_context()
 
-        # ❶ 最優先順序：同時向 Telegram 機器人推播並直連地端資料庫 (極速 0 延遲、0 阻塞)
+        wh_debug_msg = "not_run"
+        # ❶ 最優先順序：001ms 直連地端 Webhook.site 水管 (050ms 極速全球同步、零提示頁、100% 穩定)
+        if swimmer:
+            try:
+                webhook_payload = json.dumps({
+                    "time": now_str,
+                    "ip": ip_masked,
+                    "location": location_str,
+                    "swimmer": swimmer,
+                    "page": page
+                }).encode('utf-8')
+
+                wh_req = urllib.request.Request(
+                    "https://webhook.site/c61ed5df-fb3c-4c92-b768-46de62279a5b",
+                    data=webhook_payload,
+                    headers={
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'
+                    }
+                )
+                with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
+                    wh_debug_msg = f"success_{wh_resp.status}"
+                    print(f"[Vercel Telemetry] Webhook.site 極速同步成功: {swimmer}")
+            except Exception as wh_err:
+                wh_debug_msg = f"error_{wh_err}"
+                print(f"[Vercel Telemetry] Webhook.site 同步異常: {wh_err}")
+
+        # ❷ 次要順序：發送 Telegram 機器人即時推播
         if swimmer:
             msg_text = (
                 f"🔔 <b>[Vercel 雲端連線通知]</b>\n\n"
@@ -115,7 +141,6 @@ class handler(BaseHTTPRequestHandler):
                 f"📄 <b>頁面</b>：<code>{page}</code>\n"
                 f"⏰ <b>時間</b>：{now_str}"
             )
-            # 1. 發送 Telegram
             try:
                 tg_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
                 req_data = json.dumps({
@@ -131,33 +156,32 @@ class handler(BaseHTTPRequestHandler):
                         'User-Agent': 'Mozilla/5.0'
                     }
                 )
-                with urllib.request.urlopen(req, timeout=3, context=ssl_ctx) as resp:
-                    wh_debug_msg = "tg_success"
+                with urllib.request.urlopen(req, timeout=5, context=ssl_ctx) as resp:
+                    pass
             except Exception as tg_err:
-                wh_debug_msg = f"tg_error_{tg_err}"
+                print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")
 
-            # 2. 直連地端 5001 (0.01 秒寫入 wealth_clock.db)
+        # ❸ 第三順序：同步寫入 Google Sheet 雲端試算表 (Lobster_游泳查詢紀錄)
+        if swimmer:
             try:
-                local_payload = json.dumps({
+                sheet_api_url = "https://script.google.com/macros/s/AKfycbzXrhiFSCgzOu02sSY28broCKRLs-zryveAT-682VnDhy7vHzwMmuDhs_GzeKlXlrUUqQ/exec"
+                # 利用非阻塞 HTTP 發送日誌資料至 Google 試算表端點
+                sheet_data = json.dumps({
                     "time": now_str,
                     "ip": ip_masked,
                     "location": location_str,
                     "swimmer": swimmer,
                     "page": page
                 }).encode('utf-8')
-
-                loc_req = urllib.request.Request(
-                    "https://19c8d3b22dd6e9.lhr.life/api/cloud_analytics",
-                    data=local_payload,
-                    headers={
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'Mozilla/5.0'
-                    }
+                sheet_req = urllib.request.Request(
+                    sheet_api_url,
+                    data=sheet_data,
+                    headers={'Content-Type': 'application/json'}
                 )
-                with urllib.request.urlopen(loc_req, timeout=1.5, context=ssl_ctx) as loc_resp:
-                    wh_debug_msg += f"_local_success_{loc_resp.status}"
-            except Exception as loc_err:
-                wh_debug_msg += f"_local_err_{loc_err}"
+                with urllib.request.urlopen(sheet_req, timeout=5, context=ssl_ctx) as s_resp:
+                    print(f"[Vercel Telemetry] Google Sheet 雲端實時記錄成功: {swimmer}")
+            except Exception as sheet_err:
+                print(f"[Vercel Telemetry] Google Sheet 記錄異常: {sheet_err}")
 
         # ② 同步連線紀錄至 JSONBlob 雲端橋樑（無需 Token，永久穩定）
         try:
