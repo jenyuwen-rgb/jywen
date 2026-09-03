@@ -726,9 +726,10 @@
             let totalParts = 0;
             
             try {
-                // 輕量獲取雲端最新分卷版本與分卷數 (超時 3 秒，使用前置斜線定位)
-                const apiResp = await fetchWithTimeout('/static/db_parts/version.json', {
+                // 輕量獲取雲端最新分卷版本與分卷數 (加隨機時間戳必破快取，超時 3 秒)
+                const apiResp = await fetchWithTimeout('/static/db_parts/version.json?t=' + Date.now(), {
                     cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' },
                     timeout: 3000
                 });
                 if (apiResp.ok) {
