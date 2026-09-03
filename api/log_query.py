@@ -178,7 +178,7 @@ class handler(BaseHTTPRequestHandler):
                     data=sheet_data,
                     headers={'Content-Type': 'application/json'}
                 )
-                with urllib.request.urlopen(sheet_req, timeout=5, context=ssl_ctx) as s_resp:
+                with urllib.request.urlopen(sheet_req, timeout=15, context=ssl_ctx) as s_resp:
                     print(f"[Vercel Telemetry] Google Sheet 雲端實時記錄成功: {swimmer}")
             except Exception as sheet_err:
                 print(f"[Vercel Telemetry] Google Sheet 記錄異常: {sheet_err}")
