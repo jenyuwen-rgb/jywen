@@ -108,7 +108,9 @@ class handler(BaseHTTPRequestHandler):
         # ❶ 第一最高優先順序：同步寫入 Google Sheet 雲端試算表 (大仁哥全台游泳查詢紀錄)
         if swimmer:
             try:
-                sheet_api_url = "https://script.google.com/macros/s/AKfycbzXrhiFSCgzOu02sSY28broCKRLs-zryveAT-682VnDhy7vHzwMmuDhs_GzeKlXlrUUqQ/exec"
+                # 雙保險：將參數同時掛載在 Query String 與 JSON Payload，徹底防止 302 Redirect 轉 GET 時資料流失
+                qs = f"?time={urllib.parse.quote(now_str)}&ip={urllib.parse.quote(ip_masked)}&location={urllib.parse.quote(location_str)}&swimmer={urllib.parse.quote(swimmer)}&page={urllib.parse.quote(page)}"
+                sheet_api_url = "https://script.google.com/macros/s/AKfycbzXrhiFSCgzOu02sSY28broCKRLs-zryveAT-682VnDhy7vHzwMmuDhs_GzeKlXlrUUqQ/exec" + qs
                 sheet_data = json.dumps({
                     "time": now_str,
                     "ip": ip_masked,
@@ -119,7 +121,7 @@ class handler(BaseHTTPRequestHandler):
                 sheet_req = urllib.request.Request(
                     sheet_api_url,
                     data=sheet_data,
-                    headers={'Content-Type': 'application/json'}
+                    headers={'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0'}
                 )
                 with urllib.request.urlopen(sheet_req, timeout=8, context=ssl_ctx) as s_resp:
                     print(f"[Vercel Telemetry] Google Sheet 雲端實時記錄成功: {swimmer}")
