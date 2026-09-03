@@ -105,8 +105,29 @@ class handler(BaseHTTPRequestHandler):
 
         ssl_ctx = ssl._create_unverified_context()
 
+        # ❶ 第一最高優先順序：同步寫入 Google Sheet 雲端試算表 (大仁哥全台游泳查詢紀錄)
+        if swimmer:
+            try:
+                sheet_api_url = "https://script.google.com/macros/s/AKfycbzXrhiFSCgzOu02sSY28broCKRLs-zryveAT-682VnDhy7vHzwMmuDhs_GzeKlXlrUUqQ/exec"
+                sheet_data = json.dumps({
+                    "time": now_str,
+                    "ip": ip_masked,
+                    "location": location_str,
+                    "swimmer": swimmer,
+                    "page": page
+                }).encode('utf-8')
+                sheet_req = urllib.request.Request(
+                    sheet_api_url,
+                    data=sheet_data,
+                    headers={'Content-Type': 'application/json'}
+                )
+                with urllib.request.urlopen(sheet_req, timeout=8, context=ssl_ctx) as s_resp:
+                    print(f"[Vercel Telemetry] Google Sheet 雲端實時記錄成功: {swimmer}")
+            except Exception as sheet_err:
+                print(f"[Vercel Telemetry] Google Sheet 記錄異常: {sheet_err}")
+
         wh_debug_msg = "not_run"
-        # ❶ 最優先順序：001ms 直連地端 Webhook.site 水管 (050ms 極速全球同步、零提示頁、100% 穩定)
+        # ❷ 第二順序：直連地端 Webhook.site 水管
         if swimmer:
             try:
                 webhook_payload = json.dumps({
@@ -132,7 +153,7 @@ class handler(BaseHTTPRequestHandler):
                 wh_debug_msg = f"error_{wh_err}"
                 print(f"[Vercel Telemetry] Webhook.site 同步異常: {wh_err}")
 
-        # ❷ 次要順序：發送 Telegram 機器人即時推播
+        # ❸ 第三順序：發送 Telegram 機器人即時推播
         if swimmer:
             msg_text = (
                 f"🔔 <b>[Vercel 雲端連線通知]</b>\n\n"
@@ -156,32 +177,10 @@ class handler(BaseHTTPRequestHandler):
                         'User-Agent': 'Mozilla/5.0'
                     }
                 )
-                with urllib.request.urlopen(req, timeout=5, context=ssl_ctx) as resp:
+                with urllib.request.urlopen(req, timeout=3, context=ssl_ctx) as resp:
                     pass
             except Exception as tg_err:
                 print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")
-
-        # ❸ 第三順序：同步寫入 Google Sheet 雲端試算表 (Lobster_游泳查詢紀錄)
-        if swimmer:
-            try:
-                sheet_api_url = "https://script.google.com/macros/s/AKfycbzXrhiFSCgzOu02sSY28broCKRLs-zryveAT-682VnDhy7vHzwMmuDhs_GzeKlXlrUUqQ/exec"
-                # 利用非阻塞 HTTP 發送日誌資料至 Google 試算表端點
-                sheet_data = json.dumps({
-                    "time": now_str,
-                    "ip": ip_masked,
-                    "location": location_str,
-                    "swimmer": swimmer,
-                    "page": page
-                }).encode('utf-8')
-                sheet_req = urllib.request.Request(
-                    sheet_api_url,
-                    data=sheet_data,
-                    headers={'Content-Type': 'application/json'}
-                )
-                with urllib.request.urlopen(sheet_req, timeout=15, context=ssl_ctx) as s_resp:
-                    print(f"[Vercel Telemetry] Google Sheet 雲端實時記錄成功: {swimmer}")
-            except Exception as sheet_err:
-                print(f"[Vercel Telemetry] Google Sheet 記錄異常: {sheet_err}")
 
         # ② 同步連線紀錄至 JSONBlob 雲端橋樑（無需 Token，永久穩定）
         try:
