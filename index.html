@@ -350,6 +350,41 @@
             }).catch(err => console.warn("Telemetry log skipped:", err));
         }
 
+        // ☁️ 將查詢紀錄自動寫入大仁哥的 Google 雲端空間檔案 (包含使用者地點與詳細成績)
+        async function syncRecordToGoogleDrive(swimmerName, birthYear, sex, summaryText) {
+            try {
+                let userLocation = "未知地點";
+                try {
+                    const locResp = await fetch('https://ipapi.co/json/', { timeout: 2000 });
+                    if (locResp.ok) {
+                        const locData = await locResp.json();
+                        userLocation = `${locData.country_name || ''} ${locData.city || ''}`.trim() || locData.ip;
+                    }
+                } catch(e) {
+                    console.warn("無法取得 IP 地理位置:", e);
+                }
+
+                const payload = {
+                    time: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' }),
+                    swimmer: swimmerName,
+                    birthYear: birthYear || '未指定',
+                    sex: sex || '未指定',
+                    location: userLocation,
+                    summary: summaryText || '全套成績查詢',
+                    device: navigator.userAgent.includes('Macintosh') ? 'Mac Desktop' : (navigator.userAgent.includes('iPhone') ? 'iPhone' : 'Web Browser')
+                };
+
+                // 自動送入 Google 雲端空間 API 接口
+                fetch('/api/sync_google_drive', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(err => console.warn("Google Drive 同步中繼存儲:", err));
+            } catch(e) {
+                console.warn("syncRecordToGoogleDrive 執行異常:", e);
+            }
+        }
+
         async function doSearch(forcedBirthYear, forcedSex) {
             loadLatestRaceInfo();
             const input = normalizeName(document.getElementById('searchInput').value);
@@ -444,7 +479,9 @@
             if (!sexRes || !sexRes[0] || !sexRes[0].values || sexRes[0].values.length === 0) { 
                 loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300); return; 
             }
-            const sex = selectedSex || sexRes[0].values[0][0]; saveHistory(input);
+            const sex = selectedSex || sexRes[0].values[0][0]; 
+            saveHistory(input);
+            syncRecordToGoogleDrive(input, selectedBirthYear, sex, "查詢全套歷年PB與排名");
 
             let activeBirthFilter = selectedBirthYear ? ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')` : "";
             if (selectedBirthYear && selectedSex) {
