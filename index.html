@@ -374,12 +374,12 @@
                     device: navigator.userAgent.includes('Macintosh') ? 'Mac Desktop' : (navigator.userAgent.includes('iPhone') ? 'iPhone' : 'Web Browser')
                 };
 
-                // 自動送入 Google 雲端空間 API 接口
-                fetch('/api/sync_google_drive', {
+                // 自動送入地端 5001 整合平台數據中心與 Google 空間紀錄接口
+                fetch('/api/cloud_analytics', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
-                }).catch(err => console.warn("Google Drive 同步中繼存儲:", err));
+                }).catch(err => console.warn("5001 數據中心同步失敗:", err));
             } catch(e) {
                 console.warn("syncRecordToGoogleDrive 執行異常:", e);
             }
@@ -473,18 +473,21 @@
             const minWait = new Promise(r => setTimeout(r, 1500));
             const main = document.getElementById('main'); main.innerHTML = "";
 
-            const sexFilterClause = selectedSex ? ` AND 性別 = '${selectedSex}'` : "";
+            let normalizedSex = forcedSex;
+            if (normalizedSex === '男生') normalizedSex = '男';
+            if (normalizedSex === '女生') normalizedSex = '女';
+            const sexFilterClause = normalizedSex ? ` AND (性別 = '${normalizedSex}' OR 性別 = '${normalizedSex=='男'?'男生':'女生'}')` : "";
 
             let sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}'${sexFilterClause} LIMIT 1`);
             if (!sexRes || !sexRes[0] || !sexRes[0].values || sexRes[0].values.length === 0) { 
                 loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300); return; 
             }
-            const sex = selectedSex || sexRes[0].values[0][0]; 
+            const sex = normalizedSex || sexRes[0].values[0][0]; 
             saveHistory(input);
             syncRecordToGoogleDrive(input, selectedBirthYear, sex, "查詢全套歷年PB與排名");
 
             let activeBirthFilter = selectedBirthYear ? ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')` : "";
-            if (selectedBirthYear && selectedSex) {
+            if (selectedBirthYear && normalizedSex) {
                 const testRes = await remoteQuery(`SELECT rowid FROM swimming_scores WHERE 姓名='${input}'${activeBirthFilter}${sexFilterClause} LIMIT 1`);
                 if (!testRes || !testRes[0] || !testRes[0].values || testRes[0].values.length === 0) {
                     activeBirthFilter = "";
