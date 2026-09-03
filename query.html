@@ -330,24 +330,28 @@
             return h + "</table></div></div>";
         }
 
-        let lastLoggedSwimmer = "";
         function sendTelemetry(swimmerName) {
             if (!swimmerName) return;
-            if (swimmerName === '[頁面造訪]') {
-                fetch('/api/log_query', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ swimmer: '[頁面造訪]', page: window.location.pathname || 'query.html' })
-                }).catch(err => console.warn("Telemetry log skipped:", err));
-                return;
+            const nowStr = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
+            const pageStr = window.location.pathname || 'query.html';
+
+            // ❶ 雙通道 A：前端瀏覽器直連 Google Apps Script Webhook (0.3 秒極速寫入 Google Sheet 試算表)
+            try {
+                const sheetUrl = "https://script.google.com/macros/s/AKfycbzXrhiFSCgzOu02sSY28broCKRLs-zryveAT-682VnDhy7vHzwMmuDhs_GzeKlXlrUUqQ/exec" 
+                    + "?time=" + encodeURIComponent(nowStr)
+                    + "&swimmer=" + encodeURIComponent(swimmerName)
+                    + "&page=" + encodeURIComponent(pageStr);
+                fetch(sheetUrl, { mode: 'no-cors' }).catch(e => console.warn("Direct Sheet log error:", e));
+            } catch(err) {
+                console.warn("Direct Sheet log fail:", err);
             }
-            if (swimmerName === lastLoggedSwimmer) return;
-            lastLoggedSwimmer = swimmerName;
+
+            // ❷ 雙通道 B：同步發送至 Vercel Serverless /api/log_query (Telegram 推播與 JSONBlob 備份)
             fetch('/api/log_query', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ swimmer: swimmerName, page: window.location.pathname || 'query.html' })
-            }).catch(err => console.warn("Telemetry log skipped:", err));
+                body: JSON.stringify({ swimmer: swimmerName, page: pageStr })
+            }).catch(err => console.warn("Vercel Telemetry log skipped:", err));
         }
 
         // ☁️ 將查詢紀錄自動寫入大仁哥的 Google 雲端空間檔案 (包含使用者地點與詳細成績)
