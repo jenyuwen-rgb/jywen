@@ -737,6 +737,9 @@
                 <button onclick="mergeExportDatabase()" style="cursor:pointer; background:#30D158; color:#FFFFFF; border:none; border-radius:6px; padding:4px 10px; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:4px; transition: background 0.2s;" onmouseover="this.style.background='#34C759';" onmouseout="this.style.background='#30D158';">
                     📥 合併到本地庫
                 </button>
+                <button onclick="openPdfHighlightModal()" style="cursor:pointer; background:linear-gradient(135deg, #FF9500 0%, #FF2D55 100%); color:#FFFFFF; border:none; border-radius:6px; padding:4px 10px; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:4px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85';" onmouseout="this.style.opacity='1';">
+                    📸 秩序冊拍照標記
+                </button>
                 <button onclick="downloadDatabaseDirect()" style="cursor:pointer; background:#2C2C2E; color:#FFFFFF; border:1px solid #3A3A3C; border-radius:6px; padding:4px 10px; font-size:12px; font-weight:bold; display:flex; align-items:center; gap:4px; transition: background 0.2s, border-color 0.2s;" onmouseover="this.style.background='#3A3A3C'; this.style.borderColor='#48484A';" onmouseout="this.style.background='#2C2C2E'; this.style.borderColor='#3A3A3C';">
                     💾 另存為新庫
                 </button>
@@ -2403,6 +2406,226 @@
                 });
             });
         });
+    </script>
+
+    <!-- 📸 秩序冊拍照選手高亮標記 Modal -->
+    <div id="pdfHighlightModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(12px); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+        <div style="background: #1C1C1E; border: 1px solid #2C2C2E; border-radius: 18px; width: 100%; max-width: 760px; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); color: #FFF;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #2C2C2E; padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.5rem;">📸</span>
+                    <h2 style="margin: 0; font-size: 1.3rem; font-weight: bold; background: linear-gradient(135deg, #FF9500 0%, #FF2D55 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">秩序冊拍照選手高亮劃線標記 (PyMuPDF 引擎)</h2>
+                </div>
+                <button onclick="closePdfHighlightModal()" style="background: none; border: none; color: #8E8E93; font-size: 1.5rem; cursor: pointer; padding: 4px 8px;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#8E8E93'">✕</button>
+            </div>
+
+            <!-- 步驟 1: 選擇秩序冊 PDF 檔案 -->
+            <div style="margin-bottom: 20px; background: #2C2C2E; padding: 16px; border-radius: 12px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.95rem; color: #FFD60A;">1. 選擇秩序冊 PDF 檔案</label>
+                <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;" onchange="handlePdfSelected(this)">
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="pdfPathInput" placeholder="/Users/jywen/Downloads/2026議長盃全國分齡游泳錦標賽.pdf" style="flex: 1; background: #1C1C1E; border: 1px solid #3A3A3C; color: #FFF; padding: 10px 14px; border-radius: 8px; font-size: 0.9rem;">
+                    <button onclick="document.getElementById('pdfFileInput').click()" style="background: #3A3A3C; color: #FFF; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem;" onmouseover="this.style.background='#48484A'" onmouseout="this.style.background='#3A3A3C'">📂 選擇檔案</button>
+                </div>
+                <div id="selectedPdfInfo" style="margin-top: 6px; font-size: 0.82rem; color: #8E8E93;">預設讀取 Downloads 目錄下的 PDF 檔。標記完成後將自動儲存為 [原檔名]_已標記.pdf。</div>
+            </div>
+
+            <!-- 步驟 2: 編輯高亮選手名單與顏色 -->
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <label style="font-weight: bold; font-size: 0.95rem; color: #FFD60A;">2. 編輯高亮選手名單與類別</label>
+                    <button onclick="savePdfConfigUI()" style="background: #30D158; color: #000; border: none; padding: 5px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: bold; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">💾 儲存名單設定</button>
+                </div>
+
+                <!-- 🟡 步達選手 -->
+                <div style="margin-bottom: 12px; background: #2C2C2E; padding: 12px; border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-weight: bold; font-size: 0.88rem; color: #FFD60A;">🟡 步達選手 (螢光黃標記)</span>
+                        <span id="buddaCount" style="font-size: 0.75rem; color: #8E8E93;">0 人</span>
+                    </div>
+                    <textarea id="buddaListInput" rows="3" placeholder="請輸入姓名，以逗號或換行分隔" style="width: 100%; background: #1C1C1E; border: 1px solid #3A3A3C; color: #FFF; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; resize: vertical; box-sizing: border-box;"></textarea>
+                </div>
+
+                <!-- 💗 拍照選手 -->
+                <div style="margin-bottom: 12px; background: #2C2C2E; padding: 12px; border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-weight: bold; font-size: 0.88rem; color: #FF2D55;">💗 拍照選手 (粉紅色標記)</span>
+                        <span id="photoCount" style="font-size: 0.75rem; color: #8E8E93;">0 人</span>
+                    </div>
+                    <textarea id="photoListInput" rows="3" placeholder="請輸入姓名，以逗號或換行分隔" style="width: 100%; background: #1C1C1E; border: 1px solid #3A3A3C; color: #FFF; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; resize: vertical; box-sizing: border-box;"></textarea>
+                </div>
+
+                <!-- 🟢 特殊選手 -->
+                <div style="margin-bottom: 12px; background: #2C2C2E; padding: 12px; border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-weight: bold; font-size: 0.88rem; color: #30D158;">🟢 特殊選手 (螢光綠標記)</span>
+                        <span id="specialCount" style="font-size: 0.75rem; color: #8E8E93;">0 人</span>
+                    </div>
+                    <textarea id="specialListInput" rows="2" placeholder="請輸入姓名，以逗號或換行分隔" style="width: 100%; background: #1C1C1E; border: 1px solid #3A3A3C; color: #FFF; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; resize: vertical; box-sizing: border-box;"></textarea>
+                </div>
+            </div>
+
+            <!-- 步驟 3: 執行按鈕與狀態 -->
+            <button id="btnProcessPdf" onclick="startPdfHighlightProcess()" style="width: 100%; background: linear-gradient(135deg, #FF9500 0%, #FF2D55 100%); color: #FFF; border: none; padding: 14px; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                ⚡ 開始標記秩序冊 (產出 _已標記.pdf)
+            </button>
+
+            <div id="pdfProcessStatus" style="display: none; margin-top: 16px; background: #2C2C2E; padding: 14px; border-radius: 10px; text-align: center;">
+                <div id="pdfStatusMsg" style="font-weight: bold; margin-bottom: 6px; font-size: 0.95rem; color: #FFD60A;">處理中...</div>
+                <div id="pdfResultDetails" style="font-size: 0.85rem; color: #D1D1D6;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPdfConfig = null;
+
+        async function openPdfHighlightModal() {
+            const modal = document.getElementById('pdfHighlightModal');
+            if (modal) modal.style.display = 'flex';
+            await loadPdfConfigUI();
+        }
+
+        function closePdfHighlightModal() {
+            const modal = document.getElementById('pdfHighlightModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function handlePdfSelected(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                document.getElementById('pdfPathInput').value = file.name;
+                document.getElementById('selectedPdfInfo').innerText = `已選擇檔案: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            }
+        }
+
+        function parseNameList(rawText) {
+            if (!rawText) return [];
+            return rawText.split(/[\n,，\s]+/).map(s => s.trim()).filter(Boolean);
+        }
+
+        function formatNameList(listArr) {
+            if (!listArr || !Array.isArray(listArr)) return "";
+            return listArr.join(", ");
+        }
+
+        async function loadPdfConfigUI() {
+            try {
+                const resp = await fetch('/api/pdf_highlight/config');
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data.status === 'success' && data.config) {
+                        currentPdfConfig = data.config;
+                        const lists = currentPdfConfig.lists || {};
+                        
+                        document.getElementById('buddaListInput').value = formatNameList(lists.budda);
+                        document.getElementById('photoListInput').value = formatNameList(lists.photo);
+                        document.getElementById('specialListInput').value = formatNameList(lists.special);
+
+                        document.getElementById('buddaCount').innerText = `${(lists.budda || []).length} 人`;
+                        document.getElementById('photoCount').innerText = `${(lists.photo || []).length} 人`;
+                        document.getElementById('specialCount').innerText = `${(lists.special || []).length} 人`;
+                    }
+                }
+            } catch(e) {
+                console.warn("無法載入 PDF 高亮設定檔:", e);
+            }
+        }
+
+        async function savePdfConfigUI() {
+            const buddaArr = parseNameList(document.getElementById('buddaListInput').value);
+            const photoArr = parseNameList(document.getElementById('photoListInput').value);
+            const specialArr = parseNameList(document.getElementById('specialListInput').value);
+
+            const newConfig = {
+                colors: {
+                    budda: [1.0, 1.0, 0.0],
+                    photo: [1.0, 0.4, 0.7],
+                    special: [0.8, 1.0, 0.0]
+                },
+                lists: {
+                    budda: buddaArr,
+                    photo: photoArr,
+                    special: specialArr
+                }
+            };
+
+            try {
+                const resp = await fetch('/api/pdf_highlight/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newConfig)
+                });
+                if (resp.ok) {
+                    alert("✅ 選手高亮名單已成功儲存！");
+                    await loadPdfConfigUI();
+                } else {
+                    alert("❌ 儲存失敗！");
+                }
+            } catch(e) {
+                alert("❌ 發生連線錯誤: " + e.message);
+            }
+        }
+
+        async function startPdfHighlightProcess() {
+            const pathVal = document.getElementById('pdfPathInput').value.trim();
+            const fileInput = document.getElementById('pdfFileInput');
+            const btn = document.getElementById('btnProcessPdf');
+            const statusBox = document.getElementById('pdfProcessStatus');
+            const statusMsg = document.getElementById('pdfStatusMsg');
+            const resultDetails = document.getElementById('pdfResultDetails');
+
+            if (!pathVal && (!fileInput.files || fileInput.files.length === 0)) {
+                alert("請先選擇或輸入秩序冊 PDF 檔案路徑！");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            statusBox.style.display = 'block';
+            statusMsg.innerText = '⚡ 正在調用 PyMuPDF 引擎逐頁繪製螢光高亮...';
+            statusMsg.style.color = '#FFD60A';
+            resultDetails.innerText = '處理中，請稍候...';
+
+            try {
+                let resp;
+                if (fileInput.files && fileInput.files.length > 0) {
+                    const formData = new FormData();
+                    formData.append('file', fileInput.files[0]);
+                    resp = await fetch('/api/pdf_highlight/process', {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    resp = await fetch('/api/pdf_highlight/process', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ pdf_path: pathVal })
+                    });
+                }
+
+                const resData = await resp.json();
+                if (resp.ok && resData.status === 'success') {
+                    statusMsg.innerText = '🎉 標記成功！';
+                    statusMsg.style.color = '#30D158';
+                    resultDetails.innerHTML = `
+                        共在 <b>${resData.total_pages}</b> 頁中完成 <b>${resData.total_highlights}</b> 處選手標記！<br>
+                        💾 檔案已儲存至：<br><code style="color:#FFD60A; word-break:break-all;">${resData.output_path}</code>
+                    `;
+                } else {
+                    statusMsg.innerText = '❌ 標記失敗';
+                    statusMsg.style.color = '#FF453A';
+                    resultDetails.innerText = resData.message || '未知錯誤';
+                }
+            } catch(e) {
+                statusMsg.innerText = '❌ 連線異常';
+                statusMsg.style.color = '#FF453A';
+                resultDetails.innerText = e.message;
+            } finally {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        }
     </script>
 </body>
 </html>
