@@ -776,57 +776,55 @@ async function loadCloudAnalytics() {
             locEl.innerHTML = escapeHtml('') + locHtml;
         }
 
-        // 2. Swimmers Top 10 (動態熱搜標籤氣泡雲)
+        // 2. Swimmers Top 10 (橫向動態柱狀圖 Horizontal Bar Chart)
         const swEl = document.getElementById('cloud-swimmers-list');
         if (swEl) {
             const maxSw = (data.swimmers && data.swimmers.length > 0) ? (Number(data.swimmers[0].count) || 1) : 1;
             const swHtml = (data.swimmers && data.swimmers.length > 0) ? `
-                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; padding: 14px 10px; min-height: 180px; background: rgba(24,24,27,0.7); border-radius: 12px; border: 1px solid #27272A;">
+                <div style="display: flex; flex-direction: column; gap: 10px; padding: 16px; background: rgba(18, 18, 20, 0.85); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1);">
                     ${data.swimmers.slice(0, 10).map((item, idx) => {
                         const cnt = Number(item.count) || 0;
-                        const ratio = maxSw > 0 ? (cnt / maxSw) : 1;
+                        const pct = Math.max(18, Math.round((cnt / maxSw) * 100));
                         
+                        let rankBadge = `<span style="width: 42px; font-weight: 700; color: #A1A1AA; font-size: 0.85rem; text-align: center;">#${idx+1}</span>`;
+                        let barBg = "linear-gradient(90deg, #0284C7 0%, #38BDF8 100%)";
+                        let textColor = "#FFFFFF";
+                        let shadowStyle = "";
+
                         if (idx === 0) {
-                            return `
-                            <div style="order: -1; display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: linear-gradient(135deg, rgba(234,179,8,0.22) 0%, rgba(180,83,9,0.08) 100%); border: 1.5px solid #FDE047; box-shadow: 0 0 20px rgba(234,179,8,0.3); border-radius: 30px; font-size: 1.15rem; font-weight: 800; color: #FDE047; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
-                                <span>🥇 🔥 【${escapeHtml(item.swimmer)}】</span>
-                                <span style="background: rgba(253,224,71,0.2); padding: 2px 8px; border-radius: 12px; font-size: 0.85rem;">${cnt} 次</span>
-                            </div>
-                            `;
-                        }
-
-                        const fontSize = (0.78 + ratio * 0.18).toFixed(2);
-                        const paddingV = Math.round(6 + ratio * 3);
-                        const paddingH = Math.round(10 + ratio * 5);
-                        
-                        let borderStyle = "1px solid rgba(56,189,248,0.3)";
-                        let pillBg = "rgba(15,23,42,0.7)";
-                        let textColor = "#E4E4E7";
-                        let badge = `#${idx+1}`;
-
-                        if (idx === 1) {
-                            badge = "🥈 #2";
-                            borderStyle = "1px solid rgba(203,213,225,0.45)";
-                            pillBg = "linear-gradient(135deg, rgba(203,213,225,0.15) 0%, rgba(148,163,184,0.05) 100%)";
-                            textColor = "#F1F5F9";
+                            rankBadge = `<span style="width: 42px; font-size: 1.15rem; text-align: center;">🥇</span>`;
+                            barBg = "linear-gradient(90deg, #D97706 0%, #FDE047 100%)";
+                            textColor = "#000000";
+                            shadowStyle = "box-shadow: 0 0 15px rgba(253, 224, 71, 0.4); font-weight: 800;";
+                        } else if (idx === 1) {
+                            rankBadge = `<span style="width: 42px; font-size: 1.15rem; text-align: center;">🥈</span>`;
+                            barBg = "linear-gradient(90deg, #64748B 0%, #E2E8F0 100%)";
+                            textColor = "#0F172A";
+                            shadowStyle = "font-weight: 700;";
                         } else if (idx === 2) {
-                            badge = "🥉 #3";
-                            borderStyle = "1px solid rgba(249,115,22,0.45)";
-                            pillBg = "linear-gradient(135deg, rgba(249,115,22,0.15) 0%, rgba(194,65,12,0.05) 100%)";
-                            textColor = "#FFEDD5";
+                            rankBadge = `<span style="width: 42px; font-size: 1.15rem; text-align: center;">🥉</span>`;
+                            barBg = "linear-gradient(90deg, #B45309 0%, #F97316 100%)";
+                            textColor = "#FFFFFF";
+                            shadowStyle = "font-weight: 700;";
                         }
 
                         return `
-                        <div style="display: inline-flex; align-items: center; gap: 6px; padding: ${paddingV}px ${paddingH}px; background: ${pillBg}; border: ${borderStyle}; border-radius: 20px; font-size: ${fontSize}rem; color: ${textColor}; transition: transform 0.25s, box-shadow 0.25s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 0 12px rgba(56,189,248,0.25)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
-                            <span style="font-size:0.75rem; opacity:0.8;">${badge}</span>
-                            <b style="font-weight:600;">【${escapeHtml(item.swimmer)}】</b>
-                            <span style="font-size:0.75rem; opacity:0.7;">${cnt}次</span>
+                        <div style="display: flex; align-items: center; gap: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                            ${rankBadge}
+                            <div style="flex: 1; background: rgba(39, 39, 42, 0.6); border-radius: 10px; height: 34px; overflow: hidden; position: relative; border: 1px solid rgba(255, 255, 255, 0.05);">
+                                <div style="width: ${pct}%; height: 100%; background: ${barBg}; border-radius: 8px; display: flex; align-items: center; padding-left: 12px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); ${shadowStyle}">
+                                    <span style="color: ${textColor}; font-size: 0.92rem; white-space: nowrap; font-weight: bold;">
+                                        【${escapeHtml(item.swimmer)}】
+                                    </span>
+                                </div>
+                            </div>
+                            <span style="width: 55px; text-align: right; font-weight: 700; color: #38BDF8; font-size: 0.9rem;">${cnt} 次</span>
                         </div>
                         `;
                     }).join('')}
                 </div>
-            ` : '<div style="color: #8E8E93; font-size: 0.85rem;">尚無選手搜尋紀錄</div>';
-            swEl.innerHTML = escapeHtml('') + swHtml;
+            ` : '<div style="color: #8E8E93; font-size: 0.85rem; text-align: center; padding: 20px;">尚無熱搜選手紀錄</div>';
+            swEl.innerHTML = swHtml;
         }
 
         // 3. Recent Logs
