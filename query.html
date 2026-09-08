@@ -278,6 +278,12 @@
         function formatDateStr(d) { if (!d || String(d).length !== 8) return d; const s = String(d); return `${s.substring(0,4)}-${s.substring(4,6)}-${s.substring(6,8)}`; }
         function toAD(y) { const num = parseInt(String(y).replace(/\D/g, '')); return num < 1900 ? num + 1911 : num; }
 
+        function isDQ(remark) {
+            if (!remark) return false;
+            const r = String(remark);
+            return r.includes("違規") || r.includes("DQ") || r.includes("DNS") || r.includes("DNF") || r.includes("請假") || r.includes("棄權");
+        }
+
         function getWA(dist, stroke, timeStr, sex) {
             const sec = timeToSec(timeStr); if (sec <= 0) return 0;
             const bF = { "蝶式": {50:25.0, 100:55.5, 200:122.0}, "仰式": {50:27.1, 100:57.4, 200:125.0}, "蛙式": {50:30.0, 100:65.3, 200:143.0}, "自由式": {50:23.9, 100:51.7, 200:112.0, 400:240.0, 800:490.0, 1500:940.0}, "混合式": {200:122.6, 400:259.0} };
@@ -291,12 +297,13 @@
             const pattern = `%${dist}公尺%${stroke}%`;
             let filter = `項目 LIKE '${pattern}' AND 性別 = '${sex}' AND ${LC_FILTER}`;
             if (isNational) filter += ` AND (年份 LIKE '2026%' OR 年份 LIKE '2025%')`; else filter += ` AND 出生年='${birth}'`;
-            const res = await remoteQuery(`SELECT 姓名, 成績, 年份, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE ${filter}`);
+            const res = await remoteQuery(`SELECT 姓名, 成績, 年份, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE ${filter}`);
             if (!res[0]) return [];
             const pBs = {};
             res[0].values.forEach(v => {
                 const m = v[5].match(/(\d+)公尺/);
                 if (!m || m[1] !== String(dist)) return;
+                if (isDQ(v[6])) return;
 
                 const pN = v[0], sec = timeToSec(v[1]);
                 if (sec > 0 && (!pBs[pN] || sec < pBs[pN].sec)) pBs[pN] = { name: pN, sec, raw: formatToXcode(sec), fullDate: v[2], meet: v[3], wa: getWA(dist, stroke, v[1], sex), birthYear: v[4] };
@@ -308,13 +315,14 @@
             const currentYear = new Date().getFullYear();
             const showYears = []; for (let i = 0; i < 5; i++) { showYears.push((currentYear - i).toString()); }
             const groups = ["18以上", "高中", "國中", "國小高年級", "國小中年級", "國小低年級"];
-            const res = await remoteQuery(`SELECT 年份, 姓名, 出生年, 成績, 項目 FROM swimming_scores WHERE 項目 LIKE '%${dist}公尺%${stroke}%' AND 性別 = '${sex.includes("男")?"男":"女"}' AND ${LC_FILTER} AND 成績 != ''`);
+            const res = await remoteQuery(`SELECT 年份, 姓名, 出生年, 成績, 項目, 備註 FROM swimming_scores WHERE 項目 LIKE '%${dist}公尺%${stroke}%' AND 性別 = '${sex.includes("男")?"男":"女"}' AND ${LC_FILTER} AND 成績 != ''`);
             let matrix = { "All-Time": {} }; showYears.forEach(y => matrix[y] = {});
             function getG(age) { if (age < 9) return "國小低年級"; if (age <= 10) return "國小中年級"; if (age <= 12) return "國小高年級"; if (age <= 14) return "國中"; if (age <= 17) return "高中"; return "18以上"; }
             if (res[0]) {
                 res[0].values.forEach(v => {
                     const m = v[4].match(/(\d+)公尺/);
                     if (!m || m[1] !== String(dist)) return;
+                    if (isDQ(v[5])) return;
 
                     const rY = parseInt(String(v[0]).substring(0,4)), sec = timeToSec(v[3]), bY = toAD(v[2]);
                     const g = getG(rY - bY);
@@ -512,7 +520,7 @@
                     res[0].columns.forEach((col, i) => o[col] = v[i]); 
                     o.totalSec = timeToSec(o.成績); 
                     return o; 
-                }).filter(o => o.totalSec && !isNaN(o.totalSec) && o.totalSec > 0);
+                }).filter(o => o.totalSec && !isNaN(o.totalSec) && o.totalSec > 0 && !isDQ(o.備註));
                 
                 const dists = [...new Set(allData.map(r => r.項目.match(/(\d+)公尺/)?.[1]))].filter(Boolean).sort((a,b)=>a-b);
                 for (let [dIdx, dist] of dists.entries()) {
@@ -585,8 +593,8 @@
             } else if (mode === 'trend') {
                 const sFilter = (p3 && p3 !== 'null' && p3 !== 'undefined') ? ` AND 性別 = '${p3}'` : '';
                 const bFilter = (p2 && p2 !== 'null' && p2 !== 'undefined') ? ` AND (出生年 = '${p2}' OR 出生年 = '${p2}.0')` : '';
-                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${bFilter} ${sFilter} AND ${LC_FILTER} ORDER BY 年份 ASC`);
-                const fV = res[0].values.filter(vv => { const m = vv[4].match(/(\d+)公尺/); return m && String(m[1]) === String(dist); });
+                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${bFilter} ${sFilter} AND ${LC_FILTER} ORDER BY 年份 ASC`);
+                const fV = res[0].values.filter(vv => { const m = vv[4].match(/(\d+)公尺/); return m && String(m[1]) === String(dist) && !isDQ(vv[5]); });
                 const mkD = (rs) => rs.map(v => ({ x: new Date(v[0].substring(0,4), v[0].substring(4,6)-1, v[0].substring(6,8)), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
                 const mkA = (rs) => rs.map(v => ({ x: (parseInt(v[0].substring(0,4)) + (parseInt(v[0].substring(4,6))-1)/12) - toAD(v[3]), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
                 const tD = mkD(fV), aD = mkA(fV);
@@ -600,27 +608,33 @@
                 const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type: 'line', data: { datasets: [{ data: tD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(true) });
                 const aC = new Chart(document.getElementById(`canvas-a-${id}`), { type: 'line', data: { datasets: [{ data: aD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(false) });
                 document.getElementById(`st-${id}`).onchange = async (e) => { 
-                    const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
-                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺/); return mm && String(mm[1]) === String(dist); });
+                    const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
+                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
                     tC.data.datasets[1] = { label: e.target.value, data: mkD(ff), borderColor: '#0A84FF', borderDash: [5,5], pointBackgroundColor: '#0A84FF', pointRadius: 4 }; tC.update(); 
                 };
                 document.getElementById(`sa-${id}`).onchange = async (e) => { 
-                    const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
-                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺/); return mm && String(mm[1]) === String(dist); });
+                    const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
+                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
                     aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 }; aC.update(); 
                 };
             } else if (mode === 'matrix') { c.innerHTML = await renderMatrix(dist, stroke, p3); }
             else if (mode === 'history') {
                 const sFilter = (p3 && p3 !== 'null' && p3 !== 'undefined') ? ` AND 性別 = '${p3}'` : '';
                 const bFilter = (p2 && p2 !== 'null' && p2 !== 'undefined') ? ` AND (出生年 = '${p2}' OR 出生年 = '${p2}.0')` : '';
-                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${bFilter} ${sFilter} AND ${LC_FILTER} ORDER BY 年份 DESC`);
+                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目, 備註 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${bFilter} ${sFilter} AND ${LC_FILTER} ORDER BY 年份 DESC`);
                 const fR = res[0].values.filter(v => {
                     const m = v[3].match(/(\d+)公尺/);
                     return m && String(m[1]) === String(dist);
                 });
-                const minS = fR.length > 0 ? Math.min(...fR.map(v => timeToSec(v[1]))) : 0;
+                const validFR = fR.filter(v => !isDQ(v[4]));
+                const minS = validFR.length > 0 ? Math.min(...validFR.map(v => timeToSec(v[1]))) : 0;
                 let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">歷年紀錄</div>`;
-                fR.forEach(v => { const s = timeToSec(v[1]); h += `<div class="list-row ${s===minS?'row-gold':''}"><span class="col-8code-fixed">${formatDateStr(v[0])}</span><span class="col-time-fixed">${formatToXcode(s)}</span><span class="col-meet-fixed">${v[2]}</span></div>`; });
+                fR.forEach(v => {
+                    const s = timeToSec(v[1]);
+                    const dqFlag = isDQ(v[4]);
+                    const isBest = !dqFlag && s === minS;
+                    h += `<div class="list-row ${isBest?'row-gold':''}"><span class="col-8code-fixed">${formatDateStr(v[0])}</span><span class="col-time-fixed">${formatToXcode(s)}${dqFlag?' (違規)':''}</span><span class="col-meet-fixed">${v[2]}</span></div>`;
+                });
                 c.innerHTML = h + "</div>";
             }
         }
