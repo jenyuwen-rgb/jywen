@@ -126,17 +126,9 @@
         <div class="mt-4 text-[#D4AF37] font-bold tracking-widest text-lg">正在全力衝刺中...</div>
     </div>
 
-    <!-- 頁頭狀態列與版本流水號 (Header Status Bar) -->
-    <div class="m-3 p-3 bg-[#1C1C1E] border border-[#38383A] rounded-xl flex flex-wrap justify-between items-center gap-2 shadow-md">
-        <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#30D158] animate-pulse"></span>
-            <span id="topVerBadge" class="text-xs font-mono font-bold text-[#FFD700] bg-[#2C2C2E] px-3 py-1.5 rounded-lg border border-[#FFD700]/50 shadow-sm flex items-center gap-1.5">
-                🏷️ <span style="color: #FFF; font-weight: 500;">資料庫版本流水號:</span> <span id="topVerSpan" class="tracking-wide text-[#FFD700]">載入中...</span>
-            </span>
-        </div>
-        <div class="flex items-center gap-3">
-            <span class="text-xs text-gray-300 font-semibold bg-[#2C2C2E] px-2.5 py-1 rounded-md border border-gray-700">PWA Offline Capable</span>
-        </div>
+    <!-- 返回首頁與 PWA 標示 -->
+    <div class="m-3 flex justify-end items-center">
+        <span class="text-xs text-gray-500">PWA Offline Capable</span>
     </div>
 
     <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E]/80 backdrop-blur-md rounded-xl text-center border border-[#38383A] shadow-sm">
@@ -1067,11 +1059,9 @@
                     const verDisplay = data.version_display || data.version_code || (`Build #${data.version}`);
                     const rowsStr = data.total_rows ? Number(data.total_rows).toLocaleString() : '817,480';
                     const verCodeSpan = document.getElementById('verCodeSpan');
-                    const topVerSpan = document.getElementById('topVerSpan');
                     const verRowsSpan = document.getElementById('verRowsSpan');
                     const footerDbStatus = document.getElementById('footerDbStatus');
                     if (verCodeSpan) verCodeSpan.textContent = verDisplay;
-                    if (topVerSpan) topVerSpan.textContent = verDisplay;
                     if (verRowsSpan) verRowsSpan.textContent = `${rowsStr} 筆成績紀錄`;
                     if (footerDbStatus) footerDbStatus.textContent = '雲端資料庫已就緒';
                 }
