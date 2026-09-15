@@ -328,7 +328,6 @@
                     const rY = parseInt(String(v[0]).substring(0,4)), sec = timeToSec(v[3]), bY = toAD(v[2]);
                     const g = getG(rY - bY);
                     let nameDisplay = v[1];
-                    if (!birthYear && bY) { nameDisplay = `${v[1]}(${String(bY).slice(-2)})`; }
                     if (matrix[rY] && (!matrix[rY][g] || sec < matrix[rY][g].sec)) matrix[rY][g] = { n: nameDisplay, sec };
                     if (!matrix["All-Time"][g] || sec < matrix["All-Time"][g].sec) matrix["All-Time"][g] = { n: nameDisplay, sec };
                 });
