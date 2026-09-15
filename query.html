@@ -621,7 +621,7 @@
                     const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
                     aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 }; aC.update(); 
                 };
-            } else if (mode === 'matrix') { c.innerHTML = await renderMatrix(dist, stroke, p3); }
+            } else if (mode === 'matrix') { c.innerHTML = await renderMatrix(dist, stroke, p3, p2); }
             else if (mode === 'history') {
                 const sFilter = (p3 && p3 !== 'null' && p3 !== 'undefined') ? ` AND 性別 = '${p3}'` : '';
                 const bFilter = (p2 && p2 !== 'null' && p2 !== 'undefined') ? ` AND (出生年 = '${p2}' OR 出生年 = '${p2}.0')` : '';
