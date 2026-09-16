@@ -311,12 +311,11 @@
             return Object.values(pBs).sort((a,b) => a.sec - b.sec);
         }
 
-        async function renderMatrix(dist, stroke, sex, birthYear = null) {
+        async function renderMatrix(dist, stroke, sex) {
             const currentYear = new Date().getFullYear();
             const showYears = []; for (let i = 0; i < 5; i++) { showYears.push((currentYear - i).toString()); }
             const groups = ["18以上", "高中", "國中", "國小高年級", "國小中年級", "國小低年級"];
-            const byFilter = (birthYear && birthYear !== 'null' && birthYear !== 'undefined') ? ` AND (出生年 = '${birthYear}' OR 出生年 LIKE '%${birthYear}%')` : '';
-            const res = await remoteQuery(`SELECT 年份, 姓名, 出生年, 成績, 項目, 備註 FROM swimming_scores WHERE 項目 LIKE '%${dist}公尺%${stroke}%' AND 性別 = '${sex.includes("男")?"男":"女"}' AND ${LC_FILTER} AND 成績 != ''${byFilter}`);
+            const res = await remoteQuery(`SELECT 年份, 姓名, 出生年, 成績, 項目, 備註 FROM swimming_scores WHERE 項目 LIKE '%${dist}公尺%${stroke}%' AND 性別 = '${sex.includes("男")?"男":"女"}' AND ${LC_FILTER} AND 成績 != ''`);
             let matrix = { "All-Time": {} }; showYears.forEach(y => matrix[y] = {});
             function getG(age) { if (age < 9) return "國小低年級"; if (age <= 10) return "國小中年級"; if (age <= 12) return "國小高年級"; if (age <= 14) return "國中"; if (age <= 17) return "高中"; return "18以上"; }
             if (res[0]) {
@@ -335,8 +334,7 @@
             let colorMap = {}, all = new Set();
             Object.values(matrix).forEach(row => groups.forEach(g => { if(row[g]) all.add(row[g].n); }));
             Array.from(all).sort().forEach((n, i) => colorMap[n] = `hsl(${(i * (360 / Math.max(1, all.size)))}, 85%, 65%)`);
-            let titleSuffix = (birthYear && birthYear !== 'null' && birthYear !== 'undefined') ? ` (${toAD(birthYear)}年出生選手專向)` : '';
-            let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">年度最佳矩陣${titleSuffix}</div><div style="overflow-x:auto;"><table class="matrix-table"><tr style="background:#2C2C2E;"><th>年度</th>${groups.map(g=>`<th>${g}</th>`).join('')}</tr>`;
+            let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">年度最佳矩陣</div><div style="overflow-x:auto;"><table class="matrix-table"><tr style="background:#2C2C2E;"><th>年度</th>${groups.map(g=>`<th>${g}</th>`).join('')}</tr>`;
             ["All-Time", ...showYears].forEach(y => { h += `<tr><td class="font-bold">${y}</td>`; groups.forEach(g => { const r = matrix[y][g]; h += r ? `<td><b style="color:${colorMap[r.n]}; text-shadow:1px 1px 1px #000;">${r.n}</b><br><small>${formatToXcode(r.sec)}</small></td>` : `<td>-</td>`; }); h += `</tr>`; });
             return h + "</table></div></div>";
         }
