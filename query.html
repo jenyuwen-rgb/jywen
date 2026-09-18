@@ -535,7 +535,10 @@
                     const ageG = await getRankData(dist, stroke, input, pb.出生年, sex, false);
                     const natG = await getRankData(dist, stroke, input, null, sex, true);
                     const ageIdx = ageG.findIndex(r => r.name === input), natIdx = natG.findIndex(r => r.name === input);
-                    const pr = ageIdx >= 0 ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
+                    const prRaw = (ageG && ageG.length > 0 && ageIdx >= 0) ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
+                    const pr = (!isNaN(prRaw) && isFinite(prRaw)) ? prRaw : 0;
+                    const ageRankStr = (ageIdx >= 0) ? `#${ageIdx+1}` : '-';
+                    const natRankStr = (natIdx >= 0) ? `#${natIdx+1}` : '-';
                     const row = document.createElement('div');
                     row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
                     row.innerHTML = `
@@ -544,9 +547,9 @@
                         <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}</span>
                         <span class="col-wa-main">WA:${getWA(dist, stroke, pb.成績, sex)}</span>
                         <span class="col-pr-main">PR ${pr.toFixed(1)}%</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行#${ageIdx+1}</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行${ageRankStr}</span>
                         <span class="col-rank-link" onclick="toggleD('${id}','matrix','${dist}','${stroke}', null, '${pb.出生年}', '${sex}')">年度最佳</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natIdx >= 0 ? '#' + (natIdx+1) : '-'}</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natRankStr}</span>
                     `;
                     const dd = document.createElement('div'); dd.id = `p-${id}`; dd.className = "drill-down";
                     dd.innerHTML = `<div id="c-${id}"></div>`; trayInner.appendChild(row); trayInner.appendChild(dd);
