@@ -188,8 +188,15 @@
     <div id="main"></div>
 
     <script id="worker-script" type="text/javascript-worker">
+        let origin = '';
         try {
-            importScripts('./sql-wasm.js');
+            if (self.location && self.location.origin && self.location.origin !== 'null') {
+                origin = self.location.origin;
+            }
+        } catch(e) {}
+
+        try {
+            importScripts(origin ? `${origin}/sql-wasm.js` : './sql-wasm.js');
         } catch(e) {
             try {
                 importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
@@ -203,7 +210,7 @@
             if (type === 'INIT' || type === 'INIT_PARTS') {
                 let SQL = null;
                 try {
-                    SQL = await initSqlJs({ locateFile: f => `./${f}` });
+                    SQL = await initSqlJs({ locateFile: f => origin ? `${origin}/${f}` : `./${f}` });
                 } catch(err) {
                     console.warn("同目錄 sql-wasm 載入失敗，降級載入 CDN:", err);
                     try {
