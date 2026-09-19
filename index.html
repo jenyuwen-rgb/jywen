@@ -707,7 +707,8 @@
                 const dists = [...allDists].sort((a, b) => a - b);
 
                 // 為每位選手在對應欄位建立此泳姿的卡片
-                allPlayersData.forEach(({ p, strokesData }, colIdx) => {
+                for (let colIdx = 0; colIdx < allPlayersData.length; colIdx++) {
+                    const { p, strokesData } = allPlayersData[colIdx];
                     const col = colEls[colIdx];
                     const card = document.createElement('div');
                     card.className = 'stroke-card';
@@ -722,7 +723,7 @@
                     if (!p.birthYear || !strokesData[stroke] || strokesData[stroke].length === 0) {
                         card.innerHTML += `<div class="compare-no-data"><span style="font-size:1.5rem;">🚫</span><span style="font-size:13px;">查無資料</span></div>`;
                         col.appendChild(card);
-                        return;
+                        continue;
                     }
 
                     const scrollTray = document.createElement('div');
@@ -798,7 +799,7 @@
                     scrollTray.appendChild(trayInner);
                     card.appendChild(scrollTray);
                     col.appendChild(card);
-                });
+                }
             }
 
             // 查無資料的選手顯示提示
