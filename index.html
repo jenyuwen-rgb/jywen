@@ -66,6 +66,24 @@
             opacity: 1;
         }
         
+        /* ── 多人比較模式 ── */
+        .compare-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0; align-items: start; }
+        .compare-col { min-width: 0; }
+        .compare-col-header { display: flex; align-items: center; gap: 8px; padding: 10px 12px 6px 12px; }
+        .compare-col-name { font-size: 20px; font-weight: 900; background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .compare-col-index { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; flex-shrink: 0; }
+        .compare-divider { width: 0.5px; background: #38383A; align-self: stretch; margin: 0; display: none; }
+        @media (min-width: 768px) { .compare-divider { display: block; } }
+        .compare-no-data { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; color: #8E8E93; gap: 8px; }
+        .compare-pb-badge { display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-left: 4px; vertical-align: middle; }
+        .compare-pb-faster { background: rgba(48,209,88,0.18); color: #30D158; }
+        .compare-pb-slower { background: rgba(255,69,58,0.12); color: #FF453A; }
+        /* ── 比較模式各人顏色標識 ── */
+        .cmp-color-0 { background: #0A84FF; color: #fff; }
+        .cmp-color-1 { background: #FF453A; color: #fff; }
+        .cmp-color-2 { background: #30D158; color: #fff; }
+        .cmp-color-3 { background: #FF9F0A; color: #fff; }
+
         #queryLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
         #lottie-swimmer { width: 320px; height: 320px; margin-bottom: -40px; }
         
@@ -400,7 +418,13 @@
 
         async function doSearch(forcedBirthYear, forcedSex) {
             loadLatestRaceInfo();
-            const input = normalizeName(document.getElementById('searchInput').value);
+            const rawInput = document.getElementById('searchInput').value.trim();
+            // ── 多人比較模式：偵測分號分隔 ──
+            if (rawInput.includes(';') || rawInput.includes('；')) {
+                const names = rawInput.split(/[;；]/).map(n => normalizeName(n)).filter(Boolean);
+                if (names.length >= 2) { await doCompare(names); return; }
+            }
+            const input = normalizeName(rawInput);
             if (!input) {
                 const birthArea = document.getElementById('birthYearSelectArea');
                 if (birthArea) birthArea.style.display = 'none';
@@ -557,6 +581,172 @@
                 scrollTray.appendChild(trayInner); card.appendChild(scrollTray); main.appendChild(card);
             }
             await minWait; loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+        }
+
+        // ══════════════════════════════════════════════
+        // 多人比較模式核心函數
+        // ══════════════════════════════════════════════
+        const CMP_COLORS = ['#0A84FF', '#FF453A', '#30D158', '#FF9F0A'];
+        const CMP_COLOR_CLASSES = ['cmp-color-0', 'cmp-color-1', 'cmp-color-2', 'cmp-color-3'];
+
+        async function doCompare(names) {
+            if (!worker) return;
+            const loader = document.getElementById('queryLoader');
+            loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
+            swimmerAnim.playSegments([32, 97], true);
+            const minWait = new Promise(r => setTimeout(r, 1200));
+            const main = document.getElementById('main'); main.innerHTML = '';
+
+            // 隱藏出生年/性別下拉（比較模式自動選最多資料的實體）
+            const birthSelect = document.getElementById('birthYearSelect');
+            if (birthSelect) birthSelect.classList.add('hidden');
+            const sexSelect = document.getElementById('sexSelect');
+            if (sexSelect) sexSelect.style.display = 'none';
+
+            // 每位選手：查最多成績的出生年 + 性別
+            const players = await Promise.all(names.map(async (name, idx) => {
+                const byRes = await remoteQuery(`SELECT 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名='${name}' AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 出生年, 性別 ORDER BY c DESC LIMIT 1`);
+                let birthYear = null, sex = null;
+                if (byRes && byRes[0] && byRes[0].values && byRes[0].values.length > 0) {
+                    birthYear = String(byRes[0].values[0][0]).replace(/\.0$/, '').trim();
+                    sex = byRes[0].values[0][1];
+                }
+                return { name, birthYear, sex, idx };
+            }));
+
+            // 比較標題列
+            const headerEl = document.createElement('div');
+            headerEl.style.cssText = 'display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:12px 12px 8px 12px; border-bottom:0.5px solid #38383A; margin-bottom:4px;';
+            headerEl.innerHTML = `<span style="color:#8E8E93; font-size:13px; margin-right:4px;">🏊 比較模式</span>` +
+                players.map((p, i) => `<span style="display:inline-flex;align-items:center;gap:5px;"><span class="compare-col-index ${CMP_COLOR_CLASSES[i]}">${i+1}</span><span style="font-weight:700;font-size:14px;">${p.name}</span>${p.birthYear ? `<span style="color:#8E8E93;font-size:12px;">${p.birthYear}年次</span>` : ''}</span>`).join('<span style="color:#444;">vs</span>');
+            main.appendChild(headerEl);
+
+            // 建立並排容器
+            const wrapper = document.createElement('div');
+            wrapper.className = 'compare-wrapper';
+
+            // 為每位選手建立欄位
+            const colEls = players.map((p, i) => {
+                const col = document.createElement('div');
+                col.className = 'compare-col';
+                // 欄位標頭
+                const hdr = document.createElement('div');
+                hdr.className = 'compare-col-header';
+                hdr.innerHTML = `<span class="compare-col-index ${CMP_COLOR_CLASSES[i]}">${i+1}</span><span class="compare-col-name">${p.name}</span>${p.sex ? `<span style="color:#8E8E93;font-size:12px;">${p.sex}</span>` : ''}`;
+                col.appendChild(hdr);
+                wrapper.appendChild(col);
+                // 分隔線（非最後一欄）
+                if (i < players.length - 1) {
+                    const div = document.createElement('div');
+                    div.className = 'compare-divider';
+                    wrapper.appendChild(div);
+                }
+                return col;
+            });
+            main.appendChild(wrapper);
+
+            // 按泳姿逐一填充各欄
+            const strokes = ['蝶式', '仰式', '蛙式', '自由式', '混合式'];
+
+            // 先抓所有選手各泳姿資料
+            const allPlayersData = await Promise.all(players.map(async (p) => {
+                if (!p.birthYear) return { p, strokesData: {} };
+                const sexFilterClause = p.sex ? ` AND (性別 = '${p.sex}' OR 性別 = '${p.sex=='男'?'男生':'女生'}')` : '';
+                const birthFilter = ` AND (出生年 = '${p.birthYear}' OR 出生年 = '${p.birthYear}.0')`;
+                const strokesData = {};
+                for (const stroke of strokes) {
+                    const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${p.name}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}${birthFilter}${sexFilterClause}`);
+                    if (!res || !res[0] || !res[0].values || res[0].values.length === 0) { strokesData[stroke] = []; continue; }
+                    let data = res[0].values.map(v => { let o = {}; res[0].columns.forEach((col, i) => o[col] = v[i]); o.totalSec = timeToSec(o.成績); return o; }).filter(o => o.totalSec && !isNaN(o.totalSec) && o.totalSec > 0 && !isDQ(o.備註));
+                    strokesData[stroke] = data;
+                }
+                return { p, strokesData };
+            }));
+
+            // 逐泳姿建立比較卡片
+            for (const stroke of strokes) {
+                // 判斷此泳姿是否所有選手都沒資料
+                const hasAnyData = allPlayersData.some(({ strokesData }) => strokesData[stroke] && strokesData[stroke].length > 0);
+                if (!hasAnyData) continue;
+
+                // 取得此泳姿的所有距離聯集
+                const allDists = new Set();
+                allPlayersData.forEach(({ strokesData }) => {
+                    (strokesData[stroke] || []).forEach(r => { const m = r.項目.match(/(\d+)公尺/); if (m) allDists.add(m[1]); });
+                });
+                const dists = [...allDists].sort((a, b) => a - b);
+
+                // 為每位選手在對應欄位建立此泳姿的卡片
+                allPlayersData.forEach(({ p, strokesData }, colIdx) => {
+                    const col = colEls[colIdx];
+                    const card = document.createElement('div');
+                    card.className = 'stroke-card';
+                    card.style.borderLeftColor = CMP_COLORS[colIdx];
+                    card.style.borderLeftWidth = '3px';
+
+                    const titleWrap = document.createElement('div');
+                    titleWrap.className = 'stroke-title-wrap';
+                    titleWrap.innerHTML = `<div class="stroke-title">${stroke}</div>`;
+                    card.appendChild(titleWrap);
+
+                    if (!p.birthYear || !strokesData[stroke] || strokesData[stroke].length === 0) {
+                        card.innerHTML += `<div class="compare-no-data"><span style="font-size:1.5rem;">🚫</span><span style="font-size:13px;">查無資料</span></div>`;
+                        col.appendChild(card);
+                        return;
+                    }
+
+                    const scrollTray = document.createElement('div');
+                    scrollTray.className = 'scroll-tray-wrap';
+                    const trayInner = document.createElement('div');
+                    trayInner.className = 'tray-inner-container';
+                    trayInner.style.minWidth = '340px';
+
+                    for (const dist of dists) {
+                        const dData = strokesData[stroke].filter(r => { const m = r.項目.match(/(\d+)公尺/); return m && String(m[1]) === String(dist); }).sort((a, b) => a.totalSec - b.totalSec);
+                        if (dData.length === 0) continue;
+                        const pb = dData[0];
+
+                        // 找出此距離所有選手PB，用於比較標識
+                        const allPBs = allPlayersData.map(({ strokesData: sd }) => {
+                            const dd = (sd[stroke] || []).filter(r => { const m = r.項目.match(/(\d+)公尺/); return m && String(m[1]) === String(dist); }).sort((a, b) => a.totalSec - b.totalSec);
+                            return dd.length > 0 ? dd[0].totalSec : null;
+                        }).filter(v => v !== null);
+                        const bestPB = allPBs.length > 0 ? Math.min(...allPBs) : null;
+                        const isFastest = bestPB !== null && Math.abs(pb.totalSec - bestPB) < 0.001;
+                        const diffSec = bestPB !== null && !isFastest ? pb.totalSec - bestPB : null;
+                        const diffStr = diffSec !== null ? `+${diffSec.toFixed(2)}s` : '';
+
+                        const row = document.createElement('div');
+                        row.className = 'race-row';
+                        row.style.gridTemplateColumns = '55px 105px 1fr';
+                        let badgeHtml = '';
+                        if (allPBs.length > 1) {
+                            if (isFastest) badgeHtml = `<span class="compare-pb-badge compare-pb-faster">最快</span>`;
+                            else if (diffStr) badgeHtml = `<span class="compare-pb-badge compare-pb-slower">${diffStr}</span>`;
+                        }
+                        row.innerHTML = `
+                            <span class="col-dist-main" style="cursor:default;">${dist}m</span>
+                            <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}${badgeHtml}</span>
+                            <span style="color:#8E8E93;font-size:12px;">${dData.length}場</span>
+                        `;
+                        trayInner.appendChild(row);
+                    }
+
+                    scrollTray.appendChild(trayInner);
+                    card.appendChild(scrollTray);
+                    col.appendChild(card);
+                });
+            }
+
+            // 查無資料的選手顯示提示
+            players.forEach((p, i) => {
+                if (!p.birthYear) {
+                    colEls[i].innerHTML += `<div class="stroke-card"><div class="compare-no-data"><span style="font-size:2rem;">🔍</span><span>「${p.name}」查無資料</span></div></div>`;
+                }
+            });
+
+            await minWait;
+            loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
         }
 
         async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
