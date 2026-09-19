@@ -67,15 +67,19 @@
         }
         
         /* ── 多人比較模式 ── */
-        .compare-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0; align-items: start; }
-        .compare-col { min-width: 0; }
+        .compare-wrapper { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; width: 100%; box-sizing: border-box; }
+        @media (min-width: 768px) {
+            .compare-wrapper.compare-2-players { grid-template-columns: 1fr 1px 1fr; gap: 0; }
+            .compare-wrapper.compare-3-players { grid-template-columns: 1fr 1px 1fr 1px 1fr; gap: 0; }
+        }
+        .compare-col { min-width: 0; width: 100%; }
         .compare-col-header { display: flex; align-items: center; gap: 8px; padding: 10px 12px 6px 12px; }
         .compare-col-name { font-size: 20px; font-weight: 900; background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .compare-col-index { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; flex-shrink: 0; }
-        .compare-divider { width: 0.5px; background: #38383A; align-self: stretch; margin: 0; display: none; }
+        .compare-divider { width: 1px; background: #38383A; align-self: stretch; margin: 0; display: none; }
         @media (min-width: 768px) { .compare-divider { display: block; } }
         .compare-no-data { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; color: #8E8E93; gap: 8px; }
-        .compare-pb-badge { display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-left: 4px; vertical-align: middle; }
+        .compare-pb-badge { display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-left: 4px; vertical-align: middle; white-space: nowrap; flex-shrink: 0; }
         .compare-pb-faster { background: rgba(48,209,88,0.18); color: #30D158; }
         .compare-pb-slower { background: rgba(255,69,58,0.12); color: #FF453A; }
         /* ── 比較模式各人顏色標識 ── */
@@ -623,7 +627,7 @@
 
             // 建立並排容器
             const wrapper = document.createElement('div');
-            wrapper.className = 'compare-wrapper';
+            wrapper.className = `compare-wrapper compare-${players.length}-players`;
 
             // 為每位選手建立欄位
             const colEls = players.map((p, i) => {
@@ -716,18 +720,51 @@
                         const diffSec = bestPB !== null && !isFastest ? pb.totalSec - bestPB : null;
                         const diffStr = diffSec !== null ? `+${diffSec.toFixed(2)}s` : '';
 
+                        // 計算 WA 分數與對比
+                        const waVal = Math.round(getWA(dist, stroke, pb.成績, p.sex));
+                        const allWAs = allPlayersData.map(({ strokesData: sd, p: sp }) => {
+                            const dd = (sd[stroke] || []).filter(r => { const m = r.項目.match(/(\d+)公尺/); return m && String(m[1]) === String(dist); }).sort((a, b) => a.totalSec - b.totalSec);
+                            return dd.length > 0 ? Math.round(getWA(dist, stroke, dd[0].成績, sp.sex)) : 0;
+                        }).filter(v => v > 0);
+                        const maxWA = allWAs.length > 0 ? Math.max(...allWAs) : 0;
+                        const waDiff = (maxWA > 0 && waVal < maxWA) ? `-${maxWA - waVal}pts` : (waVal === maxWA && allWAs.length > 1 ? `👑 最高` : '');
+
+                        // 計算同齡 PR 與排行
+                        const ageG = await getRankData(dist, stroke, p.name, p.birthYear, p.sex, false);
+                        const natG = await getRankData(dist, stroke, p.name, null, p.sex, true);
+                        const ageIdx = ageG.findIndex(r => r.name === p.name);
+                        const natIdx = natG.findIndex(r => r.name === p.name);
+                        const prRaw = (ageG && ageG.length > 0 && ageIdx >= 0) ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
+                        const prVal = (!isNaN(prRaw) && isFinite(prRaw)) ? prRaw : 0;
+                        const ageRankStr = (ageIdx >= 0) ? `#${ageIdx+1}` : '-';
+                        const natRankStr = (natIdx >= 0) ? `#${natIdx+1}` : '-';
+
                         const row = document.createElement('div');
                         row.className = 'race-row';
-                        row.style.gridTemplateColumns = '55px 105px 1fr';
+                        row.style.cssText = 'display:grid; grid-template-columns:50px 1fr; gap:6px; align-items:center; padding:8px 6px; border-bottom:0.5px solid #2C2C2E;';
                         let badgeHtml = '';
                         if (allPBs.length > 1) {
                             if (isFastest) badgeHtml = `<span class="compare-pb-badge compare-pb-faster">最快</span>`;
                             else if (diffStr) badgeHtml = `<span class="compare-pb-badge compare-pb-slower">${diffStr}</span>`;
                         }
+
+                        let waDiffHtml = waDiff ? `<span style="font-size:10px; color:${waDiff.includes('👑')?'#FFD700':'#FF453A'}; margin-left:2px;">${waDiff}</span>` : '';
+                        let prBadgeStyle = prVal >= 90 ? 'background:rgba(255,215,0,0.2); color:#FFD700; border:0.5px solid rgba(255,215,0,0.5);' : (prVal >= 70 ? 'background:rgba(10,132,255,0.2); color:#0A84FF;' : 'background:rgba(142,142,147,0.18); color:#8E8E93;');
+
                         row.innerHTML = `
-                            <span class="col-dist-main" style="cursor:default;">${dist}m</span>
-                            <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}${badgeHtml}</span>
-                            <span style="color:#8E8E93;font-size:12px;">${dData.length}場</span>
+                            <span class="col-dist-main" style="cursor:pointer; color:#30D158; font-weight:700;" onclick="showCompareTrendModal('${stroke}','${dist}',${JSON.stringify(players).replace(/"/g, '&quot;')})">${dist}m📈</span>
+                            <div style="display:flex; flex-direction:column; gap:3px;">
+                                <div style="display:flex; align-items:center; justify-content:space-between;">
+                                    <span class="col-pb-main" style="font-weight:700; font-size:14px;">PB ${formatToXcode(pb.totalSec)}${badgeHtml}</span>
+                                    <span style="font-size:11px; color:#8E8E93;">${dData.length}場</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:11px;">
+                                    <span style="color:#0A84FF; font-weight:600;">WA:${waVal}${waDiffHtml}</span>
+                                    <span style="padding:1px 6px; border-radius:4px; font-weight:700; font-size:10px; ${prBadgeStyle}">PR ${prVal.toFixed(1)}%</span>
+                                    <span style="color:#A1A1A6;">同齡${ageRankStr}</span>
+                                    <span style="color:#FFD700; font-weight:600;">🇹🇼全國${natRankStr}</span>
+                                </div>
+                            </div>
                         `;
                         trayInner.appendChild(row);
                     }
@@ -831,6 +868,122 @@
                 });
                 c.innerHTML = h + "</div>";
             }
+        }
+
+        // ══════════════════════════════════════════════
+        // 多人比較趨勢疊圖 Modal
+        // ══════════════════════════════════════════════
+        let compareTrendChartInstance = null;
+
+        async function showCompareTrendModal(stroke, dist, players) {
+            let modal = document.getElementById('compareTrendModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'compareTrendModal';
+                modal.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); z-index:3000; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:16px; box-sizing:border-box;';
+                modal.innerHTML = `
+                    <div style="width:100%; max-width:820px; background:#1C1C1E; border:1px solid #3A3A3C; border-radius:18px; padding:20px; box-shadow:0 12px 40px rgba(0,0,0,0.6); position:relative; max-height:90vh; overflow-y:auto;">
+                        <button onclick="closeCompareTrendModal()" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.1); border:none; color:#FFF; font-size:18px; width:32px; height:32px; border-radius:50%; cursor:pointer;">✕</button>
+                        <div id="compareTrendModalTitle" style="font-size:17px; font-weight:800; color:#FFD700; margin-bottom:12px; padding-right:36px;"></div>
+                        <div style="font-size:12px; color:#8E8E93; margin-bottom:14px;">X軸為參賽精確年齡 (歲)，Y軸為比賽成績 (時間越快越靠上方)</div>
+                        <div style="height:340px; position:relative; width:100%;">
+                            <canvas id="compareTrendCanvas"></canvas>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            } else {
+                modal.style.display = 'flex';
+            }
+
+            const titleEl = document.getElementById('compareTrendModalTitle');
+            if (titleEl) titleEl.innerHTML = `🏊 【${stroke} ${dist}m】跨選手成長趨勢對比`;
+
+            // 抓取每位選手歷史成績與計算年齡
+            const datasets = await Promise.all(players.map(async (p, idx) => {
+                if (!p.birthYear) return null;
+                const sexClause = p.sex ? ` AND (性別 = '${p.sex}' OR 性別 = '${p.sex=='男'?'男生':'女生'}')` : '';
+                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 備註 FROM swimming_scores WHERE 姓名='${p.name}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND (出生年 = '${p.birthYear}' OR 出生年 = '${p.birthYear}.0')${sexClause} AND ${LC_FILTER} ORDER BY 年份 ASC`);
+                if (!res || !res[0] || !res[0].values) return null;
+
+                const pts = res[0].values.filter(v => !isDQ(v[4])).map(v => {
+                    const y = v[0].substring(0,4), m = v[0].substring(4,6), d = v[0].substring(6,8);
+                    const raceDate = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+                    const birthYr = parseInt(String(v[3]).replace(/\.0$/,''));
+                    const birthDate = new Date(birthYr, 0, 1);
+                    const age = Math.max(5, (raceDate - birthDate) / (365.25 * 86400 * 1000));
+                    const sec = timeToSec(v[1]);
+                    return { x: parseFloat(age.toFixed(2)), y: sec, rawTime: v[1], dateStr: `${y}/${m}/${d}`, meet: v[2], name: p.name };
+                }).filter(pt => pt.y && !isNaN(pt.y) && pt.y > 0);
+
+                return {
+                    label: `${p.name} (${p.birthYear}年次)`,
+                    data: pts,
+                    borderColor: CMP_COLORS[idx % CMP_COLORS.length],
+                    backgroundColor: CMP_COLORS[idx % CMP_COLORS.length],
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    showLine: true,
+                    tension: 0.25,
+                    borderWidth: 2.5
+                };
+            }));
+
+            const validDatasets = datasets.filter(Boolean);
+            const ctx = document.getElementById('compareTrendCanvas').getContext('2d');
+            if (compareTrendChartInstance) { compareTrendChartInstance.destroy(); }
+
+            compareTrendChartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: { datasets: validDatasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: { display: true, text: '參賽年齡 (歲)', color: '#8E8E93', font: { size: 12, weight: 'bold' } },
+                            grid: { color: 'rgba(255,255,255,0.08)' },
+                            ticks: { color: '#8E8E93' }
+                        },
+                        y: {
+                            reverse: true,
+                            title: { display: true, text: '成績秒數 (越上方越快)', color: '#8E8E93', font: { size: 12, weight: 'bold' } },
+                            grid: { color: 'rgba(255,255,255,0.08)' },
+                            ticks: {
+                                color: '#8E8E93',
+                                callback: function(val) { return formatToXcode(val); }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#FFF', font: { size: 13, weight: 'bold' } } },
+                        tooltip: {
+                            backgroundColor: 'rgba(28,28,30,0.95)',
+                            titleFont: { weight: 'bold' },
+                            padding: 12,
+                            callbacks: {
+                                label: function(ctx) {
+                                    const pt = ctx.raw;
+                                    return [
+                                        `👤 選手: ${pt.name}`,
+                                        `⏱️ 成績: ${formatToXcode(pt.y)} (${pt.rawTime})`,
+                                        `🎂 年齡: ${pt.x} 歲`,
+                                        `📅 日期: ${pt.dateStr}`,
+                                        `🏆 賽事: ${pt.meet}`
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function closeCompareTrendModal() {
+            const modal = document.getElementById('compareTrendModal');
+            if (modal) modal.style.display = 'none';
         }
 
         async function downloadDatabasePartsFromServer(version, totalParts) {
