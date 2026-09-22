@@ -108,6 +108,29 @@ def fetch_site_e_races():
         return [{"text": f"獲取失敗: {e}", "value": ""}]
 
 
+def fetch_site_tpesa_races():
+    """台北體總 (TPESA) - 官方歷屆 PDF 成績清單"""
+    return [
+        {"text": "115年青年盃成績", "value": "http://www.tpesa.org.tw/result/115年青年盃成績.pdf"},
+        {"text": "114年中正盃成績", "value": "http://www.tpesa.org.tw/result/114年中正盃成績.pdf"},
+        {"text": "114年青年盃成績", "value": "http://www.tpesa.org.tw/result/114年青年盃成績.pdf"},
+        {"text": "113年中正盃成績", "value": "http://www.tpesa.org.tw/result/113年中正盃成績.pdf"},
+        {"text": "113年青年盃成績", "value": "http://www.tpesa.org.tw/result/113年青年盃成績.pdf"},
+        {"text": "112年中正盃成績", "value": "http://www.tpesa.org.tw/result/112年中正盃成績.pdf"},
+        {"text": "112年青年盃成績", "value": "http://www.tpesa.org.tw/result/112年青年盃成績.pdf"},
+        {"text": "111年中正盃成績", "value": "http://www.tpesa.org.tw/result/111年中正盃成績.pdf"},
+        {"text": "111年青年盃成績", "value": "http://www.tpesa.org.tw/result/111年青年盃成績.pdf"},
+        {"text": "110年中正盃成績", "value": "http://www.tpesa.org.tw/result/110年中正盃成績.pdf"},
+        {"text": "110年青年盃成績", "value": "http://www.tpesa.org.tw/result/110年青年盃成績.pdf"},
+        {"text": "109年中正盃成績", "value": "http://www.tpesa.org.tw/result/109年中正盃成績.pdf"},
+        {"text": "109年青年盃成績", "value": "http://www.tpesa.org.tw/result/109年青年盃成績.pdf"},
+        {"text": "108年中正盃成績", "value": "http://www.tpesa.org.tw/result/108年中正盃成績.pdf"},
+        {"text": "108年青年盃成績", "value": "http://www.tpesa.org.tw/result/108年青年盃成績.pdf"},
+        {"text": "107年中正盃成績", "value": "http://www.tpesa.org.tw/result/107年中正盃成績.pdf"},
+        {"text": "107年青年盃成績", "value": "http://www.tpesa.org.tw/result/107年青年盃成績.pdf"}
+    ]
+
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         # 解析 ?site= 參數，支援單站查詢以降低冷啟動時間
@@ -121,6 +144,7 @@ class handler(BaseHTTPRequestHandler):
             'site_c': fetch_site_c_races,
             'site_d': fetch_site_d_races,
             'site_e': fetch_site_e_races,
+            'site_tpesa': fetch_site_tpesa_races,
         }
 
         if site and site in fetch_map:
@@ -134,6 +158,7 @@ class handler(BaseHTTPRequestHandler):
                 {"name": "高雄市游泳委員會", "id": "site_c", "races": fetch_site_c_races()},
                 {"name": "中華泳協 CTSA",   "id": "site_d", "races": fetch_site_d_races()},
                 {"name": "高雄水上",         "id": "site_e", "races": fetch_site_e_races()},
+                {"name": "台北體總 TPESA",   "id": "site_tpesa", "races": fetch_site_tpesa_races()},
             ]
 
         body = json.dumps(data, ensure_ascii=False).encode('utf-8')

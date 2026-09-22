@@ -284,7 +284,7 @@
         /* 卡片格線 */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
         }
@@ -883,6 +883,48 @@
                         </div>
                         <div id="log-site_e" class="log-console"></div>
                     </div>
+                </div>
+
+                <!-- 台北體總 -->
+                <div class="card" id="card-site_tpesa">
+                    <div class="card-header">
+                        <h2 class="card-title">台北體總 TPESA</h2>
+                        <a href="https://www.tpesa.org.tw/new/" target="_blank" rel="noopener noreferrer" class="card-url">https://www.tpesa.org.tw/...</a>
+                    </div>
+                    
+                    <div class="form-group">
+                        <select id="select-site_tpesa" class="form-select" onchange="handleSelectChange('site_tpesa')">
+                            <option value="">-- 選擇要下載的賽事 --</option>
+                            <option value="http://www.tpesa.org.tw/result/115年青年盃成績.pdf">115年青年盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/114年中正盃成績.pdf">114年中正盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/114年青年盃成績.pdf">114年青年盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/113年中正盃成績.pdf">113年中正盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/113年青年盃成績.pdf">113年青年盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/112年中正盃成績.pdf">112年中正盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/112年青年盃成績.pdf">112年青年盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/111年中正盃成績.pdf">111年中正盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/111年青年盃成績.pdf">111年青年盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/110年中正盃成績.pdf">110年中正盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/110年青年盃成績.pdf">110年青年盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/109年中正盃成績.pdf">109年中正盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/109年青年盃成績.pdf">109年青年盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/108年中正盃成績.pdf">108年中正盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/108年青年盃成績.pdf">108年青年盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/107年中正盃成績.pdf">107年中正盃成績</option>
+                            <option value="http://www.tpesa.org.tw/result/107年青年盃成績.pdf">107年青年盃成績</option>
+                        </select>
+                    </div>
+                    <button id="btn-site_tpesa" class="btn-download" onclick="startRaceUpdate('site_tpesa')" disabled>下載賽事</button>
+
+                    <!-- 下載進度與日誌 -->
+                    <div id="progress-container-site_tpesa" class="download-progress-card-wrapper" style="display: none;">
+                        <div id="status-site_tpesa" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
+                        <div class="progress-bar-wrapper">
+                            <div id="bar-site_tpesa" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="log-site_tpesa" class="log-console"></div>
+                    </div>
+                </div>
             </section>
 
 
@@ -1111,7 +1153,7 @@
     </script>
 
     <script>        // 智慧偵測本地 Python 伺服器基底網址（當大仁哥從 file:/// 本地檔案打開網頁時自動補全）
-        const API_BASE = (window.location.protocol === 'file:' || !window.location.host.includes('5001'))
+        const API_BASE = (window.location.protocol === 'file:')
             ? 'http://127.0.0.1:5001'
             : '';
 
@@ -1721,7 +1763,7 @@
                 if (res.status === 'success') {
                     alert(res.message);
                     // 重新載入所有站點的賽事清單
-                    ['site_a', 'site_b', 'site_c', 'site_d', 'site_e'].forEach(loadRecentGamesList);
+                    ['site_a', 'site_b', 'site_c', 'site_d', 'site_e', 'site_tpesa'].forEach(loadRecentGamesList);
                 } else {
                     alert("更新失敗：" + res.message);
                 }
@@ -2018,7 +2060,11 @@
                 const races = site ? site.races : [];
 
                 if (races.length === 0 || (races.length === 1 && !races[0].value)) {
-                    gameSelect.innerHTML = `<option value="">${races[0]?.text || '無賽事資料'}</option>`;
+                    if (gameSelect.options.length <= 1) {
+                        gameSelect.innerHTML = `<option value="">${races[0]?.text || '無賽事資料'}</option>`;
+                    } else {
+                        gameSelect.disabled = false;
+                    }
                     return;
                 }
 
@@ -2029,7 +2075,11 @@
                 gameSelect.innerHTML = optionsHtml;
                 gameSelect.disabled = false;
             } catch (err) {
-                gameSelect.innerHTML = `<option value="">獲取失敗: ${err.message}</option>`;
+                if (gameSelect.options.length <= 1) {
+                    gameSelect.innerHTML = `<option value="">獲取失敗: ${err.message}</option>`;
+                } else {
+                    gameSelect.disabled = false;
+                }
             }
         }
 
@@ -2326,6 +2376,7 @@
             loadRecentGamesList('site_c');
             loadRecentGamesList('site_d');
             loadRecentGamesList('site_e');
+            loadRecentGamesList('site_tpesa');
         });
 
         // [iOS / macOS Gesture] 監聽手勢向左滑動 (Swipe Left)，跳轉到成績查詢系統 (query)
