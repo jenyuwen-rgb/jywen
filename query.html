@@ -405,19 +405,7 @@
                 const birthArea = document.getElementById('birthYearSelectArea');
                 if (birthArea) birthArea.style.display = 'none';
                 const main = document.getElementById('main');
-                if (main) {
-                    main.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 42px 20px; margin: 20px 0; background: rgba(28,28,30,0.75); border: 1px solid #3A3A3C; border-radius: 16px; backdrop-filter: blur(12px); text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-                        <div style="font-size: 2.4rem; margin-bottom: 10px;">🏊‍♂️</div>
-                        <div style="font-size: 1.15rem; font-weight: 700; color: #FFD933; margin-bottom: 8px;">全台游泳賽事成績與歷年 PB 查詢</div>
-                        <div style="font-size: 0.88rem; color: #A1A1A6; line-height: 1.6; max-width: 460px;">
-                            請在上方搜尋框輸入選手姓名<br>
-                            <span style="color: #38BDF8; font-weight: 600;">( 例如：王冠閎、韓安齊、王星皓 )</span><br>
-                            點擊「查詢」按鈕或 Enter 鍵即可獲得最新成績與分析
-                        </div>
-                    </div>
-                    `;
-                }
+                if (main) main.innerHTML = '';
                 return;
             }
             if (!worker) return;

@@ -494,25 +494,7 @@
                 const sexSelect = document.getElementById('sexSelect');
                 if (sexSelect) sexSelect.style.display = 'none';
                 const main = document.getElementById('main');
-                if (main) {
-                    main.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 42px 20px; margin: 20px 0; background: rgba(28,28,30,0.75); border: 1px solid #3A3A3C; border-radius: 16px; backdrop-filter: blur(12px); text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-                        <div style="font-size: 2.4rem; margin-bottom: 10px;">🏊‍♂️</div>
-                        <div style="font-size: 1.15rem; font-weight: 700; color: #FFD933; margin-bottom: 8px;">全台游泳賽事成績與歷年 PB 查詢</div>
-                        <div style="font-size: 0.88rem; color: #A1A1A6; line-height: 1.6; max-width: 480px;">
-                            請在上方搜尋框輸入選手姓名<br>
-                            <span style="color: #38BDF8; font-weight: 600;">( 例如：王冠閎、韓安齊、王星皓 )</span><br>
-                            點擊「查詢」按鈕或 Enter 鍵即可獲得最新成績與分析
-                        </div>
-                        <div style="margin-top: 14px; padding: 10px 14px; background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,217,51,0.25); border-radius: 10px; font-size: 0.82rem; color: #E5E5EA; line-height: 1.5; max-width: 480px;">
-                            <span style="color: #FFD933; font-weight: 700;">💡 多位選手並排比較：</span><br>
-                            使用分號（<code style="color:#38BDF8; font-weight:bold;">;</code>）或空格分隔多人姓名<br>
-                            <span style="color: #8E8E93;">( 例如：<span style="color:#FFF; text-decoration:underline; cursor:pointer;" onclick="document.getElementById('searchInput').value='王冠閎;王星皓;韓安齊'; doSearch();">王冠閎;王星皓;韓安齊</span> )</span><br>
-                            即可開啟多人項目並排、落後秒差及歷程成長對比！
-                        </div>
-                    </div>
-                    `;
-                }
+                if (main) main.innerHTML = '';
                 return;
             }
             if (!worker) return;
