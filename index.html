@@ -204,6 +204,7 @@
         <span class="font-bold text-[#D4AF37] px-3 cursor-pointer" onclick="doSearch()">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
         <span class="font-bold text-gray-500 px-3 cursor-pointer" onclick="resetDB()">重置</span>
+        <span id="soundToggleBtn" onclick="toggleKeyboardSound()" title="鍵盤敲擊音效 (點擊切換靜音)" style="cursor: pointer; font-size: 14px; padding: 0 4px; user-select: none; opacity: 0.85;" class="hover:opacity-100">🔊</span>
     </div>
 
     <div id="main"></div>
@@ -1794,6 +1795,159 @@
         }
 
         document.addEventListener('click', closeAutocomplete);
+
+        // ── 鍵盤敲擊聲與打字退格動態效果 (Typewriter, Blinking Underscore & Mechanical Keyboard Sound) ──
+        let keyboardSoundEnabled = true;
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(() => {});
+            }
+            return audioCtx;
+        }
+
+        function unlockAudio() {
+            getAudioContext();
+        }
+        window.addEventListener('pointerdown', unlockAudio, { passive: true });
+        window.addEventListener('keydown', unlockAudio, { passive: true });
+
+        function toggleKeyboardSound() {
+            keyboardSoundEnabled = !keyboardSoundEnabled;
+            const btn = document.getElementById('soundToggleBtn');
+            if (btn) {
+                btn.textContent = keyboardSoundEnabled ? '🔊' : '🔇';
+                btn.style.opacity = keyboardSoundEnabled ? '0.9' : '0.4';
+            }
+            if (keyboardSoundEnabled) {
+                getAudioContext();
+                playKeySound(false);
+            }
+        }
+
+        function playKeySound(isBackspace = false) {
+            if (!keyboardSoundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                if (!ctx || ctx.state !== 'running') return;
+
+                const now = ctx.currentTime;
+                const duration = isBackspace ? 0.020 : 0.015;
+                const bufferSize = Math.floor(ctx.sampleRate * duration);
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.28));
+                }
+
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = ctx.createBiquadFilter();
+                if (isBackspace) {
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(1600, now);
+                } else {
+                    filter.type = 'bandpass';
+                    const jitter = (Math.random() - 0.5) * 400;
+                    filter.frequency.setValueAtTime(3200 + jitter, now);
+                    filter.Q.setValueAtTime(2.8, now);
+                }
+
+                const gain = ctx.createGain();
+                const peakVolume = isBackspace ? 0.18 : 0.13;
+                gain.gain.setValueAtTime(peakVolume, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+
+                noise.start(now);
+            } catch(e) {}
+        }
+
+        (function initPlaceholderTypewriter() {
+            const inputEl = document.getElementById('searchInput');
+            if (!inputEl) return;
+
+            const prefix = "請輸入選手姓名 (例如: ";
+            const suffix = ")";
+            const phrases = [
+                "温心妤",
+                "王冠閎 或 多位比較: 王冠閎;王星皓;韓安齊",
+                "韓安齊",
+                "王星皓 或 多位比較: 謝欣蓉;莊翊暄;蔡羽甯;温心妤"
+            ];
+
+            let phraseIdx = 0;
+            let currentText = phrases[0];
+            let isDeleting = true;
+            let isPaused = true;
+            let cursorVisible = true;
+            let typingTimer = null;
+
+            function renderPlaceholder() {
+                if (document.activeElement === inputEl && inputEl.value.trim().length > 0) return;
+                const cursor = (isPaused ? (cursorVisible ? '_' : ' ') : '_');
+                inputEl.placeholder = prefix + currentText + cursor + suffix;
+            }
+
+            setInterval(() => {
+                cursorVisible = !cursorVisible;
+                if (isPaused) {
+                    renderPlaceholder();
+                }
+            }, 450);
+
+            function tick() {
+                if (document.activeElement === inputEl && inputEl.value.trim().length > 0) {
+                    typingTimer = setTimeout(tick, 1000);
+                    return;
+                }
+
+                const targetPhrase = phrases[phraseIdx];
+
+                if (isDeleting) {
+                    isPaused = false;
+                    currentText = targetPhrase.substring(0, currentText.length - 1);
+                    renderPlaceholder();
+                    playKeySound(true);
+
+                    if (currentText.length === 0) {
+                        isDeleting = false;
+                        isPaused = true;
+                        phraseIdx = (phraseIdx + 1) % phrases.length;
+                        typingTimer = setTimeout(tick, 600);
+                        return;
+                    }
+                    typingTimer = setTimeout(tick, 130);
+                } else {
+                    isPaused = false;
+                    currentText = targetPhrase.substring(0, currentText.length + 1);
+                    renderPlaceholder();
+                    playKeySound(false);
+
+                    if (currentText.length === targetPhrase.length) {
+                        isDeleting = true;
+                        isPaused = true;
+                        typingTimer = setTimeout(tick, 2800);
+                        return;
+                    }
+                    typingTimer = setTimeout(tick, 85);
+                }
+            }
+
+            renderPlaceholder();
+            typingTimer = setTimeout(tick, 2000);
+        })();
     </script>
 
     <!-- 頁面最底部狀態欄 (Footer) - 資料庫版本流水號展示 -->
