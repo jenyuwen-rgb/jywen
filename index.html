@@ -8,6 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
     <style>
         body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; }
         .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 8px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; }
@@ -89,8 +91,8 @@
         .cmp-pb-link { text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
         .cmp-pb-link:hover { opacity: 0.85; }
         
-        .cmp-diff-badge { font-size: 11px; font-weight: 700; color: #FF453A; margin-left: 5px; font-family: monospace; }
-        .cmp-crown-badge { font-size: 11px; font-weight: 800; background-image: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-left: 5px; background-color: rgba(243,208,120,0.15); border: 0.5px solid rgba(212,175,55,0.4); padding: 1px 5px; border-radius: 5px; vertical-align: middle; display: inline-flex; align-items: center; gap: 2px; }
+        .cmp-diff-badge { font-size: 11px; font-weight: 700; color: #FFFFFF; margin-left: 5px; font-family: monospace; }
+        .cmp-diff-badge.is-slowest { color: #FF453A; }
         .cmp-no-data-cell { color: #636366; font-size: 14px; font-weight: 600; text-align: center; }
 
         .cmp-player-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-weight: 900; font-size: 12px; color: #FFF; flex-shrink: 0; }
@@ -823,9 +825,10 @@
                         return { p, dData, pb: dData.length > 0 ? dData[0] : null };
                     });
 
-                    // 找出所有有效成績中最快秒數
+                    // 找出所有有效成績中最快與最慢秒數
                     const validSecs = playerEntries.map(e => e.pb ? e.pb.totalSec : null).filter(v => v !== null);
                     const bestSec = validSecs.length > 0 ? Math.min(...validSecs) : null;
+                    const worstSec = validSecs.length > 1 ? Math.max(...validSecs) : null;
 
                     // 數據列
                     const tr = document.createElement('tr');
@@ -846,6 +849,7 @@
                             return;
                         }
                         const isFastest = bestSec !== null && Math.abs(pb.totalSec - bestSec) < 0.0001;
+                        const isSlowest = worstSec !== null && Math.abs(pb.totalSec - worstSec) < 0.0001 && worstSec > bestSec;
                         const diffSec = (!isFastest && bestSec !== null) ? (pb.totalSec - bestSec) : null;
                         const pbId = `${distKey}_p${pIdx}`;
 
@@ -857,16 +861,16 @@
                                 <span class="cmp-pb-fastest">
                                     ${formatToXcode(pb.totalSec)}
                                 </span>
-                                <span class="cmp-crown-badge">👑 最快</span>
                             `;
                         } else {
                             const diffStr = diffSec !== null ? `+${diffSec.toFixed(2)}s` : '';
+                            const diffClass = isSlowest ? 'cmp-diff-badge is-slowest' : 'cmp-diff-badge';
                             timeDisplayHtml = `
                                 ${countHtml}
                                 <span class="cmp-pb-normal">
                                     ${formatToXcode(pb.totalSec)}
                                 </span>
-                                ${diffStr ? `<span class="cmp-diff-badge">${diffStr}</span>` : ''}
+                                ${diffStr ? `<span class="${diffClass}">${diffStr}</span>` : ''}
                             `;
                         }
 
@@ -894,9 +898,16 @@
                                         <span style="font-size:14px; font-weight:800; color:#D4AF37;">📈 【${stroke} ${dist}m】歷程成長對比</span>
                                         <span style="color:#8E8E93; font-size:11px;" id="chart-sub-${distKey}">（相同年齡時速度對比）</span>
                                     </div>
-                                    <div class="cmp-pill-toggle">
-                                        <button class="cmp-pill-btn active" id="btn-pill-age-${distKey}" onclick="switchCompareChartMode('${distKey}','age')">歲數對比</button>
-                                        <button class="cmp-pill-btn" id="btn-pill-date-${distKey}" onclick="switchCompareChartMode('${distKey}','date')">日期對比</button>
+                                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                        <button class="cmp-pill-btn" id="btn-reset-zoom-${distKey}" onclick="resetCompareChartZoom('${distKey}')" style="display:none; color:#FF9F0A; border-color:rgba(255,159,10,0.5); background:rgba(255,159,10,0.12);">🔍 還原縮放</button>
+                                        <div class="cmp-pill-toggle">
+                                            <button class="cmp-pill-btn active" id="btn-metric-abs-${distKey}" onclick="switchCompareChartMetric('${distKey}','abs')">比賽成績</button>
+                                            <button class="cmp-pill-btn" id="btn-metric-gap-${distKey}" onclick="switchCompareChartMetric('${distKey}','gap')">相對秒差</button>
+                                        </div>
+                                        <div class="cmp-pill-toggle">
+                                            <button class="cmp-pill-btn active" id="btn-pill-age-${distKey}" onclick="switchCompareChartMode('${distKey}','age')">歲數對比</button>
+                                            <button class="cmp-pill-btn" id="btn-pill-date-${distKey}" onclick="switchCompareChartMode('${distKey}','date')">日期對比</button>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="cmp-chart-container">
@@ -952,12 +963,39 @@
             if (!cmpChartState[distKey]) {
                 cmpChartState[distKey] = {
                     mode: 'age', // 預設為歲數對比
+                    metric: 'abs', // 預設為比賽成績 (abs vs gap)
                     stroke: stroke,
                     dist: dist,
                     players: players,
                     instance: null,
                     dataCache: null
                 };
+            }
+            await renderCompareChart(distKey);
+        }
+
+        // 切換縱軸維度（比賽成績 abs vs 相對秒差 gap）
+        async function switchCompareChartMetric(distKey, metric) {
+            const state = cmpChartState[distKey];
+            if (!state) return;
+            state.metric = metric;
+
+            const btnAbs = document.getElementById(`btn-metric-abs-${distKey}`);
+            const btnGap = document.getElementById(`btn-metric-gap-${distKey}`);
+            const subTitle = document.getElementById(`chart-sub-${distKey}`);
+
+            if (metric === 'abs') {
+                if (btnAbs) btnAbs.className = 'cmp-pill-btn active';
+                if (btnGap) btnGap.className = 'cmp-pill-btn';
+                if (subTitle) {
+                    subTitle.textContent = state.mode === 'age' ? '（相同年齡時速度對比）' : '（真實歷史時間軸對比）';
+                }
+            } else {
+                if (btnAbs) btnAbs.className = 'cmp-pill-btn';
+                if (btnGap) btnGap.className = 'cmp-pill-btn active';
+                if (subTitle) {
+                    subTitle.textContent = state.mode === 'age' ? '（相同年齡時與標竿之差距）' : '（歷史時間軸與標竿之差距）';
+                }
             }
             await renderCompareChart(distKey);
         }
@@ -975,20 +1013,81 @@
             if (mode === 'age') {
                 if (btnAge) btnAge.className = 'cmp-pill-btn active';
                 if (btnDate) btnDate.className = 'cmp-pill-btn';
-                if (subTitle) subTitle.textContent = '（相同年齡時速度對比）';
+                if (subTitle) {
+                    subTitle.textContent = state.metric === 'gap' ? '（相同年齡時與標竿之差距）' : '（相同年齡時速度對比）';
+                }
             } else {
                 if (btnAge) btnAge.className = 'cmp-pill-btn';
                 if (btnDate) btnDate.className = 'cmp-pill-btn active';
-                if (subTitle) subTitle.textContent = '（真實歷史時間軸對比）';
+                if (subTitle) {
+                    subTitle.textContent = state.metric === 'gap' ? '（歷史時間軸與標竿之差距）' : '（真實歷史時間軸對比）';
+                }
             }
             await renderCompareChart(distKey);
+        }
+
+        const CMP_POINT_STYLES = ['circle', 'triangle', 'rect', 'diamond', 'star', 'crossRot', 'rectRounded'];
+
+        function hexToRgba(hex, alpha) {
+            if (!hex) return `rgba(255,255,255,${alpha})`;
+            if (hex.startsWith('rgba')) {
+                return hex.replace(/[\d\.]+\)$/g, `${alpha})`);
+            }
+            if (hex.startsWith('rgb(')) {
+                return hex.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
+            }
+            let c = hex.replace('#', '');
+            if (c.length === 3) c = c.split('').map(x => x + x).join('');
+            const num = parseInt(c, 16);
+            return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
+        }
+
+        function applyPlayerFocus(chart, focusedIndex) {
+            if (!chart || !chart.data || !chart.data.datasets) return;
+            chart.data.datasets.forEach((ds, i) => {
+                const baseColor = ds._baseColor || ds.borderColor;
+                ds._baseColor = baseColor;
+                if (focusedIndex === null || focusedIndex === undefined) {
+                    ds.borderColor = baseColor;
+                    ds.backgroundColor = baseColor;
+                    ds.borderDash = [];
+                    ds.borderWidth = 2;
+                    ds.pointRadius = 5.5;
+                    ds.pointHoverRadius = 8.5;
+                } else if (i === focusedIndex) {
+                    ds.borderColor = baseColor;
+                    ds.backgroundColor = baseColor;
+                    ds.borderDash = [];
+                    ds.borderWidth = 3.5;
+                    ds.pointRadius = 7.5;
+                    ds.pointHoverRadius = 10;
+                } else {
+                    const faded = hexToRgba(baseColor, 0.10);
+                    ds.borderColor = faded;
+                    ds.backgroundColor = faded;
+                    ds.borderDash = [4, 4];
+                    ds.borderWidth = 1;
+                    ds.pointRadius = 2.5;
+                    ds.pointHoverRadius = 4;
+                }
+            });
+            chart.update();
+        }
+
+        function resetCompareChartZoom(distKey) {
+            const state = cmpChartState[distKey];
+            if (state && state.instance) {
+                state.instance.resetZoom();
+                const btn = document.getElementById(`btn-reset-zoom-${distKey}`);
+                if (btn) btn.style.display = 'none';
+            }
         }
 
         // 渲染或更新 Chart.js
         async function renderCompareChart(distKey) {
             const state = cmpChartState[distKey];
             if (!state) return;
-            const { mode, stroke, dist, players } = state;
+            const { mode, metric = 'abs', stroke, dist, players } = state;
 
             // 快取各選手歷史出賽點
             if (!state.dataCache) {
@@ -1027,26 +1126,59 @@
             const canvas = document.getElementById(`canvas-${distKey}`);
             if (!canvas) return;
 
-            // 依 mode 組合 datasets
+            // 若為 gap 模式，計算動態領先最佳標竿 (Leader Progression Benchmark)
+            if (metric === 'gap') {
+                const allPoints = [];
+                state.dataCache.forEach(({ points }) => {
+                    if (points) points.forEach(pt => allPoints.push(pt));
+                });
+
+                if (mode === 'age') {
+                    allPoints.sort((a, b) => a.age - b.age);
+                } else {
+                    allPoints.sort((a, b) => a.date - b.date);
+                }
+
+                let runningBest = Infinity;
+                allPoints.forEach(pt => {
+                    if (pt.sec < runningBest) runningBest = pt.sec;
+                    pt._leaderBest = runningBest;
+                });
+            }
+
+            // 依 mode 與 metric 組合 datasets，每位選手分配專屬圖標形狀與顏色
             const datasets = state.dataCache.map(({ player, points }, idx) => {
                 if (!points || points.length === 0) return null;
                 const color = CMP_COLORS[idx % CMP_COLORS.length];
-                const chartData = points.map(pt => ({
-                    x: mode === 'age' ? pt.age : pt.date,
-                    y: pt.sec,
-                    meta: pt
-                }));
+                const pointStyle = CMP_POINT_STYLES[idx % CMP_POINT_STYLES.length];
+                const chartData = points.map(pt => {
+                    let yVal = pt.sec;
+                    let gapSec = 0;
+                    if (metric === 'gap') {
+                        const leader = pt._leaderBest || pt.sec;
+                        gapSec = Math.max(0, pt.sec - leader);
+                        yVal = parseFloat(gapSec.toFixed(2));
+                    }
+                    return {
+                        x: mode === 'age' ? pt.age : pt.date,
+                        y: yVal,
+                        meta: { ...pt, gapSec, isGapMode: metric === 'gap' }
+                    };
+                });
 
                 return {
                     label: `${CMP_CIRCLES[idx] || (idx+1)} ${player.name} (${player.birthYear ? player.birthYear+'年次' : ''})`,
                     data: chartData,
                     borderColor: color,
                     backgroundColor: color,
-                    pointRadius: 4.5,
-                    pointHoverRadius: 7,
+                    pointStyle: pointStyle,
+                    pointRadius: 5.5,
+                    pointHoverRadius: 8.5,
                     showLine: true,
                     tension: 0.2,
-                    borderWidth: 2
+                    borderWidth: 2,
+                    _baseColor: color,
+                    _basePointStyle: pointStyle
                 };
             }).filter(Boolean);
 
@@ -1062,6 +1194,13 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: function(evt, activeElements) {
+                        if (activeElements && activeElements.length > 0) {
+                            const clickedIdx = activeElements[0].datasetIndex;
+                            state.focusedIndex = (state.focusedIndex === clickedIdx) ? null : clickedIdx;
+                            applyPlayerFocus(state.instance, state.focusedIndex);
+                        }
+                    },
                     scales: {
                         x: {
                             type: mode === 'age' ? 'linear' : 'time',
@@ -1079,10 +1218,10 @@
                             }
                         },
                         y: {
-                            reverse: false, // 越往上時間越大
+                            reverse: false,
                             title: {
                                 display: true,
-                                text: '比賽成績 (秒)',
+                                text: metric === 'gap' ? '落後標竿秒差 (+秒)' : '比賽成績 (秒)',
                                 color: '#8E8E93',
                                 font: { size: 11, weight: 'bold' }
                             },
@@ -1090,7 +1229,12 @@
                             ticks: {
                                 color: '#8E8E93',
                                 font: { size: 11 },
-                                callback: val => formatToXcode(val)
+                                callback: val => {
+                                    if (metric === 'gap') {
+                                        return val === 0 ? '0.00s (標竿)' : `+${val.toFixed(2)}s`;
+                                    }
+                                    return formatToXcode(val);
+                                }
                             }
                         }
                     },
@@ -1101,7 +1245,39 @@
                                 color: '#FFFFFF',
                                 font: { size: 12, weight: 'bold' },
                                 boxWidth: 14,
-                                padding: 12
+                                padding: 12,
+                                usePointStyle: true
+                            },
+                            onClick: function(e, legendItem, legend) {
+                                const chart = legend.chart;
+                                const clickedIdx = legendItem.datasetIndex;
+                                state.focusedIndex = (state.focusedIndex === clickedIdx) ? null : clickedIdx;
+                                applyPlayerFocus(chart, state.focusedIndex);
+                            }
+                        },
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'xy',
+                                threshold: 5,
+                                onPan: function() {
+                                    const btn = document.getElementById(`btn-reset-zoom-${distKey}`);
+                                    if (btn) btn.style.display = 'inline-flex';
+                                }
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.08
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'xy',
+                                onZoom: function() {
+                                    const btn = document.getElementById(`btn-reset-zoom-${distKey}`);
+                                    if (btn) btn.style.display = 'inline-flex';
+                                }
                             }
                         },
                         tooltip: {
@@ -1113,19 +1289,29 @@
                             callbacks: {
                                 label: function(ctx) {
                                     const m = ctx.raw.meta;
-                                    return [
+                                    const lines = [
                                         `👤 選手: ${m.playerName}`,
-                                        `⏱️ 成績: ${formatToXcode(m.sec)} (${m.rawTime})`,
-                                        `🎂 歲數: ${m.age} 歲`,
-                                        `📅 日期: ${m.dateStr}`,
-                                        `🏆 賽事: ${m.meet}`
+                                        `⏱️ 成績: ${formatToXcode(m.sec)} (${m.rawTime})`
                                     ];
+                                    if (m.isGapMode) {
+                                        const gapTxt = m.gapSec <= 0.001 ? '👑 當時領先 (0.00s)' : `+${m.gapSec.toFixed(2)}s (距當時標竿)`;
+                                        lines.push(`📊 秒差: ${gapTxt}`);
+                                    }
+                                    lines.push(`🎂 歲數: ${m.age} 歲`);
+                                    lines.push(`📅 日期: ${m.dateStr}`);
+                                    lines.push(`🏆 賽事: ${m.meet}`);
+                                    return lines;
                                 }
                             }
                         }
                     }
                 }
             });
+
+            // 若已有聚焦狀態，應用聚焦
+            if (state.focusedIndex !== null && state.focusedIndex !== undefined) {
+                applyPlayerFocus(state.instance, state.focusedIndex);
+            }
         }
 
         // ══════════════════════════════════════════════
