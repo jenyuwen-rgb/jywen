@@ -204,7 +204,6 @@
         <span class="font-bold text-[#D4AF37] px-3 cursor-pointer" onclick="doSearch()">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
         <span class="font-bold text-gray-500 px-3 cursor-pointer" onclick="resetDB()">重置</span>
-        <span id="soundToggleBtn" onclick="toggleKeyboardSound()" title="鍵盤敲擊音效 (點擊切換靜音)" style="cursor: pointer; font-size: 14px; padding: 0 4px; user-select: none; opacity: 0.85;" class="hover:opacity-100">🔊</span>
     </div>
 
     <div id="main"></div>
@@ -1862,7 +1861,7 @@
                 }
 
                 const gain = ctx.createGain();
-                const peakVolume = isBackspace ? 0.18 : 0.13;
+                const peakVolume = isBackspace ? 0.54 : 0.39;
                 gain.gain.setValueAtTime(peakVolume, now);
                 gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
 
