@@ -194,7 +194,7 @@
     <div class="nav-header">
         <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()">🕒</span>
         <div style="position: relative; flex: 1; min-width: 0; display: flex; align-items: center;">
-            <input type="text" id="searchInput" value="" placeholder="請輸入選手姓名 (例如: 王冠閎)" autocomplete="off">
+            <input type="text" id="searchInput" value="" placeholder="請輸入選手姓名 (例如: 王冠閎 或 多位比較: 王冠閎;王星皓;韓安齊)" autocomplete="off">
             <div id="autocomplete-list" class="autocomplete-items hidden"></div>
         </div>
         <select id="birthYearSelect" class="hidden" onchange="doSearch(this.value, document.getElementById('sexSelect').value)" style="background:#1C1C1E; color:#D4AF37; font-weight:bold; font-size:13px; border:0.5px solid #38383A; border-radius:8px; padding:4px 8px; outline:none; cursor:pointer; margin:0 4px; flex-shrink:0;">
