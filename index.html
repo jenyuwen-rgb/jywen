@@ -1851,7 +1851,6 @@
         }
 
         searchInput.addEventListener('keydown', function(e) {
-            cancelDemoSound();
             unlockAudio();
             if (e.key === 'Backspace') {
                 playKeySound('backspace');
@@ -1883,7 +1882,6 @@
         });
 
         searchInput.addEventListener('input', function(e) {
-            cancelDemoSound();
             unlockAudio();
             if (e.isComposing) return; // 注音/拼音組合中由 keydown 處理或完成後發聲
             if (e.inputType && e.inputType.startsWith('delete')) {
@@ -1925,12 +1923,7 @@
 
         // ── 鍵盤敲擊聲與打字退格動態效果 (Typewriter, Blinking Underscore & Mechanical Keyboard Sound) ──
         let keyboardSoundEnabled = true;
-        let demoSoundCancelled = false; // 使用者只要摸到螢幕或點擊輸入框才取消示範聲音
         let audioCtx = null;
-
-        function cancelDemoSound() {
-            demoSoundCancelled = true;
-        }
 
         function getAudioContext() {
             if (!audioCtx) {
@@ -1952,21 +1945,26 @@
             }
         }
 
-        // 全域觸摸或按鍵：取消示範音效並解鎖 Web Audio
-        ['touchstart', 'touchend', 'pointerdown', 'mousedown', 'keydown'].forEach(evt => {
+        // 全螢幕任何點擊/觸摸/滾動：純粹解鎖音訊（絕對不取消示範聲音，確保展示王冠閎/韓安齊時清脆放音）
+        ['touchstart', 'touchend', 'pointerdown', 'mousedown', 'click', 'keydown'].forEach(evt => {
             window.addEventListener(evt, () => {
-                cancelDemoSound();
                 unlockAudio();
             }, { passive: true, capture: true });
         });
 
+        // 判定示範打字是否應該靜音或暫停：
+        // 唯有當使用者主動聚焦在輸入框（準備自己查選手）或輸入框已有文字時，示範聲音才安靜讓位
+        function isUserTypingActive() {
+            const inputEl = document.getElementById('searchInput');
+            if (!inputEl) return false;
+            return (document.activeElement === inputEl) || (inputEl.value.trim().length > 0);
+        }
+
         if (searchInput) {
             searchInput.addEventListener('focus', () => {
-                cancelDemoSound();
                 unlockAudio();
             });
             searchInput.addEventListener('click', () => {
-                cancelDemoSound();
                 unlockAudio();
             });
         }
@@ -2042,9 +2040,9 @@
             } catch(e) {}
         }
 
-        // 示範打字專用音效（只要使用者觸碰即取消）
+        // 示範打字專用音效（僅在使用者自己聚焦輸入框打字時才暫停）
         function playDemoKeySound(type = 'char') {
-            if (demoSoundCancelled) return;
+            if (isUserTypingActive()) return;
             playKeySound(type);
         }
 
