@@ -1938,10 +1938,25 @@
             return audioCtx;
         }
 
+        let isAudioUnlocked = false;
         function unlockAudio() {
             const ctx = getAudioContext();
-            if (ctx && ctx.state === 'suspended') {
+            if (!ctx) return;
+            if (ctx.state === 'suspended') {
                 ctx.resume().catch(() => {});
+            }
+            if (!isAudioUnlocked) {
+                try {
+                    // iOS Safari / WebKit 必備物理喚醒：建立 1 採樣點靜音 buffer 觸發音效硬體
+                    const buf = ctx.createBuffer(1, 1, 22050);
+                    const src = ctx.createBufferSource();
+                    src.buffer = buf;
+                    src.connect(ctx.destination);
+                    src.start(0);
+                    if (ctx.state === 'running') {
+                        isAudioUnlocked = true;
+                    }
+                } catch(e) {}
             }
         }
 
