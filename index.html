@@ -1851,6 +1851,16 @@
         }
 
         searchInput.addEventListener('keydown', function(e) {
+            cancelDemoSound();
+            unlockAudio();
+            if (e.key === 'Backspace') {
+                playKeySound('backspace');
+            } else if (e.key === ' ' || e.key === 'Space') {
+                playKeySound('space');
+            } else if (e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                playKeySound('char');
+            }
+
             let items = autocompleteList.querySelectorAll('.autocomplete-item');
             if (e.keyCode === 40) { // 向下鍵
                 currentFocus++;
@@ -1869,6 +1879,17 @@
                 }
             } else if (e.keyCode === 27) { // Esc 鍵
                 closeAutocomplete();
+            }
+        });
+
+        searchInput.addEventListener('input', function(e) {
+            cancelDemoSound();
+            unlockAudio();
+            if (e.isComposing) return; // 注音/拼音組合中由 keydown 處理或完成後發聲
+            if (e.inputType && e.inputType.startsWith('delete')) {
+                playKeySound('backspace');
+            } else if (e.inputType && e.inputType.startsWith('insert')) {
+                playKeySound('char');
             }
         });
 
@@ -1904,7 +1925,12 @@
 
         // ── 鍵盤敲擊聲與打字退格動態效果 (Typewriter, Blinking Underscore & Mechanical Keyboard Sound) ──
         let keyboardSoundEnabled = true;
+        let demoSoundCancelled = false; // 使用者只要摸到螢幕或點擊輸入框才取消示範聲音
         let audioCtx = null;
+
+        function cancelDemoSound() {
+            demoSoundCancelled = true;
+        }
 
         function getAudioContext() {
             if (!audioCtx) {
@@ -1922,74 +1948,104 @@
         function unlockAudio() {
             const ctx = getAudioContext();
             if (ctx && ctx.state === 'suspended') {
-                ctx.resume();
+                ctx.resume().catch(() => {});
             }
         }
-        window.addEventListener('pointerdown', unlockAudio, { passive: true });
-        window.addEventListener('keydown', unlockAudio, { passive: true });
-        window.addEventListener('touchstart', unlockAudio, { passive: true });
 
-        // 精緻機械鍵盤物理合成音效 (雙振盪器瞬態脈衝 + 觸底低頻共振，零延遲，音量放大3倍)
+        // 全域觸摸或按鍵：取消示範音效並解鎖 Web Audio
+        ['touchstart', 'touchend', 'pointerdown', 'mousedown', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, () => {
+                cancelDemoSound();
+                unlockAudio();
+            }, { passive: true, capture: true });
+        });
+
+        if (searchInput) {
+            searchInput.addEventListener('focus', () => {
+                cancelDemoSound();
+                unlockAudio();
+            });
+            searchInput.addEventListener('click', () => {
+                cancelDemoSound();
+                unlockAudio();
+            });
+        }
+
+        // 精緻機械鍵盤物理合成音效 (雙共鳴瞬態 Snap + 觸底 Thud，延長至 45ms，飽滿清脆，Mac/iPhone揚聲器清晰可辨)
         function playKeySound(type = 'char') {
             if (!keyboardSoundEnabled) return;
             try {
                 const ctx = getAudioContext();
-                if (!ctx || ctx.state !== 'running') return;
+                if (!ctx) return;
+                if (ctx.state === 'suspended') {
+                    ctx.resume().catch(() => {});
+                }
+                if (ctx.state !== 'running') return;
 
                 const now = ctx.currentTime;
 
-                const osc = ctx.createOscillator();
-                const oscGain = ctx.createGain();
+                // 1. 金屬簧片/軸心觸發 Snap (清脆喀噠高頻)
+                const snap = ctx.createOscillator();
+                const snapGain = ctx.createGain();
 
+                // 2. 鍵帽與鋼板觸底 Thud (沉穩低頻共鳴)
                 const thud = ctx.createOscillator();
                 const thudGain = ctx.createGain();
 
-                let duration = 0.024;
-                let clickFreq = 1200;
-                let thudFreq = 320;
-                let clickVol = 0.45;
-                let thudVol = 0.55;
+                let duration = 0.045; // 延長至 45ms，確保內建喇叭清晰出聲
+                let snapFreq = 1600;
+                let thudFreq = 260;
+                let snapVol = 0.65;
+                let thudVol = 0.70;
 
                 if (type === 'backspace') {
-                    duration = 0.028;
-                    clickFreq = 750;
-                    thudFreq = 180;
-                    clickVol = 0.40;
-                    thudVol = 0.65;
+                    duration = 0.050;
+                    snapFreq = 950;
+                    thudFreq = 170;
+                    snapVol = 0.55;
+                    thudVol = 0.85;
                 } else if (type === 'space') {
-                    duration = 0.030;
-                    clickFreq = 950;
-                    thudFreq = 220;
-                    clickVol = 0.42;
-                    thudVol = 0.60;
+                    duration = 0.055;
+                    snapFreq = 1200;
+                    thudFreq = 210;
+                    snapVol = 0.60;
+                    thudVol = 0.80;
                 } else {
-                    const jitter = (Math.random() - 0.5) * 120;
-                    clickFreq = 1250 + jitter;
-                    thudFreq = 330 + (jitter * 0.2);
+                    const jitter = (Math.random() - 0.5) * 160;
+                    snapFreq = 1650 + jitter;
+                    thudFreq = 270 + (jitter * 0.15);
                 }
 
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(clickFreq, now);
-                osc.frequency.exponentialRampToValueAtTime(clickFreq * 0.5, now + 0.008);
-                oscGain.gain.setValueAtTime(clickVol, now);
-                oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.012);
+                // Snap 曲線：由高頻急墜，模擬青軸/茶軸金屬碰撞
+                snap.type = 'triangle';
+                snap.frequency.setValueAtTime(snapFreq, now);
+                snap.frequency.exponentialRampToValueAtTime(Math.max(200, snapFreq * 0.3), now + 0.018);
+                snapGain.gain.setValueAtTime(snapVol, now);
+                snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
 
+                // Thud 曲線：由中低頻向下微滑，模擬鍵帽壓到底板的厚實回彈
                 thud.type = 'sine';
                 thud.frequency.setValueAtTime(thudFreq, now);
-                thud.frequency.exponentialRampToValueAtTime(thudFreq * 0.4, now + duration);
+                thud.frequency.exponentialRampToValueAtTime(Math.max(60, thudFreq * 0.4), now + duration);
                 thudGain.gain.setValueAtTime(thudVol, now);
                 thudGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
-                osc.connect(oscGain);
-                oscGain.connect(ctx.destination);
+                snap.connect(snapGain);
+                snapGain.connect(ctx.destination);
                 thud.connect(thudGain);
                 thudGain.connect(ctx.destination);
 
-                osc.start(now);
-                osc.stop(now + 0.015);
+                snap.start(now);
+                snap.stop(now + 0.025);
                 thud.start(now);
                 thud.stop(now + duration);
             } catch(e) {}
+        }
+
+        // 示範打字專用音效（只要使用者觸碰即取消）
+        function playDemoKeySound(type = 'char') {
+            if (demoSoundCancelled) return;
+            playKeySound(type);
         }
 
         (function initPlaceholderTypewriter() {
@@ -2053,7 +2109,7 @@
                     isPaused = false;
                     currentText = targetPhrase.substring(0, currentText.length - 1);
                     renderPlaceholder();
-                    playKeySound('backspace');
+                    playDemoKeySound('backspace');
 
                     if (currentText.length === 0) {
                         isDeleting = false;
@@ -2077,7 +2133,7 @@
                         delay = 200;
                     }
 
-                    playKeySound(soundType);
+                    playDemoKeySound(soundType);
 
                     if (currentText.length === targetPhrase.length) {
                         isDeleting = true;
