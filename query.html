@@ -1045,63 +1045,75 @@
         }
 
         function unlockAudio() {
-            getAudioContext();
+            const ctx = getAudioContext();
+            if (ctx && ctx.state === 'suspended') {
+                ctx.resume();
+            }
         }
         window.addEventListener('pointerdown', unlockAudio, { passive: true });
         window.addEventListener('keydown', unlockAudio, { passive: true });
+        window.addEventListener('touchstart', unlockAudio, { passive: true });
 
-        function toggleKeyboardSound() {
-            keyboardSoundEnabled = !keyboardSoundEnabled;
-            const btn = document.getElementById('soundToggleBtn');
-            if (btn) {
-                btn.textContent = keyboardSoundEnabled ? '🔊' : '🔇';
-                btn.style.opacity = keyboardSoundEnabled ? '0.9' : '0.4';
-            }
-            if (keyboardSoundEnabled) {
-                getAudioContext();
-                playKeySound(false);
-            }
-        }
-
-        function playKeySound(isBackspace = false) {
+        // 精緻機械鍵盤物理合成音效 (雙振盪器瞬態脈衝 + 觸底低頻共振，零延遲，音量放大3倍)
+        function playKeySound(type = 'char') {
             if (!keyboardSoundEnabled) return;
             try {
                 const ctx = getAudioContext();
                 if (!ctx || ctx.state !== 'running') return;
 
                 const now = ctx.currentTime;
-                const duration = isBackspace ? 0.020 : 0.015;
-                const bufferSize = Math.floor(ctx.sampleRate * duration);
-                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.28));
-                }
 
-                const noise = ctx.createBufferSource();
-                noise.buffer = buffer;
+                const osc = ctx.createOscillator();
+                const oscGain = ctx.createGain();
 
-                const filter = ctx.createBiquadFilter();
-                if (isBackspace) {
-                    filter.type = 'lowpass';
-                    filter.frequency.setValueAtTime(1600, now);
+                const thud = ctx.createOscillator();
+                const thudGain = ctx.createGain();
+
+                let duration = 0.024;
+                let clickFreq = 1200;
+                let thudFreq = 320;
+                let clickVol = 0.45;
+                let thudVol = 0.55;
+
+                if (type === 'backspace') {
+                    duration = 0.028;
+                    clickFreq = 750;
+                    thudFreq = 180;
+                    clickVol = 0.40;
+                    thudVol = 0.65;
+                } else if (type === 'space') {
+                    duration = 0.030;
+                    clickFreq = 950;
+                    thudFreq = 220;
+                    clickVol = 0.42;
+                    thudVol = 0.60;
                 } else {
-                    filter.type = 'bandpass';
-                    const jitter = (Math.random() - 0.5) * 400;
-                    filter.frequency.setValueAtTime(3200 + jitter, now);
-                    filter.Q.setValueAtTime(2.8, now);
+                    const jitter = (Math.random() - 0.5) * 120;
+                    clickFreq = 1250 + jitter;
+                    thudFreq = 330 + (jitter * 0.2);
                 }
 
-                const gain = ctx.createGain();
-                const peakVolume = isBackspace ? 0.54 : 0.39;
-                gain.gain.setValueAtTime(peakVolume, now);
-                gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(clickFreq, now);
+                osc.frequency.exponentialRampToValueAtTime(clickFreq * 0.5, now + 0.008);
+                oscGain.gain.setValueAtTime(clickVol, now);
+                oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.012);
 
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(ctx.destination);
+                thud.type = 'sine';
+                thud.frequency.setValueAtTime(thudFreq, now);
+                thud.frequency.exponentialRampToValueAtTime(thudFreq * 0.4, now + duration);
+                thudGain.gain.setValueAtTime(thudVol, now);
+                thudGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
-                noise.start(now);
+                osc.connect(oscGain);
+                oscGain.connect(ctx.destination);
+                thud.connect(thudGain);
+                thudGain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.015);
+                thud.start(now);
+                thud.stop(now + duration);
             } catch(e) {}
         }
 
@@ -1150,34 +1162,44 @@
                     isPaused = false;
                     currentText = targetPhrase.substring(0, currentText.length - 1);
                     renderPlaceholder();
-                    playKeySound(true);
+                    playKeySound('backspace');
 
                     if (currentText.length === 0) {
                         isDeleting = false;
                         isPaused = true;
                         phraseIdx = (phraseIdx + 1) % phrases.length;
-                        typingTimer = setTimeout(tick, 600);
+                        typingTimer = setTimeout(tick, 500);
                         return;
                     }
-                    typingTimer = setTimeout(tick, 130);
+                    typingTimer = setTimeout(tick, 100);
                 } else {
                     isPaused = false;
+                    const nextChar = targetPhrase[currentText.length];
                     currentText = targetPhrase.substring(0, currentText.length + 1);
                     renderPlaceholder();
-                    playKeySound(false);
+
+                    let soundType = 'char';
+                    let delay = 115;
+
+                    if (nextChar === ' ' || nextChar === ';' || nextChar === '；' || nextChar === ':') {
+                        soundType = 'space';
+                        delay = 200;
+                    }
+
+                    playKeySound(soundType);
 
                     if (currentText.length === targetPhrase.length) {
                         isDeleting = true;
                         isPaused = true;
-                        typingTimer = setTimeout(tick, 2800);
+                        typingTimer = setTimeout(tick, 2600);
                         return;
                     }
-                    typingTimer = setTimeout(tick, 85);
+                    typingTimer = setTimeout(tick, delay);
                 }
             }
 
             renderPlaceholder();
-            typingTimer = setTimeout(tick, 2000);
+            typingTimer = setTimeout(tick, 1800);
         })();
     </script>
 
