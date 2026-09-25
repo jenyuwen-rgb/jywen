@@ -345,18 +345,23 @@
 
         // Initialize ECharts instances
         document.addEventListener('DOMContentLoaded', () => {
-            chartVolume = echarts.init(document.getElementById('chart-volume'), 'dark', { renderer: 'canvas', backgroundColor: 'transparent' });
-            chartDepreciation = echarts.init(document.getElementById('chart-depreciation'), 'dark', { renderer: 'canvas', backgroundColor: 'transparent' });
-            chartScatter = echarts.init(document.getElementById('chart-scatter'), 'dark', { renderer: 'canvas', backgroundColor: 'transparent' });
-            
-            // Adjust charts on window resize
-            window.addEventListener('resize', () => {
-                chartVolume.resize();
-                chartDepreciation.resize();
-                chartScatter.resize();
-            });
+            try {
+                if (typeof echarts !== 'undefined') {
+                    chartVolume = echarts.init(document.getElementById('chart-volume'), 'dark', { renderer: 'canvas', backgroundColor: 'transparent' });
+                    chartDepreciation = echarts.init(document.getElementById('chart-depreciation'), 'dark', { renderer: 'canvas', backgroundColor: 'transparent' });
+                    chartScatter = echarts.init(document.getElementById('chart-scatter'), 'dark', { renderer: 'canvas', backgroundColor: 'transparent' });
+                    
+                    window.addEventListener('resize', () => {
+                        chartVolume && chartVolume.resize();
+                        chartDepreciation && chartDepreciation.resize();
+                        chartScatter && chartScatter.resize();
+                    });
+                }
+            } catch (e) {
+                console.error("ECharts init error:", e);
+            }
 
-            // Load static volume statistics first, then selectors
+            // Always load metadata and volume stats!
             loadVolumeStats();
             loadMetadata();
         });
@@ -377,6 +382,9 @@
         function hideToast() {
             const toast = document.getElementById('toast');
             toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+        }
+
         function escapeHtml(str) {
             if (!str) return '';
             return String(str)

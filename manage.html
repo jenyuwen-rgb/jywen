@@ -281,11 +281,11 @@
             border-color: var(--primary) !important;
         }
 
-        /* 卡片格線 */
+        /* 卡片格線 (支援 9 大協會卡片) */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 1rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
             margin-bottom: 2rem;
         }
 
@@ -923,6 +923,99 @@
                             <div id="bar-site_tpesa" class="progress-bar-fill" style="width: 0%"></div>
                         </div>
                         <div id="log-site_tpesa" class="log-console"></div>
+                    </div>
+                </div>
+
+                <!-- 新北泳協 -->
+                <div class="card" id="card-site_ntpc">
+                    <div class="card-header">
+                        <h2 class="card-title">新北市游泳委員會</h2>
+                        <a href="https://ntpc-sports.com/twps/" target="_blank" rel="noopener noreferrer" class="card-url">https://ntpc-sports.com/...</a>
+                    </div>
+                    
+                    <div class="form-group">
+                        <select id="select-site_ntpc" class="form-select" onchange="handleSelectChange('site_ntpc')">
+                            <option value="">-- 選擇要下載的賽事 --</option>
+                            <option value="https://ntpc-sports.com/twps/115primary_swim">115年新北市小學運動會游泳賽</option>
+                            <option value="https://ntpc-sports.com/twps/114primary_dual">114學年度新北市小學游泳對抗賽</option>
+                            <option value="https://ntpc-sports.com/twps/114secondary_dual">114學年度新北市中等學校游泳對抗賽</option>
+                            <option value="https://ntpc-sports.com/twps/114mayor_cup">114年新北市市長盃游泳錦標賽</option>
+                            <option value="https://ntpc-sports.com/twps/114secondary_swim">114年新北市中等學校運動會游泳賽</option>
+                            <option value="https://ntpc-sports.com/twps/113primary_dual">113學年度新北市小學游泳對抗賽</option>
+                            <option value="https://ntpc-sports.com/twps/113mayor_cup">113年新北市市長盃游泳錦標賽</option>
+                        </select>
+                    </div>
+                    <button id="btn-site_ntpc" class="btn-download" onclick="startRaceUpdate('site_ntpc')" disabled>下載賽事</button>
+
+                    <!-- 下載進度與日誌 -->
+                    <div id="progress-container-site_ntpc" class="download-progress-card-wrapper" style="display: none;">
+                        <div id="status-site_ntpc" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
+                        <div class="progress-bar-wrapper">
+                            <div id="bar-site_ntpc" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="log-site_ntpc" class="log-console"></div>
+                    </div>
+                </div>
+
+                <!-- 新竹泳協 -->
+                <div class="card" id="card-site_hcc">
+                    <div class="card-header">
+                        <h2 class="card-title">新竹市游泳委員會</h2>
+                        <a href="https://hcc-swim.org/" target="_blank" rel="noopener noreferrer" class="card-url">https://hcc-swim.org/...</a>
+                    </div>
+                    
+                    <div class="form-group">
+                        <select id="select-site_hcc" class="form-select" onchange="handleSelectChange('site_hcc')">
+                            <option value="">-- 選擇要下載的賽事 --</option>
+                            <option value="https://hcc-swim.org/115wind_city">115年新竹市風城盃分級游泳錦標賽</option>
+                            <option value="https://hcc-swim.org/115mayor_cup">115年新竹市市長盃游泳錦標賽</option>
+                            <option value="https://hcc-swim.org/114wind_city">114年新竹市風城盃分級游泳錦標賽</option>
+                            <option value="https://hcc-swim.org/114mayor_cup">114年新竹市市長盃游泳錦標賽</option>
+                            <option value="https://hcc-swim.org/114school_games">114年新竹市中小學聯合運動會游泳賽</option>
+                            <option value="https://hcc-swim.org/113wind_city">113年新竹市風城盃分級游泳錦標賽</option>
+                            <option value="https://hcc-swim.org/113mayor_cup">113年新竹市市長盃游泳錦標賽</option>
+                        </select>
+                    </div>
+                    <button id="btn-site_hcc" class="btn-download" onclick="startRaceUpdate('site_hcc')" disabled>下載賽事</button>
+
+                    <!-- 下載進度與日誌 -->
+                    <div id="progress-container-site_hcc" class="download-progress-card-wrapper" style="display: none;">
+                        <div id="status-site_hcc" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
+                        <div class="progress-bar-wrapper">
+                            <div id="bar-site_hcc" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="log-site_hcc" class="log-console"></div>
+                    </div>
+                </div>
+
+                <!-- 桃園泳協 -->
+                <div class="card" id="card-site_tyc">
+                    <div class="card-header">
+                        <h2 class="card-title">桃園市游泳委員會</h2>
+                        <a href="https://sports.taoyuansport.org.tw/" target="_blank" rel="noopener noreferrer" class="card-url">https://sports.taoyuansport...</a>
+                    </div>
+                    
+                    <div class="form-group">
+                        <select id="select-site_tyc" class="form-select" onchange="handleSelectChange('site_tyc')">
+                            <option value="">-- 選擇要下載的賽事 --</option>
+                            <option value="https://sports.taoyuansport.org.tw/115mayor_cup">115年桃園市市長盃游泳錦標賽</option>
+                            <option value="https://sports.taoyuansport.org.tw/115school_games">115年桃園市中小學校聯合運動會游泳賽</option>
+                            <option value="https://sports.taoyuansport.org.tw/114mayor_cup">114年桃園市市長盃游泳錦標賽</option>
+                            <option value="https://sports.taoyuansport.org.tw/114speaker_cup">114年桃園市議長盃游泳錦標賽</option>
+                            <option value="https://sports.taoyuansport.org.tw/114school_games">114年桃園市中小學校聯合運動會游泳賽</option>
+                            <option value="https://sports.taoyuansport.org.tw/113mayor_cup">113年桃園市市長盃游泳錦標賽</option>
+                            <option value="https://sports.taoyuansport.org.tw/113speaker_cup">113年桃園市議長盃游泳錦標賽</option>
+                        </select>
+                    </div>
+                    <button id="btn-site_tyc" class="btn-download" onclick="startRaceUpdate('site_tyc')" disabled>下載賽事</button>
+
+                    <!-- 下載進度與日誌 -->
+                    <div id="progress-container-site_tyc" class="download-progress-card-wrapper" style="display: none;">
+                        <div id="status-site_tyc" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
+                        <div class="progress-bar-wrapper">
+                            <div id="bar-site_tyc" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <div id="log-site_tyc" class="log-console"></div>
                     </div>
                 </div>
             </section>
@@ -1763,7 +1856,7 @@
                 if (res.status === 'success') {
                     alert(res.message);
                     // 重新載入所有站點的賽事清單
-                    ['site_a', 'site_b', 'site_c', 'site_d', 'site_e', 'site_tpesa'].forEach(loadRecentGamesList);
+                    ['site_a', 'site_b', 'site_c', 'site_d', 'site_e', 'site_tpesa', 'site_ntpc', 'site_hcc', 'site_tyc'].forEach(loadRecentGamesList);
                 } else {
                     alert("更新失敗：" + res.message);
                 }
