@@ -8,6 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
     <style>
         body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; }
         .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 8px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; }
@@ -66,6 +68,47 @@
             opacity: 1;
         }
         
+        /* ── 多人比較模式（項目基準，多人並排） ── */
+        .cmp-header-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; background: #1C1C1E; border: 0.5px solid #38383A; border-radius: 12px; margin: 12px 12px 4px 12px; }
+        .cmp-pill-toggle { display: inline-flex; background: #2C2C2E; border: 0.5px solid #3A3A3C; border-radius: 20px; padding: 2px; }
+        .cmp-pill-btn { padding: 4px 14px; border-radius: 16px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; border: none; outline: none; }
+        .cmp-pill-btn.active { background: #0A84FF; color: #FFF; box-shadow: 0 2px 8px rgba(10,132,255,0.4); }
+        .cmp-pill-btn:not(.active) { background: transparent; color: #8E8E93; }
+        .cmp-pill-btn:not(.active):hover { color: #FFF; }
+        
+        .cmp-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .cmp-table th { padding: 8px 10px; font-size: 13px; font-weight: 700; border-bottom: 0.5px solid #38383A; white-space: nowrap; }
+        .cmp-table td { padding: 10px 8px; border-bottom: 0.5px solid #2C2C2E; font-size: 14px; vertical-align: middle; white-space: nowrap; }
+        
+        .cmp-dist-btn { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: 14px; color: #FFFFFF; cursor: pointer; text-decoration: none; padding: 3px 6px; border-radius: 6px; transition: background 0.15s ease; }
+        .cmp-dist-btn:hover { background: rgba(255,255,255,0.12); }
+        
+        .cmp-count-tag { font-size: 12px; color: #8E8E93; margin-right: 6px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
+        .cmp-count-tag:hover { color: #FFFFFF; }
+
+        .cmp-pb-fastest { background-image: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; font-family: monospace; font-size: 15px; display: inline-block; }
+        .cmp-pb-normal { color: #FFFFFF; font-weight: 700; font-family: monospace; font-size: 14px; }
+        .cmp-pb-link { text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+        .cmp-pb-link:hover { opacity: 0.85; }
+        
+        .cmp-diff-badge { font-size: 11px; font-weight: 700; color: #FFFFFF; margin-left: 5px; font-family: monospace; }
+        .cmp-diff-badge.is-slowest { color: #FF453A; }
+        .cmp-no-data-cell { color: #636366; font-size: 14px; font-weight: 600; text-align: center; }
+
+        .cmp-player-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-weight: 900; font-size: 12px; color: #FFF; flex-shrink: 0; }
+        .cmp-badge-0 { background: #0A84FF; }
+        .cmp-badge-1 { background: #FF453A; }
+        .cmp-badge-2 { background: #30D158; }
+        .cmp-badge-3 { background: #FF9F0A; }
+        .cmp-badge-4 { background: #BF5AF2; }
+        .cmp-badge-5 { background: #64D2FF; }
+
+        .cmp-birth-select { background: #2C2C2E; color: #FFD60A; border: 0.5px solid #545458; border-radius: 6px; font-size: 11px; font-weight: 700; padding: 1px 4px; cursor: pointer; outline: none; transition: all 0.15s ease; }
+        .cmp-birth-select:hover { border-color: #FFD60A; background: #3A3A3C; }
+
+        .cmp-drill-box { padding: 14px; background: #121214; border: 0.5px solid #2C2C2E; border-radius: 12px; margin: 8px 0; }
+        .cmp-chart-container { height: 320px; position: relative; width: 100%; margin-top: 10px; }
+
         #queryLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
         #lottie-swimmer { width: 320px; height: 320px; margin-bottom: -40px; }
         
@@ -166,17 +209,42 @@
     <div id="main"></div>
 
     <script id="worker-script" type="text/javascript-worker">
-        importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
+        let origin = '';
+        try {
+            if (self.location && self.location.origin && self.location.origin !== 'null') {
+                origin = self.location.origin;
+            }
+        } catch(e) {}
+
+        const isHttpOrigin = origin && (origin.startsWith('http://') || origin.startsWith('https://'));
+        try {
+            if (isHttpOrigin) {
+                importScripts(`${origin}/sql-wasm.js`);
+            } else {
+                importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
+            }
+        } catch(e) {
+            try {
+                importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
+            } catch(e2) {
+                console.error('sql-wasm.js 載入失敗:', e2);
+            }
+        }
         let db = null;
         self.onmessage = async function(e) {
             const { type, data, parts, query, id } = e.data;
             if (type === 'INIT' || type === 'INIT_PARTS') {
                 let SQL = null;
+                const isHttp = origin && (origin.startsWith('http://') || origin.startsWith('https://'));
                 try {
-                    SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
+                    SQL = await initSqlJs({ locateFile: f => isHttp ? `${origin}/${f}` : `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
                 } catch(err) {
-                    console.warn("CDN sql.js 載入失敗，降級載入同目錄 sql-wasm.wasm:", err);
-                    SQL = await initSqlJs({ locateFile: f => `./${f}` });
+                    console.warn("初次載入 sql-wasm 失敗，嘗試 CDN 回退:", err);
+                    try {
+                        SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
+                    } catch(err2) {
+                        console.error("CDN sql.js 載入亦失敗:", err2);
+                    }
                 }
 
                 if (type === 'INIT') {
@@ -239,6 +307,11 @@
                 const { type, res, id } = e.data;
                 if (type === 'READY') { 
                     document.getElementById('dbLoaderArea').style.display = 'none'; 
+                    const footerDbStatus = document.getElementById('footerDbStatus');
+                    if (footerDbStatus) {
+                        footerDbStatus.textContent = '雲端資料庫已就緒';
+                        footerDbStatus.style.color = '#30D158';
+                    }
                     loadLatestRaceInfo();
                     doSearch(); 
                 }
@@ -400,10 +473,26 @@
 
         async function doSearch(forcedBirthYear, forcedSex) {
             loadLatestRaceInfo();
-            const input = normalizeName(document.getElementById('searchInput').value);
+            const rawInput = document.getElementById('searchInput').value.trim();
+            // ── 多人比較模式：偵測分號（;、；）或空格分隔多人姓名 ──
+            let candidateNames = [];
+            if (rawInput.includes(';') || rawInput.includes('；')) {
+                candidateNames = rawInput.split(/[;；]/).map(n => normalizeName(n)).filter(Boolean);
+            } else if (/\s+/.test(rawInput)) {
+                candidateNames = rawInput.split(/\s+/).map(n => normalizeName(n)).filter(Boolean);
+            }
+            if (candidateNames.length >= 2) {
+                saveHistory(rawInput);
+                sendTelemetry(rawInput);
+                await doCompare(candidateNames);
+                return;
+            }
+            const input = normalizeName(rawInput);
             if (!input) {
-                const birthArea = document.getElementById('birthYearSelectArea');
-                if (birthArea) birthArea.style.display = 'none';
+                const birthSelect = document.getElementById('birthYearSelect');
+                if (birthSelect) birthSelect.classList.add('hidden');
+                const sexSelect = document.getElementById('sexSelect');
+                if (sexSelect) sexSelect.style.display = 'none';
                 const main = document.getElementById('main');
                 if (main) main.innerHTML = '';
                 return;
@@ -411,8 +500,10 @@
             if (!worker) return;
             sendTelemetry(input);
 
+            const safeInput = input.replace(/'/g, "''");
+
             // 1. 查詢該姓名在資料庫中擁有的所有不重複非空出生年
-            const birthRes = await remoteQuery(`SELECT DISTINCT 出生年 FROM swimming_scores WHERE 姓名='${input}' AND 出生年 IS NOT NULL AND 出生年 != '' ORDER BY 出生年 DESC`);
+            const birthRes = await remoteQuery(`SELECT DISTINCT 出生年 FROM swimming_scores WHERE 姓名='${safeInput}' AND 出生年 IS NOT NULL AND 出生年 != '' ORDER BY 出生年 DESC`);
             let years = [];
             if (birthRes && birthRes[0] && birthRes[0].values) {
                 years = birthRes[0].values.map(v => String(v[0]).replace(/\.0$/, '').trim()).filter(Boolean);
@@ -437,7 +528,7 @@
             }
 
             // 3. 查詢在該姓名條件下的不重複性別 (只要資料庫或 known 名單有男有女，即顯示性別選單)
-            const sexResCount = await remoteQuery(`SELECT DISTINCT 性別 FROM swimming_scores WHERE 姓名='${input}' AND 性別 IS NOT NULL AND 性別 != ''`);
+            const sexResCount = await remoteQuery(`SELECT DISTINCT 性別 FROM swimming_scores WHERE 姓名='${safeInput}' AND 性別 IS NOT NULL AND 性別 != ''`);
             let availableSexes = [];
             if (sexResCount && sexResCount[0] && sexResCount[0].values) {
                 availableSexes = sexResCount[0].values.map(v => v[0]).filter(Boolean);
@@ -479,9 +570,12 @@
             if (normalizedSex === '女生') normalizedSex = '女';
             const sexFilterClause = normalizedSex ? ` AND (性別 = '${normalizedSex}' OR 性別 = '${normalizedSex=='男'?'男生':'女生'}')` : "";
 
-            let sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${input}'${sexFilterClause} LIMIT 1`);
+            let sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${safeInput}'${sexFilterClause} LIMIT 1`);
             if (!sexRes || !sexRes[0] || !sexRes[0].values || sexRes[0].values.length === 0) { 
-                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300); return; 
+                await minWait;
+                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+                main.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; color:#8E8E93; gap:8px;"><span style="font-size:2rem;">🚫</span><span>「${input}」查無符合條件之成績紀錄</span></div>`;
+                return; 
             }
             const sex = normalizedSex || sexRes[0].values[0][0]; 
             saveHistory(input);
@@ -511,10 +605,10 @@
                     return o; 
                 }).filter(o => o.totalSec && !isNaN(o.totalSec) && o.totalSec > 0 && !isDQ(o.備註));
                 
-                const dists = [...new Set(allData.map(r => r.項目.match(/(\d+)公尺/)?.[1]))].filter(Boolean).sort((a,b)=>a-b);
+                const dists = [...new Set(allData.map(r => r.項目.match(/(\d+)公尺(?![池水])/)?.[1]))].filter(Boolean).map(Number).sort((a,b)=>a-b);
                 for (let [dIdx, dist] of dists.entries()) {
                     const dData = allData.filter(r => {
-                        const m = r.項目.match(/(\d+)公尺/);
+                        const m = r.項目.match(/(\d+)公尺(?![池水])/);
                         return m && String(m[1]) === String(dist);
                     }).sort((a,b) => a.totalSec - b.totalSec);
                     
@@ -547,6 +641,695 @@
             await minWait; loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
         }
 
+        // ══════════════════════════════════════════════
+        // 多人比較模式核心函數（項目基準，多人並排全新架構）
+        // ══════════════════════════════════════════════
+        const CMP_COLORS = ['#0A84FF', '#FF453A', '#30D158', '#FF9F0A', '#BF5AF2', '#64D2FF'];
+        const CMP_CIRCLES = ['❶', '❷', '❸', '❹', '❺', '❻'];
+        let cmpChartState = {}; // 記錄各 distKey 當前模式 (age | date) 與圖表實例
+        let currentCompareNames = [];
+        let currentCompareOverrides = {};
+
+        window.changeComparePlayerBirthYear = async function(playerIdx, newYear) {
+            if (!currentCompareOverrides) currentCompareOverrides = {};
+            currentCompareOverrides[playerIdx] = newYear;
+            await doCompare(currentCompareNames, currentCompareOverrides);
+        };
+
+        async function doCompare(names, birthYearOverrides = {}) {
+            if (!worker) return;
+            currentCompareNames = names;
+            currentCompareOverrides = birthYearOverrides || {};
+
+            const loader = document.getElementById('queryLoader');
+            loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
+            swimmerAnim.playSegments([32, 97], true);
+            const minWait = new Promise(r => setTimeout(r, 1200));
+            const main = document.getElementById('main'); main.innerHTML = '';
+            cmpChartState = {}; // 重設圖表狀態
+
+            // 隱藏單人專用的出生年/性別下拉選單
+            const birthSelect = document.getElementById('birthYearSelect');
+            if (birthSelect) birthSelect.classList.add('hidden');
+            const sexSelect = document.getElementById('sexSelect');
+            if (sexSelect) sexSelect.style.display = 'none';
+
+            // 取得各選手有效出生年清單與性別（單次批次查詢 IN）
+            const safeNamesList = names.map(n => `'${n.replace(/'/g, "''")}'`).join(', ');
+            const byBatchRes = await remoteQuery(`SELECT 姓名, 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名 IN (${safeNamesList}) AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 姓名, 出生年, 性別 ORDER BY 姓名, c DESC`);
+            const allByValues = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
+
+            const players = names.map((name, idx) => {
+                const matchedRows = allByValues.filter(v => v[0] === name);
+                let availableYears = [];
+                let birthYear = null, sex = null;
+                if (matchedRows.length > 0) {
+                    availableYears = [...new Set(matchedRows.map(v => String(v[1]).replace(/\.0$/, '').trim()).filter(Boolean))];
+                    const overrideYr = (currentCompareOverrides && (currentCompareOverrides[idx] || currentCompareOverrides[name])) ? String(currentCompareOverrides[idx] || currentCompareOverrides[name]) : null;
+                    if (overrideYr && availableYears.includes(overrideYr)) {
+                        birthYear = overrideYr;
+                    } else {
+                        birthYear = availableYears[0];
+                    }
+                    const matchedRow = matchedRows.find(v => String(v[1]).replace(/\.0$/, '').trim() === birthYear) || matchedRows[0];
+                    sex = matchedRow[2];
+                }
+                return { name, birthYear, sex, idx, availableYears };
+            });
+
+            // 頂部多人比較狀態摘要列
+            const headerBar = document.createElement('div');
+            headerBar.className = 'cmp-header-bar';
+            headerBar.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <span style="font-size:15px; font-weight:800; color:#D4AF37;">🏊 多人項目並排比較</span>
+                    <span style="color:#636366; font-size:12px;">|</span>
+                    ${players.map((p, i) => {
+                        let yearHtml = '';
+                        if (!p.birthYear) {
+                            yearHtml = `<span style="color:#FF453A; font-size:11px;">(無紀錄)</span>`;
+                        } else if (p.availableYears && p.availableYears.length > 1) {
+                            yearHtml = `
+                                <select class="cmp-birth-select" onchange="changeComparePlayerBirthYear(${i}, this.value)" title="同名選手，點擊切換出生年">
+                                    ${p.availableYears.map(y => `<option value="${y}" ${y === p.birthYear ? 'selected' : ''}>${y}年次</option>`).join('')}
+                                </select>
+                            `;
+                        } else {
+                            yearHtml = `<span style="color:#8E8E93; font-size:11px;">(${p.birthYear}年次)</span>`;
+                        }
+                        return `
+                            <span style="display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:12px; border:0.5px solid #38383A;">
+                                <span class="cmp-player-badge cmp-badge-${i % 6}">${CMP_CIRCLES[i] || (i+1)}</span>
+                                <span style="font-weight:700; font-size:13px; color:#FFF;">${p.name}</span>
+                                ${yearHtml}
+                            </span>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            main.appendChild(headerBar);
+
+            // 預抓每位選手所有泳姿之有效資料（合併為單一 SQL 查詢，極速秒開且節省行動端記憶體）
+            const strokes = ['蝶式', '仰式', '蛙式', '自由式', '混合式'];
+            const playerConditions = players.filter(p => p.birthYear).map(p => {
+                const safePName = p.name.replace(/'/g, "''");
+                const sexClause = p.sex ? ` AND (性別 = '${p.sex}' OR 性別 = '${p.sex=='男'?'男生':'女生'}')` : '';
+                const birthFilter = ` AND (出生年 = '${p.birthYear}' OR 出生年 = '${p.birthYear}.0')`;
+                return `(姓名 = '${safePName}'${birthFilter}${sexClause})`;
+            });
+
+            let allRows = [];
+            let colIndexMap = {};
+            if (playerConditions.length > 0) {
+                const wherePlayers = playerConditions.join(' OR ');
+                const whereStrokes = strokes.map(s => `項目 LIKE '%${s}%'`).join(' OR ');
+                const mergedSql = `SELECT 姓名, 年份, 項目, 成績, 備註, 出生年, 性別, 賽事名稱 FROM swimming_scores WHERE (${wherePlayers}) AND (${whereStrokes}) AND ${LC_FILTER}`;
+                const mergedRes = await remoteQuery(mergedSql);
+                if (mergedRes && mergedRes[0] && mergedRes[0].values) {
+                    allRows = mergedRes[0].values;
+                    mergedRes[0].columns.forEach((col, idx) => colIndexMap[col] = idx);
+                }
+            }
+
+            const allPlayersData = players.map(p => {
+                const strokesData = {};
+                strokes.forEach(s => strokesData[s] = []);
+                if (!p.birthYear) return { p, strokesData };
+
+                const pRows = allRows.filter(r => r[colIndexMap['姓名']] === p.name);
+                pRows.forEach(r => {
+                    const obj = {};
+                    Object.keys(colIndexMap).forEach(col => obj[col] = r[colIndexMap[col]]);
+                    obj.totalSec = timeToSec(obj.成績);
+                    if (obj.totalSec && !isNaN(obj.totalSec) && obj.totalSec > 0 && !isDQ(obj.備註)) {
+                        for (const s of strokes) {
+                            if (obj.項目.includes(s)) {
+                                strokesData[s].push(obj);
+                            }
+                        }
+                    }
+                });
+                return { p, strokesData };
+            });
+
+            // 逐一渲染五大泳姿「大黑底卡片」
+            for (let sIdx = 0; sIdx < strokes.length; sIdx++) {
+                const stroke = strokes[sIdx];
+                // 檢查是否此泳姿有任一位選手有資料
+                const hasAnyData = allPlayersData.some(({ strokesData }) => strokesData[stroke] && strokesData[stroke].length > 0);
+                if (!hasAnyData) continue;
+
+                // 收集此泳姿所有距離（防禦正則：/(\d+)公尺(?![池水])/）
+                const allDistsSet = new Set();
+                allPlayersData.forEach(({ strokesData }) => {
+                    (strokesData[stroke] || []).forEach(r => {
+                        const m = r.項目.match(/(\d+)公尺(?![池水])/);
+                        if (m) allDistsSet.add(parseInt(m[1]));
+                    });
+                });
+                const dists = [...allDistsSet].sort((a, b) => a - b);
+                if (dists.length === 0) continue;
+
+                // 大黑底卡片
+                const card = document.createElement('div');
+                card.className = 'stroke-card';
+                card.innerHTML = `<div class="stroke-title-wrap"><div class="stroke-title">${stroke}</div></div>`;
+
+                const scrollTray = document.createElement('div');
+                scrollTray.className = 'scroll-tray-wrap';
+                const trayInner = document.createElement('div');
+                trayInner.className = 'tray-inner-container';
+                trayInner.style.minWidth = `${Math.max(680, 110 + players.length * 150)}px`;
+
+                // 表格架構
+                const table = document.createElement('table');
+                table.className = 'cmp-table';
+
+                // 表頭：距離項目 + 各選手彩色 Badge 姓名
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                    <tr style="background:#242426;">
+                        <th style="width:90px; text-align:left; color:#8E8E93;">項目</th>
+                        ${players.map((p, i) => `
+                            <th style="text-align:left;">
+                                <div style="display:flex; align-items:center; gap:5px;">
+                                    <span class="cmp-player-badge cmp-badge-${i % 6}">${CMP_CIRCLES[i] || (i+1)}</span>
+                                    <span style="color:#FFF; font-weight:700;">${p.name}</span>
+                                </div>
+                            </th>
+                        `).join('')}
+                    </tr>
+                `;
+                table.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+
+                // 每一行代表一個距離項目（50m、100m 等）
+                for (let dIdx = 0; dIdx < dists.length; dIdx++) {
+                    const dist = dists[dIdx];
+                    const distKey = `cmp_s${sIdx}_d${dist}`;
+
+                    // 取得每位選手在此距離的所有成績與最佳成績
+                    const playerEntries = allPlayersData.map(({ p, strokesData }) => {
+                        const dData = (strokesData[stroke] || []).filter(r => {
+                            const m = r.項目.match(/(\d+)公尺(?![池水])/);
+                            return m && String(m[1]) === String(dist);
+                        }).sort((a, b) => a.totalSec - b.totalSec);
+                        return { p, dData, pb: dData.length > 0 ? dData[0] : null };
+                    });
+
+                    // 找出所有有效成績中最快與最慢秒數
+                    const validSecs = playerEntries.map(e => e.pb ? e.pb.totalSec : null).filter(v => v !== null);
+                    const bestSec = validSecs.length > 0 ? Math.min(...validSecs) : null;
+                    const worstSec = validSecs.length > 1 ? Math.max(...validSecs) : null;
+
+                    // 數據列
+                    const tr = document.createElement('tr');
+
+                    // 最左側：距離按鈕（50m ▼）
+                    let cellsHtml = `
+                        <td style="width:90px;">
+                            <span class="cmp-dist-btn" onclick="toggleCompareChart('${distKey}', '${stroke}', '${dist}', ${JSON.stringify(players).replace(/"/g, '&quot;')})">
+                                ${dist}m <span style="font-size:10px;">▼</span>
+                            </span>
+                        </td>
+                    `;
+
+                    // 右側依序填入每位選手成績格
+                    playerEntries.forEach(({ p, dData, pb }, pIdx) => {
+                        if (!pb) {
+                            cellsHtml += `<td class="cmp-no-data-cell">-</td>`;
+                            return;
+                        }
+                        const isFastest = bestSec !== null && Math.abs(pb.totalSec - bestSec) < 0.0001;
+                        const isSlowest = worstSec !== null && Math.abs(pb.totalSec - worstSec) < 0.0001 && worstSec > bestSec;
+                        const diffSec = (!isFastest && bestSec !== null) ? (pb.totalSec - bestSec) : null;
+                        const pbId = `${distKey}_p${pIdx}`;
+
+                        const countHtml = `<span class="cmp-count-tag" onclick="toggleCompareHistory('${pbId}', '${p.name}', '${stroke}', '${dist}', '${p.birthYear}', '${p.sex}')" title="點擊檢視歷年出賽紀錄">${dData.length}場</span>`;
+                        let timeDisplayHtml = '';
+                        if (isFastest) {
+                            timeDisplayHtml = `
+                                ${countHtml}
+                                <span class="cmp-pb-fastest">
+                                    ${formatToXcode(pb.totalSec)}
+                                </span>
+                            `;
+                        } else {
+                            const diffStr = diffSec !== null ? `+${diffSec.toFixed(2)}s` : '';
+                            const diffClass = isSlowest ? 'cmp-diff-badge is-slowest' : 'cmp-diff-badge';
+                            timeDisplayHtml = `
+                                ${countHtml}
+                                <span class="cmp-pb-normal">
+                                    ${formatToXcode(pb.totalSec)}
+                                </span>
+                                ${diffStr ? `<span class="${diffClass}">${diffStr}</span>` : ''}
+                            `;
+                        }
+
+                        cellsHtml += `
+                            <td>
+                                <div style="display:flex; align-items:center;">
+                                    ${timeDisplayHtml}
+                                </div>
+                            </td>
+                        `;
+                    });
+
+                    tr.innerHTML = cellsHtml;
+                    tbody.appendChild(tr);
+
+                    // 共同圖表 Drill-Down 容器（跨滿整列）
+                    const trChart = document.createElement('tr');
+                    trChart.style.display = 'none';
+                    trChart.id = `chart-row-${distKey}`;
+                    trChart.innerHTML = `
+                        <td colspan="${players.length + 1}" style="padding:0; border-bottom:0.5px solid #38383A;">
+                            <div class="cmp-drill-box">
+                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <span style="font-size:14px; font-weight:800; color:#D4AF37;">📈 【${stroke} ${dist}m】歷程成長對比</span>
+                                        <span style="color:#8E8E93; font-size:11px;" id="chart-sub-${distKey}">（相同年齡時速度對比）</span>
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                        <button class="cmp-pill-btn" id="btn-reset-zoom-${distKey}" onclick="resetCompareChartZoom('${distKey}')" style="display:none; color:#FF9F0A; border-color:rgba(255,159,10,0.5); background:rgba(255,159,10,0.12);">🔍 還原縮放</button>
+                                        <div class="cmp-pill-toggle">
+                                            <button class="cmp-pill-btn active" id="btn-metric-abs-${distKey}" onclick="switchCompareChartMetric('${distKey}','abs')">比賽成績</button>
+                                            <button class="cmp-pill-btn" id="btn-metric-gap-${distKey}" onclick="switchCompareChartMetric('${distKey}','gap')">相對秒差</button>
+                                        </div>
+                                        <div class="cmp-pill-toggle">
+                                            <button class="cmp-pill-btn active" id="btn-pill-age-${distKey}" onclick="switchCompareChartMode('${distKey}','age')">歲數對比</button>
+                                            <button class="cmp-pill-btn" id="btn-pill-date-${distKey}" onclick="switchCompareChartMode('${distKey}','date')">日期對比</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cmp-chart-container">
+                                    <canvas id="canvas-${distKey}"></canvas>
+                                </div>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(trChart);
+
+                    // 每位選手個別歷史出賽清單的收合容器（預留空間於 tbody 內）
+                    playerEntries.forEach(({ p }, pIdx) => {
+                        const pbId = `${distKey}_p${pIdx}`;
+                        const trHist = document.createElement('tr');
+                        trHist.style.display = 'none';
+                        trHist.id = `hist-row-${pbId}`;
+                        trHist.innerHTML = `
+                            <td colspan="${players.length + 1}" style="padding:0; border-bottom:0.5px solid #38383A;">
+                                <div class="cmp-drill-box" id="hist-content-${pbId}">
+                                    <div style="color:#8E8E93; font-size:12px;">載入歷年賽事中...</div>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(trHist);
+                    });
+                }
+
+                table.appendChild(tbody);
+                trayInner.appendChild(table);
+                scrollTray.appendChild(trayInner);
+                card.appendChild(scrollTray);
+                main.appendChild(card);
+            }
+
+            await minWait;
+            loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+        }
+
+        // ══════════════════════════════════════════════
+        // 多人並排：點擊「距離 ▼」展開/收合共同歷程對比圖 (雙 X 軸)
+        // ══════════════════════════════════════════════
+        async function toggleCompareChart(distKey, stroke, dist, players) {
+            const chartRow = document.getElementById(`chart-row-${distKey}`);
+            if (!chartRow) return;
+
+            if (chartRow.style.display !== 'none') {
+                chartRow.style.display = 'none';
+                return;
+            }
+            chartRow.style.display = 'table-row';
+
+            // 若尚未載入資料，進行圖表繪製
+            if (!cmpChartState[distKey]) {
+                cmpChartState[distKey] = {
+                    mode: 'age', // 預設為歲數對比
+                    metric: 'abs', // 預設為比賽成績 (abs vs gap)
+                    stroke: stroke,
+                    dist: dist,
+                    players: players,
+                    instance: null,
+                    dataCache: null
+                };
+            }
+            await renderCompareChart(distKey);
+        }
+
+        // 切換縱軸維度（比賽成績 abs vs 相對秒差 gap）
+        async function switchCompareChartMetric(distKey, metric) {
+            const state = cmpChartState[distKey];
+            if (!state) return;
+            state.metric = metric;
+
+            const btnAbs = document.getElementById(`btn-metric-abs-${distKey}`);
+            const btnGap = document.getElementById(`btn-metric-gap-${distKey}`);
+            const subTitle = document.getElementById(`chart-sub-${distKey}`);
+
+            if (metric === 'abs') {
+                if (btnAbs) btnAbs.className = 'cmp-pill-btn active';
+                if (btnGap) btnGap.className = 'cmp-pill-btn';
+                if (subTitle) {
+                    subTitle.textContent = state.mode === 'age' ? '（相同年齡時速度對比）' : '（真實歷史時間軸對比）';
+                }
+            } else {
+                if (btnAbs) btnAbs.className = 'cmp-pill-btn';
+                if (btnGap) btnGap.className = 'cmp-pill-btn active';
+                if (subTitle) {
+                    subTitle.textContent = state.mode === 'age' ? '（相同年齡時與標竿之差距）' : '（歷史時間軸與標竿之差距）';
+                }
+            }
+            await renderCompareChart(distKey);
+        }
+
+        // 切換雙 X 軸模式（歲數 vs 日期）
+        async function switchCompareChartMode(distKey, mode) {
+            const state = cmpChartState[distKey];
+            if (!state) return;
+            state.mode = mode;
+
+            const btnAge = document.getElementById(`btn-pill-age-${distKey}`);
+            const btnDate = document.getElementById(`btn-pill-date-${distKey}`);
+            const subTitle = document.getElementById(`chart-sub-${distKey}`);
+
+            if (mode === 'age') {
+                if (btnAge) btnAge.className = 'cmp-pill-btn active';
+                if (btnDate) btnDate.className = 'cmp-pill-btn';
+                if (subTitle) {
+                    subTitle.textContent = state.metric === 'gap' ? '（相同年齡時與標竿之差距）' : '（相同年齡時速度對比）';
+                }
+            } else {
+                if (btnAge) btnAge.className = 'cmp-pill-btn';
+                if (btnDate) btnDate.className = 'cmp-pill-btn active';
+                if (subTitle) {
+                    subTitle.textContent = state.metric === 'gap' ? '（歷史時間軸與標竿之差距）' : '（真實歷史時間軸對比）';
+                }
+            }
+            await renderCompareChart(distKey);
+        }
+
+        const CMP_POINT_STYLES = ['circle', 'triangle', 'rect', 'diamond', 'star', 'crossRot', 'rectRounded'];
+
+        function hexToRgba(hex, alpha) {
+            if (!hex) return `rgba(255,255,255,${alpha})`;
+            if (hex.startsWith('rgba')) {
+                return hex.replace(/[\d\.]+\)$/g, `${alpha})`);
+            }
+            if (hex.startsWith('rgb(')) {
+                return hex.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
+            }
+            let c = hex.replace('#', '');
+            if (c.length === 3) c = c.split('').map(x => x + x).join('');
+            const num = parseInt(c, 16);
+            return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
+        }
+
+        function applyPlayerFocus(chart, focusedIndex) {
+            if (!chart || !chart.data || !chart.data.datasets) return;
+            chart.data.datasets.forEach((ds, i) => {
+                const baseColor = ds._baseColor || ds.borderColor;
+                ds._baseColor = baseColor;
+                if (focusedIndex === null || focusedIndex === undefined) {
+                    ds.borderColor = baseColor;
+                    ds.backgroundColor = baseColor;
+                    ds.borderDash = [];
+                    ds.borderWidth = 2;
+                    ds.pointRadius = 5.5;
+                    ds.pointHoverRadius = 8.5;
+                } else if (i === focusedIndex) {
+                    ds.borderColor = baseColor;
+                    ds.backgroundColor = baseColor;
+                    ds.borderDash = [];
+                    ds.borderWidth = 3.5;
+                    ds.pointRadius = 7.5;
+                    ds.pointHoverRadius = 10;
+                } else {
+                    const faded = hexToRgba(baseColor, 0.10);
+                    ds.borderColor = faded;
+                    ds.backgroundColor = faded;
+                    ds.borderDash = [4, 4];
+                    ds.borderWidth = 1;
+                    ds.pointRadius = 2.5;
+                    ds.pointHoverRadius = 4;
+                }
+            });
+            chart.update();
+        }
+
+        function resetCompareChartZoom(distKey) {
+            const state = cmpChartState[distKey];
+            if (state && state.instance) {
+                state.instance.resetZoom();
+                const btn = document.getElementById(`btn-reset-zoom-${distKey}`);
+                if (btn) btn.style.display = 'none';
+            }
+        }
+
+        // 渲染或更新 Chart.js
+        async function renderCompareChart(distKey) {
+            const state = cmpChartState[distKey];
+            if (!state) return;
+            const { mode, metric = 'abs', stroke, dist, players } = state;
+
+            // 快取各選手歷史出賽點
+            if (!state.dataCache) {
+                state.dataCache = await Promise.all(players.map(async (p, idx) => {
+                    if (!p.birthYear) return { player: p, points: [] };
+                    const safeName = p.name.replace(/'/g, "''");
+                    const sexClause = p.sex ? ` AND (性別 = '${p.sex}' OR 性別 = '${p.sex=='男'?'男生':'女生'}')` : '';
+                    const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${safeName}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND (出生年 = '${p.birthYear}' OR 出生年 = '${p.birthYear}.0')${sexClause} AND ${LC_FILTER} ORDER BY 年份 ASC`);
+                    if (!res || !res[0] || !res[0].values) return { player: p, points: [] };
+
+                    const pts = res[0].values.filter(v => {
+                        const m = v[4].match(/(\d+)公尺(?![池水])/);
+                        return m && String(m[1]) === String(dist) && !isDQ(v[5]);
+                    }).map(v => {
+                        const y = v[0].substring(0,4), m = v[0].substring(4,6), d = v[0].substring(6,8);
+                        const raceDate = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+                        const birthYr = toAD(v[3]);
+                        const birthDate = new Date(birthYr, 0, 1);
+                        const age = Math.max(5, (raceDate - birthDate) / (365.25 * 86400 * 1000));
+                        const sec = timeToSec(v[1]);
+                        return {
+                            age: parseFloat(age.toFixed(2)),
+                            date: raceDate,
+                            dateStr: `${y}/${m}/${d}`,
+                            sec: sec,
+                            rawTime: v[1],
+                            meet: v[2],
+                            playerName: p.name
+                        };
+                    }).filter(pt => pt.sec && !isNaN(pt.sec) && pt.sec > 0);
+
+                    return { player: p, points: pts };
+                }));
+            }
+
+            const canvas = document.getElementById(`canvas-${distKey}`);
+            if (!canvas) return;
+
+            // 若為 gap 模式，計算動態領先最佳標竿 (Leader Progression Benchmark)
+            if (metric === 'gap') {
+                const allPoints = [];
+                state.dataCache.forEach(({ points }) => {
+                    if (points) points.forEach(pt => allPoints.push(pt));
+                });
+
+                if (mode === 'age') {
+                    allPoints.sort((a, b) => a.age - b.age);
+                } else {
+                    allPoints.sort((a, b) => a.date - b.date);
+                }
+
+                let runningBest = Infinity;
+                allPoints.forEach(pt => {
+                    if (pt.sec < runningBest) runningBest = pt.sec;
+                    pt._leaderBest = runningBest;
+                });
+            }
+
+            // 依 mode 與 metric 組合 datasets，每位選手分配專屬圖標形狀與顏色
+            const datasets = state.dataCache.map(({ player, points }, idx) => {
+                if (!points || points.length === 0) return null;
+                const color = CMP_COLORS[idx % CMP_COLORS.length];
+                const pointStyle = CMP_POINT_STYLES[idx % CMP_POINT_STYLES.length];
+                const chartData = points.map(pt => {
+                    let yVal = pt.sec;
+                    let gapSec = 0;
+                    if (metric === 'gap') {
+                        const leader = pt._leaderBest || pt.sec;
+                        gapSec = Math.max(0, pt.sec - leader);
+                        yVal = parseFloat(gapSec.toFixed(2));
+                    }
+                    return {
+                        x: mode === 'age' ? pt.age : pt.date,
+                        y: yVal,
+                        meta: { ...pt, gapSec, isGapMode: metric === 'gap' }
+                    };
+                });
+
+                return {
+                    label: `${CMP_CIRCLES[idx] || (idx+1)} ${player.name} (${player.birthYear ? player.birthYear+'年次' : ''})`,
+                    data: chartData,
+                    borderColor: color,
+                    backgroundColor: color,
+                    pointStyle: pointStyle,
+                    pointRadius: 5.5,
+                    pointHoverRadius: 8.5,
+                    showLine: true,
+                    tension: 0.2,
+                    borderWidth: 2,
+                    _baseColor: color,
+                    _basePointStyle: pointStyle
+                };
+            }).filter(Boolean);
+
+            if (state.instance) {
+                state.instance.destroy();
+                state.instance = null;
+            }
+
+            const ctx = canvas.getContext('2d');
+            state.instance = new Chart(ctx, {
+                type: 'scatter',
+                data: { datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: function(evt, activeElements) {
+                        if (activeElements && activeElements.length > 0) {
+                            const clickedIdx = activeElements[0].datasetIndex;
+                            state.focusedIndex = (state.focusedIndex === clickedIdx) ? null : clickedIdx;
+                            applyPlayerFocus(state.instance, state.focusedIndex);
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: mode === 'age' ? 'linear' : 'time',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: mode === 'age' ? '實質歲數 (Year + Month/12 - 出生年)' : '比賽日期 (時間軸)',
+                                color: '#8E8E93',
+                                font: { size: 11, weight: 'bold' }
+                            },
+                            grid: { color: 'rgba(255,255,255,0.06)' },
+                            ticks: {
+                                color: '#8E8E93',
+                                font: { size: 11 }
+                            }
+                        },
+                        y: {
+                            reverse: false,
+                            title: {
+                                display: true,
+                                text: metric === 'gap' ? '落後標竿秒差 (+秒)' : '比賽成績 (秒)',
+                                color: '#8E8E93',
+                                font: { size: 11, weight: 'bold' }
+                            },
+                            grid: { color: 'rgba(255,255,255,0.06)' },
+                            ticks: {
+                                color: '#8E8E93',
+                                font: { size: 11 },
+                                callback: val => {
+                                    if (metric === 'gap') {
+                                        return val === 0 ? '0.00s (標竿)' : `+${val.toFixed(2)}s`;
+                                    }
+                                    return formatToXcode(val);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#FFFFFF',
+                                font: { size: 12, weight: 'bold' },
+                                boxWidth: 14,
+                                padding: 12,
+                                usePointStyle: true
+                            },
+                            onClick: function(e, legendItem, legend) {
+                                const chart = legend.chart;
+                                const clickedIdx = legendItem.datasetIndex;
+                                state.focusedIndex = (state.focusedIndex === clickedIdx) ? null : clickedIdx;
+                                applyPlayerFocus(chart, state.focusedIndex);
+                            }
+                        },
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'xy',
+                                threshold: 5,
+                                onPan: function() {
+                                    const btn = document.getElementById(`btn-reset-zoom-${distKey}`);
+                                    if (btn) btn.style.display = 'inline-flex';
+                                }
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                    speed: 0.08
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'xy',
+                                onZoom: function() {
+                                    const btn = document.getElementById(`btn-reset-zoom-${distKey}`);
+                                    if (btn) btn.style.display = 'inline-flex';
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(28,28,30,0.96)',
+                            borderColor: '#38383A',
+                            borderWidth: 1,
+                            titleFont: { weight: 'bold' },
+                            padding: 10,
+                            callbacks: {
+                                label: function(ctx) {
+                                    const m = ctx.raw.meta;
+                                    const lines = [
+                                        `👤 選手: ${m.playerName}`,
+                                        `⏱️ 成績: ${formatToXcode(m.sec)} (${m.rawTime})`
+                                    ];
+                                    if (m.isGapMode) {
+                                        const gapTxt = m.gapSec <= 0.001 ? '👑 當時領先 (0.00s)' : `+${m.gapSec.toFixed(2)}s (距當時標竿)`;
+                                        lines.push(`📊 秒差: ${gapTxt}`);
+                                    }
+                                    lines.push(`🎂 歲數: ${m.age} 歲`);
+                                    lines.push(`📅 日期: ${m.dateStr}`);
+                                    lines.push(`🏆 賽事: ${m.meet}`);
+                                    return lines;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 若已有聚焦狀態，應用聚焦
+            if (state.focusedIndex !== null && state.focusedIndex !== undefined) {
+                applyPlayerFocus(state.instance, state.focusedIndex);
+            }
+        }
+
+        // ══════════════════════════════════════════════
+        // 單人模式：項目抽屜展開與收合 (趨勢圖、歷年紀錄、同齡/全國排行、年度最佳)
+        // ══════════════════════════════════════════════
         async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
             const p = document.getElementById(`p-${id}`), c = document.getElementById(`c-${id}`);
             if (!p || !c) return;
@@ -566,7 +1349,7 @@
                 const adYear = toAD(p2);
                 let headerAD = "";
                 if (mode === 'rank') {
-                    const yNum = parseInt(p2.replace(/\D/g, ''));
+                    const yNum = parseInt(String(p2).replace(/\D/g, ''));
                     headerAD = `<div class="rank-header-AD"><span class="year-side" onclick="event.stopPropagation(); toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum-1}','${p3}')">${toAD(yNum-1)}</span><span class="year-center">${adYear}</span><span class="year-side" onclick="event.stopPropagation(); toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum+1}','${p3}')">${toAD(yNum+1)}</span></div>`;
                 } else {
                     headerAD = `<div class="rank-header-AD"><span class="year-center" style="color:#FFF;">全國排行 (2025-2026)</span></div>`;
@@ -586,7 +1369,7 @@
                 const sFilter = (p3 && p3 !== 'null' && p3 !== 'undefined') ? ` AND 性別 = '${p3}'` : '';
                 const bFilter = (p2 && p2 !== 'null' && p2 !== 'undefined') ? ` AND (出生年 = '${p2}' OR 出生年 = '${p2}.0')` : '';
                 const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${bFilter} ${sFilter} AND ${LC_FILTER} ORDER BY 年份 ASC`);
-                const fV = res[0].values.filter(vv => { const m = vv[4].match(/(\d+)公尺/); return m && String(m[1]) === String(dist) && !isDQ(vv[5]); });
+                const fV = res[0].values.filter(vv => { const m = vv[4].match(/(\d+)公尺(?![池水])/); return m && String(m[1]) === String(dist) && !isDQ(vv[5]); });
                 const mkD = (rs) => rs.map(v => ({ x: new Date(v[0].substring(0,4), v[0].substring(4,6)-1, v[0].substring(6,8)), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
                 const mkA = (rs) => rs.map(v => ({ x: (parseInt(v[0].substring(0,4)) + (parseInt(v[0].substring(4,6))-1)/12) - toAD(v[3]), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
                 const tD = mkD(fV), aD = mkA(fV);
@@ -601,21 +1384,21 @@
                 const aC = new Chart(document.getElementById(`canvas-a-${id}`), { type: 'line', data: { datasets: [{ data: aD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(false) });
                 document.getElementById(`st-${id}`).onchange = async (e) => { 
                     const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
-                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
+                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺(?![池水])/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
                     tC.data.datasets[1] = { label: e.target.value, data: mkD(ff), borderColor: '#0A84FF', borderDash: [5,5], pointBackgroundColor: '#0A84FF', pointRadius: 4 }; tC.update(); 
                 };
                 document.getElementById(`sa-${id}`).onchange = async (e) => { 
                     const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
-                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
+                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺(?![池水])/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
                     aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 }; aC.update(); 
                 };
-            } else if (mode === 'matrix') { c.innerHTML = await renderMatrix(dist, stroke, p3, p2); }
+            } else if (mode === 'matrix') { c.innerHTML = await renderMatrix(dist, stroke, (p3 || p2 || '男')); }
             else if (mode === 'history') {
                 const sFilter = (p3 && p3 !== 'null' && p3 !== 'undefined') ? ` AND 性別 = '${p3}'` : '';
                 const bFilter = (p2 && p2 !== 'null' && p2 !== 'undefined') ? ` AND (出生年 = '${p2}' OR 出生年 = '${p2}.0')` : '';
                 const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目, 備註 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${bFilter} ${sFilter} AND ${LC_FILTER} ORDER BY 年份 DESC`);
                 const fR = res[0].values.filter(v => {
-                    const m = v[3].match(/(\d+)公尺/);
+                    const m = v[3].match(/(\d+)公尺(?![池水])/);
                     return m && String(m[1]) === String(dist);
                 });
                 const validFR = fR.filter(v => !isDQ(v[4]));
@@ -629,6 +1412,74 @@
                 });
                 c.innerHTML = h + "</div>";
             }
+        }
+
+        // ══════════════════════════════════════════════
+        // 多人並排：點擊選手「PB 秒數」收合/展開歷年出賽紀錄
+        // ══════════════════════════════════════════════
+        async function toggleCompareHistory(pbId, playerName, stroke, dist, birthYear, sex) {
+            const histRow = document.getElementById(`hist-row-${pbId}`);
+            const histContent = document.getElementById(`hist-content-${pbId}`);
+            if (!histRow || !histContent) return;
+
+            if (histRow.style.display !== 'none') {
+                histRow.style.display = 'none';
+                return;
+            }
+            histRow.style.display = 'table-row';
+
+            const safeName = playerName.replace(/'/g, "''");
+            const sexClause = sex ? ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')` : '';
+            const birthFilter = birthYear ? ` AND (出生年 = '${birthYear}' OR 出生年 = '${birthYear}.0')` : '';
+
+            const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目, 備註 FROM swimming_scores WHERE 姓名='${safeName}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${birthFilter} ${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
+            if (!res || !res[0] || !res[0].values || res[0].values.length === 0) {
+                histContent.innerHTML = `<div style="color:#8E8E93; font-size:13px; padding:6px 0;">查無「${playerName}」在 ${stroke} ${dist}m 之歷年出賽紀錄。</div>`;
+                return;
+            }
+
+            const validRows = res[0].values.filter(v => {
+                const m = v[3].match(/(\d+)公尺(?![池水])/);
+                return m && String(m[1]) === String(dist);
+            });
+
+            if (validRows.length === 0) {
+                histContent.innerHTML = `<div style="color:#8E8E93; font-size:13px; padding:6px 0;">查無「${playerName}」在 ${stroke} ${dist}m 之合格成績紀錄。</div>`;
+                return;
+            }
+
+            const nonDQSecs = validRows.filter(v => !isDQ(v[4])).map(v => timeToSec(v[1])).filter(s => s > 0);
+            const minSec = nonDQSecs.length > 0 ? Math.min(...nonDQSecs) : null;
+
+            let h = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:0.5px solid #2C2C2E; padding-bottom:6px;">
+                    <div class="row-gold" style="font-weight:800; font-size:14px;">
+                        📋 ${playerName} - 【${stroke} ${dist}m】歷年出賽紀錄 (${validRows.length}場)
+                    </div>
+                    <span onclick="document.getElementById('hist-row-${pbId}').style.display='none'" style="color:#8E8E93; font-size:12px; cursor:pointer;">
+                        ✕ 關閉
+                    </span>
+                </div>
+                <div style="max-height:260px; overflow-y:auto; overflow-x:auto;">
+                    <div style="min-width:540px;">
+            `;
+
+            validRows.forEach(v => {
+                const s = timeToSec(v[1]);
+                const dqFlag = isDQ(v[4]);
+                const isPB = !dqFlag && minSec !== null && Math.abs(s - minSec) < 0.0001;
+                h += `
+                    <div class="list-row ${isPB ? 'row-gold' : ''}" style="padding:4px 0;">
+                        <span class="col-8code-fixed">${formatDateStr(v[0])}</span>
+                        <span class="col-time-fixed">${formatToXcode(s)}${dqFlag ? ' (違規)' : ''}</span>
+                        <span class="col-meet-fixed">${v[2]}</span>
+                        ${isPB ? '<span class="row-gold" style="font-size:11px; font-weight:800; margin-left:8px;">★ PB</span>' : ''}
+                    </div>
+                `;
+            });
+
+            h += `</div></div>`;
+            histContent.innerHTML = h;
         }
 
         async function downloadDatabasePartsFromServer(version, totalParts) {
@@ -923,7 +1774,11 @@
         }
 
         startSystem();
-        function collapseAll() { document.querySelectorAll('.drill-down.active').forEach(p => p.classList.remove('active')); }
+        function collapseAll() { 
+            document.querySelectorAll('.drill-down.active').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('tr[id^="chart-row-"]').forEach(r => r.style.display = 'none');
+            document.querySelectorAll('tr[id^="hist-row-"]').forEach(r => r.style.display = 'none');
+        }
         function resetDB() { if (confirm("重置清除資料庫？")) { indexedDB.deleteDatabase("SwimSQL"); localStorage.removeItem('cached_db_time'); location.reload(); } }
         function toggleHistory() { let h = JSON.parse(localStorage.getItem('swim_h')||"[]"), html = `<div id="histModal" style="position:fixed; top:65px; left:16px; right:16px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000;"><div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;"><span style="color:#D4AF37; font-weight:bold;">歷史紀錄</span><span onclick="document.getElementById('histModal').remove()" style="color:#8E8E93; cursor:pointer;">關閉</span></div>`; h.forEach(n => html += `<div style="display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;"><span onclick="selectHist('${n}')" style="flex:1; cursor:pointer; color:#FFF;">${n}</span><span onclick="deleteHistory('${n}')" style="cursor:pointer;">🗑️</span></div>`); document.body.insertAdjacentHTML('beforeend', html+'</div>'); }
         function selectHist(n) { document.getElementById('searchInput').value = n; if(document.getElementById('histModal')) document.getElementById('histModal').remove(); doSearch(); }
@@ -1137,21 +1992,37 @@
             let cursorVisible = true;
             let typingTimer = null;
 
+            function isInputActive() {
+                return inputEl.value.trim().length > 0;
+            }
+
             function renderPlaceholder() {
-                if (document.activeElement === inputEl && inputEl.value.trim().length > 0) return;
+                if (isInputActive()) {
+                    inputEl.placeholder = "請輸入選手姓名";
+                    return;
+                }
                 const cursor = (isPaused ? (cursorVisible ? '_' : ' ') : '_');
                 inputEl.placeholder = prefix + currentText + cursor + suffix;
             }
 
+            inputEl.addEventListener('input', () => {
+                if (isInputActive()) {
+                    if (typingTimer) clearTimeout(typingTimer);
+                    renderPlaceholder();
+                    typingTimer = setTimeout(tick, 1000);
+                }
+            });
+
             setInterval(() => {
                 cursorVisible = !cursorVisible;
-                if (isPaused) {
+                if (isPaused && !isInputActive()) {
                     renderPlaceholder();
                 }
             }, 450);
 
             function tick() {
-                if (document.activeElement === inputEl && inputEl.value.trim().length > 0) {
+                if (isInputActive()) {
+                    renderPlaceholder();
                     typingTimer = setTimeout(tick, 1000);
                     return;
                 }
@@ -1206,8 +2077,8 @@
     <!-- 頁面最底部狀態欄 (Footer) - 資料庫版本流水號展示 -->
     <footer id="footerDbVersion" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1.5px solid #FFD700; padding: 8px 16px; font-size: 12px; color: #FFF; text-align: center; z-index: 99; display: flex; justify-content: space-between; align-items: center; max-width: 100vw; overflow-x: auto; white-space: nowrap; box-shadow: 0 -4px 12px rgba(0,0,0,0.5);">
         <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="display: inline-block; width: 8px; height: 8px; background-color: #30D158; border-radius: 50%; box-shadow: 0 0 8px #30D158;"></span>
-            <span id="footerDbStatus" style="font-weight: 600; color: #30D158;">雲端資料庫已就緒</span>
+            <span style="display: inline-block; width: 8px; height: 8px; background-color: #FFD933; border-radius: 50%; box-shadow: 0 0 8px #FFD933;"></span>
+            <span id="footerDbStatus" style="font-weight: 600; color: #FFD933;">資料庫同步載入中...</span>
         </div>
         <div id="footerDbVersionCode" style="font-family: monospace; color: #FFD700; font-weight: bold; font-size: 13px; text-shadow: 0 0 6px rgba(255,215,0,0.4);">
             🏷️ 資料庫版本流水號: <span id="verCodeSpan">載入中...</span>
@@ -1227,10 +2098,8 @@
                     const rowsStr = data.total_rows ? Number(data.total_rows).toLocaleString() : '817,480';
                     const verCodeSpan = document.getElementById('verCodeSpan');
                     const verRowsSpan = document.getElementById('verRowsSpan');
-                    const footerDbStatus = document.getElementById('footerDbStatus');
                     if (verCodeSpan) verCodeSpan.textContent = verDisplay;
                     if (verRowsSpan) verRowsSpan.textContent = `${rowsStr} 筆成績紀錄`;
-                    if (footerDbStatus) footerDbStatus.textContent = '雲端資料庫已就緒';
                 }
             } catch(e) {
                 console.warn("無法取得 version.json", e);
