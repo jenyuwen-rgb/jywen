@@ -129,6 +129,11 @@
             z-index: 1000;
             box-shadow: 0 8px 32px rgba(0,0,0,0.6);
         }
+        .autocomplete-items.hidden, .autocomplete-items[style*="display: none"] {
+            display: none !important;
+            pointer-events: none !important;
+            visibility: hidden !important;
+        }
         .autocomplete-item {
             padding: 12px 16px;
             cursor: pointer;
@@ -472,6 +477,12 @@
         }
 
         async function doSearch(forcedBirthYear, forcedSex) {
+            if (typeof window.forceCloseAutocomplete === 'function') {
+                window.forceCloseAutocomplete();
+            } else {
+                const ac = document.getElementById('autocomplete-list');
+                if (ac) { ac.classList.add('hidden'); ac.style.display = 'none'; ac.innerHTML = ''; }
+            }
             loadLatestRaceInfo();
             const rawInput = document.getElementById('searchInput').value.trim();
             // ── 多人比較模式：偵測分號（;、；）或空格分隔多人姓名 ──
@@ -1818,6 +1829,7 @@
 
             autocompleteList.innerHTML = '';
             autocompleteList.classList.remove('hidden');
+            autocompleteList.style.display = 'block';
             currentFocus = -1;
 
             names.forEach(name => {
@@ -1876,9 +1888,17 @@
         function closeAutocomplete(e) {
             if (e && (e.target === searchInput || autocompleteList.contains(e.target))) return;
             autocompleteList.classList.add('hidden');
+            autocompleteList.style.display = 'none';
             autocompleteList.innerHTML = '';
             currentFocus = -1;
         }
+
+        window.forceCloseAutocomplete = function() {
+            autocompleteList.classList.add('hidden');
+            autocompleteList.style.display = 'none';
+            autocompleteList.innerHTML = '';
+            currentFocus = -1;
+        };
 
         document.addEventListener('click', closeAutocomplete);
 
