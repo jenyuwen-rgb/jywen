@@ -9,7 +9,7 @@
       "bracket": "國小 (12歲以下)",
       "doc_date": "2026-02",
       "doc_name": "115年全國小學游泳錦標賽競賽規程",
-      "doc_url": "https://ctsa.utk.com.tw/CTSA_WEB/Upload/news/115/%E7%AB%B6%E8%B3%BD%E8%A6%8F%E7%A8%8B-115%E5%85%A8%E5%9C%8B%E5%9C%8B%E5%B0%8F.pdf"
+      "doc_url": "/static/docs/115_primary_school_manual.pdf"
     },
     {
       "id": "presidential",
@@ -18,7 +18,7 @@
       "bracket": "全分齡",
       "doc_date": "2026-03",
       "doc_name": "115年全國總統盃分齡游泳錦標賽競賽規程",
-      "doc_url": "https://ctsa.utk.com.tw/Upload/Web_Page/CTSA%E4%B8%AD%E8%8F%AF%E6%B3%B3%E5%8D%94115%E5%B9%B4%E5%88%86%E9%BD%A1%E8%B3%BD%E5%88%B6.pdf"
+      "doc_url": "/static/docs/115_presidential_cup_manual.pdf"
     },
     {
       "id": "high_school",
@@ -27,7 +27,7 @@
       "bracket": "國中/高中",
       "doc_date": "2026-01",
       "doc_name": "114年全國中等學校運動會游泳技術手冊",
-      "doc_url": "https://www.ctssf.org.tw/files/message/1779/02.%E6%B8%B8%E6%B3%B3-114%E5%B9%B4%E5%85%A8%E4%B8%AD%E9%81%8B%E6%8A%80%E8%A1%93%E6%89%8B%E5%86%8A.pdf"
+      "doc_url": "/static/docs/114_high_school_games_manual.pdf"
     },
     {
       "id": "college",
@@ -36,7 +36,7 @@
       "bracket": "大專公開/一般",
       "doc_date": "2025-12",
       "doc_name": "114年全國大專校院運動會游泳技術手冊",
-      "doc_url": "https://www.ctusf.org.tw/upload/news/20250220053144_1.pdf"
+      "doc_url": "/static/docs/114_college_games_manual.pdf"
     },
     {
       "id": "national_games",
@@ -45,7 +45,7 @@
       "bracket": "全國公開組",
       "doc_date": "114年核定",
       "doc_name": "114年全國運動會水上運動技術手冊",
-      "doc_url": "https://swim8.kcsat.org/files/attachment/02_114%E5%B9%B4%E5%85%A8%E5%9C%8B%E9%81%8B%E5%8B%95%E6%8A%80%E8%A1%93%E6%89%8B%E5%86%8A.pdf"
+      "doc_url": "/static/docs/114_national_games_manual.pdf"
     }
   ],
   "standards": {
