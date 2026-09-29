@@ -199,7 +199,7 @@
     <div class="nav-header">
         <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()">🕒</span>
         <div style="position: relative; flex: 1; min-width: 0; display: flex; align-items: center;">
-            <input type="text" id="searchInput" value="" placeholder="請輸入選手姓名 (例如: 王冠閎 或 多位比較: 王冠閎;王星皓;韓安齊)" autocomplete="off">
+            <input type="text" id="searchInput" value="" placeholder="請輸入選手姓名 (例如: 王冠閎 或 達標檢驗: 王星皓/STD 或 多位比較: 王冠閎;王星皓;韓安齊)" autocomplete="off">
             <div id="autocomplete-list" class="autocomplete-items hidden"></div>
         </div>
         <select id="birthYearSelect" class="hidden" onchange="doSearch(this.value, document.getElementById('sexSelect').value)" style="background:#1C1C1E; color:#D4AF37; font-weight:bold; font-size:13px; border:0.5px solid #38383A; border-radius:8px; padding:4px 8px; outline:none; cursor:pointer; margin:0 4px; flex-shrink:0;">
@@ -485,6 +485,19 @@
             }
             loadLatestRaceInfo();
             const rawInput = document.getElementById('searchInput').value.trim();
+
+            // ── 賽事達標檢驗模式：偵測以 /STD 或 /std 結尾 ──
+            const stdMatch = rawInput.match(/^(.+?)\s*\/\s*std$/i);
+            if (stdMatch) {
+                const stdSwimmerName = normalizeName(stdMatch[1]);
+                if (stdSwimmerName) {
+                    saveHistory(rawInput);
+                    sendTelemetry(rawInput);
+                    await doStandardsCheck(stdSwimmerName, forcedBirthYear);
+                    return;
+                }
+            }
+
             // ── 多人比較模式：偵測分號（;、；）或空格分隔多人姓名 ──
             let candidateNames = [];
             if (rawInput.includes(';') || rawInput.includes('；')) {
@@ -1493,6 +1506,347 @@
             histContent.innerHTML = h;
         }
 
+        // ══════════════════════════════════════════════
+        // 🎯 賽事達標檢驗模式：選手/STD (5大核心賽事由易到難自動排序)
+        // ══════════════════════════════════════════════
+        let qualificationStandardsData = null;
+
+        async function loadQualificationStandards() {
+            if (qualificationStandardsData) return qualificationStandardsData;
+            try {
+                const resp = await fetch('/static/qualification_standards.json');
+                if (resp.ok) {
+                    qualificationStandardsData = await resp.json();
+                    return qualificationStandardsData;
+                }
+            } catch(e) {
+                console.warn("載入 qualification_standards.json 失敗:", e);
+            }
+            return null;
+        }
+
+        async function doStandardsCheck(swimmerName, forcedBirthYear) {
+            if (!worker) return;
+            const loader = document.getElementById('queryLoader');
+            loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
+            swimmerAnim.playSegments([32, 97], true);
+            const minWait = new Promise(r => setTimeout(r, 1200));
+            const main = document.getElementById('main'); main.innerHTML = '';
+
+            // 隱藏單人專用的性別下拉選單與出生年選單
+            const sexSelect = document.getElementById('sexSelect');
+            if (sexSelect) sexSelect.style.display = 'none';
+            const birthSelect = document.getElementById('birthYearSelect');
+            if (birthSelect) birthSelect.classList.add('hidden');
+
+            const safeName = swimmerName.replace(/'/g, "''");
+
+            // 1. 查詢選手所有不重複出生年與性別
+            const byBatchRes = await remoteQuery(`SELECT 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名='${safeName}' AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 出生年, 性別 ORDER BY c DESC`);
+            const byRows = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
+
+            if (byRows.length === 0) {
+                await minWait;
+                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+                main.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; color:#8E8E93; gap:8px;"><span style="font-size:2rem;">🚫</span><span>查無「${swimmerName}」之出生年或性別資料，無法進行賽事達標檢驗</span></div>`;
+                return;
+            }
+
+            const availableYears = [...new Set(byRows.map(v => String(v[0]).replace(/\\.0$/, '').trim()).filter(Boolean))];
+            let selectedBirthYear = forcedBirthYear || availableYears[0];
+            const matchedRow = byRows.find(v => String(v[0]).replace(/\\.0$/, '').trim() === selectedBirthYear) || byRows[0];
+            const sex = (matchedRow[1] === '女' || matchedRow[1] === '女生') ? '女' : '男';
+
+            const currentYear = 2026;
+            const birthYearNum = parseInt(selectedBirthYear) || 2010;
+            const swimmerAge = currentYear - birthYearNum;
+
+            // 判定年齡組別 (Age Bracket)
+            let ageBracket = "公開組";
+            let displayBracketName = "公開組";
+            if (swimmerAge <= 10) {
+                ageBracket = "10歲及以下";
+                displayBracketName = "10歲及以下 (國小)";
+            } else if (swimmerAge <= 12) {
+                ageBracket = "11&12歲級";
+                displayBracketName = "11&12歲級 (國小高年級)";
+            } else if (swimmerAge <= 14) {
+                ageBracket = "13&14歲級";
+                displayBracketName = "13&14歲級 (國中組)";
+            } else if (swimmerAge <= 17) {
+                ageBracket = "15~17歲級";
+                displayBracketName = "15~17歲級 (高中組)";
+            } else {
+                ageBracket = "18歲及以上";
+                displayBracketName = "18歲及以上 (公開組)";
+            }
+
+            // 2. 載入標準庫
+            const stdData = await loadQualificationStandards();
+            if (!stdData || !stdData.standards) {
+                await minWait;
+                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+                main.innerHTML = `<div style="padding:30px; text-align:center; color:#FF453A;">❌ 載入賽事達標標準庫失敗，請確認網路連線或稍後再試。</div>`;
+                return;
+            }
+
+            const genderStandards = stdData.standards[sex] || {};
+
+            // 3. 查詢該選手所有長水道最佳成績 (PB)
+            const birthFilter = ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')`;
+            const sexClause = ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')`;
+            const pbRes = await remoteQuery(`SELECT 項目, 成績, 備註, 賽事名稱, 年份 FROM swimming_scores WHERE 姓名='${safeName}'${birthFilter}${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
+            
+            const swimmerPBs = {}; 
+            if (pbRes && pbRes[0] && pbRes[0].values) {
+                pbRes[0].values.forEach(row => {
+                    const item = row[0];
+                    const rawTime = row[1];
+                    const remark = row[2];
+                    const meet = row[3];
+                    const dateVal = row[4];
+                    if (isDQ(remark)) return;
+                    const sec = timeToSec(rawTime);
+                    if (sec <= 0 || sec > 3600) return;
+
+                    const mDist = item.match(/(\d+)公尺(?![池水])/);
+                    if (!mDist) return;
+                    const dist = mDist[1];
+                    let stroke = '';
+                    if (item.includes('自由式')) stroke = '自由式';
+                    else if (item.includes('仰式')) stroke = '仰式';
+                    else if (item.includes('蛙式')) stroke = '蛙式';
+                    else if (item.includes('蝶式')) stroke = '蝶式';
+                    else if (item.includes('混合式')) stroke = '混合式';
+                    if (!stroke) return;
+
+                    const eventKey = `${dist}m ${stroke}`;
+                    if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
+                        swimmerPBs[eventKey] = {
+                            sec: sec,
+                            timeStr: formatToXcode(sec),
+                            meet: meet,
+                            date: dateVal,
+                            dist: dist,
+                            stroke: stroke
+                        };
+                    }
+                });
+            }
+
+            function formatRaceDate(val) {
+                if (!val) return '';
+                const s = String(val).trim();
+                if (/^\d{8}$/.test(s)) {
+                    return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+                }
+                return s;
+            }
+
+            // 4. 頂部儀表板 Header
+            const headerBar = document.createElement('div');
+            headerBar.className = 'cmp-header-bar';
+            
+            let yearSelectHtml = '';
+            if (availableYears.length > 1) {
+                yearSelectHtml = `
+                    <select class="cmp-birth-select" onchange="doStandardsCheck('${swimmerName}', this.value)" title="同名選手，點擊切換出生年">
+                        ${availableYears.map(y => `<option value="${y}" ${y === selectedBirthYear ? 'selected' : ''}>${y}年次</option>`).join('')}
+                    </select>
+                `;
+            } else {
+                yearSelectHtml = `<span style="color:#8E8E93; font-size:12px;">(${selectedBirthYear}年次)</span>`;
+            }
+
+            headerBar.innerHTML = `
+                <div style="display:flex; flex-direction:column; gap:8px; width:100%;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.06); padding:5px 12px; border-radius:12px; border:0.5px solid rgba(255,255,255,0.15);">
+                                <span style="font-weight:700; font-size:15px; color:#FFF;">${swimmerName}</span>
+                                ${yearSelectHtml}
+                                <span style="font-size:12px; color:#0A84FF; font-weight:600;">${sex}生 · ${swimmerAge}歲 · ${displayBracketName}</span>
+                            </span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px; font-size:12px; color:#8E8E93;">
+                            <span>📄 參賽標準規範文件時間：2026年最新官方公告規範</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            main.appendChild(headerBar);
+
+            // 5. 依泳式分類呈現卡片
+            const strokeOrder = ['自由式', '蝶式', '仰式', '蛙式', '混合式'];
+            const meetOrderNames = ['全國小學錦標賽', '總統盃', '全中運', '全大運', '全運會'];
+            const meetMetaMap = {};
+            if (stdData && stdData.meets) {
+                stdData.meets.forEach(m => meetMetaMap[m.name] = m);
+            }
+            const meetDocDates = {
+                '全國小學錦標賽': '2026-02 規範',
+                '總統盃': '2026-03 規範',
+                '全中運': '2026-01 規範',
+                '全大運': '2025-12 規範',
+                '全運會': '2025-05 規範'
+            };
+
+            strokeOrder.forEach(strokeName => {
+                // 🔑 動態合併：標準庫項目 + 選手自己有 PB 的項目，確保所有游過的距離都能完整呈現
+                const stdEvents = Object.keys(genderStandards).filter(k => k.endsWith(strokeName));
+                const pbEvents = Object.keys(swimmerPBs).filter(k => k.endsWith(strokeName));
+                const strokeEvents = Array.from(new Set([...stdEvents, ...pbEvents]));
+                if (strokeEvents.length === 0) return;
+
+                strokeEvents.sort((a, b) => {
+                    const da = parseInt(a) || 0;
+                    const db = parseInt(b) || 0;
+                    return da - db;
+                });
+
+                // 先計算此泳姿表頭各賽事合格標準（由易到難，慢到快排序）
+                const firstEventName = strokeEvents[0];
+                const sampleStds = genderStandards[firstEventName] ? (genderStandards[firstEventName][ageBracket] || genderStandards[firstEventName]["公開組"] || {}) : {};
+                const sortedHeaderMeets = meetOrderNames.map(m => {
+                    let sTime = sampleStds[m];
+                    if (!sTime) {
+                        for (const b of ['國中組', '高中組', '公開組', '18歲及以上', '11&12歲級']) {
+                            if (genderStandards[firstEventName] && genderStandards[firstEventName][b] && genderStandards[firstEventName][b][m]) {
+                                sTime = genderStandards[firstEventName][b][m]; break;
+                            }
+                        }
+                    }
+                    return { name: m, sec: sTime ? timeToSec(sTime) : 9999 };
+                }).sort((a, b) => b.sec - a.sec);
+
+                const card = document.createElement('div');
+                card.className = 'stroke-card';
+                card.style.marginTop = '16px';
+
+                let rowsHtml = '';
+
+                strokeEvents.forEach(eventName => {
+                    const eventStandards = genderStandards[eventName] || {};
+                    const bracketStds = eventStandards[ageBracket] || eventStandards["公開組"] || {};
+
+                    const swimmerPbObj = swimmerPBs[eventName];
+                    const swimmerSec = swimmerPbObj ? swimmerPbObj.sec : null;
+                    const swimmerTimeStr = swimmerPbObj ? swimmerPbObj.timeStr : '<span style="color:#636366; font-size:12px;">無成績</span>';
+
+                    const cellsHtml = sortedHeaderMeets.map(hm => {
+                        const meetName = hm.name;
+                        let stdTimeStr = bracketStds[meetName];
+                        if (!stdTimeStr) {
+                            for (const bKey of ['國中組', '高中組', '公開組', '18歲及以上', '11&12歲級']) {
+                                if (eventStandards[bKey] && eventStandards[bKey][meetName]) {
+                                    stdTimeStr = eventStandards[bKey][meetName];
+                                    break;
+                                }
+                            }
+                        }
+
+                        let badgeHtml = '';
+                        if (!stdTimeStr) {
+                            badgeHtml = `
+                                <div style="font-family:monospace; font-size:13px; color:#636366;">-</div>
+                                <div style="font-size:10px; color:#48484A; margin-top:2px;">未設標準</div>
+                            `;
+                        } else {
+                            const stdSec = timeToSec(stdTimeStr);
+                            if (!swimmerSec) {
+                                badgeHtml = `
+                                    <div style="font-family:monospace; font-size:13px; color:#A1A1A6;">${stdTimeStr}</div>
+                                    <div style="font-size:11px; color:#636366; margin-top:2px;">-</div>
+                                `;
+                            } else {
+                                const diff = swimmerSec - stdSec;
+                                if (diff <= 0) {
+                                    const diffStr = (diff === 0) ? "-0.00s" : `${diff.toFixed(2)}s`;
+                                    badgeHtml = `
+                                        <div style="font-family:monospace; font-size:13px; color:#FFF;">${stdTimeStr}</div>
+                                        <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#0A84FF; background:rgba(10,132,255,0.12); padding:1px 6px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(10,132,255,0.25);">
+                                            🔵 ${diffStr} (已達標)
+                                        </div>
+                                    `;
+                                } else {
+                                    const diffStr = `+${diff.toFixed(2)}s`;
+                                    badgeHtml = `
+                                        <div style="font-family:monospace; font-size:13px; color:#8E8E93;">${stdTimeStr}</div>
+                                        <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:1px 6px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(255,69,58,0.25);">
+                                            🔴 ${diffStr} (未達標)
+                                        </div>
+                                    `;
+                                }
+                            }
+                        }
+
+                        return `
+                            <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E;">
+                                ${badgeHtml}
+                            </td>
+                        `;
+                    }).join('');
+
+                    rowsHtml += `
+                        <tr style="transition:background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                            <td style="padding:10px 12px; font-weight:800; font-size:14px; color:#FFF; white-space:nowrap; border-bottom:0.5px solid #2C2C2E;">
+                                ${eventName}
+                            </td>
+                            <td style="padding:10px 12px; text-align:center; white-space:nowrap; border-bottom:0.5px solid #2C2C2E; border-right:1px solid #38383A;">
+                                <div style="font-family:monospace; font-weight:800; font-size:15px; color:#FFF;">${swimmerTimeStr}</div>
+                                ${swimmerPbObj ? `
+                                    <div style="font-size:11px; color:#8E8E93; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px;" title="${swimmerPbObj.meet}">${swimmerPbObj.meet}</div>
+                                    ${swimmerPbObj.date ? `<div style="font-size:10px; color:#636366; font-family:monospace; margin-top:1px;">${formatRaceDate(swimmerPbObj.date)}</div>` : ''}
+                                ` : ''}
+                            </td>
+                            ${cellsHtml}
+                        </tr>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #38383A; padding-bottom:8px;">
+                        <div style="font-size:18px; font-weight:900; color:#FFF; display:flex; align-items:center; gap:8px;">
+                            <span>🏊</span> <span>${strokeName}</span>
+                        </div>
+                    </div>
+                    <div style="width:100%; overflow-x:auto;">
+                        <table style="width:100%; min-width:760px; border-collapse:collapse;">
+                            <thead>
+                                <tr style="border-bottom:1px solid #38383A; background:rgba(255,255,255,0.02);">
+                                    <th style="padding:8px 12px; text-align:left; font-size:12px; color:#8E8E93; width:120px;">項目</th>
+                                    <th style="padding:8px 12px; text-align:center; font-size:12px; color:#FFF; width:140px; border-right:1px solid #38383A;">個人最佳 (PB)</th>
+                                    ${sortedHeaderMeets.map(m => {
+                                        const meta = meetMetaMap[m.name] || {};
+                                        const docDateStr = meta.doc_date ? `${meta.doc_date} 規範` : (meetDocDates[m.name] || '2026規範');
+                                        const docUrl = meta.doc_url || '/static/docs/primary_standards.html';
+                                        const docTitle = meta.doc_name || `${m.name}官方競賽規程標準`;
+                                        return `
+                                            <th style="padding:8px 8px; text-align:center; font-size:12px; color:#FFF;">
+                                                <div style="font-weight:700;">${m.name}</div>
+                                                <a href="${docUrl}" target="_blank" rel="noopener noreferrer" style="display:block; font-size:10px; color:#8E8E93; text-decoration:none; margin-top:2px; transition:color 0.15s ease;" onmouseover="this.style.color='#FFF'; this.style.textDecoration='underline'" onmouseout="this.style.color='#8E8E93'; this.style.textDecoration='none'" title="點擊檢視「${docTitle}」參賽標準規範文件">
+                                                    ${docDateStr}
+                                                </a>
+                                            </th>
+                                        `;
+                                    }).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                main.appendChild(card);
+            });
+
+            await minWait;
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 300);
+        }
+
         async function downloadDatabasePartsFromServer(version, totalParts) {
             document.getElementById('progressContainer').classList.remove('hidden');
             const statusEl = document.getElementById('loaderStatus');
@@ -2000,6 +2354,7 @@
             const suffix = ")";
             const phrases = [
                 "温心妤",
+                "王星皓/STD 賽事達標檢驗",
                 "王冠閎 或 多位比較: 王冠閎;王星皓;韓安齊",
                 "韓安齊",
                 "王星皓"
