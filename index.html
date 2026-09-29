@@ -1754,14 +1754,7 @@
                 const firstEventName = strokeEvents[0];
                 const sampleStds = genderStandards[firstEventName] ? (genderStandards[firstEventName][ageBracket] || genderStandards[firstEventName]["公開組"] || {}) : {};
                 const sortedHeaderMeets = meetOrderNames.map(m => {
-                    let sTime = sampleStds[m];
-                    if (!sTime) {
-                        for (const b of ['國中組', '高中組', '公開組', '18歲及以上', '11&12歲級']) {
-                            if (genderStandards[firstEventName] && genderStandards[firstEventName][b] && genderStandards[firstEventName][b][m]) {
-                                sTime = genderStandards[firstEventName][b][m]; break;
-                            }
-                        }
-                    }
+                    const sTime = sampleStds[m];
                     return { name: m, sec: sTime ? timeToSec(sTime) : 9999 };
                 }).sort((a, b) => b.sec - a.sec);
 
@@ -1781,15 +1774,8 @@
 
                     const cellsHtml = sortedHeaderMeets.map(hm => {
                         const meetName = hm.name;
-                        let stdTimeStr = bracketStds[meetName];
-                        if (!stdTimeStr) {
-                            for (const bKey of ['國中組', '高中組', '公開組', '18歲及以上', '11&12歲級']) {
-                                if (eventStandards[bKey] && eventStandards[bKey][meetName]) {
-                                    stdTimeStr = eventStandards[bKey][meetName];
-                                    break;
-                                }
-                            }
-                        }
+                        // 嚴格依據當前年齡層獲取標準，嚴禁跨歲級胡亂 Fallback（如國中生不可套用國小標準）
+                        let stdTimeStr = bracketStds[meetName] || null;
 
                         let badgeHtml = '';
                         if (!stdTimeStr) {
