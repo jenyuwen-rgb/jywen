@@ -164,6 +164,12 @@
                         🎯 美林時鐘景氣象限羅盤 <span style="font-size:11px; background:rgba(255,217,51,0.15); color:#FFD933; padding:2px 8px; border-radius:10px; border:0.5px solid rgba(255,217,51,0.3);">總經象限與資產配置</span>
                     </h3>
                     <p style="margin:4px 0 0 0; font-size:11px; color:#8E8E93;">根據通膨率與 GDP 成長率判定當前經濟所處週期與亮點軌跡</p>
+                    <p id="compass-calc-time" style="margin:6px 0 0 0; font-size:11.5px; color:#30D158; font-weight:600; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                        <span>🗓️ 總經數據基準：<span id="compass-macro-month" style="color:#FFF; font-weight:700;">2026-07</span></span>
+                        <span style="color:#555;">|</span>
+                        <span>⏱️ 演算法計算時間：<span id="compass-calc-ts" style="color:#FFF; font-weight:700;">2026-09-07 06:35:12</span></span>
+                        <span style="color:#30D158; font-size:10px; background:rgba(48,209,88,0.15); padding:1px 6px; border-radius:4px; border:0.5px solid rgba(48,209,88,0.3);">即時驗證</span>
+                    </p>
                 </div>
             </div>
 
@@ -522,35 +528,35 @@
                     <!-- 左欄：控制滑桿 -->
                     <div style="display: flex; flex-direction: column; gap: 16px; background: #161618; border: 0.5px solid #2C2C2E; border-radius: 12px; padding: 18px;">
                         
-                        <!-- 參數 1: 初始本金 -->
+                        <!-- 參數 1: 初始投入本金 (目前累計總投入本金) -->
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: #AEAEB2;">
-                                <span>1. 初始投資本金 (TWD)</span>
-                                <span style="color: #F2F2F7; font-weight: 800;">$<span id="sim-principal-val">22,600,000</span> 元</span>
+                                <span>1. 目前累計總投入本金 (TWD)</span>
+                                <span style="color: #F2F2F7; font-weight: 800;">$<span id="sim-principal-val">14,000,000</span> 元</span>
                             </div>
-                            <input type="range" id="sim-principal-input" min="500000" max="100000000" step="500000" value="22500000" oninput="runRetirementSimulation()" style="width: 100%; accent-color: #D4AF37; background: #2C2C2E; border-radius: 4px; height: 6px; cursor: pointer; outline: none;">
+                            <input type="range" id="sim-principal-input" min="500000" max="100000000" step="500000" value="14000000" oninput="runRetirementSimulation()" style="width: 100%; accent-color: #D4AF37; background: #2C2C2E; border-radius: 4px; height: 6px; cursor: pointer; outline: none;">
                             <div style="display: flex; justify-content: space-between; font-size: 9px; color: #636366;">
                                 <span>50 萬</span>
                                 <span style="display: flex; align-items: center; gap: 4px; color: #30D158; font-weight: 600;">
                                     <span style="width: 5px; height: 5px; background-color: #30D158; border-radius: 50%; display: inline-block; animation: blink-green 1.5s infinite ease-in-out;"></span>
-                                    <span>預設為證券資產總淨額: $<span id="sim-principal-ref">22,602,644</span></span>
+                                    <span>預設為持股累計實投總額: $<span id="sim-principal-ref">14,006,375</span></span>
                                 </span>
                                 <span>1 億</span>
                             </div>
                         </div>
 
-                        <!-- 參數 2: 每月續投金額 (滑桿 + 上月實際定期定額自動預設) -->
+                        <!-- 參數 2: 每月續投金額 (滑桿 + 最新完結月實際定期定額自動預設) -->
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: #AEAEB2;">
                                 <span>2. 每月續投金額 (TWD)</span>
-                                <span style="color: #F2F2F7; font-weight: 800;">$<span id="sim-monthly-val">100,000</span> 元</span>
+                                <span style="color: #F2F2F7; font-weight: 800;">$<span id="sim-monthly-val">365,000</span> 元</span>
                             </div>
-                            <input type="range" id="sim-monthly-input" min="5000" max="1000000" step="5000" value="100000" oninput="runRetirementSimulation()" style="width: 100%; accent-color: #D4AF37; background: #2C2C2E; border-radius: 4px; height: 6px; cursor: pointer; outline: none;">
+                            <input type="range" id="sim-monthly-input" min="5000" max="1000000" step="5000" value="365000" oninput="runRetirementSimulation()" style="width: 100%; accent-color: #D4AF37; background: #2C2C2E; border-radius: 4px; height: 6px; cursor: pointer; outline: none;">
                             <div style="display: flex; justify-content: space-between; font-size: 9px; color: #636366;">
                                 <span>5,000 元</span>
                                 <span style="display: flex; align-items: center; gap: 4px; color: #30D158; font-weight: 600;">
                                     <span style="width: 5px; height: 5px; background-color: #30D158; border-radius: 50%; display: inline-block; animation: blink-green 1.5s infinite ease-in-out;"></span>
-                                    <span>預設為上月對帳單實投額: $<span id="sim-last-month-ref">100,000</span></span>
+                                    <span>預設為最新完結月實投額: $<span id="sim-last-month-ref">365,174</span></span>
                                 </span>
                                 <span>100 萬</span>
                             </div>
@@ -986,8 +992,14 @@
                         const statusBadge = document.getElementById('db-status-badge');
                         if (statusBadge) statusBadge.innerHTML = '<span style="width:8px; height:8px; background-color:#30D158; border-radius:50%; display:inline-block;"></span><span style="color:#30D158;">理財資料庫已載入</span>';
 
-                        // 1. 最新美國象限直接使用最後一筆 (最新月份)
+                        // 0. 更新美林時鐘總經基準月份與演算法計算時間標註
+                        const macroMonthEl = document.getElementById('compass-macro-month');
+                        const calcTsEl = document.getElementById('compass-calc-ts');
                         const latest = dbData[dbData.length - 1];
+                        if (macroMonthEl) macroMonthEl.textContent = payload.latest_macro_month || (latest ? latest.yyyy_mm : '2026-07');
+                        if (calcTsEl) calcTsEl.textContent = payload.calc_time || '2026-09-07 06:35:12';
+
+                        // 1. 最新美國象限直接使用最後一筆 (最新月份)
                         const quadNames = {
                             1: "🔵 衰退期 (Reflation)",
                             2: "🟢 復甦期 (Recovery)",
@@ -1743,9 +1755,18 @@
                 const rangeEl = document.getElementById('stmt-range');
                 if (rangeEl) rangeEl.textContent = `${meta.from} ～ ${meta.to}`;
 
-                const totalEl = document.getElementById('stmt-total-invest');
                 const totalInvest = holdings.reduce((s,h) => s + (h['總投入'] || 0), 0);
+                window.TOTAL_INVESTED_PRINCIPAL = totalInvest;
                 if (totalEl) totalEl.textContent = `$${Math.round(totalInvest).toLocaleString()} 元`;
+
+                // 同步聯動更新退休模擬器初始本金預設值 (依大仁哥指示)
+                const simRef = document.getElementById('sim-principal-ref');
+                if (simRef) simRef.textContent = Math.round(totalInvest).toLocaleString();
+                const simInput = document.getElementById('sim-principal-input');
+                if (simInput && !simInput.dataset.userEdited) {
+                    simInput.value = Math.max(500000, Math.min(100000000, Math.round(totalInvest / 500000) * 500000));
+                    if (typeof runRetirementSimulation === 'function') runRetirementSimulation();
+                }
 
                 // 2. 建立持股卡片
                 const grid = document.getElementById('holdings-grid');
@@ -2457,7 +2478,17 @@
                 // 庫存與質押股數標籤 (集保庫存 + 質押擔保品 = 總持有股數)
                 let holdingBadgeHtml = '<div style="font-size:10px; color:#636366; margin-top:3px;">未持有庫存</div>';
                 const cache = USER_HOLDINGS_CACHE || {};
-                const hData = cache[item.name] || cache[CODE_ALIAS_MAP[item.code]];
+                const normKey = (s) => (s || '').replace(/[\s\-_]+/g, '').toLowerCase();
+                let hData = cache[item.name] || cache[CODE_ALIAS_MAP[item.code]];
+                if (!hData) {
+                    const itemNorm = normKey(item.name);
+                    for (const k in cache) {
+                        if (normKey(k) === itemNorm) {
+                            hData = cache[k];
+                            break;
+                        }
+                    }
+                }
                 if (hData) {
                     const jibaoShares = hData['集保庫存'] || 0;
                     const collateralShares = hData['餘額股數'] || 0;
@@ -2504,27 +2535,36 @@
         // ================================================================
         let retirementChart = null;
 
-        function initRetirementSimulator(netAssets, bankAssets) {
+        async function initRetirementSimulator(netAssets, bankAssets) {
             let totalPrincipal = 0;
             
-            // 1. 取得最新元大證券資產總淨額作為預設初始本金
-            if (netAssets && netAssets.length > 0) {
-                totalPrincipal += (netAssets[0]['資產總淨額'] || 0);
+            // 1. 取得持股累計實投總額作為預設初始本金 (依大仁哥指示：改為目前實體累計總投入本金，非市值淨額)
+            if (window.TOTAL_INVESTED_PRINCIPAL && window.TOTAL_INVESTED_PRINCIPAL > 0) {
+                totalPrincipal = window.TOTAL_INVESTED_PRINCIPAL;
+            } else {
+                try {
+                    const hResp = await fetch('/api/investment_holdings');
+                    const hJson = await hResp.json();
+                    if (hJson.status === 'success' && hJson.holdings) {
+                        totalPrincipal = hJson.holdings.reduce((s, h) => s + (h['總投入'] || 0), 0);
+                        window.TOTAL_INVESTED_PRINCIPAL = totalPrincipal;
+                    }
+                } catch(e) {}
             }
             
-            // 如果證券資產為 0，預設 500 萬元起算
-            if (totalPrincipal <= 0) totalPrincipal = 5000000;
+            // 保底設為實體持股成本 14,006,375 元
+            if (totalPrincipal <= 0) totalPrincipal = 14006375;
             
             // 更新 UI 上的本金參考值標記
             const principalRefEl = document.getElementById('sim-principal-ref');
-            if (principalRefEl) principalRefEl.textContent = totalPrincipal.toLocaleString();
+            if (principalRefEl) principalRefEl.textContent = Math.round(totalPrincipal).toLocaleString();
             
-            // 設定滑桿本金 (限制在 50 萬 ~ 1 億之間，配合 50 萬的 step 進行四捨五入)
+            // 設定滑桿本金 (配合 50 萬的 step 進行四捨五入)
             const inputPrincipal = Math.max(500000, Math.min(100000000, Math.round(totalPrincipal / 500000) * 500000));
             const principalInput = document.getElementById('sim-principal-input');
             if (principalInput) principalInput.value = inputPrincipal;
             
-            // 3. 估計每月續投金額：預設為上個月對帳單的實投金額
+            // 2. 估計每月續投金額：預設為最新完結月份對帳單實投金額 (如 2026/08 實投 365,174 元)
             let lastMonthContrib = 0;
             if (allStmtData && allStmtData.length > 0) {
                 const monthMap = {};
@@ -2553,7 +2593,7 @@
                     const currentMonthStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
                     let lastMonth = months[months.length - 1];
                     
-                    // 如果最後一個月是當前進行中的月份，且還有上個月，則取上個月（已完結的月份）的定期定額總額
+                    // 如果最後一個月是當前正在進行中的月份（如 2026-09），則取上個完整完結月份（2026-08）
                     if (lastMonth === currentMonthStr && months.length > 1) {
                         lastMonth = months[months.length - 2];
                     }
@@ -2561,12 +2601,12 @@
                 }
             }
             
-            // 如果為 0，預設每月投入 10 萬元
-            if (lastMonthContrib <= 0) lastMonthContrib = 100000;
+            // 如果為 0，保底設為最新完結月 2026/08 實投金額 365,174 元
+            if (lastMonthContrib <= 0) lastMonthContrib = 365174;
             
-            // 更新 UI 上的上月參考值標記
+            // 更新 UI 上的最新完結月參考值標記
             const lastMonthRefEl = document.getElementById('sim-last-month-ref');
-            if (lastMonthRefEl) lastMonthRefEl.textContent = lastMonthContrib.toLocaleString();
+            if (lastMonthRefEl) lastMonthRefEl.textContent = Math.round(lastMonthContrib).toLocaleString();
             
             const inputMonthly = Math.max(5000, Math.min(1000000, Math.round(lastMonthContrib / 5000) * 5000));
             const monthlyInput = document.getElementById('sim-monthly-input');

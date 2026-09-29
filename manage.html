@@ -281,6 +281,54 @@
             border-color: var(--primary) !important;
         }
 
+        
+        /* 單一整合下載方塊精緻樣式 (與下方行事曆 100% 等寬齊平) */
+        .unified-download-section {
+            width: 100%;
+            margin: 0 0 2rem 0;
+            box-sizing: border-box;
+        }
+        .unified-card {
+            background-color: var(--bg-card);
+            border: 1px solid #232326;
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .unified-card:hover {
+            border-color: rgba(212, 175, 55, 0.35);
+            box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        .unified-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #232326;
+            padding-bottom: 0.85rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .unified-controls-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 1.6fr 170px;
+            gap: 1.25rem;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        @media (max-width: 980px) {
+            .unified-controls-grid {
+                grid-template-columns: 1fr;
+                gap: 0.85rem;
+            }
+        }
+
         /* 卡片格線 (支援 9 大協會卡片) */
         .cards-grid {
             display: grid;
@@ -380,24 +428,424 @@
 
         /* 游泳行事曆區段 */
         .calendar-section-header {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             border-bottom: 1px solid #232326;
             padding-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .calendar-section-title {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             font-weight: 700;
             margin: 0;
             color: #FFFFFF;
+            letter-spacing: 0.02em;
         }
 
+        /* 視圖切換器按鈕組 */
+        .view-toggle-group {
+            display: flex;
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            padding: 3px;
+            gap: 3px;
+        }
+
+        .btn-view-toggle {
+            background: transparent;
+            border: none;
+            color: #a1a1aa;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-view-toggle:hover {
+            color: #ffffff;
+        }
+
+        .btn-view-toggle.active {
+            background: #27272a;
+            color: #ffffff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+
+        /* macOS 原生月曆排版容器 (左右分欄) */
+        .mac-calendar-container {
+            display: grid;
+            grid-template-columns: 1.65fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.25rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .mac-calendar-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* macOS 月曆主卡片 */
+        .mac-calendar-card {
+            background-color: var(--bg-card);
+            border: 1px solid #232326;
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        /* 月曆頂部導覽列：< 2026年9月 > + 今天 */
+        .mac-month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .mac-month-nav-btn {
+            background: #1c1c1e;
+            border: 1px solid #2c2c2e;
+            color: #8e8e93;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.15rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .mac-month-nav-btn:hover {
+            color: #ffffff;
+            border-color: #3a3a3c;
+            background: #2c2c2e;
+        }
+
+        .mac-month-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.03em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mac-today-btn {
+            background: rgba(255, 59, 48, 0.15);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            color: #ff453a;
+            padding: 3px 9px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mac-today-btn:hover {
+            background: #ff3b30;
+            color: #fff;
+        }
+
+        /* 星期標頭：日 一 二 三 四 五 六 */
+        .mac-weekdays-row {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            color: #8e8e93;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.65rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #232326;
+        }
+
+        /* 日期網格 (42 格) */
+        .mac-days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            row-gap: 5px;
+        }
+
+        .mac-day-cell {
+            min-height: 82px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            position: relative;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.015);
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .mac-day-cell:hover {
+            background-color: rgba(255, 255, 255, 0.06);
+            border-color: rgba(212, 175, 55, 0.35);
+        }
+
+        .mac-day-cell.other-month {
+            color: #48484a;
+            opacity: 0.35;
+            background: transparent;
+        }
+
+        .mac-day-cell.curr-month {
+            color: #ffffff;
+        }
+
+        .mac-day-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 3px;
+        }
+
+        .mac-day-num {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            border-radius: 50%;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        /* 今日高亮：macOS 經典鮮紅色純圓背景 */
+        .mac-day-cell.is-today .mac-day-num {
+            background-color: #ff3b30;
+            color: #ffffff !important;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(255, 59, 48, 0.6);
+        }
+
+        /* 被選取的日期：金色磨砂高亮邊框 */
+        .mac-day-cell.is-selected {
+            background-color: rgba(212, 175, 55, 0.12);
+            border: 1.5px solid rgba(212, 175, 55, 0.75);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+        }
+
+        .mac-day-badge {
+            font-size: 0.62rem;
+            color: #a1a1aa;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 1px 4px;
+            border-radius: 6px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* 日期內的賽事標籤清單 */
+        .mac-day-events {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* 賽事簡稱標籤晶片 */
+        .mac-event-chip {
+            font-size: 0.68rem;
+            padding: 1.5px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+            line-height: 1.25;
+            font-weight: 500;
+            box-sizing: border-box;
+            transition: filter 0.15s ease;
+        }
+
+        .mac-event-chip:hover {
+            filter: brightness(1.25);
+        }
+
+        /* 晶片色彩分類 */
+        .mac-chip-intl {
+            background: rgba(255, 59, 48, 0.18);
+            border-left: 2.5px solid #ff3b30;
+            color: #ff9f97;
+        }
+
+        .mac-chip-national {
+            background: rgba(212, 175, 55, 0.18);
+            border-left: 2.5px solid #d4af37;
+            color: #f3d078;
+        }
+
+        .mac-chip-regional {
+            background: rgba(10, 132, 255, 0.18);
+            border-left: 2.5px solid #0a84ff;
+            color: #8ac0ff;
+        }
+
+        .mac-chip-other {
+            background: rgba(48, 209, 88, 0.18);
+            border-left: 2.5px solid #30d158;
+            color: #7de898;
+        }
+
+        .mac-event-more {
+            font-size: 0.6rem;
+            color: #8e8e93;
+            text-align: right;
+            padding: 0 2px;
+            line-height: 1.1;
+            font-weight: 600;
+        }
+
+        /* 右側：當日賽事詳情卡片 */
+        .mac-calendar-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .mac-detail-card {
+            background-color: var(--bg-card);
+            border: 1px solid #232326;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        .mac-detail-header {
+            border-bottom: 1px solid #232326;
+            padding-bottom: 0.85rem;
+            margin-bottom: 1.15rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mac-detail-date-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mac-event-badge {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--primary-light);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .mac-events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .mac-event-item-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid #2c2c2e;
+            border-left: 3.5px solid var(--primary);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            transition: transform 0.2s, border-color 0.2s, background 0.2s;
+        }
+
+        .mac-event-item-card:hover {
+            transform: translateX(3px);
+            border-color: var(--primary);
+            background: rgba(212, 175, 55, 0.04);
+        }
+
+        .mac-event-item-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 0.35rem 0;
+            line-height: 1.4;
+        }
+
+        .mac-event-item-meta {
+            font-size: 0.82rem;
+            color: var(--text-gray);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 4px;
+        }
+
+        .mac-btn-download-pdf {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: linear-gradient(135deg, #222 0%, #111 100%);
+            border: 1px solid #3f3f46;
+            color: var(--primary-light);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-top: 6px;
+        }
+
+        .mac-btn-download-pdf:hover {
+            border-color: var(--primary);
+            background: rgba(212, 175, 55, 0.15);
+            color: #ffffff;
+        }
+
+        .mac-empty-state {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: #8e8e93;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* 舊版表格容器保留供詳細清單切換 */
         .calendar-table-container {
             background-color: var(--bg-card);
             border: 1px solid #232326;
             border-radius: 12px;
             overflow-x: auto;
-            max-height: 270px;
+            max-height: 380px;
             overflow-y: auto;
             box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
         }
@@ -762,273 +1210,137 @@
 
 
 
-            <!-- 卡片入口 (五大平台與前端更新功能) -->
-            <section class="cards-grid" aria-label="賽事網站官網入口與下載">
-                <!-- 中華泳協 -->
-                <div class="card" id="card-site_d">
-                    <div class="card-header">
-                        <h2 class="card-title">中華泳協 CTSA</h2>
-                        <a href="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" target="_blank" rel="noopener noreferrer" class="card-url">https://ctsa.utk.com.tw/...</a>
-                    </div>
-                    
-                    <div class="form-group">
-                        <select id="select-site_d" class="form-select" onchange="handleSelectChange('site_d')" disabled>
-                            <option value="">獲取網頁賽事清單中...</option>
-                        </select>
-                    </div>
-                    <button id="btn-site_d" class="btn-download" onclick="startRaceUpdate('site_d')" disabled>下載賽事</button>
-
-                    <!-- 下載進度與日誌 -->
-                    <div id="progress-container-site_d" class="download-progress-card-wrapper" style="display: none;">
-                        <div id="status-site_d" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
-                        <div class="progress-bar-wrapper">
-                            <div id="bar-site_d" class="progress-bar-fill" style="width: 0%"></div>
+            <!-- 單一精緻整合下載方塊 (與下方行事曆 100% 等寬齊平) -->
+            <section class="unified-download-section" aria-label="賽事網站官網入口與下載" id="unified-download-section">
+                <div class="card unified-card" id="card-unified-download">
+                    <div class="unified-card-header">
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <span style="font-size: 1.35rem;">🏊‍♂️</span>
+                            <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+                                <h2 class="card-title" id="unified-org-title" style="margin: 0; font-size: 1.2rem; font-weight: 700; background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">中華泳協 CTSA</h2>
+                                <a href="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" target="_blank" rel="noopener noreferrer" class="card-url" id="unified-org-url" style="font-size: 0.78rem; color: #8e8e93;">https://ctsa.utk.com.tw/...</a>
+                            </div>
                         </div>
-                        <div id="log-site_d" class="log-console"></div>
-                    </div>
-                </div>
-
-                <!-- 台中泳協 -->
-                <div class="card" id="card-site_a">
-                    <div class="card-header">
-                        <h2 class="card-title">台中市游泳委員會</h2>
-                        <a href="https://swim8.kcsat.org/score_search" target="_blank" rel="noopener noreferrer" class="card-url">https://swim8.kcsat.org/...</a>
-                    </div>
-                    
-                    <div class="form-group">
-                        <select id="select-site_a" class="form-select" onchange="handleSelectChange('site_a')" disabled>
-                            <option value="">獲取網頁賽事清單中...</option>
-                        </select>
-                    </div>
-                    <button id="btn-site_a" class="btn-download" onclick="startRaceUpdate('site_a')" disabled>下載賽事</button>
-
-                    <!-- 下載進度與日誌 -->
-                    <div id="progress-container-site_a" class="download-progress-card-wrapper" style="display: none;">
-                        <div id="status-site_a" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
-                        <div class="progress-bar-wrapper">
-                            <div id="bar-site_a" class="progress-bar-fill" style="width: 0%"></div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.75rem; background: rgba(212,175,55,0.12); color: var(--primary-light); border: 1px solid rgba(212,175,55,0.25); padding: 3px 10px; border-radius: 12px; font-weight: 600;">⚡ 官方賽事即時連動</span>
                         </div>
-                        <div id="log-site_a" class="log-console"></div>
-                    </div>
-                </div>
-
-                <!-- 台南泳協 -->
-                <div class="card" id="card-site_b">
-                    <div class="card-header">
-                        <h2 class="card-title">台南市游泳委員會</h2>
-                        <a href="https://www.tainanswim.com.tw/history.asp" target="_blank" rel="noopener noreferrer" class="card-url">https://www.tainanswim.com.tw/...</a>
                     </div>
                     
-                    <div class="form-group">
-                        <select id="select-site_b" class="form-select" onchange="handleSelectChange('site_b')" disabled>
-                            <option value="">獲取網頁賽事清單中...</option>
-                        </select>
-                    </div>
-                    <button id="btn-site_b" class="btn-download" onclick="startRaceUpdate('site_b')" disabled>下載賽事</button>
-
-                    <!-- 下載進度與日誌 -->
-                    <div id="progress-container-site_b" class="download-progress-card-wrapper" style="display: none;">
-                        <div id="status-site_b" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
-                        <div class="progress-bar-wrapper">
-                            <div id="bar-site_b" class="progress-bar-fill" style="width: 0%"></div>
+                    <div class="unified-controls-grid">
+                        <!-- 第一層：選擇主辦單位 (由北到南排序) -->
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.8rem; color: #a1a1aa; margin-bottom: 0.4rem; display: block; font-weight: 600;">
+                                📍 步驟 1：選擇主辦單位（由北到南排序）
+                            </label>
+                            <select id="unifiedOrgSelect" class="form-select" onchange="handleUnifiedOrgChange()" style="border-color: #3f3f46; font-weight: 600; width: 100%; height: 42px;">
+                                <option value="site_d" data-url="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" data-name="中華泳協 CTSA" selected>🇹🇼 中華民國游泳協會 (CTSA) [全國首位]</option>
+                                <option value="site_tpesa" data-url="https://www.tpesa.org.tw/" data-name="臺北體總 TPESA">🏛️ 臺北市體育總會游泳協會 (TPESA) [北部]</option>
+                                <option value="site_ntpc" data-url="https://ntpc-sports.com/" data-name="新北市游泳委員會">🌊 新北市體育總會游泳委員會 (NTPC) [北部]</option>
+                                <option value="site_tyc" data-url="https://sports.taoyuansport.org.tw/" data-name="桃園市游泳委員會">🏊 桃園市體育會游泳委員會 (TYC) [北部]</option>
+                                <option value="site_hcc" data-url="https://hcc-swim.org/" data-name="新竹市游泳委員會">🐬 新竹市體育會游泳委員會 (HCC) [北部]</option>
+                                <option value="site_a" data-url="https://swim8.kcsat.org/score_search" data-name="臺中市游泳委員會">☀️ 臺中市體育總會游泳委員會 (SWIM8) [中部]</option>
+                                <option value="site_b" data-url="https://www.tainanswim.com.tw/history.php" data-name="臺南市游泳委員會">🏛️ 臺南市體育總會游泳委員會 (TAINAN) [南部]</option>
+                                <option value="site_c" data-url="http://kcc.nowforyou.com/register/gameeventqry.asp" data-name="高雄市游泳委員會">⚓ 高雄市體育總會游泳委員會 (KCC) [南部]</option>
+                                <option value="site_e" data-url="https://swim.kcsat.org/score_search" data-name="高雄水上">🏊‍♂️ 高雄水上 (SWIM_KCSAT) [南部]</option>
+                            </select>
                         </div>
-                        <div id="log-site_b" class="log-console"></div>
-                    </div>
-                </div>
 
-                <!-- 高雄泳協 -->
-                <div class="card" id="card-site_c">
-                    <div class="card-header">
-                        <h2 class="card-title">高雄市游泳委員會</h2>
-                        <a href="http://kcc.nowforyou.com/register/gameeventqry.asp" target="_blank" rel="noopener noreferrer" class="card-url">http://kcc.nowforyou.com/...</a>
-                    </div>
-                    
-                    <div class="form-group">
-                        <select id="select-site_c" class="form-select" onchange="handleSelectChange('site_c')" disabled>
-                            <option value="">獲取網頁賽事清單中...</option>
-                        </select>
-                    </div>
-                    <button id="btn-site_c" class="btn-download" onclick="startRaceUpdate('site_c')" disabled>下載賽事</button>
-
-                    <!-- 下載進度與日誌 -->
-                    <div id="progress-container-site_c" class="download-progress-card-wrapper" style="display: none;">
-                        <div id="status-site_c" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
-                        <div class="progress-bar-wrapper">
-                            <div id="bar-site_c" class="progress-bar-fill" style="width: 0%"></div>
+                        <!-- 第二層：選擇要下載的賽事清單 -->
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 0.8rem; color: #a1a1aa; margin-bottom: 0.4rem; display: block; font-weight: 600;">
+                                🏆 步驟 2：選擇要下載的賽事清單
+                            </label>
+                            <select id="unifiedRaceSelect" class="form-select" onchange="handleUnifiedRaceChange()" style="border-color: #3f3f46; width: 100%; height: 42px;">
+                                <option value="">-- 載入中，請稍候... --</option>
+                            </select>
                         </div>
-                        <div id="log-site_c" class="log-console"></div>
+                        
+                        <!-- 第三層：下載賽事按鈕 -->
+                        <button id="unifiedDownloadBtn" class="btn-download" onclick="startUnifiedRaceUpdate()" disabled style="padding: 0 1rem; font-weight: 600; font-size: 0.95rem; width: 100%; height: 42px; margin-bottom: 0;">
+                            下載賽事
+                        </button>
                     </div>
-                </div>
 
-                <!-- 高雄水上 -->
-                <div class="card" id="card-site_e">
-                    <div class="card-header">
-                        <h2 class="card-title">高雄水上</h2>
-                        <a href="https://swim.kcsat.org/score_search" target="_blank" rel="noopener noreferrer" class="card-url">https://swim.kcsat.org/...</a>
-                    </div>
-                    
-                    
-                    <div class="form-group">
-                        <select id="select-site_e" class="form-select" onchange="handleSelectChange('site_e')" disabled>
-                            <option value="">獲取網頁賽事清單中...</option>
-                        </select>
-                    </div>
-                    <button id="btn-site_e" class="btn-download" onclick="startRaceUpdate('site_e')" disabled>下載賽事</button>
-
-                    <!-- 下載進度與日誌 -->
-                    <div id="progress-container-site_e" class="download-progress-card-wrapper" style="display: none;">
-                        <div id="status-site_e" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
-                        <div class="progress-bar-wrapper">
-                            <div id="bar-site_e" class="progress-bar-fill" style="width: 0%"></div>
+                    <!-- 即時下載進度與日誌容器 -->
+                    <div id="progress-container-unified" class="download-progress-card-wrapper" style="display: none; margin-top: 1rem;">
+                        <div id="status-unified" style="font-weight: bold; font-size: 0.78rem; margin-bottom: 6px; color: var(--primary);">準備中: 0%</div>
+                        <div class="progress-bar-container" style="background: rgba(255,255,255,0.08); height: 6px; border-radius: 3px; overflow: hidden;">
+                            <div id="bar-unified" class="progress-bar-fill" style="width: 0%; background: linear-gradient(90deg, #d4af37, #f3e5ab); height: 100%; transition: width 0.3s ease;"></div>
                         </div>
-                        <div id="log-site_e" class="log-console"></div>
-                    </div>
-                </div>
-
-                <!-- 台北體總 -->
-                <div class="card" id="card-site_tpesa">
-                    <div class="card-header">
-                        <h2 class="card-title">台北體總 TPESA</h2>
-                        <a href="https://www.tpesa.org.tw/new/" target="_blank" rel="noopener noreferrer" class="card-url">https://www.tpesa.org.tw/...</a>
-                    </div>
-                    
-                    <div class="form-group">
-                        <select id="select-site_tpesa" class="form-select" onchange="handleSelectChange('site_tpesa')">
-                            <option value="">-- 選擇要下載的賽事 --</option>
-                            <option value="http://www.tpesa.org.tw/result/115年青年盃成績.pdf">115年青年盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/114年中正盃成績.pdf">114年中正盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/114年青年盃成績.pdf">114年青年盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/113年中正盃成績.pdf">113年中正盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/113年青年盃成績.pdf">113年青年盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/112年中正盃成績.pdf">112年中正盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/112年青年盃成績.pdf">112年青年盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/111年中正盃成績.pdf">111年中正盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/111年青年盃成績.pdf">111年青年盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/110年中正盃成績.pdf">110年中正盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/110年青年盃成績.pdf">110年青年盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/109年中正盃成績.pdf">109年中正盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/109年青年盃成績.pdf">109年青年盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/108年中正盃成績.pdf">108年中正盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/108年青年盃成績.pdf">108年青年盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/107年中正盃成績.pdf">107年中正盃成績</option>
-                            <option value="http://www.tpesa.org.tw/result/107年青年盃成績.pdf">107年青年盃成績</option>
-                        </select>
-                    </div>
-                    <button id="btn-site_tpesa" class="btn-download" onclick="startRaceUpdate('site_tpesa')" disabled>下載賽事</button>
-
-                    <!-- 下載進度與日誌 -->
-                    <div id="progress-container-site_tpesa" class="download-progress-card-wrapper" style="display: none;">
-                        <div id="status-site_tpesa" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
-                        <div class="progress-bar-wrapper">
-                            <div id="bar-site_tpesa" class="progress-bar-fill" style="width: 0%"></div>
-                        </div>
-                        <div id="log-site_tpesa" class="log-console"></div>
-                    </div>
-                </div>
-
-                <!-- 新北泳協 -->
-                <div class="card" id="card-site_ntpc">
-                    <div class="card-header">
-                        <h2 class="card-title">新北市游泳委員會</h2>
-                        <a href="https://ntpc-sports.com/twps/" target="_blank" rel="noopener noreferrer" class="card-url">https://ntpc-sports.com/...</a>
-                    </div>
-                    
-                    <div class="form-group">
-                        <select id="select-site_ntpc" class="form-select" onchange="handleSelectChange('site_ntpc')">
-                            <option value="">-- 選擇要下載的賽事 --</option>
-                            <option value="https://ntpc-sports.com/twps/115primary_swim">115年新北市小學運動會游泳賽</option>
-                            <option value="https://ntpc-sports.com/twps/114primary_dual">114學年度新北市小學游泳對抗賽</option>
-                            <option value="https://ntpc-sports.com/twps/114secondary_dual">114學年度新北市中等學校游泳對抗賽</option>
-                            <option value="https://ntpc-sports.com/twps/114mayor_cup">114年新北市市長盃游泳錦標賽</option>
-                            <option value="https://ntpc-sports.com/twps/114secondary_swim">114年新北市中等學校運動會游泳賽</option>
-                            <option value="https://ntpc-sports.com/twps/113primary_dual">113學年度新北市小學游泳對抗賽</option>
-                            <option value="https://ntpc-sports.com/twps/113mayor_cup">113年新北市市長盃游泳錦標賽</option>
-                        </select>
-                    </div>
-                    <button id="btn-site_ntpc" class="btn-download" onclick="startRaceUpdate('site_ntpc')" disabled>下載賽事</button>
-
-                    <!-- 下載進度與日誌 -->
-                    <div id="progress-container-site_ntpc" class="download-progress-card-wrapper" style="display: none;">
-                        <div id="status-site_ntpc" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
-                        <div class="progress-bar-wrapper">
-                            <div id="bar-site_ntpc" class="progress-bar-fill" style="width: 0%"></div>
-                        </div>
-                        <div id="log-site_ntpc" class="log-console"></div>
-                    </div>
-                </div>
-
-                <!-- 新竹泳協 -->
-                <div class="card" id="card-site_hcc">
-                    <div class="card-header">
-                        <h2 class="card-title">新竹市游泳委員會</h2>
-                        <a href="https://hcc-swim.org/" target="_blank" rel="noopener noreferrer" class="card-url">https://hcc-swim.org/...</a>
-                    </div>
-                    
-                    <div class="form-group">
-                        <select id="select-site_hcc" class="form-select" onchange="handleSelectChange('site_hcc')">
-                            <option value="">-- 選擇要下載的賽事 --</option>
-                            <option value="https://hcc-swim.org/115wind_city">115年新竹市風城盃分級游泳錦標賽</option>
-                            <option value="https://hcc-swim.org/115mayor_cup">115年新竹市市長盃游泳錦標賽</option>
-                            <option value="https://hcc-swim.org/114wind_city">114年新竹市風城盃分級游泳錦標賽</option>
-                            <option value="https://hcc-swim.org/114mayor_cup">114年新竹市市長盃游泳錦標賽</option>
-                            <option value="https://hcc-swim.org/114school_games">114年新竹市中小學聯合運動會游泳賽</option>
-                            <option value="https://hcc-swim.org/113wind_city">113年新竹市風城盃分級游泳錦標賽</option>
-                            <option value="https://hcc-swim.org/113mayor_cup">113年新竹市市長盃游泳錦標賽</option>
-                        </select>
-                    </div>
-                    <button id="btn-site_hcc" class="btn-download" onclick="startRaceUpdate('site_hcc')" disabled>下載賽事</button>
-
-                    <!-- 下載進度與日誌 -->
-                    <div id="progress-container-site_hcc" class="download-progress-card-wrapper" style="display: none;">
-                        <div id="status-site_hcc" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
-                        <div class="progress-bar-wrapper">
-                            <div id="bar-site_hcc" class="progress-bar-fill" style="width: 0%"></div>
-                        </div>
-                        <div id="log-site_hcc" class="log-console"></div>
-                    </div>
-                </div>
-
-                <!-- 桃園泳協 -->
-                <div class="card" id="card-site_tyc">
-                    <div class="card-header">
-                        <h2 class="card-title">桃園市游泳委員會</h2>
-                        <a href="https://sports.taoyuansport.org.tw/" target="_blank" rel="noopener noreferrer" class="card-url">https://sports.taoyuansport...</a>
-                    </div>
-                    
-                    <div class="form-group">
-                        <select id="select-site_tyc" class="form-select" onchange="handleSelectChange('site_tyc')">
-                            <option value="">-- 選擇要下載的賽事 --</option>
-                            <option value="https://sports.taoyuansport.org.tw/115mayor_cup">115年桃園市市長盃游泳錦標賽</option>
-                            <option value="https://sports.taoyuansport.org.tw/115school_games">115年桃園市中小學校聯合運動會游泳賽</option>
-                            <option value="https://sports.taoyuansport.org.tw/114mayor_cup">114年桃園市市長盃游泳錦標賽</option>
-                            <option value="https://sports.taoyuansport.org.tw/114speaker_cup">114年桃園市議長盃游泳錦標賽</option>
-                            <option value="https://sports.taoyuansport.org.tw/114school_games">114年桃園市中小學校聯合運動會游泳賽</option>
-                            <option value="https://sports.taoyuansport.org.tw/113mayor_cup">113年桃園市市長盃游泳錦標賽</option>
-                            <option value="https://sports.taoyuansport.org.tw/113speaker_cup">113年桃園市議長盃游泳錦標賽</option>
-                        </select>
-                    </div>
-                    <button id="btn-site_tyc" class="btn-download" onclick="startRaceUpdate('site_tyc')" disabled>下載賽事</button>
-
-                    <!-- 下載進度與日誌 -->
-                    <div id="progress-container-site_tyc" class="download-progress-card-wrapper" style="display: none;">
-                        <div id="status-site_tyc" style="font-weight: bold; font-size: 0.75rem; margin-bottom: 5px; color: var(--primary);">下載中...</div>
-                        <div class="progress-bar-wrapper">
-                            <div id="bar-site_tyc" class="progress-bar-fill" style="width: 0%"></div>
-                        </div>
-                        <div id="log-site_tyc" class="log-console"></div>
+                        <div id="log-unified" class="log-console" style="margin-top: 0.65rem; max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.4); border: 1px solid #27272a; border-radius: 6px; padding: 0.5rem; font-family: monospace; font-size: 0.72rem; color: #a1a1aa;"></div>
                     </div>
                 </div>
             </section>
 
 
 
-            <!-- 游泳行事曆區段 -->
+            <!-- 游泳行事曆區段 (macOS 頂級原生風格) -->
             <div class="calendar-section-header">
-                <h1 class="calendar-section-title">游泳行事曆</h1>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.4rem;">📅</span>
+                    <h2 class="calendar-section-title">游泳行事曆</h2>
+                    <span id="calendar-total-badge" style="font-size: 0.78rem; background: rgba(212,175,55,0.15); color: var(--primary-light); border: 1px solid rgba(212,175,55,0.3); padding: 2px 8px; border-radius: 12px; font-weight: 600;">載入中...</span>
+                </div>
+                <!-- 視圖切換器 -->
+                <div class="view-toggle-group">
+                    <button id="btn-view-mac" class="btn-view-toggle active" onclick="switchCalendarView('mac')">
+                        <span>📅</span> macOS 月曆視圖
+                    </button>
+                    <button id="btn-view-list" class="btn-view-toggle" onclick="switchCalendarView('list')">
+                        <span>📋</span> 詳細清單視圖
+                    </button>
+                </div>
             </div>
 
-            <!-- 行事曆表格 -->
-            <div class="calendar-table-container">
+            <!-- 1. macOS 原生月曆容器 (預設顯示) -->
+            <div id="mac-calendar-view" class="mac-calendar-container">
+                <!-- 左側：macOS 月曆卡片 -->
+                <div class="mac-calendar-card">
+                    <!-- 月份導覽列 -->
+                    <div class="mac-month-header">
+                        <button class="mac-month-nav-btn" onclick="prevMacMonth()" title="上個月">‹</button>
+                        <div class="mac-month-title">
+                            <span id="mac-month-label">2026年9月</span>
+                            <button class="mac-today-btn" onclick="jumpMacToday()">今天</button>
+                        </div>
+                        <button class="mac-month-nav-btn" onclick="nextMacMonth()" title="下個月">›</button>
+                    </div>
+
+                    <!-- 星期標頭 (日 一 二 三 四 五 六) -->
+                    <div class="mac-weekdays-row">
+                        <div>日</div>
+                        <div>一</div>
+                        <div>二</div>
+                        <div>三</div>
+                        <div>四</div>
+                        <div>五</div>
+                        <div>六</div>
+                    </div>
+
+                    <!-- 42 格日期網格 -->
+                    <div id="mac-days-grid" class="mac-days-grid">
+                        <!-- 由 JS 動態生成 -->
+                    </div>
+                </div>
+
+                <!-- 右側：當日賽事詳情卡片 -->
+                <div class="mac-calendar-sidebar">
+                    <div class="mac-detail-card" id="mac-detail-card">
+                        <div class="mac-detail-header">
+                            <h3 id="mac-detail-date-title" class="mac-detail-date-title">當日賽事日程</h3>
+                            <span id="mac-detail-count-badge" class="mac-event-badge">0 場賽事</span>
+                        </div>
+                        <div id="mac-events-list" class="mac-events-list">
+                            <div class="mac-empty-state">
+                                正在載入賽事行事曆資料...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 詳細清單表格容器 (可切換) -->
+            <div id="list-calendar-view" class="calendar-table-container" style="display: none;">
                 <table class="calendar-table">
                     <thead>
                         <tr>
@@ -1952,6 +2264,14 @@
                 });
 
                 tbody.innerHTML = html;
+                
+                // 更新行事曆總數徽章
+                const countBadge = document.getElementById('calendar-total-badge');
+                if (countBadge) countBadge.textContent = `共 ${events.length} 場賽事`;
+
+                // 渲染全新 macOS 原生月曆
+                renderMacCalendar(events);
+                
                 await updateMarquee(events);
                 scrollToCurrentMonth();
 
@@ -1990,6 +2310,386 @@
             }
 
             return null;
+        }
+
+        // ============================================================
+        // macOS 原生風格日曆邏輯 (Apple macOS Calendar Engine)
+        // ============================================================
+        let macCalendarYear = new Date().getFullYear();
+        let macCalendarMonth = new Date().getMonth(); // 0-11
+        let macCalendarSelectedDate = new Date();
+        let currentCalendarView = 'mac';
+
+        // 解析賽事日期範圍 (支援多日賽程，如 09/03 ~ 09/08)
+        function parseEventDateRange(dateStr) {
+            if (!dateStr) return null;
+            const cleaned = dateStr.replace(/\([^\)]*\)/g, '').trim();
+            const parts = cleaned.split('~').map(s => s.trim());
+            
+            let startMatch = parts[0].match(/(\d{4})[/\.](\d{1,2})[/\.](\d{1,2})/);
+            let currentYear = new Date().getFullYear();
+            if (!startMatch) {
+                let m2 = parts[0].match(/(\d{1,2})[/\.](\d{1,2})/);
+                if (m2) {
+                    startMatch = [null, currentYear, m2[1], m2[2]];
+                }
+            }
+            if (!startMatch) return null;
+            
+            const startYear = parseInt(startMatch[1]);
+            const startMonth = parseInt(startMatch[2]) - 1;
+            const startDay = parseInt(startMatch[3]);
+            const startDate = new Date(startYear, startMonth, startDay, 0, 0, 0);
+            
+            let endDate = new Date(startYear, startMonth, startDay, 23, 59, 59);
+            if (parts.length > 1 && parts[1]) {
+                let endMatchFull = parts[1].match(/(\d{4})[/\.](\d{1,2})[/\.](\d{1,2})/);
+                if (endMatchFull) {
+                    endDate = new Date(parseInt(endMatchFull[1]), parseInt(endMatchFull[2]) - 1, parseInt(endMatchFull[3]), 23, 59, 59);
+                } else {
+                    let endMatchShort = parts[1].match(/(\d{1,2})[/\.](\d{1,2})/);
+                    if (endMatchShort) {
+                        endDate = new Date(startYear, parseInt(endMatchShort[1]) - 1, parseInt(endMatchShort[2]), 23, 59, 59);
+                    }
+                }
+            }
+            return { startDate, endDate };
+        }
+
+        // 判斷某一天是否在賽事日期範圍內
+        function isDateInEventRange(checkDate, ev) {
+            if (!ev || !ev.date) return false;
+            if (!ev._range) {
+                ev._range = parseEventDateRange(ev.date);
+            }
+            if (!ev._range) return false;
+            const checkTime = new Date(checkDate.getFullYear(), checkDate.getMonth(), checkDate.getDate()).getTime();
+            const startTime = new Date(ev._range.startDate.getFullYear(), ev._range.startDate.getMonth(), ev._range.startDate.getDate()).getTime();
+            const endTime = new Date(ev._range.endDate.getFullYear(), ev._range.endDate.getMonth(), ev._range.endDate.getDate()).getTime();
+            return checkTime >= startTime && checkTime <= endTime;
+        }
+
+        // 智慧提煉賽事簡稱 (直接呈現於月曆日期格子中)
+        function getEventShortName(name) {
+            if (!name) return "";
+            let s = name.trim();
+            // 移除括號內的備註
+            s = s.replace(/\([^\)]*\)/g, '').trim();
+            s = s.replace(/（[^）]*）/g, '').trim();
+            
+            // 知名專屬賽事精準簡稱映射
+            if (s.includes("亞洲運動會") || s.includes("亞運")) return "亞洲運動會";
+            if (s.includes("奧林匹克") || s.includes("奧運")) return "奧運會";
+            if (s.includes("世界大學運動會") || s.includes("世大運")) return "世大運";
+            if (s.includes("世界游泳錦標賽") || s.includes("世錦賽")) return "世錦賽";
+            if (s.includes("World Aquatics") || s.includes("世界盃")) return "世界盃巡迴";
+            if (s.includes("中等學校運動會") || s.includes("全中運")) return "全中運";
+            if (s.includes("大專校院運動會") || s.includes("全大運")) return "全大運";
+            if (s.includes("全國運動會") || s.includes("全運會")) return "全運會";
+            if (s.includes("全民運動會") || s.includes("全民運")) return "全民運";
+            if (s.includes("總統盃")) return s.includes("分齡") ? "總統盃分齡" : "總統盃";
+            if (s.includes("春季分齡")) return "春季分齡";
+            if (s.includes("夏季分齡")) return "夏季分齡";
+            if (s.includes("秋季分齡")) return "秋季分齡";
+            if (s.includes("冬季分齡")) return "冬季分齡";
+            if (s.includes("風城盃")) return s.includes("新竹") ? "新竹風城盃" : "風城盃";
+            if (s.includes("中小學") || s.includes("中運會")) return (s.includes("新竹") ? "新竹市中運" : "市中運");
+
+            // 通用清理前綴與後綴
+            s = s.replace(/^(?:11\d|202\d)年?/, '');
+            s = s.replace(/^(?:中華民國|臺灣|台灣|全國)/, '');
+            s = s.replace(/^(新竹|臺北|台北|新北|桃園|臺中|台中|臺南|台南|高雄|屏東|宜蘭|花蓮|彰化|嘉義)市?/, '$1');
+            s = s.replace(/(?:分級游泳錦標賽|分齡游泳錦標賽|分級錦標賽|分齡錦標賽|游泳錦標賽|游泳排名賽|游泳邀請賽|游泳選拔賽|選拔賽|錦標賽|游泳賽)$/, '');
+            
+            s = s.trim();
+            if (!s) return name.substring(0, 5);
+            if (s.length > 6) {
+                return s.substring(0, 5) + '…';
+            }
+            return s;
+        }
+
+        // 賽事色彩類別
+        function getEventChipClass(name) {
+            if (!name) return "mac-chip-other";
+            if (name.includes("亞運") || name.includes("亞洲運動會") || name.includes("奧運") || name.includes("世界") || name.includes("World Aquatics") || name.includes("全運會") || name.includes("全中運")) {
+                return "mac-chip-intl";
+            }
+            if (name.includes("全國") || name.includes("中華民國") || name.includes("總統盃") || name.includes("分齡")) {
+                return "mac-chip-national";
+            }
+            if (name.includes("市") || name.includes("縣") || name.includes("盃") || name.includes("委員會")) {
+                return "mac-chip-regional";
+            }
+            return "mac-chip-other";
+        }
+
+        // 渲染 macOS 月曆視圖 (42 格網格)
+        function renderMacCalendar(events) {
+            if (events) window.currentEvents = events;
+            const allEvents = window.currentEvents || [];
+            
+            const monthLabel = document.getElementById('mac-month-label');
+            if (monthLabel) {
+                monthLabel.textContent = `${macCalendarYear}年${macCalendarMonth + 1}月`;
+            }
+
+            const gridEl = document.getElementById('mac-days-grid');
+            if (!gridEl) return;
+
+            const today = new Date();
+            const todayYear = today.getFullYear();
+            const todayMonth = today.getMonth();
+            const todayDate = today.getDate();
+
+            const selYear = macCalendarSelectedDate.getFullYear();
+            const selMonth = macCalendarSelectedDate.getMonth();
+            const selDate = macCalendarSelectedDate.getDate();
+
+            // 計算月曆網格參數
+            const firstDayOfMonth = new Date(macCalendarYear, macCalendarMonth, 1);
+            const startDayOfWeek = firstDayOfMonth.getDay(); // 0 = 週日
+            const daysInMonth = new Date(macCalendarYear, macCalendarMonth + 1, 0).getDate();
+            const daysInPrevMonth = new Date(macCalendarYear, macCalendarMonth, 0).getDate();
+
+            let gridHtml = '';
+
+            for (let i = 0; i < 42; i++) {
+                let cellYear, cellMonth, cellDay, isOtherMonth = false;
+
+                if (i < startDayOfWeek) {
+                    // 上個月的日期
+                    isOtherMonth = true;
+                    cellDay = daysInPrevMonth - startDayOfWeek + 1 + i;
+                    cellMonth = macCalendarMonth - 1;
+                    cellYear = macCalendarYear;
+                    if (cellMonth < 0) {
+                        cellMonth = 11;
+                        cellYear--;
+                    }
+                } else if (i < startDayOfWeek + daysInMonth) {
+                    // 本月的日期
+                    cellDay = i - startDayOfWeek + 1;
+                    cellMonth = macCalendarMonth;
+                    cellYear = macCalendarYear;
+                } else {
+                    // 下個月的日期
+                    isOtherMonth = true;
+                    cellDay = i - (startDayOfWeek + daysInMonth) + 1;
+                    cellMonth = macCalendarMonth + 1;
+                    cellYear = macCalendarYear;
+                    if (cellMonth > 11) {
+                        cellMonth = 0;
+                        cellYear++;
+                    }
+                }
+
+                const cellDateObj = new Date(cellYear, cellMonth, cellDay);
+                const isToday = (cellYear === todayYear && cellMonth === todayMonth && cellDay === todayDate);
+                const isSelected = (cellYear === selYear && cellMonth === selMonth && cellDay === selDate);
+
+                // 篩選當日賽事
+                const dayEvents = allEvents.filter(ev => isDateInEventRange(cellDateObj, ev));
+                const hasEvents = dayEvents.length > 0;
+
+                let classes = 'mac-day-cell';
+                if (isOtherMonth) classes += ' other-month';
+                else classes += ' curr-month';
+                if (isToday) classes += ' is-today';
+                if (isSelected) classes += ' is-selected';
+
+                let eventsHtml = '';
+                if (hasEvents) {
+                    const maxDisplay = 2;
+                    const displayed = dayEvents.slice(0, maxDisplay);
+                    const remaining = dayEvents.length - maxDisplay;
+
+                    eventsHtml = `<div class="mac-day-events">` + displayed.map(ev => {
+                        const shortName = getEventShortName(ev.name);
+                        const chipClass = getEventChipClass(ev.name);
+                        return `<div class="mac-event-chip ${chipClass}" title="${ev.name} (${ev.date})">${shortName}</div>`;
+                    }).join('');
+
+                    if (remaining > 0) {
+                        eventsHtml += `<div class="mac-event-more">+${remaining} 更多</div>`;
+                    }
+                    eventsHtml += `</div>`;
+                }
+
+                const tooltipTitle = hasEvents ? `${dayEvents.length} 場賽事：${dayEvents.map(e => e.name).join('、')}` : '';
+
+                gridHtml += `
+                    <div class="${classes}" onclick="selectMacDay(${cellYear}, ${cellMonth}, ${cellDay})" title="${tooltipTitle}">
+                        <div class="mac-day-top">
+                            <span class="mac-day-num">${cellDay}</span>
+                            ${hasEvents ? `<span class="mac-day-badge">${dayEvents.length}</span>` : ''}
+                        </div>
+                        ${eventsHtml}
+                    </div>
+                `;
+            }
+
+            gridEl.innerHTML = gridHtml;
+
+            // 渲染右側選取日期的賽事卡片
+            renderMacSelectedDateDetails(macCalendarSelectedDate);
+        }
+
+        // 點選某個日期
+        function selectMacDay(year, month, day) {
+            macCalendarSelectedDate = new Date(year, month, day);
+            if (month !== macCalendarMonth || year !== macCalendarYear) {
+                macCalendarYear = year;
+                macCalendarMonth = month;
+                renderMacCalendar();
+            } else {
+                renderMacCalendar();
+            }
+        }
+
+        // 上個月
+        function prevMacMonth() {
+            macCalendarMonth--;
+            if (macCalendarMonth < 0) {
+                macCalendarMonth = 11;
+                macCalendarYear--;
+            }
+            renderMacCalendar();
+        }
+
+        // 下個月
+        function nextMacMonth() {
+            macCalendarMonth++;
+            if (macCalendarMonth > 11) {
+                macCalendarMonth = 0;
+                macCalendarYear++;
+            }
+            renderMacCalendar();
+        }
+
+        // 跳轉到今天
+        function jumpMacToday() {
+            const now = new Date();
+            macCalendarYear = now.getFullYear();
+            macCalendarMonth = now.getMonth();
+            macCalendarSelectedDate = new Date();
+            renderMacCalendar();
+        }
+
+        // 渲染右側「當日賽事日程」與「本月焦點」
+        function renderMacSelectedDateDetails(selDate) {
+            const dateTitle = document.getElementById('mac-detail-date-title');
+            const countBadge = document.getElementById('mac-detail-count-badge');
+            const eventsList = document.getElementById('mac-events-list');
+            if (!dateTitle || !countBadge || !eventsList) return;
+
+            const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+            const y = selDate.getFullYear();
+            const m = selDate.getMonth() + 1;
+            const d = selDate.getDate();
+            const w = weekdays[selDate.getDay()];
+
+            dateTitle.innerHTML = `<span>🗓️</span> ${y}年${m}月${d}日 (${w})`;
+
+            const allEvents = window.currentEvents || [];
+            const dayEvents = allEvents.filter(ev => isDateInEventRange(selDate, ev));
+
+            countBadge.textContent = `${dayEvents.length} 場賽事`;
+
+            if (dayEvents.length > 0) {
+                let html = '';
+                dayEvents.forEach(ev => {
+                    const remarkLink = (ev.remark && ev.remark.startsWith('http')) 
+                        ? `<a href="${ev.remark}" target="_blank" class="mac-btn-download-pdf">📥 下載官方競賽規程</a>` 
+                        : (ev.remark ? `<span style="font-size:0.75rem; color:#888;">備註：${ev.remark}</span>` : '');
+
+                    html += `
+                        <div class="mac-event-item-card">
+                            <h4 class="mac-event-item-name">🏆 ${ev.name}</h4>
+                            <div class="mac-event-item-meta">
+                                <span>📅 ${ev.date}</span>
+                                <span>📍 ${ev.location || '未公布地點'}</span>
+                                <span>🏛️ ${ev.organizer || '全台泳協'}</span>
+                            </div>
+                            ${remarkLink}
+                        </div>
+                    `;
+                });
+                eventsList.innerHTML = html;
+            } else {
+                // 當日無賽事，列出本月份所有賽事作為捷徑引導
+                const monthEvents = allEvents.filter(ev => {
+                    if (!ev._range) ev._range = parseEventDateRange(ev.date);
+                    if (!ev._range) return false;
+                    const sm = ev._range.startDate.getMonth();
+                    const sy = ev._range.startDate.getFullYear();
+                    const em = ev._range.endDate.getMonth();
+                    const ey = ev._range.endDate.getFullYear();
+                    return (sy === macCalendarYear && sm === macCalendarMonth) || (ey === macCalendarYear && em === macCalendarMonth);
+                });
+
+                let monthHighlightHtml = '';
+                if (monthEvents.length > 0) {
+                    monthHighlightHtml = `
+                        <div style="margin-top: 1rem; border-top: 1px solid #232326; padding-top: 0.85rem;">
+                            <div style="font-size: 0.82rem; font-weight: 700; color: var(--primary-light); margin-bottom: 0.65rem; display: flex; align-items: center; gap: 4px;">
+                                <span>📌</span> 本月焦點賽事 (${monthEvents.length} 場)：
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                ${monthEvents.slice(0, 4).map(ev => `
+                                    <div style="background: rgba(255,255,255,0.02); border: 1px solid #27272a; border-radius: 8px; padding: 8px 10px; cursor: pointer; transition: all 0.2s;" 
+                                         onclick="jumpToEventDate('${ev.date}')"
+                                         onmouseover="this.style.borderColor='var(--primary)'; this.style.background='rgba(212,175,55,0.05)';"
+                                         onmouseout="this.style.borderColor='#27272a'; this.style.background='rgba(255,255,255,0.02)';">
+                                        <div style="font-size: 0.85rem; font-weight: bold; color: #fff;">${ev.name}</div>
+                                        <div style="font-size: 0.75rem; color: #a1a1aa; margin-top: 2px;">📅 ${ev.date} · 📍 ${ev.location || '-'}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                eventsList.innerHTML = `
+                    <div class="mac-empty-state">
+                        <div style="font-size: 2.2rem; margin-bottom: 0.5rem; opacity: 0.85;">🏊‍♂️</div>
+                        <div style="font-weight: 600; color: #ffffff;">本日無排定賽事</div>
+                        <div style="font-size: 0.78rem; color: #71717a; margin-top: 4px;">點選帶有金色亮點的日期，即可展開賽事日程</div>
+                    </div>
+                    ${monthHighlightHtml}
+                `;
+            }
+        }
+
+        // 點擊本月賽事捷徑跳轉至該日期
+        function jumpToEventDate(dateStr) {
+            const range = parseEventDateRange(dateStr);
+            if (range) {
+                selectMacDay(range.startDate.getFullYear(), range.startDate.getMonth(), range.startDate.getDate());
+            }
+        }
+
+        // 切換月曆與詳細清單視圖
+        function switchCalendarView(mode) {
+            currentCalendarView = mode;
+            const macView = document.getElementById('mac-calendar-view');
+            const listView = document.getElementById('list-calendar-view');
+            const btnMac = document.getElementById('btn-view-mac');
+            const btnList = document.getElementById('btn-view-list');
+
+            if (mode === 'mac') {
+                if (macView) macView.style.display = 'grid';
+                if (listView) listView.style.display = 'none';
+                if (btnMac) btnMac.classList.add('active');
+                if (btnList) btnList.classList.remove('active');
+                renderMacCalendar();
+            } else {
+                if (macView) macView.style.display = 'none';
+                if (listView) listView.style.display = 'block';
+                if (btnMac) btnMac.classList.remove('active');
+                if (btnList) btnList.classList.add('active');
+                scrollToCurrentMonth();
+            }
         }
 
         async function updateMarquee(events) {
@@ -2137,7 +2837,307 @@
             return await parseProxyResponse(resp);
         }
 
-        // 從 Vercel Serverless API 取得各協會賽事清單（server-side 爬蟲，無 CORS 問題）
+        // 從 Vercel Serverless API / 本地伺服器取得各協會賽事清單
+        
+        // 全局各單位賽事快取物件（預置北部、中部、南部各官方預設賽事，杜絕選單空白）
+        const orgRacesCache = {
+            site_d: [
+                { value: "https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx", text: "115年全國春季游泳錦標賽" },
+                { value: "https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx", text: "115年全國小學游泳錦標賽" },
+                { value: "https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx", text: "115年全國中正盃游泳錦標賽" },
+                { value: "https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx", text: "115年全國分齡游泳錦標賽" }
+            ],
+            site_tpesa: [
+                { value: "http://www.tpesa.org.tw/result/115年青年盃成績.pdf", text: "115年青年盃成績" },
+                { value: "http://www.tpesa.org.tw/result/114年中正盃成績.pdf", text: "114年中正盃成績" },
+                { value: "http://www.tpesa.org.tw/result/114年青年盃成績.pdf", text: "114年青年盃成績" },
+                { value: "http://www.tpesa.org.tw/result/113年中正盃成績.pdf", text: "113年中正盃成績" },
+                { value: "http://www.tpesa.org.tw/result/113年青年盃成績.pdf", text: "113年青年盃成績" },
+                { value: "http://www.tpesa.org.tw/result/112年中正盃成績.pdf", text: "112年中正盃成績" },
+                { value: "http://www.tpesa.org.tw/result/112年青年盃成績.pdf", text: "112年青年盃成績" },
+                { value: "http://www.tpesa.org.tw/result/111年中正盃成績.pdf", text: "111年中正盃成績" },
+                { value: "http://www.tpesa.org.tw/result/111年青年盃成績.pdf", text: "111年青年盃成績" },
+                { value: "http://www.tpesa.org.tw/result/110年中正盃成績.pdf", text: "110年中正盃成績" },
+                { value: "http://www.tpesa.org.tw/result/110年青年盃成績.pdf", text: "110年青年盃成績" },
+                { value: "http://www.tpesa.org.tw/result/109年中正盃成績.pdf", text: "109年中正盃成績" },
+                { value: "http://www.tpesa.org.tw/result/109年青年盃成績.pdf", text: "109年青年盃成績" },
+                { value: "http://www.tpesa.org.tw/result/108年中正盃成績.pdf", text: "108年中正盃成績" },
+                { value: "http://www.tpesa.org.tw/result/108年青年盃成績.pdf", text: "108年青年盃成績" },
+                { value: "http://www.tpesa.org.tw/result/107年中正盃成績.pdf", text: "107年中正盃成績" },
+                { value: "http://www.tpesa.org.tw/result/107年青年盃成績.pdf", text: "107年青年盃成績" }
+            ],
+            site_ntpc: [
+                { value: "https://ntpc-sports.com/twps/115primary_swim", text: "115年新北市小學運動會游泳賽" },
+                { value: "https://ntpc-sports.com/twps/114primary_dual", text: "114學年度新北市小學游泳對抗賽" },
+                { value: "https://ntpc-sports.com/twps/114secondary_dual", text: "114學年度新北市中等學校游泳對抗賽" },
+                { value: "https://ntpc-sports.com/twps/114mayor_cup", text: "114年新北市市長盃游泳錦標賽" },
+                { value: "https://ntpc-sports.com/twps/114secondary_swim", text: "114年新北市中等學校運動會游泳賽" },
+                { value: "https://ntpc-sports.com/twps/113primary_dual", text: "113學年度新北市小學游泳對抗賽" },
+                { value: "https://ntpc-sports.com/twps/113mayor_cup", text: "113年新北市市長盃游泳錦標賽" }
+            ],
+            site_tyc: [
+                { value: "https://sports.taoyuansport.org.tw/115mayor_cup", text: "115年桃園市市長盃游泳錦標賽" },
+                { value: "https://sports.taoyuansport.org.tw/115school_games", text: "115年桃園市中小學校聯合運動會游泳賽" },
+                { value: "https://sports.taoyuansport.org.tw/114mayor_cup", text: "114年桃園市市長盃游泳錦標賽" },
+                { value: "https://sports.taoyuansport.org.tw/114speaker_cup", text: "114年桃園市議長盃游泳錦標賽" },
+                { value: "https://sports.taoyuansport.org.tw/114school_games", text: "114年桃園市中小學校聯合運動會游泳賽" },
+                { value: "https://sports.taoyuansport.org.tw/113mayor_cup", text: "113年桃園市市長盃游泳錦標賽" },
+                { value: "https://sports.taoyuansport.org.tw/113speaker_cup", text: "113年桃園市議長盃游泳錦標賽" }
+            ],
+            site_hcc: [
+                { value: "https://hcc-swim.org/115wind_city", text: "115年新竹市風城盃分級游泳錦標賽" },
+                { value: "https://hcc-swim.org/115mayor_cup", text: "115年新竹市市長盃游泳錦標賽" },
+                { value: "https://hcc-swim.org/114wind_city", text: "114年新竹市風城盃分級游泳錦標賽" },
+                { value: "https://hcc-swim.org/114mayor_cup", text: "114年新竹市市長盃游泳錦標賽" },
+                { value: "https://hcc-swim.org/114school_games", text: "114年新竹市中小學聯合運動會游泳賽" },
+                { value: "https://hcc-swim.org/113wind_city", text: "113年新竹市風城盃分級游泳錦標賽" },
+                { value: "https://hcc-swim.org/113mayor_cup", text: "113年新竹市市長盃游泳錦標賽" }
+            ]
+        };
+
+        // 當切換主辦單位時觸發
+        async function handleUnifiedOrgChange() {
+            const orgSelect = document.getElementById('unifiedOrgSelect');
+            const raceSelect = document.getElementById('unifiedRaceSelect');
+            const downloadBtn = document.getElementById('unifiedDownloadBtn');
+            const titleEl = document.getElementById('unified-org-title');
+            const urlEl = document.getElementById('unified-org-url');
+            
+            const selectedOpt = orgSelect.options[orgSelect.selectedIndex];
+            const siteId = orgSelect.value;
+            const orgName = selectedOpt.getAttribute('data-name');
+            const orgUrl = selectedOpt.getAttribute('data-url');
+            
+            // 1. 更新標題與網址
+            if (titleEl) titleEl.textContent = orgName;
+            if (urlEl) {
+                urlEl.href = orgUrl;
+                urlEl.textContent = orgUrl.length > 32 ? orgUrl.substring(0, 32) + '...' : orgUrl;
+            }
+            
+            // 2. 重設下載按鈕
+            downloadBtn.disabled = true;
+            downloadBtn.classList.remove('active-gold');
+            raceSelect.classList.remove('selected-gold');
+
+            // 3. 秒級快取載入：若快取中已有資料，立即渲染
+            if (orgRacesCache[siteId] && orgRacesCache[siteId].length > 0) {
+                renderUnifiedRaces(orgRacesCache[siteId]);
+                // 背景靜默更新（不阻擋使用者操作）
+                fetch(`${API_BASE}/api/races?site=${siteId}&_t=${Date.now()}`)
+                    .then(r => r.ok ? r.json() : [])
+                    .then(data => {
+                        const site = data.find(s => s.id === siteId);
+                        if (site && site.races && site.races.length > 0) {
+                            orgRacesCache[siteId] = site.races;
+                        }
+                    }).catch(e => console.warn("背景更新賽事快取失敗:", e));
+            } else {
+                raceSelect.innerHTML = '<option value="">⏳ 正在連線爬取賽事清單，請稍候...</option>';
+                raceSelect.disabled = true;
+                try {
+                    const resp = await fetch(`${API_BASE}/api/races?site=${siteId}&_t=${Date.now()}`);
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    const data = await resp.json();
+                    const site = data.find(s => s.id === siteId);
+                    const races = site ? site.races : [];
+                    if (races.length > 0) {
+                        orgRacesCache[siteId] = races;
+                    }
+                    renderUnifiedRaces(orgRacesCache[siteId] || races);
+                } catch (err) {
+                    // 若伺服器連線失敗且快取有備援，使用備援
+                    if (orgRacesCache[siteId] && orgRacesCache[siteId].length > 0) {
+                        renderUnifiedRaces(orgRacesCache[siteId]);
+                    } else {
+                        raceSelect.innerHTML = `<option value="">⚠️ 載入失敗: ${err.message}</option>`;
+                        raceSelect.disabled = true;
+                    }
+                }
+            }
+        }
+
+        // 初始化預先加載所有單位賽事清單
+        async function loadInitialRacesCache() {
+            try {
+                const resp = await fetch(`${API_BASE}/api/races?_t=${Date.now()}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (Array.isArray(data)) {
+                        data.forEach(site => {
+                            if (site.id && site.races && site.races.length > 0) {
+                                orgRacesCache[site.id] = site.races;
+                            }
+                        });
+                    }
+                }
+            } catch(e) {
+                console.warn("預先加載賽事清單失敗，已使用靜態備援: ", e);
+            }
+            // 觸發首次主辦單位賽事渲染
+            handleUnifiedOrgChange();
+        }
+
+        // 渲染賽事選單
+        function renderUnifiedRaces(races) {
+            const raceSelect = document.getElementById('unifiedRaceSelect');
+            if (!races || races.length === 0 || (races.length === 1 && !races[0].value)) {
+                raceSelect.innerHTML = `<option value="">${races && races[0]?.text ? races[0].text : '無賽事資料'}</option>`;
+                raceSelect.disabled = true;
+                return;
+            }
+            let html = '<option value="">-- 選擇要下載的賽事 --</option>';
+            races.forEach(r => {
+                if (r.value) html += `<option value="${r.value}">${r.text}</option>`;
+            });
+            raceSelect.innerHTML = html;
+            raceSelect.disabled = false;
+        }
+
+        // 當賽事下拉改變時觸發
+        function handleUnifiedRaceChange() {
+            const raceSelect = document.getElementById('unifiedRaceSelect');
+            const downloadBtn = document.getElementById('unifiedDownloadBtn');
+            if (raceSelect.value !== '') {
+                raceSelect.classList.add('selected-gold');
+                downloadBtn.disabled = false;
+                downloadBtn.classList.add('active-gold');
+            } else {
+                raceSelect.classList.remove('selected-gold');
+                downloadBtn.disabled = true;
+                downloadBtn.classList.remove('active-gold');
+            }
+        }
+
+        // 啟動單一方塊下載主程序
+        async function startUnifiedRaceUpdate() {
+            const orgSelect = document.getElementById('unifiedOrgSelect');
+            const raceSelect = document.getElementById('unifiedRaceSelect');
+            const siteId = orgSelect.value;
+            const gameId = raceSelect.value;
+            const gameName = raceSelect.options[raceSelect.selectedIndex].text;
+            
+            if (!gameId) {
+                alert("請選擇一場賽事！");
+                return;
+            }
+            
+            OperationLogger.add('點擊下載更新賽事 (單一整合)', { siteId, gameId, gameName });
+
+            let targetDate = "";
+            try {
+                const dateResp = await fetch(`${API_BASE}/api/resolve_race_date?site=${siteId}&value=${gameId}&name=${encodeURIComponent(gameName)}`);
+                if (dateResp.ok) {
+                    const dateJson = await dateResp.json();
+                    if (dateJson.status === 'success') {
+                        targetDate = dateJson.date;
+                    }
+                }
+            } catch(e) {
+                console.warn("無法取得預估日期: ", e);
+            }
+
+            const userDate = prompt(
+                `🔔 系統偵測到此賽事的舉辦日期 (8碼)：\n\n` +
+                `請確認或修改為正確的舉辦首日日期（西元格式 YYYYMMDD）：`,
+                targetDate || "20260101"
+            );
+
+            if (userDate === null) {
+                OperationLogger.add('使用者取消下載賽事', { siteId, gameId });
+                return;
+            }
+
+            const cleanedDate = userDate.trim();
+            if (!/^\d{8}$/.test(cleanedDate)) {
+                alert("❌ 日期格式錯誤！必須為 8 碼純數字（例如：20260717）。已取消下載。");
+                return;
+            }
+
+            await ensureDBLoaded();
+
+            const progressContainer = document.getElementById('progress-container-unified');
+            const statusEl = document.getElementById('status-unified');
+            const progressBar = document.getElementById('bar-unified');
+            const consoleEl = document.getElementById('log-unified');
+            
+            progressContainer.style.display = 'block';
+            consoleEl.innerHTML = '';
+            progressBar.style.width = '5%';
+            statusEl.textContent = `下載中: 5%`;
+            
+            function addCardLog(msg, type = "") {
+                const item = document.createElement('div');
+                item.className = `log-item ${type}`;
+                item.style.marginBottom = '2px';
+                if (type === 'success') item.style.color = '#4CD964';
+                if (type === 'error') item.style.color = '#FF3B30';
+                item.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+                consoleEl.appendChild(item);
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+            }
+
+            addCardLog(`📡 [數據管道] 正在啟動伺服器端爬蟲，連接至 ${gameName}...`);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/download`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        site: siteId,
+                        value: gameId,
+                        name: gameName,
+                        save_to_birthday: dbFileName === 'swim_results_birthday.db',
+                        custom_date: cleanedDate
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP 錯誤: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n\n");
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            try {
+                                const data = JSON.parse(line.substring(6));
+                                if (data.status === "progress") {
+                                    progressBar.style.width = `${data.percent}%`;
+                                    statusEl.textContent = `下載中: ${data.percent}% - ${data.message}`;
+                                    addCardLog(data.message);
+                                } else if (data.status === "success") {
+                                    progressBar.style.width = `100%`;
+                                    statusEl.textContent = `✅ 成功完成！更新 ${data.added || 0} 筆成績。`;
+                                    addCardLog(`🎉 賽事成績同步入庫完成，新增/更新 ${data.added || 0} 筆成績！`, "success");
+                                    await ensureDBLoaded(true);
+                                    loadCalendarFromDB();
+                                } else if (data.status === "error") {
+                                    statusEl.textContent = `❌ 失敗: ${data.message}`;
+                                    addCardLog(data.message, "error");
+                                }
+                            } catch (e) {
+                                console.error("解析 SSE 錯誤", e);
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                statusEl.textContent = `❌ 錯誤: ${err.message}`;
+                addCardLog(`連線異常: ${err.message}`, "error");
+            }
+        }
+
         async function loadRecentGamesList(siteId) {
             const gameSelect = document.getElementById(`select-${siteId}`);
             if (!gameSelect) return;
@@ -2459,12 +3459,13 @@
             // 綁定定時刷新 (每 5 秒自動刷新，確保延遲 < 5 秒)
             setInterval(loadCloudAnalytics, 5000);
             
-            // 區域資料庫載入
-            ensureDBLoaded().then(() => {
-                loadCalendarFromDB();
-            });
+            // 立即載入行事曆 (零延遲極速呈現)
+            loadCalendarFromDB();
+            // 區域資料庫載入 (背景進行)
+            ensureDBLoaded();
             // 立即非同步載入賽事下拉選單，提升首開與切換速度！
-            loadRecentGamesList('site_a');
+            loadInitialRacesCache();
+            // 背景預載入各單位賽事快取
             loadRecentGamesList('site_b');
             loadRecentGamesList('site_c');
             loadRecentGamesList('site_d');
