@@ -7,9 +7,9 @@
       "name": "全國小學錦標賽",
       "short": "全國小學",
       "bracket": "國小 (12歲以下)",
-      "doc_date": "2026-02",
-      "doc_name": "115年全國小學游泳錦標賽競賽規程",
-      "doc_url": "/static/docs/115_primary_school_manual.pdf"
+      "doc_date": "115年規程第6頁",
+      "doc_name": "115年全國小學游泳錦標賽競賽規程(第6頁參賽標準表)",
+      "doc_url": "/static/docs/115_primary_school_manual.pdf#page=6"
     },
     {
       "id": "presidential",
@@ -18,34 +18,34 @@
       "bracket": "全分齡",
       "doc_date": "114年規程第7頁",
       "doc_name": "114年全國總統盃暨美津濃游泳錦標賽競賽規程(第7頁參賽標準表)",
-      "doc_url": "/static/docs/115_presidential_cup_manual.pdf"
+      "doc_url": "/static/docs/115_presidential_cup_manual.pdf#page=7"
     },
     {
       "id": "high_school",
       "name": "全國中等學校運動會",
       "short": "全中運",
       "bracket": "國中/高中",
-      "doc_date": "2026-01",
-      "doc_name": "114年全國中等學校運動會游泳技術手冊",
-      "doc_url": "/static/docs/114_high_school_games_manual.pdf"
+      "doc_date": "114年手冊第7頁",
+      "doc_name": "114年全國中等學校運動會游泳技術手冊(第7頁參賽標準表)",
+      "doc_url": "/static/docs/114_high_school_games_manual.pdf#page=7"
     },
     {
       "id": "college",
       "name": "全國大專校院運動會",
       "short": "全大運",
       "bracket": "公開組",
-      "doc_date": "2025-12",
-      "doc_name": "114年全國大專校院運動會游泳技術手冊",
-      "doc_url": "/static/docs/114_college_games_manual.pdf"
+      "doc_date": "114年手冊第15頁",
+      "doc_name": "114年全國大專校院運動會游泳技術手冊(第15頁參賽標準表)",
+      "doc_url": "/static/docs/114_college_games_manual.pdf#page=17"
     },
     {
       "id": "national_games",
       "name": "全國運動會",
       "short": "全運會",
       "bracket": "全國公開組",
-      "doc_date": "114年核定",
-      "doc_name": "114年全國運動會水上運動技術手冊",
-      "doc_url": "/static/docs/114_national_games_manual.pdf"
+      "doc_date": "114年手冊第4頁",
+      "doc_name": "114年全國運動會水上運動技術手冊(第4頁參賽標準表)",
+      "doc_url": "/static/docs/114_national_games_manual.pdf#page=4"
     }
   ],
   "college_standards": {
