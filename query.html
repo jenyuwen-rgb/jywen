@@ -498,6 +498,18 @@
                 }
             }
 
+            // ── 得獎模擬分析模式：偵測以 /podium simulation、/podium 或 /sim 結尾 ──
+            const podiumMatch = rawInput.match(/^(.+?)\s*\/\s*(podium\s*simulation|podium|sim)$/i);
+            if (podiumMatch) {
+                const podiumSwimmerName = normalizeName(podiumMatch[1]);
+                if (podiumSwimmerName) {
+                    saveHistory(rawInput);
+                    sendTelemetry(rawInput);
+                    await doPodiumSimulation(podiumSwimmerName, forcedBirthYear, forcedSex);
+                    return;
+                }
+            }
+
             // ── 多人比較模式：偵測分號（;、；）或空格分隔多人姓名 ──
             let candidateNames = [];
             if (rawInput.includes(';') || rawInput.includes('；')) {
@@ -1893,6 +1905,426 @@
             setTimeout(() => loader.style.display = 'none', 300);
         }
 
+        // ═════════════════════════════════════════════════════════════════════════
+        // ── 模式二：得獎模擬分析核心引擎 (Podium Simulation Engine) ──
+        // ═════════════════════════════════════════════════════════════════════════
+        let podiumSimulationData = null;
+
+        async function loadPodiumSimulationData() {
+            if (podiumSimulationData) return podiumSimulationData;
+            try {
+                const resp = await fetch('/static/podium_simulation_data.json');
+                if (resp.ok) {
+                    podiumSimulationData = await resp.json();
+                    return podiumSimulationData;
+                }
+            } catch(e) {
+                console.warn("載入 podium_simulation_data.json 失敗:", e);
+            }
+            return null;
+        }
+
+        async function doPodiumSimulation(swimmerName, forcedBirthYear, forcedSex, forcedMeetId) {
+            if (!worker) return;
+            const loader = document.getElementById('queryLoader');
+            loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
+            swimmerAnim.playSegments([32, 97], true);
+            const minWait = new Promise(r => setTimeout(r, 1000));
+            const main = document.getElementById('main'); main.innerHTML = '';
+
+            const safeName = swimmerName.replace(/'/g, "''");
+
+            // 1. 查詢選手所有不重複出生年與性別
+            const byBatchRes = await remoteQuery(`SELECT 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名='${safeName}' AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 出生年, 性別 ORDER BY c DESC`);
+            const byRows = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
+
+            if (byRows.length === 0) {
+                await minWait;
+                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+                main.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; color:#8E8E93; gap:8px;"><span style="font-size:2rem;">🚫</span><span>查無「${swimmerName}」之出生年或性別資料，無法進行得獎模擬分析</span></div>`;
+                return;
+            }
+
+            const availableYears = [...new Set(byRows.map(v => String(v[0]).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
+            let availableSexes = [...new Set(byRows.map(v => (v[1] === '女' || v[1] === '女生') ? '女' : '男').filter(Boolean))];
+            if (swimmerName === '陳品言' && !availableSexes.includes('男')) {
+                availableSexes.push('男');
+            }
+
+            let selectedBirthYear = forcedBirthYear;
+            if (!selectedBirthYear || !availableYears.includes(selectedBirthYear)) {
+                selectedBirthYear = availableYears[0];
+            }
+
+            let sex = forcedSex;
+            if (!sex || !availableSexes.includes(sex)) {
+                const matchedRow = byRows.find(v => String(v[0]).replace(/\.0$/, '').trim() === selectedBirthYear);
+                sex = matchedRow ? ((matchedRow[1] === '女' || matchedRow[1] === '女生') ? '女' : '男') : availableSexes[0];
+            }
+
+            const currentYear = 2026;
+            const birthYearNum = parseInt(selectedBirthYear) || 2010;
+            const swimmerAge = currentYear - birthYearNum;
+
+            // 2. 載入得獎模擬資料庫
+            const simData = await loadPodiumSimulationData();
+            if (!simData || !simData.meets || simData.meets.length === 0) {
+                await minWait;
+                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+                main.innerHTML = `<div style="padding:30px; text-align:center; color:#FF453A;">❌ 載入得獎模擬分析資料庫失敗，請確認網路連線或稍後再試。</div>`;
+                return;
+            }
+
+            // 決定預設賽事 (依大仁哥指示：卡片依年紀自動預設最相關的賽事)
+            let currentSelectedMeetId = forcedMeetId;
+            if (!currentSelectedMeetId || !simData.meets.some(m => m.id === currentSelectedMeetId)) {
+                if (swimmerAge <= 12) {
+                    currentSelectedMeetId = 'primary'; // 全國小學
+                } else if (swimmerAge <= 18) {
+                    currentSelectedMeetId = 'high_school'; // 全中運
+                } else {
+                    currentSelectedMeetId = 'college'; // 全大運
+                }
+            }
+
+            const targetMeet = simData.meets.find(m => m.id === currentSelectedMeetId) || simData.meets[0];
+
+            // 3. 同步頂部工具列下拉選單
+            const birthSelect = document.getElementById('birthYearSelect');
+            if (availableYears.length >= 2) {
+                let optionsHtml = availableYears.map(y => `<option value="${y}" ${y === selectedBirthYear ? 'selected' : ''}>${y}年次</option>`).join('');
+                if (birthSelect) {
+                    birthSelect.innerHTML = optionsHtml;
+                    birthSelect.classList.remove('hidden');
+                    birthSelect.onchange = function() {
+                        const curSex = document.getElementById('sexSelect') ? document.getElementById('sexSelect').value : sex;
+                        doPodiumSimulation(swimmerName, this.value, curSex, currentSelectedMeetId);
+                    };
+                }
+            } else {
+                if (birthSelect) birthSelect.classList.add('hidden');
+            }
+
+            const sexSelect = document.getElementById('sexSelect');
+            if (availableSexes.length >= 2) {
+                let optionsHtml = availableSexes.map(s => `<option value="${s}" ${s === sex ? 'selected' : ''}>${s}生</option>`).join('');
+                if (sexSelect) {
+                    sexSelect.innerHTML = optionsHtml;
+                    sexSelect.style.display = 'inline-block';
+                    sexSelect.onchange = function() {
+                        const curYear = document.getElementById('birthYearSelect') ? document.getElementById('birthYearSelect').value : selectedBirthYear;
+                        doPodiumSimulation(swimmerName, curYear, this.value, currentSelectedMeetId);
+                    };
+                }
+            } else {
+                if (sexSelect) sexSelect.style.display = 'none';
+            }
+
+            // 4. 根據選手年齡自動鎖定該賽事對應組別 (Division)
+            function getDivisionForMeet(meetId, age) {
+                if (meetId === 'high_school') {
+                    return age <= 15 ? '國中組' : '高中組';
+                }
+                if (meetId === 'primary') {
+                    return age <= 10 ? '中年級組' : '高年級組';
+                }
+                if (meetId === 'college') {
+                    return '公開組';
+                }
+                if (['presidential', 'junior', 'spring', 'chungcheng', 'mizuno', 'speaker', 'gangdu'].includes(meetId)) {
+                    if (age <= 10) return '10歲及以下';
+                    if (age <= 12) return '11&12歲級';
+                    if (age <= 14) return '13&14歲級';
+                    if (age <= 17) return '15~17歲級';
+                    return '18歲及以上';
+                }
+                if (['tainan_student', 'taichung_mayor', 'taichung_speaker', 'egeneration'].includes(meetId)) {
+                    if (age <= 12) return '國小高年級';
+                    if (age <= 15) return '國中組';
+                    if (age <= 18) return '高中組';
+                    return '大專社會組';
+                }
+                return '公開組';
+            }
+
+            let division = getDivisionForMeet(targetMeet.id, swimmerAge);
+            if (!targetMeet.divisions.includes(division)) {
+                const found = targetMeet.divisions.find(d => d.includes(division) || division.includes(d));
+                if (found) division = found;
+                else if (targetMeet.divisions.length > 0) division = targetMeet.divisions[0];
+            }
+
+            // 5. 查詢選手長水道個人最佳成績 (PB)
+            const birthFilter = ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')`;
+            const sexClause = ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')`;
+            const pbRes = await remoteQuery(`SELECT 項目, 成績, 備註, 賽事名稱, 年份 FROM swimming_scores WHERE 姓名='${safeName}'${birthFilter}${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
+
+            const swimmerPBs = {}; 
+            if (pbRes && pbRes[0] && pbRes[0].values) {
+                pbRes[0].values.forEach(row => {
+                    const item = row[0];
+                    const rawTime = row[1];
+                    const remark = row[2];
+                    const meet = row[3];
+                    const dateVal = row[4];
+                    if (isDQ(remark)) return;
+                    const sec = timeToSec(rawTime);
+                    if (sec <= 0 || sec > 3600) return;
+
+                    const mDist = item.match(/(\d+)公尺(?![池水])/);
+                    if (!mDist) return;
+                    const dist = mDist[1];
+                    let stroke = '';
+                    if (item.includes('自由式')) stroke = '自由式';
+                    else if (item.includes('仰式')) stroke = '仰式';
+                    else if (item.includes('蛙式')) stroke = '蛙式';
+                    else if (item.includes('蝶式')) stroke = '蝶式';
+                    else if (item.includes('混合式')) stroke = '混合式';
+                    if (!stroke) return;
+
+                    const eventKey = `${dist}m ${stroke}`;
+                    if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
+                        swimmerPBs[eventKey] = {
+                            sec: sec,
+                            timeStr: formatToXcode(sec),
+                            meet: meet,
+                            date: dateVal
+                        };
+                    }
+                });
+            }
+
+            function formatRaceDate(val) {
+                if (!val) return '';
+                const s = String(val).trim();
+                if (/^\d{8}$/.test(s)) return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+                return s;
+            }
+
+            function toTwYear(adYear) {
+                const y = parseInt(adYear);
+                return y > 1911 ? y - 1911 : y;
+            }
+
+            // 6. 頂部儀表板 Header
+            const headerBar = document.createElement('div');
+            headerBar.className = 'cmp-header-bar';
+
+            let yearSelectHtml = '';
+            if (availableYears.length > 1) {
+                yearSelectHtml = `
+                    <select class="cmp-birth-select" onchange="doPodiumSimulation('${swimmerName}', this.value, '${sex}', '${currentSelectedMeetId}')" title="同名選手，點擊切換出生年">
+                        ${availableYears.map(y => `<option value="${y}" ${y === selectedBirthYear ? 'selected' : ''}>${y}年次</option>`).join('')}
+                    </select>
+                `;
+            } else {
+                yearSelectHtml = `<span style="color:#8E8E93; font-size:12px;">(${selectedBirthYear}年次)</span>`;
+            }
+
+            let sexSelectHtml = '';
+            if (availableSexes.length > 1) {
+                sexSelectHtml = `
+                    <select class="cmp-birth-select" style="color:#0A84FF; font-weight:700; margin-left:4px;" onchange="doPodiumSimulation('${swimmerName}', '${selectedBirthYear}', this.value, '${currentSelectedMeetId}')" title="同名選手，點擊切換性別">
+                        ${availableSexes.map(s => `<option value="${s}" ${s === sex ? 'selected' : ''}>${s}生</option>`).join('')}
+                    </select>
+                `;
+            } else {
+                sexSelectHtml = `<span style="font-size:12px; color:#0A84FF; font-weight:600;">${sex}生</span>`;
+            }
+
+            const meetOptionsHtml = simData.meets.map(m => `
+                <option value="${m.id}" ${m.id === targetMeet.id ? 'selected' : ''}>
+                    🏆 ${m.name} (${m.short})
+                </option>
+            `).join('');
+
+            headerBar.innerHTML = `
+                <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.06); padding:5px 12px; border-radius:12px; border:0.5px solid rgba(255,255,255,0.15);">
+                                <span style="font-weight:700; font-size:15px; color:#FFF;">${swimmerName}</span>
+                                ${yearSelectHtml}
+                                ${sexSelectHtml}
+                                <span style="font-size:12px; color:#8E8E93; font-weight:600;">· ${swimmerAge}歲 · 自動鎖定 ${division}</span>
+                            </span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:12px; color:#D4AF37; font-weight:700;">模擬大賽：</span>
+                            <select class="cmp-birth-select" style="background:#1C1C1E; color:#FFF; font-weight:700; font-size:13px; border:1px solid #D4AF37; padding:5px 12px; border-radius:10px; cursor:pointer;" onchange="doPodiumSimulation('${swimmerName}', '${selectedBirthYear}', '${sex}', this.value)">
+                                ${meetOptionsHtml}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+            main.appendChild(headerBar);
+
+            // 7. 依泳式分類呈現卡片 (仰、蛙、蝶、自、混合)
+            const strokeOrder = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
+            const meetYears = targetMeet.years || [];
+
+            strokeOrder.forEach(strokeName => {
+                const meetEventsSet = new Set();
+                meetYears.forEach(yr => {
+                    const yrData = targetMeet.data && targetMeet.data[yr] && targetMeet.data[yr][sex] && targetMeet.data[yr][sex][division];
+                    if (yrData) {
+                        Object.keys(yrData).forEach(k => {
+                            if (k.endsWith(strokeName)) meetEventsSet.add(k);
+                        });
+                    }
+                });
+
+                const pbEvents = Object.keys(swimmerPBs).filter(k => k.endsWith(strokeName));
+                const strokeEvents = Array.from(new Set([...meetEventsSet, ...pbEvents]));
+                if (strokeEvents.length === 0) return;
+
+                strokeEvents.sort((a, b) => (parseInt(a) || 0) - (parseInt(b) || 0));
+
+                const card = document.createElement('div');
+                card.className = 'stroke-card';
+                card.style.marginTop = '16px';
+
+                let rowsHtml = '';
+
+                strokeEvents.forEach(eventName => {
+                    const swimmerPbObj = swimmerPBs[eventName];
+                    const swimmerSec = swimmerPbObj ? swimmerPbObj.sec : null;
+                    const swimmerTimeStr = swimmerPbObj ? swimmerPbObj.timeStr : '<span style="color:#636366; font-size:12px;">無成績</span>';
+
+                    const yearCellsHtml = meetYears.map(yr => {
+                        const cellData = targetMeet.data && targetMeet.data[yr] && targetMeet.data[yr][sex] && targetMeet.data[yr][sex][division] && targetMeet.data[yr][sex][division][eventName];
+
+                        if (!cellData || !cellData.first) {
+                            return `
+                                <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E;">
+                                    <div style="color:#636366; font-size:12px;">-</div>
+                                    <div style="font-size:10px; color:#48484A; margin-top:2px;">未辦理 / 無成績</div>
+                                </td>
+                            `;
+                        }
+
+                        const first = cellData.first;
+                        const third = cellData.third;
+                        const eighth = cellData.eighth;
+                        const topSecs = cellData.top_secs || [];
+
+                        let rankHtml = '';
+                        if (!swimmerSec) {
+                            rankHtml = `<div style="font-size:10px; color:#636366; margin-top:3px;">(選手無PB)</div>`;
+                        } else {
+                            const fasterCount = topSecs.filter(s => s < swimmerSec).length;
+                            let predictedRank = fasterCount + 1;
+
+                            if (swimmerSec < first.sec) {
+                                const diff = (first.sec - swimmerSec).toFixed(2);
+                                rankHtml = `
+                                    <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:2px 6px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.3);">
+                                        🥇 預估第 1 名 (金牌)
+                                    </div>
+                                    <div style="font-size:10px; color:#FFD700; margin-top:2px;">領先金牌 -${diff}s</div>
+                                `;
+                            } else if (third && swimmerSec <= third.sec) {
+                                const medalRank = predictedRank <= 2 ? 2 : 3;
+                                const medalEmoji = medalRank === 2 ? '🥈' : '🥉';
+                                const medalTitle = medalRank === 2 ? '銀牌' : '銅牌';
+                                const medalColor = medalRank === 2 ? '#C0C0C0' : '#CD7F32';
+                                const diff = (swimmerSec - first.sec).toFixed(2);
+                                rankHtml = `
+                                    <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:${medalColor}; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:6px; margin-top:4px; border:0.5px solid ${medalColor};">
+                                        ${medalEmoji} 預估第 ${medalRank} 名 (${medalTitle})
+                                    </div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距金牌 +${diff}s</div>
+                                `;
+                            } else if (eighth && swimmerSec <= eighth.sec) {
+                                const rankDisplay = predictedRank > 8 ? 8 : predictedRank;
+                                const diffThird = third ? (swimmerSec - third.sec).toFixed(2) : '0.00';
+                                rankHtml = `
+                                    <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:2px 6px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(48,209,88,0.25);">
+                                        🔵 預估第 ${rankDisplay} 名 (晉級決賽)
+                                    </div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距頒獎台 +${diffThird}s</div>
+                                `;
+                            } else {
+                                const rankDisplay = predictedRank > 8 ? predictedRank : 9;
+                                const diffEighth = eighth ? (swimmerSec - eighth.sec).toFixed(2) : '+0.00';
+                                rankHtml = `
+                                    <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:2px 6px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,69,58,0.25);">
+                                        🔴 預估第 ${rankDisplay} 名 (未進決賽)
+                                    </div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距第8名 +${diffEighth}s</div>
+                                `;
+                            }
+                        }
+
+                        return `
+                            <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E;">
+                                <div style="font-family:monospace; font-size:11px; color:#FFD700; font-weight:700;">🥇 ${first.time_str}</div>
+                                ${third ? `<div style="font-family:monospace; font-size:11px; color:#CD7F32; margin-top:2px;">🥉 ${third.time_str}</div>` : ''}
+                                ${eighth ? `<div style="font-family:monospace; font-size:11px; color:#8E8E93; margin-top:2px;">🎖️ ${eighth.time_str}</div>` : ''}
+                                ${rankHtml}
+                            </td>
+                        `;
+                    }).join('');
+
+                    rowsHtml += `
+                        <tr style="transition:background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                            <td style="padding:10px 12px; font-weight:800; font-size:14px; color:#FFF; white-space:nowrap; border-bottom:0.5px solid #2C2C2E;">
+                                ${eventName}
+                            </td>
+                            <td style="padding:10px 12px; text-align:center; white-space:nowrap; border-bottom:0.5px solid #2C2C2E; border-right:1px solid #38383A;">
+                                <div style="font-family:monospace; font-weight:800; font-size:15px; color:#FFF;">${swimmerTimeStr}</div>
+                                ${swimmerPbObj ? `
+                                    <div style="font-size:11px; color:#8E8E93; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px;" title="${swimmerPbObj.meet}">${swimmerPbObj.meet}</div>
+                                    ${swimmerPbObj.date ? `<div style="font-size:10px; color:#636366; font-family:monospace; margin-top:1px;">${formatRaceDate(swimmerPbObj.date)}</div>` : ''}
+                                ` : ''}
+                            </td>
+                            ${yearCellsHtml}
+                        </tr>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #38383A; padding-bottom:8px; flex-wrap:wrap; gap:8px;">
+                        <div style="font-size:18px; font-weight:900; color:#FFF; display:flex; align-items:center; gap:8px;">
+                            <span>🏊</span> <span>${strokeName}</span>
+                            <span style="font-size:12px; color:#8E8E93; font-weight:500;">(${targetMeet.short} · ${division})</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-size:11px; color:#8E8E93;">切換賽事：</span>
+                            <select class="cmp-birth-select" style="background:#1C1C1E; color:#D4AF37; font-weight:700; font-size:12px; border:0.5px solid #38383A; padding:3px 8px; border-radius:6px; cursor:pointer;" onchange="doPodiumSimulation('${swimmerName}', '${selectedBirthYear}', '${sex}', this.value)">
+                                ${meetOptionsHtml}
+                            </select>
+                        </div>
+                    </div>
+                    <div style="width:100%; overflow-x:auto;">
+                        <table style="width:100%; min-width:820px; border-collapse:collapse;">
+                            <thead>
+                                <tr style="border-bottom:1px solid #38383A; background:rgba(255,255,255,0.02);">
+                                    <th style="padding:8px 12px; text-align:left; font-size:12px; color:#8E8E93; width:120px;">項目</th>
+                                    <th style="padding:8px 12px; text-align:center; font-size:12px; color:#FFF; width:140px; border-right:1px solid #38383A;">個人最佳 (PB)</th>
+                                    ${meetYears.map(yr => `
+                                        <th style="padding:8px 8px; text-align:center; font-size:12px; color:#FFF;">
+                                            <div style="font-weight:700;">${toTwYear(yr)}年 (${yr})</div>
+                                            <div style="font-size:10px; color:#8E8E93; margin-top:2px;">${targetMeet.short}</div>
+                                        </th>
+                                    `).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                main.appendChild(card);
+            });
+
+            await minWait;
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 300);
+        }
+
         async function downloadDatabasePartsFromServer(version, totalParts) {
             document.getElementById('progressContainer').classList.remove('hidden');
             const statusEl = document.getElementById('loaderStatus');
@@ -2217,6 +2649,47 @@
             val = normalizeName(val);
             closeAutocomplete();
             if (!val || val.length < 1) return;
+
+            // ── 模式選單自動提示：當輸入包含 / 時即時呈現可用功能 ──
+            if (val.includes('/')) {
+                const slashIdx = val.indexOf('/');
+                const prefixName = val.substring(0, slashIdx).trim();
+
+                autocompleteList.innerHTML = '';
+                autocompleteList.classList.remove('hidden');
+                autocompleteList.style.display = 'block';
+                currentFocus = -1;
+
+                const modes = [
+                    { id: 'std', label: '/std', desc: '參賽標準 (五大賽事門檻檢驗)', fullText: `${prefixName}/std` },
+                    { id: 'podium', label: '/Podium Simulation', desc: '得獎模擬 (16大核心賽事歷年1、3、8名與頒獎台分析)', fullText: `${prefixName}/Podium Simulation` }
+                ];
+
+                modes.forEach(m => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.style.display = 'flex';
+                    item.style.alignItems = 'center';
+                    item.style.justifyContent = 'space-between';
+                    item.style.padding = '10px 14px';
+                    item.style.cursor = 'pointer';
+                    item.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-weight:800; color:#D4AF37; font-family:monospace; font-size:14px;">${m.label}</span>
+                            <span style="font-size:12px; color:#A1A1AA;">${m.desc}</span>
+                        </div>
+                        <span style="font-size:11px; color:#8E8E93; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:6px;">選擇</span>
+                    `;
+                    item.addEventListener('click', function() {
+                        searchInput.value = m.fullText;
+                        closeAutocomplete();
+                        doSearch();
+                    });
+                    autocompleteList.appendChild(item);
+                });
+                return;
+            }
+
             if (!worker) return;
 
             // 查詢符合開頭字元的選手姓名 (已建立 idx_swimming_scores_name 索引，查詢極快)
