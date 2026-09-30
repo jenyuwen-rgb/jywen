@@ -96,13 +96,6 @@ class handler(BaseHTTPRequestHandler):
         if city:
             loc_parts.append(city)
         location_str = " ".join(loc_parts) if loc_parts else "未知區域"
-        if custom_loc:
-            location_str = custom_loc
-
-        # 台北時間 GMT+8
-        tz_taipei = timezone(timedelta(hours=8))
-        now_str = datetime.now(tz_taipei).strftime("%Y-%m-%d %H:%M:%S")
-
         ssl_ctx = ssl._create_unverified_context()
 
         # ❶ 第一最高優先順序：同步寫入 Google Sheet 雲端試算表 (大仁哥全台游泳查詢紀錄)
