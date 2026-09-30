@@ -613,7 +613,7 @@
                 }
             }
 
-            const strokes = ["蝶式", "仰式", "蛙式", "自由式", "混合式"];
+            const strokes = ["仰式", "蛙式", "蝶式", "自由式", "混合式"];
             for (let [sIdx, stroke] of strokes.entries()) {
                 const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${input}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}${activeBirthFilter}${sexFilterClause}`);
                 if (!res || !res[0]) continue;
@@ -754,7 +754,7 @@
             main.appendChild(headerBar);
 
             // 預抓每位選手所有泳姿之有效資料（合併為單一 SQL 查詢，極速秒開且節省行動端記憶體）
-            const strokes = ['蝶式', '仰式', '蛙式', '自由式', '混合式'];
+            const strokes = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
             const playerConditions = players.filter(p => p.birthYear).map(p => {
                 const safePName = p.name.replace(/'/g, "''");
                 const sexClause = p.sex ? ` AND (性別 = '${p.sex}' OR 性別 = '${p.sex=='男'?'男生':'女生'}')` : '';
@@ -1725,8 +1725,8 @@
             `;
             main.appendChild(headerBar);
 
-            // 5. 依泳式分類呈現卡片
-            const strokeOrder = ['自由式', '蝶式', '仰式', '蛙式', '混合式'];
+            // 5. 依泳式分類呈現卡片 (大仁哥指示順序：仰、蛙、蝶、自、混合)
+            const strokeOrder = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
             const meetOrderNames = ['全國小學錦標賽', '總統盃', '全中運', '全大運', '全運會'];
             const meetMetaMap = {};
             if (stdData && stdData.meets) {
@@ -1750,13 +1750,8 @@
                     return da - db;
                 });
 
-                // 先計算此泳姿表頭各賽事合格標準（由易到難，慢到快排序）
-                const firstEventName = strokeEvents[0];
-                const sampleStds = genderStandards[firstEventName] ? (genderStandards[firstEventName][ageBracket] || genderStandards[firstEventName]["公開組"] || {}) : {};
-                const sortedHeaderMeets = meetOrderNames.map(m => {
-                    const sTime = sampleStds[m];
-                    return { name: m, sec: sTime ? timeToSec(sTime) : 9999 };
-                }).sort((a, b) => b.sec - a.sec);
+                // 表頭固定維持五大賽事順序，版面整齊劃一
+                const sortedHeaderMeets = meetOrderNames.map(m => ({ name: m }));
 
                 const card = document.createElement('div');
                 card.className = 'stroke-card';
@@ -1766,7 +1761,6 @@
 
                 strokeEvents.forEach(eventName => {
                     const eventStandards = genderStandards[eventName] || {};
-                    const bracketStds = eventStandards[ageBracket] || eventStandards["公開組"] || {};
 
                     const swimmerPbObj = swimmerPBs[eventName];
                     const swimmerSec = swimmerPbObj ? swimmerPbObj.sec : null;
@@ -1774,40 +1768,141 @@
 
                     const cellsHtml = sortedHeaderMeets.map(hm => {
                         const meetName = hm.name;
-                        // 嚴格依據當前年齡層獲取標準，嚴禁跨歲級胡亂 Fallback（如國中生不可套用國小標準）
-                        let stdTimeStr = bracketStds[meetName] || null;
-
                         let badgeHtml = '';
-                        if (!stdTimeStr) {
-                            badgeHtml = `
-                                <div style="font-family:monospace; font-size:13px; color:#636366;">-</div>
-                                <div style="font-size:10px; color:#48484A; margin-top:2px;">未設標準</div>
-                            `;
-                        } else {
-                            const stdSec = timeToSec(stdTimeStr);
-                            if (!swimmerSec) {
-                                badgeHtml = `
-                                    <div style="font-family:monospace; font-size:13px; color:#A1A1A6;">${stdTimeStr}</div>
-                                    <div style="font-size:11px; color:#636366; margin-top:2px;">-</div>
-                                `;
-                            } else {
-                                const diff = swimmerSec - stdSec;
+
+                        if (meetName === '全大運') {
+                            // 大仁哥指示：全大運就兩個都寫如果是女生 公開女生組 一班女生組都寫上去 (男生亦然)
+                            const collegeOpenTime = (stdData.college_standards && stdData.college_standards[sex] && stdData.college_standards[sex]['公開組']) ? stdData.college_standards[sex]['公開組'][eventName] : null;
+                            const collegeGenTime = (stdData.college_standards && stdData.college_standards[sex] && stdData.college_standards[sex]['一般組']) ? stdData.college_standards[sex]['一般組'][eventName] : null;
+
+                            const renderCollegeSub = (label, timeStr) => {
+                                if (!timeStr) {
+                                    return `
+                                        <div style="display:flex; align-items:center; justify-content:center; gap:4px; font-size:11px; color:#48484A;">
+                                            <span>${label}:</span><span>-</span>
+                                        </div>
+                                    `;
+                                }
+                                const sSec = timeToSec(timeStr);
+                                if (!swimmerSec) {
+                                    return `
+                                        <div style="display:flex; align-items:center; justify-content:center; gap:4px; font-size:11px;">
+                                            <span style="color:#8E8E93;">${label}</span>
+                                            <span style="font-family:monospace; color:#A1A1A6;">${timeStr}</span>
+                                        </div>
+                                    `;
+                                }
+                                const diff = swimmerSec - sSec;
                                 if (diff <= 0) {
                                     const diffStr = (diff === 0) ? "-0.00s" : `${diff.toFixed(2)}s`;
-                                    badgeHtml = `
-                                        <div style="font-family:monospace; font-size:13px; color:#FFF;">${stdTimeStr}</div>
-                                        <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#0A84FF; background:rgba(10,132,255,0.12); padding:1px 6px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(10,132,255,0.25);">
-                                            🔵 ${diffStr} (已達標)
+                                    return `
+                                        <div style="display:flex; align-items:center; justify-content:center; gap:4px; margin:2px 0;">
+                                            <span style="font-size:10px; color:#8E8E93;">${label}</span>
+                                            <span style="font-family:monospace; font-size:12px; font-weight:700; color:#FFF;">${timeStr}</span>
+                                            <span style="font-size:10px; font-weight:800; color:#0A84FF; background:rgba(10,132,255,0.12); padding:1px 5px; border-radius:4px; border:0.5px solid rgba(10,132,255,0.25);">🔵 ${diffStr}</span>
                                         </div>
                                     `;
                                 } else {
                                     const diffStr = `+${diff.toFixed(2)}s`;
-                                    badgeHtml = `
-                                        <div style="font-family:monospace; font-size:13px; color:#8E8E93;">${stdTimeStr}</div>
-                                        <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:1px 6px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(255,69,58,0.25);">
-                                            🔴 ${diffStr} (未達標)
+                                    return `
+                                        <div style="display:flex; align-items:center; justify-content:center; gap:4px; margin:2px 0;">
+                                            <span style="font-size:10px; color:#8E8E93;">${label}</span>
+                                            <span style="font-family:monospace; font-size:12px; color:#8E8E93;">${timeStr}</span>
+                                            <span style="font-size:10px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:1px 5px; border-radius:4px; border:0.5px solid rgba(255,69,58,0.25);">🔴 ${diffStr}</span>
                                         </div>
                                     `;
+                                }
+                            };
+
+                            const openLabel = `公開${sex === '女' ? '女' : '男'}`;
+                            const genLabel = `一般${sex === '女' ? '女' : '男'}`;
+
+                            badgeHtml = `
+                                <div style="display:flex; flex-direction:column; gap:2px; padding:2px 0;">
+                                    ${renderCollegeSub(openLabel, collegeOpenTime)}
+                                    ${renderCollegeSub(genLabel, collegeGenTime)}
+                                </div>
+                            `;
+                        } else {
+                            let stdTimeStr = null;
+                            let bracketLabel = '';
+
+                            if (meetName === '全國小學錦標賽') {
+                                if (ageBracket === '10歲及以下') {
+                                    stdTimeStr = eventStandards['10歲及以下'] ? eventStandards['10歲及以下']['全國小學錦標賽'] : null;
+                                    bracketLabel = '(中年級)';
+                                } else if (ageBracket === '11&12歲級') {
+                                    stdTimeStr = eventStandards['11&12歲級'] ? eventStandards['11&12歲級']['全國小學錦標賽'] : null;
+                                    bracketLabel = '(高年級)';
+                                } else {
+                                    // 大仁哥指示：如果年紀超過 就用該性別的最嚴格標準代表比方說 國中生在全國小學標準中顯示高年級的參賽標準 底下可以括號寫高年級
+                                    stdTimeStr = (eventStandards['11&12歲級'] && eventStandards['11&12歲級']['全國小學錦標賽']) || 
+                                                 (eventStandards['10歲及以下'] && eventStandards['10歲及以下']['全國小學錦標賽']) || null;
+                                    bracketLabel = '(高年級)';
+                                }
+                            } else if (meetName === '全中運') {
+                                if (ageBracket === '10歲及以下' || ageBracket === '11&12歲級') {
+                                    // 年紀未達國中，以入門門檻（國中組）作為越級比對標準
+                                    stdTimeStr = eventStandards['13&14歲級'] ? eventStandards['13&14歲級']['全中運'] : null;
+                                    bracketLabel = '(國中組)';
+                                } else if (ageBracket === '13&14歲級') {
+                                    stdTimeStr = eventStandards['13&14歲級'] ? eventStandards['13&14歲級']['全中運'] : null;
+                                    bracketLabel = '(國中組)';
+                                } else if (ageBracket === '15~17歲級') {
+                                    stdTimeStr = eventStandards['15~17歲級'] ? eventStandards['15~17歲級']['全中運'] : null;
+                                    bracketLabel = '(高中組)';
+                                } else {
+                                    // 年紀超過高中（18歲以上），以高中組最嚴格標準比對
+                                    stdTimeStr = eventStandards['15~17歲級'] ? eventStandards['15~17歲級']['全中運'] : null;
+                                    bracketLabel = '(高中組)';
+                                }
+                            } else if (meetName === '總統盃') {
+                                // 總統盃：全分齡賽制
+                                stdTimeStr = (eventStandards[ageBracket] && eventStandards[ageBracket]['總統盃']) || null;
+                                bracketLabel = `(${ageBracket.replace('及以下', '以下').replace('歲級', '歲')})`;
+                            } else if (meetName === '全運會') {
+                                // 全運會：全國公開組
+                                stdTimeStr = (eventStandards['18歲及以上'] && eventStandards['18歲及以上']['全運會']) ||
+                                             (eventStandards['15~17歲級'] && eventStandards['15~17歲級']['全運會']) ||
+                                             (eventStandards['13&14歲級'] && eventStandards['13&14歲級']['全運會']) ||
+                                             (eventStandards['11&12歲級'] && eventStandards['11&12歲級']['全運會']) || null;
+                                bracketLabel = '(公開組)';
+                            }
+
+                            if (!stdTimeStr) {
+                                badgeHtml = `
+                                    <div style="font-family:monospace; font-size:13px; color:#636366;">-</div>
+                                    <div style="font-size:10px; color:#48484A; margin-top:2px;">未設標準</div>
+                                `;
+                            } else {
+                                const stdSec = timeToSec(stdTimeStr);
+                                if (!swimmerSec) {
+                                    badgeHtml = `
+                                        <div style="font-family:monospace; font-size:13px; color:#A1A1A6;">${stdTimeStr}</div>
+                                        <div style="font-size:10px; color:#8E8E93; margin-top:1px;">${bracketLabel}</div>
+                                        <div style="font-size:11px; color:#636366; margin-top:2px;">-</div>
+                                    `;
+                                } else {
+                                    const diff = swimmerSec - stdSec;
+                                    if (diff <= 0) {
+                                        const diffStr = (diff === 0) ? "-0.00s" : `${diff.toFixed(2)}s`;
+                                        badgeHtml = `
+                                            <div style="font-family:monospace; font-size:13px; font-weight:700; color:#FFF;">${stdTimeStr}</div>
+                                            <div style="font-size:10px; color:#8E8E93; margin-top:1px;">${bracketLabel}</div>
+                                            <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#0A84FF; background:rgba(10,132,255,0.12); padding:1px 6px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(10,132,255,0.25);">
+                                                🔵 ${diffStr} (已達標)
+                                            </div>
+                                        `;
+                                    } else {
+                                        const diffStr = `+${diff.toFixed(2)}s`;
+                                        badgeHtml = `
+                                            <div style="font-family:monospace; font-size:13px; color:#8E8E93;">${stdTimeStr}</div>
+                                            <div style="font-size:10px; color:#8E8E93; margin-top:1px;">${bracketLabel}</div>
+                                            <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:1px 6px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(255,69,58,0.25);">
+                                                🔴 ${diffStr} (未達標)
+                                            </div>
+                                        `;
+                                    }
                                 }
                             }
                         }
