@@ -1206,6 +1206,25 @@
             </div>
         </div>
 
+        <!-- ── 📤 GitHub & Vercel 同步即時進度面板 ── -->
+        <div id="github-sync-modal" style="display: none; margin: 12px 16px 0 16px; background: rgba(28, 28, 30, 0.95); border: 1px solid rgba(191, 90, 242, 0.4); border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.2rem;">📤</span>
+                    <span id="sync-title" style="font-weight: bold; font-size: 0.92rem; color: #E5A5FF;">正在同步至 GitHub & Vercel...</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span id="sync-percent-badge" style="font-size: 0.78rem; font-weight: bold; color: #BF5AF2; background: rgba(191, 90, 242, 0.15); padding: 2px 8px; border-radius: 6px;">0%</span>
+                    <button id="sync-close-btn" onclick="closeSyncModal()" style="display: none; background: rgba(255, 255, 255, 0.1); border: none; color: #8E8E93; font-size: 0.85rem; width: 24px; height: 24px; border-radius: 50%; cursor: pointer;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#8E8E93'">✕</button>
+                </div>
+            </div>
+            <div style="background: rgba(255, 255, 255, 0.08); height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 8px;">
+                <div id="sync-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #BF5AF2 0%, #E5A5FF 100%); transition: width 0.3s ease;"></div>
+            </div>
+            <div id="sync-status-msg" style="font-size: 0.8rem; color: #AEAEB2; margin-bottom: 6px;">準備啟動...</div>
+            <div id="sync-log-console" style="max-height: 140px; overflow-y: auto; background: #0A0A0B; border: 1px solid #27272A; border-radius: 8px; padding: 8px 12px; font-family: monospace; font-size: 0.72rem; color: #8E8E93; line-height: 1.4;"></div>
+        </div>
+
         <main>
 
 
@@ -1829,6 +1848,7 @@
             document.getElementById('uploadProgressContainer').style.display = 'none';
             await loadCalendarFromDB();
             await updateDbInfoFromServer();
+            loadInitialRacesCache();
         }
 
         function showLockOverlay() {
@@ -2179,19 +2199,115 @@
 
         // 📤 立即同步正式資料庫到 GitHub & Vercel
         async function syncDbNow() {
-            if (!confirm("您確定要立即對本地正式資料庫（swim_results_birthday.db）進行分卷並同步推送上傳到 GitHub 與 Vercel 嗎？\n這可能需要 10-15 秒。")) return;
+            if (!confirm("您確定要立即對本地正式資料庫（swim_results_birthday.db）進行分卷並同步推送上傳到 GitHub 與 Vercel 嗎？\n這將在畫面上即時展示完整分卷、推送與部署進度。")) return;
             OperationLogger.add('點擊手動同步資料庫', {});
-            try {
-                const resp = await fetch(`${API_BASE}/api/sync_db_now`, { method: 'POST' });
-                const res = await resp.json();
-                if (res.status === 'success') {
-                    alert(res.message);
-                } else {
-                    alert("同步失敗：" + res.message);
-                }
-            } catch(err) {
-                alert("連線同步失敗：" + err.message);
+
+            const modal = document.getElementById('github-sync-modal');
+            const titleEl = document.getElementById('sync-title');
+            const badgeEl = document.getElementById('sync-percent-badge');
+            const barEl = document.getElementById('sync-progress-bar');
+            const statusEl = document.getElementById('sync-status-msg');
+            const logEl = document.getElementById('sync-log-console');
+            const closeBtn = document.getElementById('sync-close-btn');
+
+            modal.style.display = 'block';
+            modal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            closeBtn.style.display = 'none';
+            barEl.style.width = '5%';
+            barEl.style.background = 'linear-gradient(90deg, #BF5AF2 0%, #E5A5FF 100%)';
+            badgeEl.textContent = '5%';
+            badgeEl.style.color = '#BF5AF2';
+            badgeEl.style.background = 'rgba(191, 90, 242, 0.15)';
+            statusEl.textContent = '🚀 正在連接同步伺服器...';
+            statusEl.style.color = '#AEAEB2';
+            titleEl.textContent = '正在同步至 GitHub & Vercel...';
+            logEl.innerHTML = '';
+
+            function addSyncLog(msg, color = "") {
+                const item = document.createElement('div');
+                item.style.marginBottom = '2px';
+                if (color) item.style.color = color;
+                item.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+                logEl.appendChild(item);
+                logEl.scrollTop = logEl.scrollHeight;
             }
+
+            addSyncLog("正在啟動『智慧分卷與 Vercel 部署』串流管道...");
+
+            try {
+                const response = await fetch(`${API_BASE}/api/sync_db_now`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP 錯誤: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n\n");
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            try {
+                                const data = JSON.parse(line.substring(6));
+                                if (data.status === "progress") {
+                                    barEl.style.width = `${data.percent}%`;
+                                    badgeEl.textContent = `${data.percent}%`;
+                                    statusEl.textContent = data.message;
+                                    addSyncLog(data.message, "#E5A5FF");
+                                } else if (data.status === "log") {
+                                    addSyncLog(data.message);
+                                } else if (data.status === "success") {
+                                    barEl.style.width = `100%`;
+                                    barEl.style.background = '#30D158';
+                                    badgeEl.textContent = `100%`;
+                                    badgeEl.style.color = '#30D158';
+                                    badgeEl.style.background = 'rgba(48, 209, 88, 0.15)';
+                                    statusEl.textContent = data.message;
+                                    statusEl.style.color = '#30D158';
+                                    titleEl.textContent = "✅ GitHub & Vercel 同步完成！";
+                                    addSyncLog(data.message, "#30D158");
+                                    closeBtn.style.display = 'block';
+                                    OperationLogger.add('同步資料庫成功', {}, 'SUCCESS');
+                                    ensureDBLoaded(true);
+                                } else if (data.status === "error") {
+                                    barEl.style.background = '#FF453A';
+                                    statusEl.textContent = `❌ 失敗: ${data.message}`;
+                                    statusEl.style.color = '#FF453A';
+                                    titleEl.textContent = "❌ 同步失敗";
+                                    addSyncLog(data.message, "#FF453A");
+                                    closeBtn.style.display = 'block';
+                                    OperationLogger.add('同步資料庫失敗', { error: data.message }, 'ERROR');
+                                }
+                            } catch (e) {
+                                console.error("解析 SSE 錯誤", e);
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                barEl.style.background = '#FF453A';
+                statusEl.textContent = `❌ 連線異常: ${err.message}`;
+                statusEl.style.color = '#FF453A';
+                addSyncLog(`連線異常: ${err.message}`, "#FF453A");
+                closeBtn.style.display = 'block';
+                OperationLogger.add('同步資料庫連線異常', { error: err.message }, 'ERROR');
+            }
+        }
+
+        function closeSyncModal() {
+            const modal = document.getElementById('github-sync-modal');
+            if (modal) modal.style.display = 'none';
         }
 
         // 從資料庫加載行事曆
