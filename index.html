@@ -197,7 +197,8 @@
         </span>
     </div>
     <div class="nav-header">
-        <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()">🕒</span>
+        <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()" title="歷史查詢紀錄">🕒</span>
+        <span class="text-[#38BDF8] cursor-pointer text-xl ml-1 mr-1" onclick="openUserGuide(0)" title="網站全功能使用指南">📖</span>
         <div style="position: relative; flex: 1; min-width: 0; display: flex; align-items: center;">
             <input type="text" id="searchInput" value="" placeholder="請輸入選手姓名 (例如: 王冠閎 或 達標檢驗: 王星皓/STD 或 多位比較: 王冠閎;王星皓;韓安齊)" autocomplete="off">
             <div id="autocomplete-list" class="autocomplete-items hidden"></div>
@@ -209,6 +210,57 @@
         <span class="font-bold text-[#D4AF37] px-3 cursor-pointer" onclick="doSearch()">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
         <span class="font-bold text-gray-500 px-3 cursor-pointer" onclick="resetDB()">重置</span>
+    </div>
+
+    <!-- 網站使用指南 (User Guide Modal) -->
+    <div id="userGuideModal" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); opacity:0; transition:opacity 0.25s ease;">
+        <div id="userGuideCard" style="width:94%; max-width:760px; max-height:92vh; background:#121214; border:1px solid #2C2C2E; border-radius:24px; box-shadow:0 24px 60px rgba(0,0,0,0.85); display:flex; flex-direction:column; overflow:hidden; transform:scale(0.96); transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+            
+            <!-- Modal 頂部列 -->
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 22px; border-bottom:1px solid #242426; background:rgba(255,255,255,0.02);">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:20px;">💡</span>
+                    <span style="font-weight:900; font-size:16px; color:#FFF; letter-spacing:0.5px;">全方位功能使用指南</span>
+                    <span id="guideStepBadge" style="font-size:11px; font-weight:800; color:#D4AF37; background:rgba(212,175,55,0.15); border:0.5px solid rgba(212,175,55,0.3); padding:2px 8px; border-radius:12px; margin-left:6px; font-family:monospace;">1 / 6</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button onclick="closeUserGuide(true)" style="background:rgba(255,255,255,0.08); border:none; color:#A1A1AA; font-size:12px; font-weight:700; padding:6px 14px; border-radius:16px; cursor:pointer; transition:all 0.15s ease;" onmouseover="this.style.color='#FFF'; this.style.background='rgba(255,255,255,0.18)'" onmouseout="this.style.color='#A1A1AA'; this.style.background='rgba(255,255,255,0.08)'">
+                        ✕ 略過
+                    </button>
+                </div>
+            </div>
+
+            <!-- 進度小圓點條 -->
+            <div style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 0; background:rgba(0,0,0,0.25); border-bottom:0.5px solid #1C1C1E;">
+                <div class="guide-dot" onclick="goToGuideStep(0)" style="width:28px; height:5px; border-radius:3px; background:#D4AF37; cursor:pointer; transition:all 0.25s ease;" title="第 1 步：單一選手全能查詢"></div>
+                <div class="guide-dot" onclick="goToGuideStep(1)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 2 步：個人歷年成長曲線"></div>
+                <div class="guide-dot" onclick="goToGuideStep(2)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 3 步：同齡名冊與跨年次切換"></div>
+                <div class="guide-dot" onclick="goToGuideStep(3)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 4 步：多人對決與雙軸比對"></div>
+                <div class="guide-dot" onclick="goToGuideStep(4)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 5 步：官方賽事達標檢驗 (/std)"></div>
+                <div class="guide-dot" onclick="goToGuideStep(5)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 6 步：得獎模擬分析 (/Podium Simulation)"></div>
+            </div>
+
+            <!-- 內容滑動區 (可滾動) -->
+            <div id="guideContentBody" style="padding:22px 24px; overflow-y:auto; flex:1; min-height:380px;">
+                <!-- 動態注入 6 大步驟 HTML -->
+            </div>
+
+            <!-- 底部動作列 -->
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 22px; border-top:1px solid #242426; background:rgba(255,255,255,0.02);">
+                <button onclick="closeUserGuide(true)" style="background:transparent; border:none; color:#71717A; font-size:13px; font-weight:600; cursor:pointer; padding:6px 10px; border-radius:8px; transition:color 0.15s ease;" onmouseover="this.style.color='#A1A1AA'" onmouseout="this.style.color='#71717A'">
+                    跳過導覽直接使用
+                </button>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button id="guidePrevBtn" onclick="prevGuideStep()" style="display:none; background:#242426; border:0.5px solid #38383A; color:#FFF; font-size:13px; font-weight:700; padding:8px 18px; border-radius:12px; cursor:pointer; transition:all 0.15s ease;" onmouseover="this.style.background='#2C2C2E'" onmouseout="this.style.background='#242426'">
+                        ‹ 上一步
+                    </button>
+                    <button id="guideNextBtn" onclick="nextGuideStep()" style="background:#D4AF37; border:none; color:#000; font-size:13px; font-weight:800; padding:8px 22px; border-radius:12px; cursor:pointer; transition:all 0.15s ease; box-shadow:0 4px 14px rgba(212,175,55,0.35);" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='brightness(1)'">
+                        下一步 ›
+                    </button>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <div id="main"></div>
@@ -319,6 +371,9 @@
                     }
                     loadLatestRaceInfo();
                     doSearch(); 
+                    if (typeof checkAutoOpenUserGuide === 'function') {
+                        checkAutoOpenUserGuide();
+                    }
                 }
                 else if (type === 'RESULT') { if(queryCallbacks[id]) queryCallbacks[id](res); }
             };
@@ -2271,16 +2326,15 @@
                                 const diffThird = third ? (swimmerSec - third.sec).toFixed(2) : '0.00';
                                 rankHtml = `
                                     <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:2px 6px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(48,209,88,0.25);">
-                                        🔵 預估第 ${rankDisplay} 名 (晉級決賽)
+                                        🔵 預估第 ${rankDisplay} 名
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距頒獎台 +${diffThird}s</div>
                                 `;
                             } else {
-                                const rankDisplay = predictedRank > 8 ? predictedRank : 9;
                                 const diffEighth = eighth ? (swimmerSec - eighth.sec).toFixed(2) : '+0.00';
                                 rankHtml = `
                                     <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:2px 6px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,69,58,0.25);">
-                                        🔴 預估第 ${rankDisplay} 名 (未進決賽)
+                                        🔴 未進決賽
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距第8名 +${diffEighth}s</div>
                                 `;
@@ -2657,6 +2711,409 @@
         function selectHist(n) { document.getElementById('searchInput').value = n; if(document.getElementById('histModal')) document.getElementById('histModal').remove(); doSearch(); }
         function deleteHistory(n) { let h = JSON.parse(localStorage.getItem('swim_h')||"[]").filter(x => x!==n); localStorage.setItem('swim_h', JSON.stringify(h)); if(document.getElementById('histModal')) document.getElementById('histModal').remove(); toggleHistory(); }
         function saveHistory(n) { if(!n) return; let h = JSON.parse(localStorage.getItem('swim_h')||"[]"); h = [n, ...h.filter(x => x !== n)].slice(0,30); localStorage.setItem('swim_h', JSON.stringify(h)); }
+
+        // ═════════════════════════════════════════════════════════════════════════
+        // ── 網站全功能互動使用指南系統 (User Guide Modal Controller) ──
+        // ═════════════════════════════════════════════════════════════════════════
+        let currentGuideStep = 0;
+        let isGuideOpen = false;
+        let hasCheckedAutoOpen = false;
+
+        const GUIDE_STEPS = [
+            {
+                badge: "核心模組 01",
+                icon: "🎯",
+                title: "單一選手全能查詢與五大泳式看板",
+                subtitle: "全面掌握選手各距離 PB、WA 國際積分、同齡排行與全國排位",
+                bullets: [
+                    "<b>智慧搜尋</b>：鍵入選手姓名（如「王冠閎」、「王星皓」），全自動鎖定出生年與性別。",
+                    "<b>五大泳式獨立看板</b>：依自由式、仰式、蛙式、蝶式、混合式自動分類，涵蓋 50m 至 1500m 全長水道項目。",
+                    "<b>全能數據指標</b>：每一項目完整揭露<b>個人最佳 (PB)</b>、<b>參賽場次</b>、<b>同年齡排名與 PR 百分位</b> (如 <code>同齡第 1 名 · PR 99.9%</code>)、<b>全國排名</b>、以及 <b>WA Points (世界水上運動總會換算積分)</b>。"
+                ],
+                previewHtml: `
+                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px; box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+                        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:0.5px solid #38383A; padding-bottom:10px; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:18px;">🏊</span>
+                                <span style="font-weight:900; font-size:15px; color:#FFF;">自由式 (Freestyle)</span>
+                                <span style="font-size:11px; color:#A1A1AA; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:6px;">王冠閎 (2002年次 · 男生)</span>
+                            </div>
+                            <span style="font-size:11px; color:#30D158; font-weight:700;">● 長水道全項目</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:55px 50px 85px 70px 130px 85px; gap:6px; align-items:center; padding:8px 0; border-bottom:0.5px solid #27272A; font-size:12px;">
+                            <span style="font-weight:800; color:#38BDF8; text-decoration:underline;">50m</span>
+                            <span style="color:#A1A1AA; text-decoration:underline;">28場</span>
+                            <span style="font-family:monospace; font-weight:800; color:#FFD700;">22.84</span>
+                            <span style="color:#A1A1AA; font-family:monospace;">768分</span>
+                            <span style="color:#30D158; font-weight:700;">🏅 同齡 1 (PR 99.9)</span>
+                            <span style="color:#D4AF37; font-weight:700;">🏆 全國第 1</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:55px 50px 85px 70px 130px 85px; gap:6px; align-items:center; padding:8px 0; border-bottom:0.5px solid #27272A; font-size:12px;">
+                            <span style="font-weight:800; color:#38BDF8; text-decoration:underline;">100m</span>
+                            <span style="color:#A1A1AA; text-decoration:underline;">35場</span>
+                            <span style="font-family:monospace; font-weight:800; color:#FFD700;">49.52</span>
+                            <span style="color:#A1A1AA; font-family:monospace;">848分</span>
+                            <span style="color:#30D158; font-weight:700;">🏅 同齡 1 (PR 99.9)</span>
+                            <span style="color:#D4AF37; font-weight:700;">🏆 全國第 1</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:55px 50px 85px 70px 130px 85px; gap:6px; align-items:center; padding:8px 0; font-size:12px;">
+                            <span style="font-weight:800; color:#38BDF8; text-decoration:underline;">200m</span>
+                            <span style="color:#A1A1AA; text-decoration:underline;">42場</span>
+                            <span style="font-family:monospace; font-weight:800; color:#FFD700;">1:47.38</span>
+                            <span style="color:#A1A1AA; font-family:monospace;">882分</span>
+                            <span style="color:#30D158; font-weight:700;">🏅 同齡 1 (PR 100)</span>
+                            <span style="color:#D4AF37; font-weight:700;">🏆 全國第 1</span>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                badge: "核心模組 02",
+                icon: "📈",
+                title: "個人歷年成長曲線 (Trend Chart)",
+                subtitle: "點擊任一項目即時展開折線圖，支援觸控縮放與突破 PB 分析",
+                bullets: [
+                    "<b>點擊即時展開</b>：點選任意卡片中的距離或成績，圖表瞬間於下方展開，不需換頁。",
+                    "<b>成長軌跡清晰可視</b>：將選手歷年參加過的每一次賽事秒數連線，穩定度與突破點一目瞭然。",
+                    "<b>手勢縮放與平移 (Zoom & Pan)</b>：支援手機雙指捏合縮放，或滑鼠滾輪放大特定年度/賽期，深入探討備戰週期與顛峰狀態！"
+                ],
+                previewHtml: `
+                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                            <div style="font-size:13px; font-weight:800; color:#FFF; display:flex; align-items:center; gap:6px;">
+                                <span>📈</span> 200公尺 蝶式 · 歷年成績趨勢折線圖 (共 26 筆紀錄)
+                            </div>
+                            <span style="font-size:10px; color:#D4AF37; background:rgba(212,175,55,0.15); padding:2px 8px; border-radius:10px; font-weight:700;">🔍 支援雙指手勢縮放 / 拖曳平移</span>
+                        </div>
+                        <div style="height:140px; background:#09090B; border:0.5px solid #27272A; border-radius:10px; position:relative; display:flex; align-items:flex-end; padding:20px 20px 25px 20px; justify-content:space-between;">
+                            <svg style="position:absolute; top:0; left:0; width:100%; height:100%;" preserveAspectRatio="none" viewBox="0 0 400 120">
+                                <path d="M 30,95 L 110,80 L 190,60 L 270,42 L 350,18" fill="none" stroke="#0A84FF" stroke-width="2.5" />
+                                <circle cx="30" cy="95" r="4" fill="#0A84FF" />
+                                <circle cx="110" cy="80" r="4" fill="#0A84FF" />
+                                <circle cx="190" cy="60" r="4" fill="#0A84FF" />
+                                <circle cx="270" cy="42" r="4" fill="#0A84FF" />
+                                <circle cx="350" cy="18" r="5" fill="#FFD700" stroke="#FFF" stroke-width="1.5" />
+                            </svg>
+                            <div style="font-size:10px; color:#71717A; z-index:1; margin-top:95px;">2018年<br><span style="font-family:monospace; color:#A1A1AA;">2:05.12</span></div>
+                            <div style="font-size:10px; color:#71717A; z-index:1; margin-top:95px;">2019年<br><span style="font-family:monospace; color:#A1A1AA;">1:59.88</span></div>
+                            <div style="font-size:10px; color:#71717A; z-index:1; margin-top:95px;">2021年<br><span style="font-family:monospace; color:#A1A1AA;">1:56.48</span></div>
+                            <div style="font-size:10px; color:#71717A; z-index:1; margin-top:95px;">2023年<br><span style="font-family:monospace; color:#A1A1AA;">1:55.44</span></div>
+                            <div style="font-size:10px; color:#FFD700; font-weight:800; z-index:1; margin-top:95px;">🔥 PB 突破<br><span style="font-family:monospace;">1:54.44</span></div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                badge: "核心模組 03",
+                icon: "👥",
+                title: "同齡戰力名冊與跨年次切換",
+                subtitle: "一鍵下鑽全台同年次即時排位，提前預覽升組後在新組別的實力定位",
+                bullets: [
+                    "<b>點擊同齡排行直達名冊</b>：點擊卡片中的「同年齡排行」數字，立即展開全台同出生年選手成績排行大表。",
+                    "<b>跨年次升組切換 (教練/家長必備)</b>：頂部設有「‹ 前一年次」與「後一年次 ›」切換鍵。",
+                    "<b>提前模擬新組別競爭</b>：國小升國中、國三升高一前夕，隨時切換至高一年級組別，提前掌握未來對手的秒數差距與競爭威脅！"
+                ],
+                previewHtml: `
+                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; background:#27272A; padding:8px 14px; border-radius:10px; margin-bottom:12px;">
+                            <span style="font-size:12px; color:#71717A; cursor:pointer;">‹ 2009年次 (15歲組)</span>
+                            <span style="font-size:14px; font-weight:900; color:#FFD700;">【 2010年次 (14歲國中組) 名冊 】</span>
+                            <span style="font-size:12px; color:#71717A; cursor:pointer;">2011年次 (13歲組) ›</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:rgba(255,215,0,0.06); border:0.5px solid rgba(212,175,55,0.3); border-radius:8px; font-size:13px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-weight:900; color:#FFD700; font-family:monospace; width:22px;">1</span>
+                                    <span style="font-weight:800; color:#FFF;">陳宥先</span>
+                                    <span style="font-size:11px; color:#8E8E93;">(2010)</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <span style="font-family:monospace; font-weight:900; color:#FFD700;">24.62</span>
+                                    <span style="font-size:11px; color:#8E8E93;">113全中運</span>
+                                </div>
+                            </div>
+                            <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:rgba(255,255,255,0.02); border-radius:8px; font-size:13px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-weight:800; color:#C0C0C0; font-family:monospace; width:22px;">2</span>
+                                    <span style="font-weight:700; color:#E4E4E7;">選手 Ｂ</span>
+                                    <span style="font-size:11px; color:#8E8E93;">(2010)</span>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <span style="font-family:monospace; font-weight:800; color:#C0C0C0;">25.10</span>
+                                    <span style="font-size:11px; color:#8E8E93;">113春季盃</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                badge: "核心模組 04",
+                icon: "⚔️",
+                title: "多人對決與進階雙軸比對 (Head-to-Head)",
+                subtitle: "同項目秒差計算、多人同圖 Trend Chart，與「同年齡 vs 實際日期」模式切換",
+                bullets: [
+                    "<b>多人並列搜尋</b>：輸入框輸入多位選手姓名（以分號或空格隔開，如 <code>王冠閎;王星皓;韓安齊</code>），立即開啟多人橫向對決模式！",
+                    "<b>同項目 PB 秒差計算</b>：橫向自動比對各選手 PB，標示領先/落後幅度（如 <code>領先 -0.35s</code>）。",
+                    "<b>多人同圖雙軸 Trend Chart</b>：將多名選手的歷年曲線直接疊加在同一張圖表中。",
+                    "<b>雙重維度切換</b>：",
+                    "&nbsp;&nbsp;• <b>「🎂 同年齡歲數對齊 (Age-aligned)」</b>：將橫軸對齊為選手真實歲數（如比對大家都在 13 歲、14 歲時誰更具爆發力），跨越出生年限制！",
+                    "&nbsp;&nbsp;• <b>「📅 實際比賽日期 (Absolute Date)」</b>：按自然歷史時間軸排序，比對歷次同場競技的交手勝負！"
+                ],
+                previewHtml: `
+                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; border-bottom:0.5px solid #38383A; padding-bottom:10px; margin-bottom:12px;">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="background:#FF453A; color:#FFF; font-size:10px; font-weight:800; padding:2px 6px; border-radius:10px;">1</span> <span style="font-weight:800; font-size:13px; color:#FFF;">王冠閎</span>
+                                <span style="color:#71717A;">vs</span>
+                                <span style="background:#30D158; color:#000; font-size:10px; font-weight:800; padding:2px 6px; border-radius:10px;">2</span> <span style="font-weight:800; font-size:13px; color:#FFF;">王星皓</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:6px; background:#27272A; padding:2px; border-radius:8px;">
+                                <span style="font-size:11px; font-weight:800; color:#000; background:#D4AF37; padding:2px 8px; border-radius:6px;">🎂 同年齡歲數對齊</span>
+                                <span style="font-size:11px; font-weight:700; color:#A1A1AA; padding:2px 8px;">📅 實際比賽日期</span>
+                            </div>
+                        </div>
+                        <div style="background:#09090B; border:0.5px solid #27272A; border-radius:10px; padding:10px 12px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; font-size:12px; margin-bottom:6px;">
+                                <span style="font-weight:800; color:#38BDF8;">200m 自由式 (同項目秒差比對)</span>
+                                <span style="font-size:11px; color:#30D158; font-weight:700;">王冠閎 領先 -0.88s</span>
+                            </div>
+                            <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px; font-family:monospace;">
+                                <span style="color:#FF453A; font-weight:800;">王冠閎：1:47.38 (🥇 勝)</span>
+                                <span style="color:#30D158; font-weight:700;">王星皓：1:48.26 (+0.88s)</span>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                badge: "核心模組 05",
+                icon: "🎯",
+                title: "官方賽事達標檢驗 (/std)",
+                subtitle: "自動鎖定組別，精確比對五大賽事標準，附帶規程正本頁碼直達",
+                bullets: [
+                    "<b>指令快速啟動</b>：輸入框鍵入「<code>選手姓名/std</code>」（如 <code>王冠閎/std</code> 或 <code>陳宥先/std</code>）。",
+                    "<b>自動年齡鎖定</b>：依照選手年齡自動精確判定國小、國中、高中或公開組門檻，免手動切換。",
+                    "<b>五大頂尖大賽標準庫</b>：同步比對全中運、全運會、全國小學、總統盃、春季盃官方參賽門檻。",
+                    "<b>直觀燈號與規程直達</b>：綠色 <code>🟢 已達標</code>、紅色 <code>🔴 未達標 (+X.XXs)</code>，表格上方更附帶官方規程 PDF 原文連結與頁碼標注（如 <code>#page=5</code>），大會稽核零爭議！"
+                ],
+                previewHtml: `
+                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #38383A; padding-bottom:8px;">
+                            <span style="font-size:13px; font-weight:800; color:#FFF;">🏊 100m 仰式 (個人PB: 59.80)</span>
+                            <span style="font-size:11px; color:#A1A1AA;">鎖定組別：國中男生組</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:8px; text-align:center;">
+                                <div style="font-size:11px; font-weight:700; color:#FFF;">全中運</div>
+                                <div style="font-size:10px; color:#A1A1AA; margin:2px 0;">門檻 1:01.90 <span style="color:#0A84FF;">(p.5)</span></div>
+                                <span style="font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:2px 6px; border-radius:6px; display:inline-block;">🟢 已達標 (-2.10s)</span>
+                            </div>
+                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:8px; text-align:center;">
+                                <div style="font-size:11px; font-weight:700; color:#FFF;">總統盃</div>
+                                <div style="font-size:10px; color:#A1A1AA; margin:2px 0;">門檻 1:01.25 <span style="color:#0A84FF;">(p.8)</span></div>
+                                <span style="font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:2px 6px; border-radius:6px; display:inline-block;">🟢 已達標 (-1.45s)</span>
+                            </div>
+                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:8px; text-align:center;">
+                                <div style="font-size:11px; font-weight:700; color:#FFF;">全國運動會</div>
+                                <div style="font-size:10px; color:#A1A1AA; margin:2px 0;">門檻 59.15 <span style="color:#0A84FF;">(p.12)</span></div>
+                                <span style="font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:2px 6px; border-radius:6px; display:inline-block;">🔴 未達標 (+0.65s)</span>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                badge: "核心模組 06",
+                icon: "🏆",
+                title: "得獎模擬與頒獎台分析 (/Podium Simulation)",
+                subtitle: "16 大全國賽最近 3 年 1、3、8 名橫向比對，精準預估決賽與頒獎台排位",
+                bullets: [
+                    "<b>指令快速啟動</b>：輸入框鍵入「<code>選手姓名/Podium Simulation</code>」，或輸入「<code>/</code>」直接自選。",
+                    "<b>16 大全國長水道錦標賽自由切換</b>：涵蓋全中運、全運會、全國小學、總統盃等重要大賽，卡片切換連動全球更新。",
+                    "<b>最近 3 屆（3 年）門檻對齊</b>：橫向呈現各年度第 1 名 (🥇 金牌)、第 3 名 (🥉 頒獎台銅牌門檻) 與第 8 名 (🎖️ 晉級決賽門檻) 秒數。",
+                    "<b>精簡清晰名次分析</b>：",
+                    "&nbsp;&nbsp;• <b>前三名</b>：頒發金銀銅牌榮譽徽章（<code>🥇 預估第 1 名 (金牌)</code>、<code>🥈 預估第 2 名 (銀牌)</code>、<code>🥉 預估第 3 名 (銅牌)</code>）。",
+                    "&nbsp;&nbsp;• <b>進決賽 (第 4~8 名)</b>：標示 <code>🔵 預估第 N 名</code> 與距頒獎台差距。",
+                    "&nbsp;&nbsp;• <b>未進決賽 (第 9 名及以後)</b>：簡潔標示 <code>🔴 未進決賽</code> 與距決賽門檻差距，激發訓練目標！"
+                ],
+                previewHtml: `
+                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #38383A; padding-bottom:8px;">
+                            <span style="font-size:13px; font-weight:800; color:#FFF;">🏆 全國中等學校運動會 · 50m 仰式 (個人PB: 27.20)</span>
+                            <span style="font-size:11px; color:#D4AF37; font-weight:700;">最近 3 屆大賽比對</span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:10px 8px; text-align:center;">
+                                <div style="font-size:12px; font-weight:800; color:#D4AF37;">112年 (2023)</div>
+                                <div style="font-family:monospace; font-size:10px; color:#FFD700; margin-top:3px;">🥇 26.90</div>
+                                <div style="font-family:monospace; font-size:10px; color:#CD7F32;">🥉 27.50</div>
+                                <div style="font-family:monospace; font-size:10px; color:#8E8E93;">🎖️ 28.40</div>
+                                <div style="font-size:11px; font-weight:800; color:#C0C0C0; background:rgba(255,255,255,0.1); border:0.5px solid #C0C0C0; padding:2px 6px; border-radius:6px; margin-top:6px;">
+                                    🥈 預估第 2 名 (銀牌)
+                                </div>
+                            </div>
+                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:10px 8px; text-align:center;">
+                                <div style="font-size:12px; font-weight:800; color:#D4AF37;">113年 (2024)</div>
+                                <div style="font-family:monospace; font-size:10px; color:#FFD700; margin-top:3px;">🥇 26.70</div>
+                                <div style="font-family:monospace; font-size:10px; color:#CD7F32;">🥉 27.10</div>
+                                <div style="font-family:monospace; font-size:10px; color:#8E8E93;">🎖️ 28.20</div>
+                                <div style="font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); border:0.5px solid rgba(48,209,88,0.25); padding:2px 6px; border-radius:6px; margin-top:6px;">
+                                    🔵 預估第 4 名
+                                </div>
+                            </div>
+                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:10px 8px; text-align:center;">
+                                <div style="font-size:12px; font-weight:800; color:#D4AF37;">114年 (2025)</div>
+                                <div style="font-family:monospace; font-size:10px; color:#FFD700; margin-top:3px;">🥇 26.50</div>
+                                <div style="font-family:monospace; font-size:10px; color:#CD7F32;">🥉 26.90</div>
+                                <div style="font-family:monospace; font-size:10px; color:#8E8E93;">🎖️ 27.10</div>
+                                <div style="font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); border:0.5px solid rgba(255,69,58,0.25); padding:2px 6px; border-radius:6px; margin-top:6px;">
+                                    🔴 未進決賽
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        function renderGuideStep(index) {
+            if (index < 0) index = 0;
+            if (index >= GUIDE_STEPS.length) index = GUIDE_STEPS.length - 1;
+            currentGuideStep = index;
+
+            const step = GUIDE_STEPS[index];
+            const badgeEl = document.getElementById('guideStepBadge');
+            if (badgeEl) badgeEl.textContent = `${index + 1} / ${GUIDE_STEPS.length}`;
+
+            // 更新指示燈圓點
+            const dots = document.querySelectorAll('.guide-dot');
+            dots.forEach((dot, i) => {
+                if (i === index) {
+                    dot.style.background = '#D4AF37';
+                    dot.style.width = '28px';
+                } else {
+                    dot.style.background = '#38383A';
+                    dot.style.width = '8px';
+                }
+            });
+
+            // 按鈕狀態
+            const prevBtn = document.getElementById('guidePrevBtn');
+            const nextBtn = document.getElementById('guideNextBtn');
+            if (prevBtn) prevBtn.style.display = index === 0 ? 'none' : 'inline-flex';
+            if (nextBtn) {
+                if (index === GUIDE_STEPS.length - 1) {
+                    nextBtn.textContent = '完成導覽，立即體驗 🚀';
+                    nextBtn.style.background = 'linear-gradient(135deg, #FFD700 0%, #D4AF37 100%)';
+                } else {
+                    nextBtn.textContent = '下一步 ›';
+                    nextBtn.style.background = '#D4AF37';
+                }
+            }
+
+            // 內容區
+            const bodyEl = document.getElementById('guideContentBody');
+            if (bodyEl) {
+                bodyEl.innerHTML = `
+                    <div style="display:flex; flex-direction:column; gap:16px;">
+                        <div>
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                                <span style="font-size:11px; font-weight:800; color:#38BDF8; background:rgba(56,189,248,0.12); padding:2px 8px; border-radius:6px; border:0.5px solid rgba(56,189,248,0.3);">${step.badge}</span>
+                                <h3 style="font-size:19px; font-weight:900; color:#FFF; margin:0; display:flex; align-items:center; gap:6px;">
+                                    <span>${step.icon}</span> <span>${step.title}</span>
+                                </h3>
+                            </div>
+                            <p style="font-size:13px; color:#A1A1AA; margin:0;">${step.subtitle}</p>
+                        </div>
+
+                        ${step.previewHtml}
+
+                        <div style="background:rgba(255,255,255,0.03); border:0.5px solid #27272A; border-radius:12px; padding:14px 16px;">
+                            <div style="font-size:12px; font-weight:800; color:#D4AF37; margin-bottom:8px;">💡 功能操作與重點說明：</div>
+                            <ul style="margin:0; padding-left:18px; display:flex; flex-direction:column; gap:6px; font-size:12px; color:#D4D4D8; line-height:1.6;">
+                                ${step.bullets.map(b => `<li>${b}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                bodyEl.scrollTop = 0;
+            }
+        }
+
+        function openUserGuide(step = 0) {
+            const modal = document.getElementById('userGuideModal');
+            const card = document.getElementById('userGuideCard');
+            if (!modal || !card) return;
+            isGuideOpen = true;
+            renderGuideStep(step);
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                card.style.transform = 'scale(1)';
+            }, 10);
+        }
+
+        function closeUserGuide(markViewed = true) {
+            const modal = document.getElementById('userGuideModal');
+            const card = document.getElementById('userGuideCard');
+            if (!modal || !card) return;
+            modal.style.opacity = '0';
+            card.style.transform = 'scale(0.96)';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                isGuideOpen = false;
+            }, 250);
+            if (markViewed) {
+                localStorage.setItem('swimming_guide_viewed_v1', 'true');
+            }
+        }
+
+        function goToGuideStep(step) {
+            renderGuideStep(step);
+        }
+
+        function nextGuideStep() {
+            if (currentGuideStep < GUIDE_STEPS.length - 1) {
+                renderGuideStep(currentGuideStep + 1);
+            } else {
+                closeUserGuide(true);
+            }
+        }
+
+        function prevGuideStep() {
+            if (currentGuideStep > 0) {
+                renderGuideStep(currentGuideStep - 1);
+            }
+        }
+
+        function checkAutoOpenUserGuide() {
+            if (hasCheckedAutoOpen) return;
+            hasCheckedAutoOpen = true;
+            const hasSeen = localStorage.getItem('swimming_guide_viewed_v1');
+            if (!hasSeen) {
+                setTimeout(() => {
+                    openUserGuide(0);
+                }, 1000);
+            }
+        }
+
+        // 鍵盤左右鍵切換與 ESC 關閉導覽
+        window.addEventListener('keydown', (e) => {
+            if (!isGuideOpen) return;
+            if (e.key === 'Escape') {
+                closeUserGuide(true);
+            } else if (e.key === 'ArrowRight') {
+                nextGuideStep();
+            } else if (e.key === 'ArrowLeft') {
+                prevGuideStep();
+            }
+        });
+
+        // 頁面加載完成時確保檢查一次自動彈出
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(checkAutoOpenUserGuide, 1200);
+        });
 
         // --- 自動完成 (Autocomplete) 邏輯 ---
         const searchInput = document.getElementById('searchInput');
