@@ -2721,257 +2721,185 @@
 
         const GUIDE_STEPS = [
             {
-                badge: "核心模組 01",
-                icon: "🎯",
-                title: "單一選手全能查詢與五大泳式看板",
-                subtitle: "全面掌握選手各距離 PB、WA 國際積分、同齡排行與全國排位",
+                badge: "步驟 01 · 快速入門",
+                icon: "🔍",
+                title: "單一選手全能查詢 (輸入範例：王冠閎)",
+                subtitle: "在上方搜尋列鍵入選手姓名，自動展開五大泳式看板與長水道全能指標",
                 bullets: [
-                    "<b>智慧搜尋</b>：鍵入選手姓名（如「王冠閎」、「王星皓」），全自動鎖定出生年與性別。",
-                    "<b>五大泳式獨立看板</b>：依自由式、仰式、蛙式、蝶式、混合式自動分類，涵蓋 50m 至 1500m 全長水道項目。",
-                    "<b>全能數據指標</b>：每一項目完整揭露<b>個人最佳 (PB)</b>、<b>參賽場次</b>、<b>同年齡排名與 PR 百分位</b> (如 <code>同齡第 1 名 · PR 99.9%</code>)、<b>全國排名</b>、以及 <b>WA Points (世界水上運動總會換算積分)</b>。"
+                    "<b>智慧搜尋</b>：在頁面最上方搜尋框鍵入選手姓名（如「王冠閎」），全自動比對出生年與性別。",
+                    "<b>五大泳式獨立看板</b>：依仰式、自由式、蛙式、蝶式、混合式自動分類，涵蓋 50m 至 1500m 全長水道項目。",
+                    "<b>全能數據指標</b>：每一項目完整揭露<b>個人最佳 (PB)</b>、<b>參賽場次</b>、<b>同年齡排名與 PR 百分位</b> (如 <code>同齡排行#8 · PR 93.8%</code>)、<b>年度最佳</b>、<b>全國排行</b>、以及 <b>WA Points (世界水上運動總會換算積分)</b>。"
                 ],
                 previewHtml: `
-                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px; box-shadow:0 8px 24px rgba(0,0,0,0.5);">
-                        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:0.5px solid #38383A; padding-bottom:10px; margin-bottom:12px;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="font-size:18px;">🏊</span>
-                                <span style="font-weight:900; font-size:15px; color:#FFF;">自由式 (Freestyle)</span>
-                                <span style="font-size:11px; color:#A1A1AA; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:6px;">王冠閎 (2002年次 · 男生)</span>
-                            </div>
-                            <span style="font-size:11px; color:#30D158; font-weight:700;">● 長水道全項目</span>
+                    <!-- 搜尋列輸入指引示意 -->
+                    <div style="background:#09090B; border:1px solid #38383A; border-radius:12px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; box-shadow:0 4px 16px rgba(0,0,0,0.6);">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="color:#D4AF37; font-size:16px;">🔍</span>
+                            <span style="font-weight:900; color:#FFF; font-size:15px; letter-spacing:1px; background:#27272A; padding:2px 10px; border-radius:6px; border:0.5px solid #52525B;">王冠閎</span>
+                            <span style="font-size:11px; color:#A1A1AA;">(請在此鍵入選手姓名)</span>
                         </div>
-                        <div style="display:grid; grid-template-columns:55px 50px 85px 70px 130px 85px; gap:6px; align-items:center; padding:8px 0; border-bottom:0.5px solid #27272A; font-size:12px;">
-                            <span style="font-weight:800; color:#38BDF8; text-decoration:underline;">50m</span>
-                            <span style="color:#A1A1AA; text-decoration:underline;">28場</span>
-                            <span style="font-family:monospace; font-weight:800; color:#FFD700;">22.84</span>
-                            <span style="color:#A1A1AA; font-family:monospace;">768分</span>
-                            <span style="color:#30D158; font-weight:700;">🏅 同齡 1 (PR 99.9)</span>
-                            <span style="color:#D4AF37; font-weight:700;">🏆 全國第 1</span>
-                        </div>
-                        <div style="display:grid; grid-template-columns:55px 50px 85px 70px 130px 85px; gap:6px; align-items:center; padding:8px 0; border-bottom:0.5px solid #27272A; font-size:12px;">
-                            <span style="font-weight:800; color:#38BDF8; text-decoration:underline;">100m</span>
-                            <span style="color:#A1A1AA; text-decoration:underline;">35場</span>
-                            <span style="font-family:monospace; font-weight:800; color:#FFD700;">49.52</span>
-                            <span style="color:#A1A1AA; font-family:monospace;">848分</span>
-                            <span style="color:#30D158; font-weight:700;">🏅 同齡 1 (PR 99.9)</span>
-                            <span style="color:#D4AF37; font-weight:700;">🏆 全國第 1</span>
-                        </div>
-                        <div style="display:grid; grid-template-columns:55px 50px 85px 70px 130px 85px; gap:6px; align-items:center; padding:8px 0; font-size:12px;">
-                            <span style="font-weight:800; color:#38BDF8; text-decoration:underline;">200m</span>
-                            <span style="color:#A1A1AA; text-decoration:underline;">42場</span>
-                            <span style="font-family:monospace; font-weight:800; color:#FFD700;">1:47.38</span>
-                            <span style="color:#A1A1AA; font-family:monospace;">882分</span>
-                            <span style="color:#30D158; font-weight:700;">🏅 同齡 1 (PR 100)</span>
-                            <span style="color:#D4AF37; font-weight:700;">🏆 全國第 1</span>
-                        </div>
+                        <span style="background:#D4AF37; color:#000; font-size:12px; font-weight:800; padding:5px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:4px;">點擊「查詢」➔</span>
+                    </div>
+
+                    <!-- 100% 真實查詢結果看板特寫截圖 -->
+                    <div style="border:1px solid #27272A; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                        <img src="/static/guide/guide_step1_wang_cards.png" alt="王冠閎單人查詢真實卡片" style="width:100%; height:auto; display:block;" />
                     </div>
                 `
             },
             {
-                badge: "核心模組 02",
-                icon: "📈",
-                title: "個人歷年成長曲線 (Trend Chart)",
-                subtitle: "點擊任一項目即時展開折線圖，支援觸控縮放與突破 PB 分析",
+                badge: "步驟 02 · 核心互動",
+                icon: "👆",
+                title: "點擊下彈展開功能大全 (按哪裡展開什麼？)",
+                subtitle: "卡片上每一個帶底線數據皆可點擊下彈拓展，查看真實趨勢折線圖與參賽歷史每一筆明細",
                 bullets: [
-                    "<b>點擊即時展開</b>：點選任意卡片中的距離或成績，圖表瞬間於下方展開，不需換頁。",
-                    "<b>成長軌跡清晰可視</b>：將選手歷年參加過的每一次賽事秒數連線，穩定度與突破點一目瞭然。",
-                    "<b>手勢縮放與平移 (Zoom & Pan)</b>：支援手機雙指捏合縮放，或滑鼠滾輪放大特定年度/賽期，深入探討備戰週期與顛峰狀態！"
+                    "<b>👉 按下「項目距離」(如 100m / 200m)</b>：<br>&nbsp;&nbsp;➔ 立即於卡片下方<b>展開歷年成長曲線 (Trend Chart) 真實折線圖</b>！真實連結歷年每一場賽事秒數，並附帶「# 選擇同齡對手」與「# 選擇全國對手」下拉選單進行雙人疊加比較！",
+                    "<b>👉 按下「參加幾場」(如 2場 / 3場 / 35場)</b>：<br>&nbsp;&nbsp;➔ 立即於卡片下方<b>展開歷次參賽歷史每一筆詳細明細</b>！逐筆列出每一次比賽的確切日期、大會賽事名稱、成績秒數、組別與得獎名次備註！"
                 ],
                 previewHtml: `
-                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-                            <div style="font-size:13px; font-weight:800; color:#FFF; display:flex; align-items:center; gap:6px;">
-                                <span>📈</span> 200公尺 蝶式 · 歷年成績趨勢折線圖 (共 26 筆紀錄)
-                            </div>
-                            <span style="font-size:10px; color:#D4AF37; background:rgba(212,175,55,0.15); padding:2px 8px; border-radius:10px; font-weight:700;">🔍 支援雙指手勢縮放 / 拖曳平移</span>
-                        </div>
-                        <div style="height:140px; background:#09090B; border:0.5px solid #27272A; border-radius:10px; position:relative; display:flex; align-items:flex-end; padding:20px 20px 25px 20px; justify-content:space-between;">
-                            <svg style="position:absolute; top:0; left:0; width:100%; height:100%;" preserveAspectRatio="none" viewBox="0 0 400 120">
-                                <path d="M 30,95 L 110,80 L 190,60 L 270,42 L 350,18" fill="none" stroke="#0A84FF" stroke-width="2.5" />
-                                <circle cx="30" cy="95" r="4" fill="#0A84FF" />
-                                <circle cx="110" cy="80" r="4" fill="#0A84FF" />
-                                <circle cx="190" cy="60" r="4" fill="#0A84FF" />
-                                <circle cx="270" cy="42" r="4" fill="#0A84FF" />
-                                <circle cx="350" cy="18" r="5" fill="#FFD700" stroke="#FFF" stroke-width="1.5" />
-                            </svg>
-                            <div style="font-size:10px; color:#71717A; z-index:1; margin-top:95px;">2018年<br><span style="font-family:monospace; color:#A1A1AA;">2:05.12</span></div>
-                            <div style="font-size:10px; color:#71717A; z-index:1; margin-top:95px;">2019年<br><span style="font-family:monospace; color:#A1A1AA;">1:59.88</span></div>
-                            <div style="font-size:10px; color:#71717A; z-index:1; margin-top:95px;">2021年<br><span style="font-family:monospace; color:#A1A1AA;">1:56.48</span></div>
-                            <div style="font-size:10px; color:#71717A; z-index:1; margin-top:95px;">2023年<br><span style="font-family:monospace; color:#A1A1AA;">1:55.44</span></div>
-                            <div style="font-size:10px; color:#FFD700; font-weight:800; z-index:1; margin-top:95px;">🔥 PB 突破<br><span style="font-family:monospace;">1:54.44</span></div>
-                        </div>
-                    </div>
-                `
-            },
-            {
-                badge: "核心模組 03",
-                icon: "👥",
-                title: "同齡戰力名冊與跨年次切換",
-                subtitle: "一鍵下鑽全台同年次即時排位，提前預覽升組後在新組別的實力定位",
-                bullets: [
-                    "<b>點擊同齡排行直達名冊</b>：點擊卡片中的「同年齡排行」數字，立即展開全台同出生年選手成績排行大表。",
-                    "<b>跨年次升組切換 (教練/家長必備)</b>：頂部設有「‹ 前一年次」與「後一年次 ›」切換鍵。",
-                    "<b>提前模擬新組別競爭</b>：國小升國中、國三升高一前夕，隨時切換至高一年級組別，提前掌握未來對手的秒數差距與競爭威脅！"
-                ],
-                previewHtml: `
-                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; background:#27272A; padding:8px 14px; border-radius:10px; margin-bottom:12px;">
-                            <span style="font-size:12px; color:#71717A; cursor:pointer;">‹ 2009年次 (15歲組)</span>
-                            <span style="font-size:14px; font-weight:900; color:#FFD700;">【 2010年次 (14歲國中組) 名冊 】</span>
-                            <span style="font-size:12px; color:#71717A; cursor:pointer;">2011年次 (13歲組) ›</span>
-                        </div>
-                        <div style="display:flex; flex-direction:column; gap:6px;">
-                            <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:rgba(255,215,0,0.06); border:0.5px solid rgba(212,175,55,0.3); border-radius:8px; font-size:13px;">
-                                <div style="display:flex; align-items:center; gap:8px;">
-                                    <span style="font-weight:900; color:#FFD700; font-family:monospace; width:22px;">1</span>
-                                    <span style="font-weight:800; color:#FFF;">陳宥先</span>
-                                    <span style="font-size:11px; color:#8E8E93;">(2010)</span>
-                                </div>
-                                <div style="display:flex; align-items:center; gap:12px;">
-                                    <span style="font-family:monospace; font-weight:900; color:#FFD700;">24.62</span>
-                                    <span style="font-size:11px; color:#8E8E93;">113全中運</span>
-                                </div>
-                            </div>
-                            <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:rgba(255,255,255,0.02); border-radius:8px; font-size:13px;">
-                                <div style="display:flex; align-items:center; gap:8px;">
-                                    <span style="font-weight:800; color:#C0C0C0; font-family:monospace; width:22px;">2</span>
-                                    <span style="font-weight:700; color:#E4E4E7;">選手 Ｂ</span>
-                                    <span style="font-size:11px; color:#8E8E93;">(2010)</span>
-                                </div>
-                                <div style="display:flex; align-items:center; gap:12px;">
-                                    <span style="font-family:monospace; font-weight:800; color:#C0C0C0;">25.10</span>
-                                    <span style="font-size:11px; color:#8E8E93;">113春季盃</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `
-            },
-            {
-                badge: "核心模組 04",
-                icon: "⚔️",
-                title: "多人對決與進階雙軸比對 (Head-to-Head)",
-                subtitle: "同項目秒差計算、多人同圖 Trend Chart，與「同年齡 vs 實際日期」模式切換",
-                bullets: [
-                    "<b>多人並列搜尋</b>：輸入框輸入多位選手姓名（以分號或空格隔開，如 <code>王冠閎;王星皓;韓安齊</code>），立即開啟多人橫向對決模式！",
-                    "<b>同項目 PB 秒差計算</b>：橫向自動比對各選手 PB，標示領先/落後幅度（如 <code>領先 -0.35s</code>）。",
-                    "<b>多人同圖雙軸 Trend Chart</b>：將多名選手的歷年曲線直接疊加在同一張圖表中。",
-                    "<b>雙重維度切換</b>：",
-                    "&nbsp;&nbsp;• <b>「🎂 同年齡歲數對齊 (Age-aligned)」</b>：將橫軸對齊為選手真實歲數（如比對大家都在 13 歲、14 歲時誰更具爆發力），跨越出生年限制！",
-                    "&nbsp;&nbsp;• <b>「📅 實際比賽日期 (Absolute Date)」</b>：按自然歷史時間軸排序，比對歷次同場競技的交手勝負！"
-                ],
-                previewHtml: `
-                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; border-bottom:0.5px solid #38383A; padding-bottom:10px; margin-bottom:12px;">
+                    <!-- 點擊觸發指引示範 -->
+                    <div style="background:#09090B; border:1px solid #38383A; border-radius:12px; padding:12px; margin-bottom:12px;">
+                        <div style="font-size:12px; font-weight:800; color:#D4AF37; margin-bottom:8px;">🎯 互動點擊指南（直接點擊卡片上帶底線文字）：</div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; background:#1C1C1E; padding:10px 14px; border-radius:8px; border:0.5px solid #38383A;">
                             <div style="display:flex; align-items:center; gap:6px;">
-                                <span style="background:#FF453A; color:#FFF; font-size:10px; font-weight:800; padding:2px 6px; border-radius:10px;">1</span> <span style="font-weight:800; font-size:13px; color:#FFF;">王冠閎</span>
-                                <span style="color:#71717A;">vs</span>
-                                <span style="background:#30D158; color:#000; font-size:10px; font-weight:800; padding:2px 6px; border-radius:10px;">2</span> <span style="font-weight:800; font-size:13px; color:#FFF;">王星皓</span>
+                                <span style="font-weight:900; color:#38BDF8; text-decoration:underline; font-size:14px; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px; border:1px dashed #38BDF8;">100m</span>
+                                <span style="font-size:11px; color:#38BDF8; font-weight:700;">👈 按距離：展開真實 Trend Chart 折線圖！</span>
                             </div>
-                            <div style="display:flex; align-items:center; gap:6px; background:#27272A; padding:2px; border-radius:8px;">
-                                <span style="font-size:11px; font-weight:800; color:#000; background:#D4AF37; padding:2px 8px; border-radius:6px;">🎂 同年齡歲數對齊</span>
-                                <span style="font-size:11px; font-weight:700; color:#A1A1AA; padding:2px 8px;">📅 實際比賽日期</span>
-                            </div>
-                        </div>
-                        <div style="background:#09090B; border:0.5px solid #27272A; border-radius:10px; padding:10px 12px;">
-                            <div style="display:flex; align-items:center; justify-content:space-between; font-size:12px; margin-bottom:6px;">
-                                <span style="font-weight:800; color:#38BDF8;">200m 自由式 (同項目秒差比對)</span>
-                                <span style="font-size:11px; color:#30D158; font-weight:700;">王冠閎 領先 -0.88s</span>
-                            </div>
-                            <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px; font-family:monospace;">
-                                <span style="color:#FF453A; font-weight:800;">王冠閎：1:47.38 (🥇 勝)</span>
-                                <span style="color:#30D158; font-weight:700;">王星皓：1:48.26 (+0.88s)</span>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="font-weight:900; color:#30D158; text-decoration:underline; font-size:14px; background:rgba(48,209,88,0.15); padding:2px 6px; border-radius:4px; border:1px dashed #30D158;">2場</span>
+                                <span style="font-size:11px; color:#30D158; font-weight:700;">👈 按場次：展開 每一筆參賽歷史明細！</span>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- 100% 真實展開效果 A: Trend Chart 折線圖 -->
+                    <div style="margin-bottom:12px; border:1px solid #0A84FF; border-radius:14px; overflow:hidden;">
+                        <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:#38BDF8;">📈 真實系統渲染：王冠閎 100m 歷年趨勢圖與成長對比圖</span>
+                            <span style="font-size:10px; color:#A1A1AA;">包含對手下拉選單與版本流水號</span>
+                        </div>
+                        <img src="/static/guide/guide_step2_wang_trend_chart.png" alt="真實 Trend Chart 折線圖" style="width:100%; height:auto; display:block;" />
+                    </div>
+
+                    <!-- 100% 真實展開效果 B: 參賽歷史每一筆明細大表 -->
+                    <div style="border:1px solid #30D158; border-radius:14px; overflow:hidden;">
+                        <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:#30D158;">📋 真實系統渲染：王冠閎 歷次參賽每一筆明細大表</span>
+                            <span style="font-size:10px; color:#A1A1AA;">逐筆列出日期、秒數與賽事</span>
+                        </div>
+                        <img src="/static/guide/guide_step2_wang_history_list.png" alt="真實參賽歷史明細" style="width:100%; height:auto; display:block;" />
                     </div>
                 `
             },
             {
-                badge: "核心模組 05",
+                badge: "步驟 03 · 戰力名冊",
+                icon: "👥",
+                title: "按下「同年齡排行」展開同齡戰力名冊",
+                subtitle: "下彈展開全台同出生年選手排名，頂部一鍵切換年次提前預覽升組對手",
+                bullets: [
+                    "<b>👉 按下「同年齡排行 (如 同齡排行#8)」</b>：<br>&nbsp;&nbsp;➔ 立即於卡片下方<b>展開全台該出生年所有選手戰力名冊真實大表</b>！完整列出各選手排名、出生年、姓名、成績秒數、WA積分、比賽日期與賽事全稱！",
+                    "<b>跨年次升組快速切換 (教練/家長必備)</b>：<br>&nbsp;&nbsp;➔ 大表頂部特別打造年次切換功能，可隨時左右查看相鄰年次選手水平！",
+                    "<b>全台競爭水準與百分位</b>：大表底部精確揭露全台總人數與該選手排名百分位 (如 <code>共 113 位選手，王冠閎 排名百分位 93.8%</code>)！"
+                ],
+                previewHtml: `
+                    <!-- 點擊觸發指引 -->
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; background:rgba(255,215,0,0.08); padding:8px 12px; border-radius:8px; border:1px dashed #D4AF37;">
+                        <span style="color:#FFD700; font-weight:900; font-size:13px; text-decoration:underline;">🏅 同齡排行#8 (PR 93.8%)</span>
+                        <span style="font-size:12px; color:#D4AF37; font-weight:700;">👈 按此排行標籤，立即展開真實同齡戰力名冊：</span>
+                    </div>
+
+                    <!-- 100% 真實展開名冊大表特寫截圖 -->
+                    <div style="border:1px solid #27272A; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                        <img src="/static/guide/guide_step3_wang_age_roster.png" alt="真實同齡戰力名冊" style="width:100%; height:auto; display:block;" />
+                    </div>
+                `
+            },
+            {
+                badge: "步驟 04 · 多人比較",
+                icon: "⚔️",
+                title: "多人對決與進階雙軸比對 (輸入範例：王冠閎;王星皓;韓安齊)",
+                subtitle: "輸入多位選手姓名，即刻啟動真實成績並排對決、PB秒差計算與雙軸 Trend Chart",
+                bullets: [
+                    "<b>輸入範例（請見上方示範框）</b>：在搜尋框鍵入 <code>王冠閎;王星皓;韓安齊</code>（多位選手以分號 <code>;</code> 或空格分隔皆可），點擊查詢即刻開啟多人橫向對決儀表板！",
+                    "<b>真實系統對決數據呈現</b>：橫向自動比對各選手 PB，自動計算並標註領先/落後秒差（如 <code>王冠閎 100m 1:01.55 (+3.97s)</code>、<code>王星皓 57.58</code>、<code>韓安齊 1:04.26 (+6.68s)</code>）。",
+                    "<b>多人同圖雙軸 Trend Chart</b>：將多名選手的歷年成長曲線直接疊加在同一張圖表中！",
+                    "<b>雙重維度切換開關</b>：",
+                    "&nbsp;&nbsp;• <b>「🎂 同年齡歲數對齊 (Age-aligned)」</b>：將橫軸對齊為選手真實歲數（如比對大家都在 14 歲、18 歲時誰更具爆發力），跨越出生年限制！",
+                    "&nbsp;&nbsp;• <b>「📅 實際比賽日期 (Absolute Date)」</b>：按自然歷史時間軸排序，比對歷次同場競技的真實交手勝負！"
+                ],
+                previewHtml: `
+                    <!-- 輸入範例高亮示意框 -->
+                    <div style="background:#09090B; border:1px solid #38383A; border-radius:12px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="color:#38BDF8; font-size:16px;">🔍</span>
+                            <span style="font-weight:900; color:#38BDF8; font-size:15px; font-family:monospace; background:#27272A; padding:2px 10px; border-radius:6px; border:0.5px solid #38BDF8;">王冠閎;王星皓;韓安齊</span>
+                            <span style="font-size:11px; color:#A1A1AA;">(以分號或空格隔開)</span>
+                        </div>
+                        <span style="background:#38BDF8; color:#000; font-size:12px; font-weight:800; padding:5px 12px; border-radius:8px;">點擊「查詢」➔</span>
+                    </div>
+
+                    <!-- 100% 真實三位選手並排對決看板特寫截圖 -->
+                    <div style="border:1px solid #27272A; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                        <img src="/static/guide/guide_step4_multi_headtohead.png" alt="真實三人對決卡片" style="width:100%; height:auto; display:block;" />
+                    </div>
+                `
+            },
+            {
+                badge: "步驟 05 · 達標檢驗",
                 icon: "🎯",
-                title: "官方賽事達標檢驗 (/std)",
+                title: "官方賽事達標檢驗 (/std) (輸入範例：王冠閎/std)",
                 subtitle: "自動鎖定組別，精確比對五大賽事標準，附帶規程正本頁碼直達",
                 bullets: [
-                    "<b>指令快速啟動</b>：輸入框鍵入「<code>選手姓名/std</code>」（如 <code>王冠閎/std</code> 或 <code>陳宥先/std</code>）。",
-                    "<b>自動年齡鎖定</b>：依照選手年齡自動精確判定國小、國中、高中或公開組門檻，免手動切換。",
-                    "<b>五大頂尖大賽標準庫</b>：同步比對全中運、全運會、全國小學、總統盃、春季盃官方參賽門檻。",
-                    "<b>直觀燈號與規程直達</b>：綠色 <code>🟢 已達標</code>、紅色 <code>🔴 未達標 (+X.XXs)</code>，表格上方更附帶官方規程 PDF 原文連結與頁碼標注（如 <code>#page=5</code>），大會稽核零爭議！"
+                    "<b>輸入範例（請見上方示範框）</b>：在搜尋框鍵入 <code>王冠閎/std</code>（或鍵入 <code>/</code> 從自動完成選單中點選），點擊查詢即刻開啟達標檢驗！",
+                    "<b>自動年齡鎖定</b>：依照選手出生年自動精確判定國小、國中、高中或公開組門檻，免手動切換。",
+                    "<b>五大頂尖大賽標準庫</b>：同步比對全國小學、總統盃、全中運、全大運、全運會官方參賽門檻。",
+                    "<b>直觀燈號與規程直達</b>：藍色 <code>🔵 -XX.XXs (已達標)</code>、紅色 <code>🔴 +XX.XXs (未達標)</code>，表格上方更附帶官方規程 PDF 原文連結與頁碼標注（如 <code>114年手冊第15頁規範</code>），大會稽核零爭議！"
                 ],
                 previewHtml: `
-                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #38383A; padding-bottom:8px;">
-                            <span style="font-size:13px; font-weight:800; color:#FFF;">🏊 100m 仰式 (個人PB: 59.80)</span>
-                            <span style="font-size:11px; color:#A1A1AA;">鎖定組別：國中男生組</span>
+                    <!-- 輸入範例高亮示意框 -->
+                    <div style="background:#09090B; border:1px solid #38383A; border-radius:12px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="color:#30D158; font-size:16px;">🔍</span>
+                            <span style="font-weight:900; color:#30D158; font-size:15px; font-family:monospace; background:#27272A; padding:2px 10px; border-radius:6px; border:0.5px solid #30D158;">王冠閎/std</span>
+                            <span style="font-size:11px; color:#A1A1AA;">(或鍵入「/」從選單點選)</span>
                         </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:8px; text-align:center;">
-                                <div style="font-size:11px; font-weight:700; color:#FFF;">全中運</div>
-                                <div style="font-size:10px; color:#A1A1AA; margin:2px 0;">門檻 1:01.90 <span style="color:#0A84FF;">(p.5)</span></div>
-                                <span style="font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:2px 6px; border-radius:6px; display:inline-block;">🟢 已達標 (-2.10s)</span>
-                            </div>
-                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:8px; text-align:center;">
-                                <div style="font-size:11px; font-weight:700; color:#FFF;">總統盃</div>
-                                <div style="font-size:10px; color:#A1A1AA; margin:2px 0;">門檻 1:01.25 <span style="color:#0A84FF;">(p.8)</span></div>
-                                <span style="font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:2px 6px; border-radius:6px; display:inline-block;">🟢 已達標 (-1.45s)</span>
-                            </div>
-                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:8px; text-align:center;">
-                                <div style="font-size:11px; font-weight:700; color:#FFF;">全國運動會</div>
-                                <div style="font-size:10px; color:#A1A1AA; margin:2px 0;">門檻 59.15 <span style="color:#0A84FF;">(p.12)</span></div>
-                                <span style="font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:2px 6px; border-radius:6px; display:inline-block;">🔴 未達標 (+0.65s)</span>
-                            </div>
-                        </div>
+                        <span style="background:#30D158; color:#000; font-size:12px; font-weight:800; padding:5px 12px; border-radius:8px;">點擊「查詢」➔</span>
+                    </div>
+
+                    <!-- 100% 真實達標檢驗畫面特寫截圖 -->
+                    <div style="border:1px solid #27272A; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                        <img src="/static/guide/guide_step5_std_check.png" alt="真實五大賽事達標檢驗" style="width:100%; height:auto; display:block;" />
                     </div>
                 `
             },
             {
-                badge: "核心模組 06",
+                badge: "步驟 06 · 頒獎台分析",
                 icon: "🏆",
-                title: "得獎模擬與頒獎台分析 (/Podium Simulation)",
+                title: "得獎模擬分析 (/Podium Simulation) (輸入範例：王冠閎/Podium Simulation)",
                 subtitle: "16 大全國賽最近 3 年 1、3、8 名橫向比對，精準預估決賽與頒獎台排位",
                 bullets: [
-                    "<b>指令快速啟動</b>：輸入框鍵入「<code>選手姓名/Podium Simulation</code>」，或輸入「<code>/</code>」直接自選。",
-                    "<b>16 大全國長水道錦標賽自由切換</b>：涵蓋全中運、全運會、全國小學、總統盃等重要大賽，卡片切換連動全球更新。",
-                    "<b>最近 3 屆（3 年）門檻對齊</b>：橫向呈現各年度第 1 名 (🥇 金牌)、第 3 名 (🥉 頒獎台銅牌門檻) 與第 8 名 (🎖️ 晉級決賽門檻) 秒數。",
+                    "<b>輸入範例（請見上方示範框）</b>：在搜尋框鍵入 <code>王冠閎/Podium Simulation</code>，點擊查詢即刻開啟得獎模擬！",
+                    "<b>16 大全國長水道錦標賽自由切換</b>：涵蓋全中運、全運會、全國小學、總統盃、全大運等重要大賽，卡片切換連動全球更新。",
+                    "<b>最近 3 屆（3 年）門檻精簡對齊</b>：橫向呈現各年度第 1 名 (🥇 金牌)、第 3 名 (🥉 頒獎台銅牌門檻) 與第 8 名 (🎖️ 晉級決賽門檻) 秒數。",
                     "<b>精簡清晰名次分析</b>：",
                     "&nbsp;&nbsp;• <b>前三名</b>：頒發金銀銅牌榮譽徽章（<code>🥇 預估第 1 名 (金牌)</code>、<code>🥈 預估第 2 名 (銀牌)</code>、<code>🥉 預估第 3 名 (銅牌)</code>）。",
-                    "&nbsp;&nbsp;• <b>進決賽 (第 4~8 名)</b>：標示 <code>🔵 預估第 N 名</code> 與距頒獎台差距。",
+                    "&nbsp;&nbsp;• <b>進決賽 (第 4~8 名)</b>：標示 <code>🔵 預估第 N 名</code> 與距頒獎台差距（如 <code>🔵 預估第 5 名 · 距頒獎台 +2.12s</code>）。",
                     "&nbsp;&nbsp;• <b>未進決賽 (第 9 名及以後)</b>：簡潔標示 <code>🔴 未進決賽</code> 與距決賽門檻差距，激發訓練目標！"
                 ],
                 previewHtml: `
-                    <div style="background:#18181B; border:1px solid #27272A; border-radius:14px; padding:16px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #38383A; padding-bottom:8px;">
-                            <span style="font-size:13px; font-weight:800; color:#FFF;">🏆 全國中等學校運動會 · 50m 仰式 (個人PB: 27.20)</span>
-                            <span style="font-size:11px; color:#D4AF37; font-weight:700;">最近 3 屆大賽比對</span>
+                    <!-- 輸入範例高亮示意框 -->
+                    <div style="background:#09090B; border:1px solid #38383A; border-radius:12px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="color:#FFD700; font-size:16px;">🔍</span>
+                            <span style="font-weight:900; color:#FFD700; font-size:14px; font-family:monospace; background:#27272A; padding:2px 10px; border-radius:6px; border:0.5px solid #FFD700;">王冠閎/Podium Simulation</span>
+                            <span style="font-size:11px; color:#A1A1AA;">(或輸入「/」點選)</span>
                         </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:10px 8px; text-align:center;">
-                                <div style="font-size:12px; font-weight:800; color:#D4AF37;">112年 (2023)</div>
-                                <div style="font-family:monospace; font-size:10px; color:#FFD700; margin-top:3px;">🥇 26.90</div>
-                                <div style="font-family:monospace; font-size:10px; color:#CD7F32;">🥉 27.50</div>
-                                <div style="font-family:monospace; font-size:10px; color:#8E8E93;">🎖️ 28.40</div>
-                                <div style="font-size:11px; font-weight:800; color:#C0C0C0; background:rgba(255,255,255,0.1); border:0.5px solid #C0C0C0; padding:2px 6px; border-radius:6px; margin-top:6px;">
-                                    🥈 預估第 2 名 (銀牌)
-                                </div>
-                            </div>
-                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:10px 8px; text-align:center;">
-                                <div style="font-size:12px; font-weight:800; color:#D4AF37;">113年 (2024)</div>
-                                <div style="font-family:monospace; font-size:10px; color:#FFD700; margin-top:3px;">🥇 26.70</div>
-                                <div style="font-family:monospace; font-size:10px; color:#CD7F32;">🥉 27.10</div>
-                                <div style="font-family:monospace; font-size:10px; color:#8E8E93;">🎖️ 28.20</div>
-                                <div style="font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); border:0.5px solid rgba(48,209,88,0.25); padding:2px 6px; border-radius:6px; margin-top:6px;">
-                                    🔵 預估第 4 名
-                                </div>
-                            </div>
-                            <div style="background:#09090B; border:0.5px solid #27272A; border-radius:8px; padding:10px 8px; text-align:center;">
-                                <div style="font-size:12px; font-weight:800; color:#D4AF37;">114年 (2025)</div>
-                                <div style="font-family:monospace; font-size:10px; color:#FFD700; margin-top:3px;">🥇 26.50</div>
-                                <div style="font-family:monospace; font-size:10px; color:#CD7F32;">🥉 26.90</div>
-                                <div style="font-family:monospace; font-size:10px; color:#8E8E93;">🎖️ 27.10</div>
-                                <div style="font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); border:0.5px solid rgba(255,69,58,0.25); padding:2px 6px; border-radius:6px; margin-top:6px;">
-                                    🔴 未進決賽
-                                </div>
-                            </div>
-                        </div>
+                        <span style="background:#FFD700; color:#000; font-size:12px; font-weight:800; padding:5px 12px; border-radius:8px;">點擊「查詢」➔</span>
+                    </div>
+
+                    <!-- 100% 真實得獎模擬 3 年比對特寫截圖 -->
+                    <div style="border:1px solid #27272A; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                        <img src="/static/guide/guide_step6_podium_simulation.png" alt="真實得獎模擬卡片" style="width:100%; height:auto; display:block;" />
                     </div>
                 `
             }
@@ -3088,14 +3016,8 @@
         }
 
         function checkAutoOpenUserGuide() {
-            if (hasCheckedAutoOpen) return;
-            hasCheckedAutoOpen = true;
-            const hasSeen = localStorage.getItem('swimming_guide_viewed_v1');
-            if (!hasSeen) {
-                setTimeout(() => {
-                    openUserGuide(0);
-                }, 1000);
-            }
+            // 大仁哥最高指示：剛連入網址時先不要彈出使用說明，保留右上角 📖 按鈕供使用者自主點選
+            return;
         }
 
         // 鍵盤左右鍵切換與 ESC 關閉導覽
@@ -3110,10 +3032,10 @@
             }
         });
 
-        // 頁面加載完成時確保檢查一次自動彈出
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(checkAutoOpenUserGuide, 1200);
-        });
+        // 頁面加載完成（大仁哥指示：不自動彈出，註解自動呼叫）
+        // window.addEventListener('DOMContentLoaded', () => {
+        //     setTimeout(checkAutoOpenUserGuide, 1200);
+        // });
 
         // --- 自動完成 (Autocomplete) 邏輯 ---
         const searchInput = document.getElementById('searchInput');
