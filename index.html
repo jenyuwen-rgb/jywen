@@ -221,7 +221,7 @@
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span style="font-size:20px;">💡</span>
                     <span style="font-weight:900; font-size:16px; color:#FFF; letter-spacing:0.5px;">全方位功能使用指南</span>
-                    <span id="guideStepBadge" style="font-size:11px; font-weight:800; color:#D4AF37; background:rgba(212,175,55,0.15); border:0.5px solid rgba(212,175,55,0.3); padding:2px 8px; border-radius:12px; margin-left:6px; font-family:monospace;">1 / 6</span>
+                    <span id="guideStepBadge" style="font-size:11px; font-weight:800; color:#D4AF37; background:rgba(212,175,55,0.15); border:0.5px solid rgba(212,175,55,0.3); padding:2px 8px; border-radius:12px; margin-left:6px; font-family:monospace;">1 / 8</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <button onclick="closeUserGuide(true)" style="background:rgba(255,255,255,0.08); border:none; color:#A1A1AA; font-size:12px; font-weight:700; padding:6px 14px; border-radius:16px; cursor:pointer; transition:all 0.15s ease;" onmouseover="this.style.color='#FFF'; this.style.background='rgba(255,255,255,0.18)'" onmouseout="this.style.color='#A1A1AA'; this.style.background='rgba(255,255,255,0.08)'">
@@ -230,14 +230,16 @@
                 </div>
             </div>
 
-            <!-- 進度小圓點條 -->
+            <!-- 進度小圓點條 (全量 8 大步驟) -->
             <div style="display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 0; background:rgba(0,0,0,0.25); border-bottom:0.5px solid #1C1C1E;">
-                <div class="guide-dot" onclick="goToGuideStep(0)" style="width:28px; height:5px; border-radius:3px; background:#D4AF37; cursor:pointer; transition:all 0.25s ease;" title="第 1 步：單一選手全能查詢"></div>
-                <div class="guide-dot" onclick="goToGuideStep(1)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 2 步：個人歷年成長曲線"></div>
-                <div class="guide-dot" onclick="goToGuideStep(2)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 3 步：同齡名冊與跨年次切換"></div>
-                <div class="guide-dot" onclick="goToGuideStep(3)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 4 步：多人對決與雙軸比對"></div>
-                <div class="guide-dot" onclick="goToGuideStep(4)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 5 步：官方賽事達標檢驗 (/std)"></div>
-                <div class="guide-dot" onclick="goToGuideStep(5)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 6 步：得獎模擬分析 (/Podium Simulation)"></div>
+                <div class="guide-dot" onclick="goToGuideStep(0)" style="width:28px; height:5px; border-radius:3px; background:#D4AF37; cursor:pointer; transition:all 0.25s ease;" title="第 1 步：單一選手全能查詢 (王冠閎 蝶式)"></div>
+                <div class="guide-dot" onclick="goToGuideStep(1)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 2 步：雙對手 Trend Chart 與 歷次參賽明細"></div>
+                <div class="guide-dot" onclick="goToGuideStep(2)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 3 步：同齡名冊、年度最佳矩陣 與 全國排行"></div>
+                <div class="guide-dot" onclick="goToGuideStep(3)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 4 步：多人對決、PB歷史明細 與 雙軸 Trend Chart"></div>
+                <div class="guide-dot" onclick="goToGuideStep(4)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 5 步：官方賽事達標檢驗 (/std · 蝶式)"></div>
+                <div class="guide-dot" onclick="goToGuideStep(5)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 6 步：得獎模擬分析 (/Podium Simulation · 蝶式)"></div>
+                <div class="guide-dot" onclick="goToGuideStep(6)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 7 步：快捷提示、歷史回查 (🕒) 與 一鍵收合"></div>
+                <div class="guide-dot" onclick="goToGuideStep(7)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 8 步：同名同姓選手多重出生年/性別切換"></div>
             </div>
 
             <!-- 內容滑動區 (可滾動) -->
@@ -2844,15 +2846,15 @@
             {
                 badge: "步驟 04 · 多人比較",
                 icon: "⚔️",
-                title: "多人對決與進階雙軸比對 (輸入範例：王冠閎;王星皓;韓安齊)",
-                subtitle: "輸入多位選手姓名，即刻啟動真實成績並排對決、PB秒差計算與雙軸 Trend Chart",
+                title: "多人對決、PB出賽明細 與 雙軸 Trend Chart (代表範例：王冠閎;王星皓;韓安齊 · 蝶式)",
+                subtitle: "輸入多位選手姓名，即刻啟動真實成績並排對決、PB秒差計算、個人歷年明細與雙軸 Trend Chart",
                 bullets: [
                     "<b>輸入範例（請見上方示範框）</b>：在搜尋框鍵入 <code>王冠閎;王星皓;韓安齊</code>（多位選手以分號 <code>;</code> 或空格分隔皆可），點擊查詢即刻開啟多人橫向對決儀表板！",
-                    "<b>真實系統對決數據呈現</b>：橫向自動比對各選手 PB，自動計算並標註領先/落後秒差（如 <code>王星皓 57.58</code>、<code>王冠閎 1:01.55 (+3.97s)</code>、<code>韓安齊 1:04.26 (+6.68s)</code>）。",
-                    "<b>多人同圖雙軸 Trend Chart</b>：將多名選手的歷年成長曲線直接疊加在同一張圖表中！",
-                    "<b>雙重維度切換開關</b>：",
-                    "&nbsp;&nbsp;• <b>「🎂 同年齡歲數對齊 (Age-aligned)」</b>：將橫軸對齊為選手真實歲數（如比對大家都在 14 歲、18 歲時誰更具爆發力），跨越出生年限制！",
-                    "&nbsp;&nbsp;• <b>「📅 實際比賽日期 (Absolute Date)」</b>：按自然歷史時間軸排序，比對歷次同場競技的真實交手勝負！"
+                    "<b>真實系統對決數據呈現（蝶式代表）</b>：橫向自動比對各選手 PB，自動計算並標註領先/落後秒差（如 <code>王冠閎 24.00 (金牌最快)</code>、<code>王星皓 24.92 (+0.92s)</code>、<code>韓安齊 28.11 (+4.11s)</code>）。",
+                    "<b>👉 點擊選手 PB 秒數：展開該選手專屬歷年出賽明細大表</b>：點擊選手姓名旁的出場場次（如 31場 / 18場 / 6場），即可在該列下方就地展開該選手在此項目的歷次比賽日期、大會全名與秒數！",
+                    "<b>👉 點擊項目距離：展開多人同圖雙軸 Trend Chart 折線圖</b>：將多名選手的歷年成長曲線直接疊加在同一張圖表中！附帶雙重維度切換開關：",
+                    "&nbsp;&nbsp;• <b>「🎂 同年齡歲數對齊 (Age-aligned)」vs「📅 實際比賽日期 (Absolute Date)」</b>：跨出生年比對大家都在相同年齡時的速度與爆發力！",
+                    "&nbsp;&nbsp;• <b>「⏱️ 比賽成績 (Time)」vs「⚡ 相對秒差 (Gap / Delta)」</b>：即時將領先標竿設為 0.00s，比對各選手歷年與第一名的秒差演變！"
                 ],
                 previewHtml: `
                     <!-- 輸入範例高亮示意框 -->
@@ -2865,22 +2867,45 @@
                         <span style="background:#38BDF8; color:#000; font-size:12px; font-weight:800; padding:5px 12px; border-radius:8px;">點擊「查詢」➔</span>
                     </div>
 
-                    <!-- 100% 真實三位選手並排對決看板特寫截圖 -->
-                    <div style="border:1px solid #27272A; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
-                        <img src="/static/guide/guide_step4_multi_headtohead.png" alt="真實三人對決卡片" style="width:100%; height:auto; display:block;" />
+                    <!-- 100% 真實三人蝶式並排對決看板特寫截圖 -->
+                    <div style="margin-bottom:12px; border:1px solid #27272A; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                        <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:#D4AF37;">⚔️ 功能 A：多人橫向並排對決大表 (蝶式代表)</span>
+                            <span style="font-size:10px; color:#A1A1AA;">王冠閎 / 王星皓 / 韓安齊 PB 與秒差</span>
+                        </div>
+                        <img src="/static/guide/guide_step4_multi_butterfly_table.png" alt="真實三人蝶式對決卡片" style="width:100%; height:auto; display:block;" />
+                    </div>
+
+                    <!-- 100% 真實點擊 PB 展開單一選手出賽明細大表 -->
+                    <div style="margin-bottom:12px; border:1px solid #30D158; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                        <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:#30D158;">📋 功能 B：點擊選手 PB 展開個人歷年出賽明細 (王冠閎 31場全記錄)</span>
+                            <span style="font-size:10px; color:#A1A1AA;">逐筆列出日期、秒數與賽事名稱</span>
+                        </div>
+                        <img src="/static/guide/guide_step4_multi_pb_history.png" alt="真實多人模式下展開選手出賽明細" style="width:100%; height:auto; display:block;" />
+                    </div>
+
+                    <!-- 100% 真實多人同圖雙軸 Trend Chart 特寫截圖 -->
+                    <div style="border:1px solid #0A84FF; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                        <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:#38BDF8;">📈 功能 C：多人同圖雙軸 Trend Chart (歲數 vs 日期對比、成績 vs 秒差切換)</span>
+                            <span style="font-size:10px; color:#A1A1AA;">三色曲線交鋒：藍點王冠閎 / 紅三角王星皓 / 綠方塊韓安齊</span>
+                        </div>
+                        <img src="/static/guide/guide_step4_multi_trend_chart.png" alt="真實多人雙軸 Trend Chart" style="width:100%; height:auto; display:block;" />
                     </div>
                 `
             },
             {
                 badge: "步驟 05 · 達標檢驗",
                 icon: "🎯",
-                title: "官方賽事達標檢驗 (/std) (輸入範例：王冠閎/std)",
+                title: "官方賽事達標檢驗 (/std) (代表範例：王冠閎/std · 蝶式)",
                 subtitle: "自動鎖定組別，精確比對五大賽事標準，附帶規程正本頁碼直達",
                 bullets: [
                     "<b>輸入範例（請見上方示範框）</b>：在搜尋框鍵入 <code>王冠閎/std</code>（或鍵入 <code>/</code> 從自動完成選單中點選），點擊查詢即刻開啟達標檢驗！",
+                    "<b>100% 蝶式完整項目卡片</b>：完整涵蓋 50m 蝶式 (24.00)、100m 蝶式 (51.90)、200m 蝶式 (1:54.44 全國紀錄)！",
                     "<b>自動年齡鎖定</b>：依照選手出生年自動精確判定國小、國中、高中或公開組門檻，免手動切換。",
                     "<b>五大頂尖大賽標準庫</b>：同步比對全國小學、總統盃、全中運、全大運、全運會官方參賽門檻。",
-                    "<b>直觀燈號與規程直達</b>：藍色 <code>🔵 -XX.XXs (已達標)</code>、紅色 <code>🔴 +XX.XXs (未達標)</code>，表格上方更附帶官方規程 PDF 原文連結與頁碼標注（如 <code>114年手冊第15頁規範</code>），大會稽核零爭議！"
+                    "<b>直觀燈號與規程直達</b>：藍色 <code>🔵 -XX.XXs (已達標)</code>、紅色 <code>🔴 +XX.XXs (未達標)</code>，表格上方更附帶官方規程 PDF 原文連結與手冊頁碼標注（如 <code>114年手冊第15頁規範</code>），大會稽核零爭議！"
                 ],
                 previewHtml: `
                     <!-- 輸入範例高亮示意框 -->
@@ -2893,24 +2918,25 @@
                         <span style="background:#30D158; color:#000; font-size:12px; font-weight:800; padding:5px 12px; border-radius:8px;">點擊「查詢」➔</span>
                     </div>
 
-                    <!-- 100% 真實達標檢驗畫面特寫截圖 -->
+                    <!-- 100% 真實蝶式達標檢驗完整卡片特寫截圖 -->
                     <div style="border:1px solid #27272A; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
-                        <img src="/static/guide/guide_step5_std_check.png" alt="真實五大賽事達標檢驗" style="width:100%; height:auto; display:block;" />
+                        <img src="/static/guide/guide_step5_std_butterfly.png" alt="真實蝶式五大賽事達標檢驗卡片" style="width:100%; height:auto; display:block;" />
                     </div>
                 `
             },
             {
                 badge: "步驟 06 · 頒獎台分析",
                 icon: "🏆",
-                title: "得獎模擬分析 (/Podium Simulation) (輸入範例：王冠閎/Podium Simulation)",
+                title: "得獎模擬分析 (/Podium Simulation) (代表範例：王冠閎/Podium Simulation · 蝶式)",
                 subtitle: "16 大全國賽最近 3 年 1、3、8 名橫向比對，精準預估決賽與頒獎台排位",
                 bullets: [
                     "<b>輸入範例（請見上方示範框）</b>：在搜尋框鍵入 <code>王冠閎/Podium Simulation</code>，點擊查詢即刻開啟得獎模擬！",
-                    "<b>16 大全國長水道錦標賽自由切換</b>：涵蓋全中運、全運會、全國小學、總統盃、全大運等重要大賽，卡片切換連動全球更新。",
+                    "<b>100% 蝶式完整項目卡片</b>：涵蓋 50m、100m、200m 蝶式全項目，並精確對齊大專運動會 (全大運 · 公開組)！",
+                    "<b>16 大全國長水道錦標賽自由切換</b>：涵蓋全中運、全運會、全國小學、總統盃、全大運等重要大賽，卡片右上角下拉選單隨選即換。",
                     "<b>最近 3 屆（3 年）門檻精簡對齊</b>：橫向呈現各年度第 1 名 (🥇 金牌)、第 3 名 (🥉 頒獎台銅牌門檻) 與第 8 名 (🎖️ 晉級決賽門檻) 秒數。",
                     "<b>精簡清晰名次分析</b>：",
-                    "&nbsp;&nbsp;• <b>前三名</b>：頒發金銀銅牌榮譽徽章（<code>🥇 預估第 1 名 (金牌)</code>、<code>🥈 預估第 2 名 (銀牌)</code>、<code>🥉 預估第 3 名 (銅牌)</code>）。",
-                    "&nbsp;&nbsp;• <b>進決賽 (第 4~8 名)</b>：標示 <code>🔵 預估第 N 名</code> 與距頒獎台差距（如 <code>🔵 預估第 5 名 · 距頒獎台 +2.12s</code>）。",
+                    "&nbsp;&nbsp;• <b>前三名</b>：頒發金銀銅牌榮譽徽章（如 <code>🥇 預估第 1 名 (金牌) · 領先金牌 -1.65s</code>、<code>🥈 預估第 2 名 (銀牌)</code>）。",
+                    "&nbsp;&nbsp;• <b>進決賽 (第 4~8 名)</b>：標示 <code>🔵 預估第 N 名</code> 與距頒獎台差距。",
                     "&nbsp;&nbsp;• <b>未進決賽 (第 9 名及以後)</b>：簡潔標示 <code>🔴 未進決賽</code> 與距決賽門檻差距，激發訓練目標！"
                 ],
                 previewHtml: `
@@ -2924,9 +2950,61 @@
                         <span style="background:#FFD700; color:#000; font-size:12px; font-weight:800; padding:5px 12px; border-radius:8px;">點擊「查詢」➔</span>
                     </div>
 
-                    <!-- 100% 真實得獎模擬 3 年比對特寫截圖 -->
+                    <!-- 100% 真實得獎模擬 3 年比對特寫截圖 (蝶式代表卡片) -->
                     <div style="border:1px solid #27272A; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
-                        <img src="/static/guide/guide_step6_podium_simulation.png" alt="真實得獎模擬卡片" style="width:100%; height:auto; display:block;" />
+                        <img src="/static/guide/guide_step6_podium_butterfly.png" alt="真實蝶式得獎模擬卡片" style="width:100%; height:auto; display:block;" />
+                    </div>
+                `
+            },
+            {
+                badge: "步驟 07 · 便捷工具",
+                icon: "⚡",
+                title: "快捷模式提示 (/)、歷史紀錄回查 (🕒) 與 一鍵收合工具",
+                subtitle: "搜尋框指令快捷自動完成、歷史查詢紀錄即時回溯，以及一鍵折疊所有大表",
+                bullets: [
+                    "<b>👉 模式選單自動提示（輸入「/」）</b>：在搜尋框輸入 <code>/</code>，系統自動跳出模式選單提示（包含 <code>/std 參賽標準檢驗</code> 與 <code>/Podium Simulation 得獎模擬</code>），點擊即可自動填入，免手動記憶指令！",
+                    "<b>👉 頂部「🕒」歷史查詢紀錄彈窗</b>：點擊搜尋列左側黃色時鐘 <code>🕒</code> 圖示，即可即時展開歷史查詢面板，記錄最近 30 筆選手查詢紀錄，點選姓名立即秒查回溯，並附帶垃圾桶圖示支援一鍵刪除個別紀錄！",
+                    "<b>👉 工具列「收合」按鈕</b>：畫面展開多個 Trend Chart、明細表與同齡名冊後，點擊頂部工具列右側「收合」按鈕，能瞬間將畫面所有展開的卡片一次收折乾淨！",
+                    "<b>👉 工具列「重置」按鈕</b>：遇到瀏覽器快取異常或欲重新下載最新雲端資料庫時，點擊「重置」即可一鍵清空 IndexedDB 快取並重新同步。"
+                ],
+                previewHtml: `
+                    <!-- 100% 真實功能 A: 搜尋框輸入 / 即時彈出模式提示 -->
+                    <div style="margin-bottom:12px; border:1px solid #D4AF37; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                        <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:#D4AF37;">⚡ 工具 A：輸入「/」模式快捷自動完成選單提示</span>
+                            <span style="font-size:10px; color:#A1A1AA;">即時點選 /std 與 /Podium Simulation</span>
+                        </div>
+                        <img src="/static/guide/guide_feature_mode_autocomplete.png" alt="真實模式自動完成提示選單" style="width:100%; height:auto; display:block;" />
+                    </div>
+
+                    <!-- 100% 真實功能 B: 頂部 🕒 歷史紀錄彈窗清單 -->
+                    <div style="border:1px solid #8E8E93; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                        <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:#FFF;">🕒 工具 B：頂部歷史查詢紀錄彈窗面板</span>
+                            <span style="font-size:10px; color:#A1A1AA;">支援快速點選回查與垃圾桶刪除</span>
+                        </div>
+                        <img src="/static/guide/guide_feature_history_modal.png" alt="真實歷史查詢紀錄彈窗" style="width:100%; height:auto; display:block;" />
+                    </div>
+                `
+            },
+            {
+                badge: "步驟 08 · 特殊情境",
+                icon: "👥",
+                title: "同名同姓選手多重出生年 / 性別即時切換下拉選單",
+                subtitle: "資料庫同名同姓選手自動產生黃色切換選單，一鍵跨年次與跨性別切換",
+                bullets: [
+                    "<b>智慧多年次偵測</b>：當搜尋的選手姓名在資料庫中存在多個不同的出生年次時（如「陳柏宇」有 2012年次、2010年次等多位同名選手），系統會在頂部工具列及結果卡片內自動生成<b>黃色出生年切換下拉選單</b>！",
+                    "<b>隨選即換，零延遲更新</b>：使用者只需在下拉選單中點選指定年次（如 <code>2012年次 ∨</code>），全頁五大泳式看板、PB、WA 積分與同齡排行立即動態切換至該位選手！",
+                    "<b>同名跨性別自動識別</b>：若同一姓名在資料庫中同時存在男生與女生選手紀錄（如「陳品言」），系統會同步提供藍色性別下拉選單（<code>男生 / 女生</code>）供即時切換，確保每一位同名選手的紀錄精準分流！"
+                ],
+                previewHtml: `
+                    <!-- 100% 真實功能特寫：同名選手出生年切換下拉選單 (以陳柏宇為例) -->
+                    <div style="border:1px solid #FFD700; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                        <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:#FFD700;">👥 特殊情境特寫：頂部搜尋列「出生年下拉切換選單」(以陳柏宇為例)</span>
+                            <span style="font-size:10px; color:#A1A1AA;">自動識別同名選手並提供 2012年次等跨年次切換</span>
+                        </div>
+                        <img src="/static/guide/guide_feature_birth_select.png" alt="真實同名同姓出生年切換選單" style="width:100%; height:auto; display:block;" />
                     </div>
                 `
             }
