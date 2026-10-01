@@ -2722,13 +2722,14 @@
         const GUIDE_STEPS = [
             {
                 badge: "步驟 01 · 快速入門",
-                icon: "🔍",
-                title: "單一選手全能查詢 (輸入範例：王冠閎)",
+                icon: "🦋",
+                title: "單一選手全能查詢 (代表範例：王冠閎 · 蝶式)",
                 subtitle: "在上方搜尋列鍵入選手姓名，自動展開五大泳式看板與長水道全能指標",
                 bullets: [
                     "<b>智慧搜尋</b>：在頁面最上方搜尋框鍵入選手姓名（如「王冠閎」），全自動比對出生年與性別。",
-                    "<b>五大泳式獨立看板</b>：依仰式、自由式、蛙式、蝶式、混合式自動分類，涵蓋 50m 至 1500m 全長水道項目。",
-                    "<b>全能數據指標</b>：每一項目完整揭露<b>個人最佳 (PB)</b>、<b>參賽場次</b>、<b>同年齡排名與 PR 百分位</b> (如 <code>同齡排行#8 · PR 93.8%</code>)、<b>年度最佳</b>、<b>全國排行</b>、以及 <b>WA Points (世界水上運動總會換算積分)</b>。"
+                    "<b>五大泳式獨立看板</b>：依蝶式、自由式、仰式、蛙式、混合式自動分類，涵蓋 50m 至 1500m 全長水道項目。",
+                    "<b>全能數據指標（王冠閎蝶式代表）</b>：每一項目完整揭露<b>個人最佳 (PB)</b>、<b>參賽場次</b>、<b>同年齡排名與 PR 百分位</b> (如 <code>同齡排行#1 · PR 100.0%</code>)、<b>年度最佳</b>、<b>全國排行#1</b>、以及 <b>WA Points (世界水上運動總會換算積分)</b>。",
+                    "<b>全功能可點擊下彈拓展</b>：項目距離、場次、同齡排行、年度最佳、全國排行皆帶有底線，點擊即可於下方就地展開深度分析！"
                 ],
                 previewHtml: `
                     <!-- 搜尋列輸入指引示意 -->
@@ -2741,33 +2742,33 @@
                         <span style="background:#D4AF37; color:#000; font-size:12px; font-weight:800; padding:5px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:4px;">點擊「查詢」➔</span>
                     </div>
 
-                    <!-- 100% 真實查詢結果看板特寫截圖 -->
+                    <!-- 100% 真實查詢結果看板特寫截圖：王冠閎 蝶式代表卡片 -->
                     <div style="border:1px solid #27272A; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
-                        <img src="/static/guide/guide_step1_wang_cards.png" alt="王冠閎單人查詢真實卡片" style="width:100%; height:auto; display:block;" />
+                        <img src="/static/guide/guide_step1_wang_butterfly_card.png" alt="王冠閎蝶式真實代表卡片" style="width:100%; height:auto; display:block;" />
                     </div>
                 `
             },
             {
                 badge: "步驟 02 · 核心互動",
-                icon: "👆",
-                title: "點擊下彈展開功能大全 (按哪裡展開什麼？)",
+                icon: "📈",
+                title: "點擊下彈功能：Trend Chart 趨勢圖 與 歷次參賽明細",
                 subtitle: "卡片上每一個帶底線數據皆可點擊下彈拓展，查看真實趨勢折線圖與參賽歷史每一筆明細",
                 bullets: [
-                    "<b>👉 按下「項目距離」(如 100m / 200m)</b>：<br>&nbsp;&nbsp;➔ 立即於卡片下方<b>展開歷年成長曲線 (Trend Chart) 真實折線圖</b>！真實連結歷年每一場賽事秒數，並附帶「# 選擇同齡對手」與「# 選擇全國對手」下拉選單進行雙人疊加比較！",
-                    "<b>👉 按下「參加幾場」(如 2場 / 3場 / 35場)</b>：<br>&nbsp;&nbsp;➔ 立即於卡片下方<b>展開歷次參賽歷史每一筆詳細明細</b>！逐筆列出每一次比賽的確切日期、大會賽事名稱、成績秒數、組別與得獎名次備註！"
+                    "<b>👉 按下「項目距離」(如 50m / 100m / 200m)</b>：<br>&nbsp;&nbsp;➔ 立即於卡片下方<b>展開歷年成長曲線 (Trend Chart) 真實折線圖</b>！真實連結歷年每一場賽事秒數，並附帶「# 選擇同齡對手」與「# 選擇全國對手」下拉選單進行雙人曲線疊加比較！支援手機雙指縮放與拖曳！",
+                    "<b>👉 按下「參加幾場」(如 31場 / 41場 / 40場)</b>：<br>&nbsp;&nbsp;➔ 立即於卡片下方<b>展開歷次參賽歷史每一筆詳細明細大表</b>！逐筆列出每一次比賽的確切日期、大會賽事名稱、成績秒數、組別與得獎名次備註！"
                 ],
                 previewHtml: `
                     <!-- 點擊觸發指引示範 -->
                     <div style="background:#09090B; border:1px solid #38383A; border-radius:12px; padding:12px; margin-bottom:12px;">
-                        <div style="font-size:12px; font-weight:800; color:#D4AF37; margin-bottom:8px;">🎯 互動點擊指南（直接點擊卡片上帶底線文字）：</div>
+                        <div style="font-size:12px; font-weight:800; color:#D4AF37; margin-bottom:8px;">🎯 互動點擊指南（直接點擊蝶式卡片上帶底線文字）：</div>
                         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; background:#1C1C1E; padding:10px 14px; border-radius:8px; border:0.5px solid #38383A;">
                             <div style="display:flex; align-items:center; gap:6px;">
-                                <span style="font-weight:900; color:#38BDF8; text-decoration:underline; font-size:14px; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px; border:1px dashed #38BDF8;">100m</span>
+                                <span style="font-weight:900; color:#38BDF8; text-decoration:underline; font-size:14px; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px; border:1px dashed #38BDF8;">50m</span>
                                 <span style="font-size:11px; color:#38BDF8; font-weight:700;">👈 按距離：展開真實 Trend Chart 折線圖！</span>
                             </div>
                             <div style="display:flex; align-items:center; gap:6px;">
-                                <span style="font-weight:900; color:#30D158; text-decoration:underline; font-size:14px; background:rgba(48,209,88,0.15); padding:2px 6px; border-radius:4px; border:1px dashed #30D158;">2場</span>
-                                <span style="font-size:11px; color:#30D158; font-weight:700;">👈 按場次：展開 每一筆參賽歷史明細！</span>
+                                <span style="font-weight:900; color:#30D158; text-decoration:underline; font-size:14px; background:rgba(48,209,88,0.15); padding:2px 6px; border-radius:4px; border:1px dashed #30D158;">31場</span>
+                                <span style="font-size:11px; color:#30D158; font-weight:700;">👈 按場次：展開 歷次出賽每一筆明細！</span>
                             </div>
                         </div>
                     </div>
@@ -2775,42 +2776,68 @@
                     <!-- 100% 真實展開效果 A: Trend Chart 折線圖 -->
                     <div style="margin-bottom:12px; border:1px solid #0A84FF; border-radius:14px; overflow:hidden;">
                         <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
-                            <span style="font-size:12px; font-weight:800; color:#38BDF8;">📈 真實系統渲染：王冠閎 100m 歷年趨勢圖與成長對比圖</span>
+                            <span style="font-size:12px; font-weight:800; color:#38BDF8;">📈 真實系統渲染：王冠閎 50m 蝶式歷年趨勢圖與成長對比圖</span>
                             <span style="font-size:10px; color:#A1A1AA;">包含對手下拉選單與版本流水號</span>
                         </div>
-                        <img src="/static/guide/guide_step2_wang_trend_chart.png" alt="真實 Trend Chart 折線圖" style="width:100%; height:auto; display:block;" />
+                        <img src="/static/guide/guide_step2_wang_butterfly_trend.png" alt="真實 Trend Chart 折線圖" style="width:100%; height:auto; display:block;" />
                     </div>
 
                     <!-- 100% 真實展開效果 B: 參賽歷史每一筆明細大表 -->
                     <div style="border:1px solid #30D158; border-radius:14px; overflow:hidden;">
                         <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
-                            <span style="font-size:12px; font-weight:800; color:#30D158;">📋 真實系統渲染：王冠閎 歷次參賽每一筆明細大表</span>
-                            <span style="font-size:10px; color:#A1A1AA;">逐筆列出日期、秒數與賽事</span>
+                            <span style="font-size:12px; font-weight:800; color:#30D158;">📋 真實系統渲染：王冠閎 50m 蝶式歷次參賽每一筆明細大表 (31場全記錄)</span>
+                            <span style="font-size:10px; color:#A1A1AA;">逐筆列出日期、秒數與賽事名稱</span>
                         </div>
-                        <img src="/static/guide/guide_step2_wang_history_list.png" alt="真實參賽歷史明細" style="width:100%; height:auto; display:block;" />
+                        <img src="/static/guide/guide_step2_wang_butterfly_history.png" alt="真實參賽歷史明細" style="width:100%; height:auto; display:block;" />
                     </div>
                 `
             },
             {
-                badge: "步驟 03 · 戰力名冊",
-                icon: "👥",
-                title: "按下「同年齡排行」展開同齡戰力名冊",
-                subtitle: "下彈展開全台同出生年選手排名，頂部一鍵切換年次提前預覽升組對手",
+                badge: "步驟 03 · 深度數據",
+                icon: "🏆",
+                title: "同齡排行、年度最佳矩陣 與 全國排行頂尖榜",
+                subtitle: "下彈展開同齡名冊、跨組別年度霸主矩陣，以及全台灣不分年齡頂尖排行榜",
                 bullets: [
-                    "<b>👉 按下「同年齡排行 (如 同齡排行#8)」</b>：<br>&nbsp;&nbsp;➔ 立即於卡片下方<b>展開全台該出生年所有選手戰力名冊真實大表</b>！完整列出各選手排名、出生年、姓名、成績秒數、WA積分、比賽日期與賽事全稱！",
-                    "<b>跨年次升組快速切換 (教練/家長必備)</b>：<br>&nbsp;&nbsp;➔ 大表頂部特別打造年次切換功能，可隨時左右查看相鄰年次選手水平！",
-                    "<b>全台競爭水準與百分位</b>：大表底部精確揭露全台總人數與該選手排名百分位 (如 <code>共 113 位選手，王冠閎 排名百分位 93.8%</code>)！"
+                    "<b>👉 按下「同齡排行 (如 同齡排行#1)」</b>：<br>&nbsp;&nbsp;➔ 立即展開<b>全台同出生年選手戰力名冊真實大表</b>！頂部附帶年次快速切換（‹ 2001 | 2002 | 2003 ›），底部精確揭露全台總人數與百分位（如 <code>共 179 位選手，王冠閎 排名百分位 100.0%</code>）！",
+                    "<b>👉 按下「年度最佳」</b>：<br>&nbsp;&nbsp;➔ 立即展開<b>歷年【年度最佳矩陣】大表</b>！橫向完整比對「18以上、高中、國中、國小高年級、中年級、低年級」各組歷年霸主與 All-Time 歷史最佳成績，縱覽各年齡層年度標竿！",
+                    "<b>👉 按下「全國排行 (如 全國排行#1)」</b>：<br>&nbsp;&nbsp;➔ 立即展開<b>「全國排行 (2025-2026)」全台頂尖 30 強總榜大表</b>！不分年齡匯聚全台灣最頂尖選手，即時揭露王冠閎與全國競爭者的勝負與秒差（如 <code>#1 王冠閎 24.00 全大運 · 共 3,194 位選手 百分位 100.0%</code>）！"
                 ],
                 previewHtml: `
                     <!-- 點擊觸發指引 -->
-                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; background:rgba(255,215,0,0.08); padding:8px 12px; border-radius:8px; border:1px dashed #D4AF37;">
-                        <span style="color:#FFD700; font-weight:900; font-size:13px; text-decoration:underline;">🏅 同齡排行#8 (PR 93.8%)</span>
-                        <span style="font-size:12px; color:#D4AF37; font-weight:700;">👈 按此排行標籤，立即展開真實同齡戰力名冊：</span>
+                    <div style="background:#09090B; border:1px solid #38383A; border-radius:12px; padding:12px; margin-bottom:12px;">
+                        <div style="font-size:12px; font-weight:800; color:#D4AF37; margin-bottom:8px;">🎯 三大深度榜單點擊按鈕（點擊卡片對應文字下彈）：</div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; background:#1C1C1E; padding:8px 12px; border-radius:8px;">
+                            <span style="font-weight:900; color:#FFD700; text-decoration:underline; font-size:13px; background:rgba(255,215,0,0.15); padding:2px 6px; border-radius:4px;">同齡排行#1</span>
+                            <span style="font-weight:900; color:#30D158; text-decoration:underline; font-size:13px; background:rgba(48,209,88,0.15); padding:2px 6px; border-radius:4px;">年度最佳</span>
+                            <span style="font-weight:900; color:#38BDF8; text-decoration:underline; font-size:13px; background:rgba(56,189,248,0.15); padding:2px 6px; border-radius:4px;">全國排行#1</span>
+                        </div>
                     </div>
 
-                    <!-- 100% 真實展開名冊大表特寫截圖 -->
-                    <div style="border:1px solid #27272A; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
-                        <img src="/static/guide/guide_step3_wang_age_roster.png" alt="真實同齡戰力名冊" style="width:100%; height:auto; display:block;" />
+                    <!-- 100% 真實功能 A: 同齡戰力名冊大表 -->
+                    <div style="margin-bottom:12px; border:1px solid #FFD700; border-radius:14px; overflow:hidden;">
+                        <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:#FFD700;">🏅 功能 A：同齡戰力名冊大表 (按「同齡排行」展開)</span>
+                            <span style="font-size:10px; color:#A1A1AA;">2002年次全台名冊與百分位</span>
+                        </div>
+                        <img src="/static/guide/guide_step3_wang_butterfly_age_roster.png" alt="真實同齡戰力名冊" style="width:100%; height:auto; display:block;" />
+                    </div>
+
+                    <!-- 100% 真實功能 B: 歷年【年度最佳】矩陣大表 -->
+                    <div style="margin-bottom:12px; border:1px solid #30D158; border-radius:14px; overflow:hidden;">
+                        <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:#30D158;">📊 功能 B：歷年【年度最佳矩陣】大表 (按「年度最佳」展開)</span>
+                            <span style="font-size:10px; color:#A1A1AA;">18以上/高中/國中/國小歷年霸主</span>
+                        </div>
+                        <img src="/static/guide/guide_step3_wang_butterfly_yearly_matrix.png" alt="真實年度最佳矩陣大表" style="width:100%; height:auto; display:block;" />
+                    </div>
+
+                    <!-- 100% 真實功能 C: 【全國排行】頂尖 30 強大表 -->
+                    <div style="border:1px solid #38BDF8; border-radius:14px; overflow:hidden;">
+                        <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
+                            <span style="font-size:12px; font-weight:800; color:#38BDF8;">🏆 功能 C：【全國排行】全台頂尖名冊 (按「全國排行」展開)</span>
+                            <span style="font-size:10px; color:#A1A1AA;">不分年齡 3,194位選手總榜前30強</span>
+                        </div>
+                        <img src="/static/guide/guide_step3_wang_butterfly_nat_rank.png" alt="真實全國排行前30強大表" style="width:100%; height:auto; display:block;" />
                     </div>
                 `
             },
@@ -2821,7 +2848,7 @@
                 subtitle: "輸入多位選手姓名，即刻啟動真實成績並排對決、PB秒差計算與雙軸 Trend Chart",
                 bullets: [
                     "<b>輸入範例（請見上方示範框）</b>：在搜尋框鍵入 <code>王冠閎;王星皓;韓安齊</code>（多位選手以分號 <code>;</code> 或空格分隔皆可），點擊查詢即刻開啟多人橫向對決儀表板！",
-                    "<b>真實系統對決數據呈現</b>：橫向自動比對各選手 PB，自動計算並標註領先/落後秒差（如 <code>王冠閎 100m 1:01.55 (+3.97s)</code>、<code>王星皓 57.58</code>、<code>韓安齊 1:04.26 (+6.68s)</code>）。",
+                    "<b>真實系統對決數據呈現</b>：橫向自動比對各選手 PB，自動計算並標註領先/落後秒差（如 <code>王星皓 57.58</code>、<code>王冠閎 1:01.55 (+3.97s)</code>、<code>韓安齊 1:04.26 (+6.68s)</code>）。",
                     "<b>多人同圖雙軸 Trend Chart</b>：將多名選手的歷年成長曲線直接疊加在同一張圖表中！",
                     "<b>雙重維度切換開關</b>：",
                     "&nbsp;&nbsp;• <b>「🎂 同年齡歲數對齊 (Age-aligned)」</b>：將橫軸對齊為選手真實歲數（如比對大家都在 14 歲、18 歲時誰更具爆發力），跨越出生年限制！",
@@ -3031,6 +3058,45 @@
                 prevGuideStep();
             }
         });
+
+        // ═════════════════════════════════════════════════════════════════════════
+        // 📱 大仁哥專屬功能：手機觸控滑動手勢支援 (Touch Swipe Support)
+        // 支援向左滑切換到下一步 (Next)，向右滑切換到上一步 (Prev)
+        // ═════════════════════════════════════════════════════════════════════════
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        const guideCardElement = document.getElementById('userGuideCard');
+        if (guideCardElement) {
+            guideCardElement.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
+
+            guideCardElement.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                touchEndY = e.changedTouches[0].screenY;
+                handleGuideSwipeGesture();
+            }, { passive: true });
+        }
+
+        function handleGuideSwipeGesture() {
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+
+            // 水平滑動距離必須大於 45px，且水平位移需大於垂直位移（避免與內容上下滾動衝突）
+            if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX < 0) {
+                    // 向左滑動 ➔ 下一個功能
+                    nextGuideStep();
+                } else {
+                    // 向右滑動 ➔ 上一個功能
+                    prevGuideStep();
+                }
+            }
+        }
 
         // 頁面加載完成（大仁哥指示：不自動彈出，註解自動呼叫）
         // window.addEventListener('DOMContentLoaded', () => {
