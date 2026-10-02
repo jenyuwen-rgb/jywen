@@ -44,8 +44,11 @@
         .col-8code-fixed { width: 105px; flex-shrink: 0; font-family: monospace; margin-right: 15px; }
         .col-meet-fixed { flex: 1; overflow: hidden; text-overflow: ellipsis; padding-left: 10px; }
 
-        .rank-header-AD { display: flex; justify-content: center; align-items: center; background: #2C2C2E; padding: 10px; border-radius: 12px; margin-bottom: 15px; gap: 20px; border: 0.5px solid #444; }
-        .year-side { color: #666; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .rank-header-AD { display: flex; justify-content: center; align-items: center; background: #1C1C1E; padding: 10px 16px; border-radius: 12px; margin-bottom: 15px; gap: 16px; border: 0.5px solid #38383A; }
+        .year-btn { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 9999px; padding: 5px 14px; color: #D4AF37; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .year-btn:hover { background: rgba(212, 175, 55, 0.2); border-color: #D4AF37; color: #FFF; transform: translateY(-1px); }
+        .year-btn:active { transform: scale(0.96); }
+        .year-side { color: #A1A1AA; font-size: 13px; cursor: pointer; transition: 0.2s; }
         .year-side:hover { color: #D4AF37; }
         .year-center { background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; font-size: 18px; display: inline-block; }
         .year-center::after { content: "年出生 排行"; color: #8E8E93; font-size: 12px; font-weight: normal; margin-left: 4px; }
@@ -1443,7 +1446,11 @@
                 let headerAD = "";
                 if (mode === 'rank') {
                     const yNum = parseInt(String(p2).replace(/\D/g, ''));
-                    headerAD = `<div class="rank-header-AD"><span class="year-side" onclick="event.stopPropagation(); toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum-1}','${p3}')">${toAD(yNum-1)}</span><span class="year-center">${adYear}</span><span class="year-side" onclick="event.stopPropagation(); toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum+1}','${p3}')">${toAD(yNum+1)}</span></div>`;
+                    headerAD = `<div class="rank-header-AD">
+                        <button class="year-btn" onclick="event.stopPropagation(); toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum-1}','${p3}')">‹ 前一年 (${toAD(yNum-1)})</button>
+                        <span class="year-center">${adYear}</span>
+                        <button class="year-btn" onclick="event.stopPropagation(); toggleD('${id}','rank','${dist}','${stroke}','${p1}','${yNum+1}','${p3}')">(${toAD(yNum+1)}) 後一年 ›</button>
+                    </div>`;
                 } else {
                     headerAD = `<div class="rank-header-AD"><span class="year-center" style="color:#FFF;">全國排行 (2025-2026)</span></div>`;
                 }
@@ -2011,6 +2018,112 @@
             return null;
         }
 
+        // ── 得獎模擬：決賽 8 強名冊 Apple 磨砂 Tooltip ──
+        window.showPodiumRoster = function(e, el, isClick) {
+            if (e) e.stopPropagation();
+            let tt = document.getElementById('podiumRosterTooltip');
+            if (!tt) {
+                tt = document.createElement('div');
+                tt.id = 'podiumRosterTooltip';
+                tt.style.position = 'fixed';
+                tt.style.zIndex = '999999';
+                tt.style.width = '300px';
+                tt.style.maxWidth = '92vw';
+                tt.style.background = 'rgba(24, 24, 27, 0.96)';
+                tt.style.backdropFilter = 'blur(20px)';
+                tt.style.webkitBackdropFilter = 'blur(20px)';
+                tt.style.border = '1px solid rgba(255, 255, 255, 0.18)';
+                tt.style.borderRadius = '14px';
+                tt.style.boxShadow = '0 16px 40px rgba(0, 0, 0, 0.65)';
+                tt.style.padding = '12px 14px';
+                tt.style.pointerEvents = 'auto';
+                tt.style.fontSize = '12px';
+                tt.style.color = '#FFF';
+                tt.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
+                document.body.appendChild(tt);
+
+                document.addEventListener('click', function(ev) {
+                    if (tt && tt.style.display !== 'none' && !tt.contains(ev.target)) {
+                        tt.style.opacity = '0';
+                        tt.style.transform = 'translateY(4px)';
+                        setTimeout(() => { tt.style.display = 'none'; }, 150);
+                    }
+                });
+            }
+
+            const rawRoster = el.getAttribute('data-roster');
+            const title = el.getAttribute('data-title') || '8 強名冊';
+            const highlightName = el.getAttribute('data-swimmer') || '';
+            if (!rawRoster) return;
+
+            let roster = [];
+            try { roster = JSON.parse(rawRoster); } catch(err) { return; }
+            if (!roster || roster.length === 0) return;
+
+            let listHtml = roster.map((item, idx) => {
+                const rankNum = item.rank || (idx + 1);
+                let badge = `${rankNum}.`;
+                let rankColor = '#8E8E93';
+                if (rankNum === 1) { badge = '🥇'; rankColor = '#FFD700'; }
+                else if (rankNum === 2) { badge = '🥈'; rankColor = '#C0C0C0'; }
+                else if (rankNum === 3) { badge = '🥉'; rankColor = '#CD7F32'; }
+
+                const isMe = (highlightName && item.name === highlightName);
+                const bgStyle = isMe ? 'background:rgba(10,132,255,0.2); border-radius:6px; font-weight:800;' : '';
+                const nameColor = isMe ? '#64D2FF' : '#FFF';
+                const byInfo = item.birth_year ? `<span style="font-size:10px; color:#8E8E93; margin-left:4px;">(${item.birth_year}年次)</span>` : '';
+
+                return `
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:3px 6px; ${bgStyle}">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-family:monospace; font-weight:700; color:${rankColor}; width:18px; text-align:center;">${badge}</span>
+                            <span style="color:${nameColor}; font-weight:600;">${item.name || '選手'}</span>
+                            ${byInfo}
+                        </div>
+                        <div style="font-family:monospace; font-size:11px; font-weight:700; color:#E5E5EA;">${item.time_str || '-'}</div>
+                    </div>
+                `;
+            }).join('');
+
+            tt.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:0.5px solid rgba(255,255,255,0.15); padding-bottom:6px; margin-bottom:8px;">
+                    <div style="font-weight:800; font-size:12px; color:#F2F2F7; display:flex; align-items:center; gap:6px;">
+                        <span>📋</span>
+                        <span>${title}</span>
+                    </div>
+                    <span style="font-size:10px; color:#8E8E93; cursor:pointer;" onclick="window.hidePodiumRoster()">✕ 關閉</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:2px; max-height:260px; overflow-y:auto;">
+                    ${listHtml}
+                </div>
+            `;
+
+            tt.style.display = 'block';
+            const rect = el.getBoundingClientRect();
+            let left = rect.left + window.scrollX + (rect.width / 2) - 150;
+            let top = rect.bottom + window.scrollY + 8;
+
+            if (left < 10) left = 10;
+            if (left + 310 > window.innerWidth) left = window.innerWidth - 315;
+            if (rect.bottom + 260 > window.innerHeight) {
+                top = rect.top + window.scrollY - 250;
+            }
+
+            tt.style.left = `${left}px`;
+            tt.style.top = `${top}px`;
+            tt.style.opacity = '1';
+            tt.style.transform = 'translateY(0)';
+        };
+
+        window.hidePodiumRoster = function() {
+            const tt = document.getElementById('podiumRosterTooltip');
+            if (tt) {
+                tt.style.opacity = '0';
+                tt.style.transform = 'translateY(4px)';
+                setTimeout(() => { tt.style.display = 'none'; }, 150);
+            }
+        };
+
         async function doPodiumSimulation(swimmerName, forcedBirthYear, forcedSex, forcedMeetId) {
             if (!worker) return;
             const loader = document.getElementById('queryLoader');
@@ -2294,20 +2407,41 @@
                         const first = cellData.first;
                         const third = cellData.third;
                         const eighth = cellData.eighth;
+                        const prelimEighth = cellData.prelim_eighth || eighth;
+                        const finalRoster = cellData.final_roster || [];
                         const topSecs = cellData.top_secs || [];
+                        const rosterJson = JSON.stringify(finalRoster).replace(/"/g, '&quot;');
+                        const ttTitle = `${toTwYear(yr)}年 (${yr}) ${targetMeet.short} · 決賽 8 強名冊`;
 
                         let rankHtml = '';
                         if (!swimmerSec) {
                             rankHtml = `<div style="font-size:10px; color:#636366; margin-top:3px;">(選手無PB)</div>`;
+                        } else if (prelimEighth && swimmerSec > prelimEighth.sec) {
+                            // 未晉級決賽 (門檻為預賽第 8 名)
+                            const diffPrelim = (swimmerSec - prelimEighth.sec).toFixed(2);
+                            rankHtml = `
+                                <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,69,58,0.3); transition:all 0.15s ease;"
+                                     data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}"
+                                     onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                     title="點擊或懸浮查看決賽 8 強名冊">
+                                    🔴 未進決賽 📋
+                                </div>
+                                <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距預賽第8名 +${diffPrelim}s</div>
+                            `;
                         } else {
+                            // 晉級決賽，以決賽成績進行排名
                             const fasterCount = topSecs.filter(s => s < swimmerSec).length;
                             let predictedRank = fasterCount + 1;
+                            if (predictedRank > 8) predictedRank = 8;
 
                             if (swimmerSec < first.sec) {
                                 const diff = (first.sec - swimmerSec).toFixed(2);
                                 rankHtml = `
-                                    <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:2px 6px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.3);">
-                                        🥇 預估第 1 名 (金牌)
+                                    <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.35); transition:all 0.15s ease;"
+                                         data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         title="點擊或懸浮查看決賽 8 強名冊">
+                                        🥇 預估第 1 名 (金牌) 📋
                                     </div>
                                     <div style="font-size:10px; color:#FFD700; margin-top:2px;">領先金牌 -${diff}s</div>
                                 `;
@@ -2318,40 +2452,125 @@
                                 const medalColor = medalRank === 2 ? '#C0C0C0' : '#CD7F32';
                                 const diff = (swimmerSec - first.sec).toFixed(2);
                                 rankHtml = `
-                                    <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:${medalColor}; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:6px; margin-top:4px; border:0.5px solid ${medalColor};">
-                                        ${medalEmoji} 預估第 ${medalRank} 名 (${medalTitle})
+                                    <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:${medalColor}; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid ${medalColor}; transition:all 0.15s ease;"
+                                         data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         title="點擊或懸浮查看決賽 8 強名冊">
+                                        ${medalEmoji} 預估第 ${medalRank} 名 (${medalTitle}) 📋
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距金牌 +${diff}s</div>
                                 `;
-                            } else if (eighth && swimmerSec <= eighth.sec) {
-                                const rankDisplay = predictedRank > 8 ? 8 : predictedRank;
+                            } else {
                                 const diffThird = third ? (swimmerSec - third.sec).toFixed(2) : '0.00';
                                 rankHtml = `
-                                    <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:2px 6px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(48,209,88,0.25);">
-                                        🔵 預估第 ${rankDisplay} 名
+                                    <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(48,209,88,0.3); transition:all 0.15s ease;"
+                                         data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         title="點擊或懸浮查看決賽 8 強名冊">
+                                        🔵 預估第 ${predictedRank} 名 📋
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距頒獎台 +${diffThird}s</div>
-                                `;
-                            } else {
-                                const diffEighth = eighth ? (swimmerSec - eighth.sec).toFixed(2) : '+0.00';
-                                rankHtml = `
-                                    <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:2px 6px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,69,58,0.25);">
-                                        🔴 未進決賽
-                                    </div>
-                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距第8名 +${diffEighth}s</div>
                                 `;
                             }
                         }
 
                         return `
                             <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E;">
-                                <div style="font-family:monospace; font-size:11px; color:#FFD700; font-weight:700;">🥇 ${first.time_str}</div>
-                                ${third ? `<div style="font-family:monospace; font-size:11px; color:#CD7F32; margin-top:2px;">🥉 ${third.time_str}</div>` : ''}
-                                ${eighth ? `<div style="font-family:monospace; font-size:11px; color:#8E8E93; margin-top:2px;">🎖️ ${eighth.time_str}</div>` : ''}
+                                <div style="font-family:monospace; font-size:11px; color:#FFD700; font-weight:700;">🥇 ${first.name ? first.name + ' ' : ''}${first.time_str}</div>
+                                ${third ? `<div style="font-family:monospace; font-size:11px; color:#CD7F32; margin-top:2px;">🥉 ${third.name ? third.name + ' ' : ''}${third.time_str}</div>` : ''}
+                                ${prelimEighth ? `<div style="font-family:monospace; font-size:11px; color:#8E8E93; margin-top:2px;" title="預賽晉級門檻 (第8名)">🎖️ 預賽門檻: ${prelimEighth.time_str}</div>` : (eighth ? `<div style="font-family:monospace; font-size:11px; color:#8E8E93; margin-top:2px;">🎖️ 第8名: ${eighth.time_str}</div>` : '')}
                                 ${rankHtml}
                             </td>
                         `;
                     }).join('');
+
+                    // ── 🔮 2027 下屆大賽預估儲存格 ──
+                    const f27 = targetMeet.future_2027 && targetMeet.future_2027[sex] && targetMeet.future_2027[sex][division] && targetMeet.future_2027[sex][division][eventName];
+                    let f27CellHtml = '';
+
+                    if (!f27 || !f27.first) {
+                        f27CellHtml = `
+                            <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E; background:rgba(167,139,250,0.03); border-left:1px solid rgba(167,139,250,0.25);">
+                                <div style="color:#636366; font-size:12px;">-</div>
+                                <div style="font-size:10px; color:#48484A; margin-top:2px;">無預估模型</div>
+                            </td>
+                        `;
+                    } else {
+                        const fFirst = f27.first;
+                        const fThird = f27.third;
+                        const fEighth = f27.eighth;
+                        const fRoster = f27.roster || [];
+                        const fTopSecs = f27.top_secs || [];
+                        const fRosterJson = JSON.stringify(fRoster).replace(/"/g, '&quot;');
+                        const fTtTitle = `2027 ${targetMeet.short} · 現役潛在 8 強名冊`;
+
+                        let fRankHtml = '';
+                        if (!swimmerSec) {
+                            fRankHtml = `<div style="font-size:10px; color:#636366; margin-top:3px;">(選手無PB)</div>`;
+                        } else {
+                            const fasterCount = fTopSecs.filter(s => s < swimmerSec).length;
+                            let predictedRank = fasterCount + 1;
+
+                            if (swimmerSec < fFirst.sec) {
+                                const diff = (fFirst.sec - swimmerSec).toFixed(2);
+                                fRankHtml = `
+                                    <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.35); transition:all 0.15s ease;"
+                                         data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         title="點擊或懸浮查看 2027 潛在 8 強名冊">
+                                        🥇 預估第 1 名 (金牌) 📋
+                                    </div>
+                                    <div style="font-size:10px; color:#FFD700; margin-top:2px;">領先金牌 -${diff}s</div>
+                                `;
+                            } else if (fThird && swimmerSec <= fThird.sec) {
+                                const medalRank = predictedRank <= 2 ? 2 : 3;
+                                const medalEmoji = medalRank === 2 ? '🥈' : '🥉';
+                                const medalTitle = medalRank === 2 ? '銀牌' : '銅牌';
+                                const medalColor = medalRank === 2 ? '#C0C0C0' : '#CD7F32';
+                                const diff = (swimmerSec - fFirst.sec).toFixed(2);
+                                fRankHtml = `
+                                    <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:${medalColor}; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid ${medalColor}; transition:all 0.15s ease;"
+                                         data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         title="點擊或懸浮查看 2027 潛在 8 強名冊">
+                                        ${medalEmoji} 預估第 ${medalRank} 名 (${medalTitle}) 📋
+                                    </div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距金牌 +${diff}s</div>
+                                `;
+                            } else if (fEighth && swimmerSec <= fEighth.sec) {
+                                const diffThird = fThird ? (swimmerSec - fThird.sec).toFixed(2) : '0.00';
+                                fRankHtml = `
+                                    <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(48,209,88,0.3); transition:all 0.15s ease;"
+                                         data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         title="點擊或懸浮查看 2027 潛在 8 強名冊">
+                                        🔵 預估第 ${predictedRank} 名 📋
+                                    </div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距頒獎台 +${diffThird}s</div>
+                                `;
+                            } else {
+                                const diffEighth = fEighth ? (swimmerSec - fEighth.sec).toFixed(2) : '0.00';
+                                fRankHtml = `
+                                    <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,69,58,0.3); transition:all 0.15s ease;"
+                                         data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         title="點擊或懸浮查看 2027 潛在 8 強名冊">
+                                        🔴 未進前 8 名 📋
+                                    </div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距第8名 +${diffEighth}s</div>
+                                `;
+                            }
+                        }
+
+                        f27CellHtml = `
+                            <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E; background:rgba(167,139,250,0.04); border-left:1px solid rgba(167,139,250,0.25);">
+                                <div style="font-family:monospace; font-size:11px; color:#FFD700; font-weight:700;">🥇 ${fFirst.name ? fFirst.name + ' ' : ''}${fFirst.time_str}</div>
+                                ${fThird ? `<div style="font-family:monospace; font-size:11px; color:#CD7F32; margin-top:2px;">🥉 ${fThird.name ? fThird.name + ' ' : ''}${fThird.time_str}</div>` : ''}
+                                ${fEighth ? `<div style="font-family:monospace; font-size:11px; color:#A78BFA; margin-top:2px;" title="現役第8名PB">🎖️ 門檻: ${fEighth.time_str}</div>` : ''}
+                                ${fRankHtml}
+                            </td>
+                        `;
+                    }
 
                     rowsHtml += `
                         <tr style="transition:background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
@@ -2366,6 +2585,7 @@
                                 ` : ''}
                             </td>
                             ${yearCellsHtml}
+                            ${f27CellHtml}
                         </tr>
                     `;
                 });
@@ -2384,7 +2604,7 @@
                         </div>
                     </div>
                     <div style="width:100%; overflow-x:auto;">
-                        <table style="width:100%; min-width:820px; border-collapse:collapse;">
+                        <table style="width:100%; min-width:960px; border-collapse:collapse;">
                             <thead>
                                 <tr style="border-bottom:1px solid #38383A; background:rgba(255,255,255,0.02);">
                                     <th style="padding:8px 12px; text-align:left; font-size:12px; color:#8E8E93; width:120px;">項目</th>
@@ -2395,6 +2615,10 @@
                                             <div style="font-size:10px; color:#8E8E93; margin-top:2px;">${targetMeet.short}</div>
                                         </th>
                                     `).join('')}
+                                    <th style="padding:8px 8px; text-align:center; font-size:12px; color:#A78BFA; background:rgba(167,139,250,0.08); border-left:1px solid rgba(167,139,250,0.3); width:170px;">
+                                        <div style="font-weight:800;">🔮 2027 下屆預估</div>
+                                        <div style="font-size:10px; color:#C4B5FD; margin-top:2px;">現役潛在對手榜</div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2800,7 +3024,7 @@
                 title: "同齡排行、年度最佳矩陣 與 全國排行頂尖榜",
                 subtitle: "下彈展開同齡名冊、跨組別年度霸主矩陣，以及全台灣不分年齡頂尖排行榜",
                 bullets: [
-                    "<b>👉 按下「同齡排行 (如 同齡排行#1)」</b>：<br>&nbsp;&nbsp;➔ 立即展開<b>全台同出生年選手戰力名冊真實大表</b>！頂部附帶年次快速切換（‹ 2001 | 2002 | 2003 ›），底部精確揭露全台總人數與百分位（如 <code>共 179 位選手，王冠閎 排名百分位 100.0%</code>）！",
+                    "<b>👉 按下「同齡排行 (如 同齡排行#1)」</b>：<br>&nbsp;&nbsp;➔ 立即展開<b>全台同出生年選手戰力名冊真實大表</b>！<br>&nbsp;&nbsp;• <b>醒目出生年</b>：中央金色顯著標示選手出生年次（如 <code>2002 年出生 排行</code>）。<br>&nbsp;&nbsp;• <b>跨年次「前一年 / 後一年」切換功能</b>：左右兩側特別設計 <code>‹ 前一年 (2001)</code> 與 <code>(2003) 後一年 ›</code> 膠囊按鈕，點擊瞬間切換名冊，可提前檢視升組挑戰高年級對手的戰力分布，或檢視後一年級追趕者的實力水準！<br>&nbsp;&nbsp;• <b>底部統計與百分位</b>：精確揭露全台同齡總人數與 PR 值（如 <code>共 179 位選手，王冠閎 排名百分位 100.0%</code>）！",
                     "<b>👉 按下「年度最佳」</b>：<br>&nbsp;&nbsp;➔ 立即展開<b>歷年【年度最佳矩陣】大表</b>！橫向完整比對「18以上、高中、國中、國小高年級、中年級、低年級」各組歷年霸主與 All-Time 歷史最佳成績，縱覽各年齡層年度標竿！",
                     "<b>👉 按下「全國排行 (如 全國排行#1)」</b>：<br>&nbsp;&nbsp;➔ 立即展開<b>「全國排行 (2025-2026)」全台頂尖 30 強總榜大表</b>！不分年齡匯聚全台灣最頂尖選手，即時揭露王冠閎與全國競爭者的勝負與秒差（如 <code>#1 王冠閎 24.00 全大運 · 共 3,194 位選手 百分位 100.0%</code>）！"
                 ],
@@ -2815,13 +3039,67 @@
                         </div>
                     </div>
 
-                    <!-- 100% 真實功能 A: 同齡戰力名冊大表 -->
-                    <div style="margin-bottom:12px; border:1px solid #FFD700; border-radius:14px; overflow:hidden;">
+                    <!-- 100% 真實功能 A: 同齡戰力名冊大表 (含切換動畫與前一年/後一年互動切換) -->
+                    <div style="margin-bottom:12px; border:1px solid #FFD700; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
                         <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
-                            <span style="font-size:12px; font-weight:800; color:#FFD700;">🏅 功能 A：同齡戰力名冊大表 (按「同齡排行」展開)</span>
-                            <span style="font-size:10px; color:#A1A1AA;">2002年次全台名冊與百分位</span>
+                            <span style="font-size:12px; font-weight:800; color:#FFD700;">🏅 功能 A：同齡戰力名冊大表（支援「出生年」與「前一年 / 後一年」切換動畫）</span>
+                            <span style="font-size:10px; color:#A1A1AA;">2001 ‹ 2002 (王冠閎) › 2003</span>
                         </div>
-                        <img src="/static/guide/guide_step3_wang_butterfly_age_roster.png" alt="真實同齡戰力名冊" style="width:100%; height:auto; display:block;" />
+                        
+                        <!-- 真實年次切換控制器導航列 -->
+                        <div class="rank-header-AD" style="margin:0; border-radius:0; border:none; border-bottom:1px solid #27272A; background:#18181B; padding:10px 14px; display:flex; justify-content:center; align-items:center; gap:16px;">
+                            <button id="guideYearBtnPrev" class="year-btn" onclick="switchGuideRoster('2001')">‹ 前一年 (2001)</button>
+                            <div style="text-align:center;">
+                                <span id="guideYearCenterText" class="year-center" style="font-size:18px;">2002</span>
+                                <div id="guideYearSubtag" style="font-size:11px; color:#FFD700; font-weight:700; margin-top:2px;">★ 王冠閎 本人生年 (榜首 #1 🥇)</div>
+                            </div>
+                            <button id="guideYearBtnNext" class="year-btn" onclick="switchGuideRoster('2003')">(2003) 後一年 ›</button>
+                        </div>
+
+                        <!-- 動畫切換提示燈號 -->
+                        <div style="padding:6px 14px; background:rgba(212,175,55,0.08); border-bottom:0.5px solid rgba(212,175,55,0.2); display:flex; justify-content:space-between; align-items:center; font-size:11px;">
+                            <span id="guideAnimBadge" style="color:#FFD700; font-weight:700; display:flex; align-items:center; gap:6px;">
+                                <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#30D158; box-shadow:0 0 8px #30D158;"></span>
+                                動態切換動畫播放中：已切換至 <b>2002 年次</b>
+                            </span>
+                            <span style="color:#8E8E93;">王冠閎 · 50m 蝶式</span>
+                        </div>
+
+                        <!-- 真實名冊數據切換容器 -->
+                        <div id="guideRosterContainer" style="background:#09090B; padding:12px; min-height:165px; overflow-x:auto;">
+                            <!-- 2001 年次名冊 (前一年次) -->
+                            <div id="guideRosterTable_2001" style="display:none; min-width:580px;">
+                                <div class="list-row"><span class="col-rank-fixed">#1</span><span class="col-birth-fixed">2001</span><span class="col-name-fixed">張克翔</span><span class="col-time-fixed">24.72</span><span class="col-wa-list">WA 730</span><span class="col-8code-fixed">2026-05-07</span><span class="col-meet-fixed">全大運</span></div>
+                                <div class="list-row"><span class="col-rank-fixed">#2</span><span class="col-birth-fixed">2001</span><span class="col-name-fixed">蕭永淇</span><span class="col-time-fixed">24.96</span><span class="col-wa-list">WA 709</span><span class="col-8code-fixed">2024-11-30</span><span class="col-meet-fixed">中華泳協排名賽</span></div>
+                                <div class="list-row"><span class="col-rank-fixed">#3</span><span class="col-birth-fixed">2001</span><span class="col-name-fixed">莊沐倫</span><span class="col-time-fixed">25.41</span><span class="col-wa-list">WA 672</span><span class="col-8code-fixed">2024-11-30</span><span class="col-meet-fixed">中華泳協排名賽</span></div>
+                                <div style="margin-top:10px; padding:6px 10px; background:rgba(56,189,248,0.1); border-radius:6px; font-size:12px; color:#38BDF8; display:flex; justify-content:space-between;">
+                                    <span>共 152 位選手</span>
+                                    <span>💡 跨年級用途：提前預覽跳級挑戰高年級對手水準</span>
+                                </div>
+                            </div>
+
+                            <!-- 2002 年次名冊 (王冠閎 本人生年) -->
+                            <div id="guideRosterTable_2002" style="display:block; min-width:580px;">
+                                <div class="list-row row-gold" style="font-weight:900;"><span class="col-rank-fixed">#1</span><span class="col-birth-fixed">2002</span><span class="col-name-fixed">王冠閎</span><span class="col-time-fixed">24.00</span><span class="col-wa-list">WA 802</span><span class="col-8code-fixed">2026-05-07</span><span class="col-meet-fixed">全大運 🥇 全國第一</span></div>
+                                <div class="list-row"><span class="col-rank-fixed">#2</span><span class="col-birth-fixed">2002</span><span class="col-name-fixed">林育緯</span><span class="col-time-fixed">25.54</span><span class="col-wa-list">WA 665</span><span class="col-8code-fixed">2021-02-28</span><span class="col-meet-fixed">全國春季游泳錦標賽</span></div>
+                                <div class="list-row"><span class="col-rank-fixed">#3</span><span class="col-birth-fixed">2002</span><span class="col-name-fixed">劉志傑</span><span class="col-time-fixed">26.20</span><span class="col-wa-list">WA 616</span><span class="col-8code-fixed">2020-06-14</span><span class="col-meet-fixed">全國中正盃游泳錦標賽</span></div>
+                                <div style="margin-top:10px; padding:6px 10px; background:rgba(255,215,0,0.1); border-radius:6px; font-size:12px; color:#FFD700; display:flex; justify-content:space-between;">
+                                    <span>共 179 位選手 · 王冠閎 排名百分位 100.0%</span>
+                                    <span>👑 同齡霸主地位</span>
+                                </div>
+                            </div>
+
+                            <!-- 2003 年次名冊 (後一年次) -->
+                            <div id="guideRosterTable_2003" style="display:none; min-width:580px;">
+                                <div class="list-row"><span class="col-rank-fixed">#1</span><span class="col-birth-fixed">2003</span><span class="col-name-fixed">王學冠</span><span class="col-time-fixed">24.87</span><span class="col-wa-list">WA 717</span><span class="col-8code-fixed">2026-08-20</span><span class="col-meet-fixed">全國總統盃暨美津濃游泳錦標賽</span></div>
+                                <div class="list-row"><span class="col-rank-fixed">#2</span><span class="col-birth-fixed">2003</span><span class="col-name-fixed">洪冠新</span><span class="col-time-fixed">25.33</span><span class="col-wa-list">WA 678</span><span class="col-8code-fixed">2026-05-07</span><span class="col-meet-fixed">全大運</span></div>
+                                <div class="list-row"><span class="col-rank-fixed">#3</span><span class="col-birth-fixed">2003</span><span class="col-name-fixed">侯柏宇</span><span class="col-time-fixed">25.60</span><span class="col-wa-list">WA 657</span><span class="col-8code-fixed">2026-08-20</span><span class="col-meet-fixed">全國總統盃暨美津濃游泳錦標賽</span></div>
+                                <div style="margin-top:10px; padding:6px 10px; background:rgba(48,209,88,0.1); border-radius:6px; font-size:12px; color:#30D158; display:flex; justify-content:space-between;">
+                                    <span>共 168 位選手</span>
+                                    <span>💡 追趕者用途：檢視低一年級追趕者與新星水準</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 100% 真實功能 B: 歷年【年度最佳】矩陣大表 -->
@@ -3071,7 +3349,108 @@
                     </div>
                 `;
                 bodyEl.scrollTop = 0;
+
+                // 清除前一個動畫計時器
+                if (window.guideRosterTimer) {
+                    clearInterval(window.guideRosterTimer);
+                    window.guideRosterTimer = null;
+                }
+                // 若當前為步驟 03 (同齡排行)，立即啟動真實年次切換動畫
+                if (index === 2) {
+                    initGuideRosterAnimation();
+                }
             }
+        }
+
+        let currentGuideYearIdx = 1; // 0: 2001, 1: 2002, 2: 2003
+        const guideYears = ['2001', '2002', '2003'];
+
+        function switchGuideRoster(year, isAuto = false) {
+            const yr = String(year);
+            currentGuideYearIdx = guideYears.indexOf(yr);
+            if (currentGuideYearIdx === -1) currentGuideYearIdx = 1;
+
+            const btnPrev = document.getElementById('guideYearBtnPrev');
+            const btnNext = document.getElementById('guideYearBtnNext');
+            const centerText = document.getElementById('guideYearCenterText');
+            const subTag = document.getElementById('guideYearSubtag');
+            const animBadge = document.getElementById('guideAnimBadge');
+
+            if (btnPrev && btnNext && centerText && subTag) {
+                if (yr === '2001') {
+                    btnPrev.style.background = 'rgba(212,175,55,0.25)';
+                    btnPrev.style.borderColor = '#FFD700';
+                    btnPrev.style.color = '#FFD700';
+                    btnPrev.style.boxShadow = '0 0 12px rgba(255,215,0,0.5)';
+                    btnNext.style.background = 'rgba(255,255,255,0.06)';
+                    btnNext.style.borderColor = '#71717A';
+                    btnNext.style.color = '#E4E4E7';
+                    btnNext.style.boxShadow = 'none';
+                    centerText.textContent = '2001';
+                    subTag.textContent = '‹ 前一年次 (跨年級挑戰高年級對手)';
+                    subTag.style.color = '#38BDF8';
+                } else if (yr === '2003') {
+                    btnNext.style.background = 'rgba(212,175,55,0.25)';
+                    btnNext.style.borderColor = '#FFD700';
+                    btnNext.style.color = '#FFD700';
+                    btnNext.style.boxShadow = '0 0 12px rgba(255,215,0,0.5)';
+                    btnPrev.style.background = 'rgba(255,255,255,0.06)';
+                    btnPrev.style.borderColor = '#71717A';
+                    btnPrev.style.color = '#E4E4E7';
+                    btnPrev.style.boxShadow = 'none';
+                    centerText.textContent = '2003';
+                    subTag.textContent = '後一年次 › (檢視低一年級追趕者水準)';
+                    subTag.style.color = '#30D158';
+                } else {
+                    btnPrev.style.background = 'rgba(255,255,255,0.06)';
+                    btnPrev.style.borderColor = '#71717A';
+                    btnPrev.style.color = '#E4E4E7';
+                    btnPrev.style.boxShadow = 'none';
+                    btnNext.style.background = 'rgba(255,255,255,0.06)';
+                    btnNext.style.borderColor = '#71717A';
+                    btnNext.style.color = '#E4E4E7';
+                    btnNext.style.boxShadow = 'none';
+                    centerText.textContent = '2002';
+                    subTag.textContent = '★ 王冠閎 本人生年 (榜首 #1 🥇)';
+                    subTag.style.color = '#FFD700';
+                }
+            }
+
+            if (animBadge) {
+                if (isAuto) {
+                    animBadge.innerHTML = `<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#30D158; box-shadow:0 0 8px #30D158;"></span> 動態切換動畫播放中：已切換至 <b>${yr} 年次</b>`;
+                } else {
+                    animBadge.innerHTML = `<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#FFD700; box-shadow:0 0 8px #FFD700;"></span> 👆 您已手動切換至 <b>${yr} 年次</b>（點擊按鈕即時切換）`;
+                }
+            }
+
+            // 切換各年次表格與淡入滑動動畫
+            ['2001', '2002', '2003'].forEach(y => {
+                const el = document.getElementById(`guideRosterTable_${y}`);
+                if (el) {
+                    if (y === yr) {
+                        el.style.display = 'block';
+                        el.style.opacity = '0';
+                        el.style.transform = 'translateY(6px)';
+                        setTimeout(() => {
+                            el.style.transition = 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+                            el.style.opacity = '1';
+                            el.style.transform = 'translateY(0)';
+                        }, 20);
+                    } else {
+                        el.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        function initGuideRosterAnimation() {
+            switchGuideRoster('2002', true);
+            if (window.guideRosterTimer) clearInterval(window.guideRosterTimer);
+            window.guideRosterTimer = setInterval(() => {
+                currentGuideYearIdx = (currentGuideYearIdx + 1) % guideYears.length;
+                switchGuideRoster(guideYears[currentGuideYearIdx], true);
+            }, 2800);
         }
 
         function openUserGuide(step = 0) {
@@ -3091,6 +3470,10 @@
             const modal = document.getElementById('userGuideModal');
             const card = document.getElementById('userGuideCard');
             if (!modal || !card) return;
+            if (window.guideRosterTimer) {
+                clearInterval(window.guideRosterTimer);
+                window.guideRosterTimer = null;
+            }
             modal.style.opacity = '0';
             card.style.transform = 'scale(0.96)';
             setTimeout(() => {
