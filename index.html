@@ -2462,7 +2462,7 @@
                 strokeEvents.forEach(eventName => {
                     const swimmerPbObj = swimmerPBs[eventName];
                     const swimmerSec = swimmerPbObj ? swimmerPbObj.sec : null;
-                    const swimmerTimeStr = swimmerPbObj ? swimmerPbObj.timeStr : '<span style="color:#636366; font-size:12px;">無成績</span>';
+                    const swimmerTimeStr = swimmerPbObj ? swimmerPbObj.timeStr : '';
 
                     const yearCellsHtml = meetYears.map(yr => {
                         const cellData = targetMeet.data && targetMeet.data[yr] && targetMeet.data[yr][sex] && targetMeet.data[yr][sex][division] && targetMeet.data[yr][sex][division][eventName];
@@ -2660,11 +2660,13 @@
                                 ${eventName}
                             </td>
                             <td style="padding:10px 12px; text-align:center; white-space:nowrap; border-bottom:0.5px solid #2C2C2E; border-right:1px solid #38383A;">
-                                <div style="font-family:monospace; font-weight:800; font-size:15px; color:#FFF;">${swimmerTimeStr}</div>
                                 ${swimmerPbObj ? `
+                                    <div style="font-family:monospace; font-weight:800; font-size:15px; color:#FFF;">${swimmerPbObj.timeStr}</div>
                                     <div style="font-size:11px; color:#8E8E93; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px;" title="${swimmerPbObj.meet}">${swimmerPbObj.meet}</div>
                                     ${swimmerPbObj.date ? `<div style="font-size:10px; color:#636366; font-family:monospace; margin-top:1px;">${formatRaceDate(swimmerPbObj.date)}</div>` : ''}
-                                ` : ''}
+                                ` : `
+                                    <div style="color:#636366; font-size:12px;">無成績</div>
+                                `}
                             </td>
                             ${f27CellHtml}
                             ${yearCellsHtml}
