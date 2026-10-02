@@ -2100,14 +2100,21 @@
 
             tt.style.display = 'block';
             const rect = el.getBoundingClientRect();
-            let left = rect.left + window.scrollX + (rect.width / 2) - 150;
-            let top = rect.bottom + window.scrollY + 8;
+            const ttHeight = tt.offsetHeight || 260;
+            const ttWidth = tt.offsetWidth || 300;
+
+            // Tightly adjacent to the clicked badge
+            let left = rect.left + (rect.width / 2) - (ttWidth / 2);
+            let top = rect.bottom + 6;
 
             if (left < 10) left = 10;
-            if (left + 310 > window.innerWidth) left = window.innerWidth - 315;
-            if (rect.bottom + 260 > window.innerHeight) {
-                top = rect.top + window.scrollY - 250;
+            if (left + ttWidth > window.innerWidth - 10) left = window.innerWidth - ttWidth - 10;
+            
+            // If overflowing bottom, display tightly ABOVE the badge
+            if (rect.bottom + ttHeight + 12 > window.innerHeight && rect.top > ttHeight + 12) {
+                top = rect.top - ttHeight - 6;
             }
+            if (top < 10) top = 10;
 
             tt.style.left = `${left}px`;
             tt.style.top = `${top}px`;
@@ -2362,7 +2369,7 @@
 
             // 7. 依泳式分類呈現卡片 (仰、蛙、蝶、自、混合)
             const strokeOrder = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
-            const meetYears = targetMeet.years || [];
+            const meetYears = (targetMeet.years || []).slice(0, 2);
 
             strokeOrder.forEach(strokeName => {
                 const meetEventsSet = new Set();
@@ -2415,14 +2422,21 @@
 
                         let rankHtml = '';
                         if (!swimmerSec) {
-                            rankHtml = `<div style="font-size:10px; color:#636366; margin-top:3px;">(選手無PB)</div>`;
+                            rankHtml = `
+                                <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:600; color:#8E8E93; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,255,255,0.15);"
+                                     data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}"
+                                     onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     title="點擊或懸浮查看決賽 8 強名冊">
+                                    (選手無PB) 📋
+                                </div>
+                            `;
                         } else if (prelimEighth && swimmerSec > prelimEighth.sec) {
                             // 未晉級決賽 (門檻為預賽第 8 名)
                             const diffPrelim = (swimmerSec - prelimEighth.sec).toFixed(2);
                             rankHtml = `
                                 <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,69,58,0.3); transition:all 0.15s ease;"
                                      data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}"
-                                     onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                     onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                      title="點擊或懸浮查看決賽 8 強名冊">
                                     🔴 未進決賽 📋
                                 </div>
@@ -2439,7 +2453,7 @@
                                 rankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.35); transition:all 0.15s ease;"
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}"
-                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看決賽 8 強名冊">
                                         🥇 預估第 1 名 (金牌) 📋
                                     </div>
@@ -2454,7 +2468,7 @@
                                 rankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:${medalColor}; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid ${medalColor}; transition:all 0.15s ease;"
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}"
-                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看決賽 8 強名冊">
                                         ${medalEmoji} 預估第 ${medalRank} 名 (${medalTitle}) 📋
                                     </div>
@@ -2465,7 +2479,7 @@
                                 rankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(48,209,88,0.3); transition:all 0.15s ease;"
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}"
-                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看決賽 8 強名冊">
                                         🔵 預估第 ${predictedRank} 名 📋
                                     </div>
@@ -2484,13 +2498,13 @@
                         `;
                     }).join('');
 
-                    // ── 🔮 2027 下屆大賽預估儲存格 ──
+                    // ── 🔮 2027 下屆大賽預估儲存格 (置於今年之左側) ──
                     const f27 = targetMeet.future_2027 && targetMeet.future_2027[sex] && targetMeet.future_2027[sex][division] && targetMeet.future_2027[sex][division][eventName];
                     let f27CellHtml = '';
 
                     if (!f27 || !f27.first) {
                         f27CellHtml = `
-                            <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E; background:rgba(167,139,250,0.03); border-left:1px solid rgba(167,139,250,0.25);">
+                            <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E; background:rgba(167,139,250,0.03); border-right:1px solid rgba(167,139,250,0.25);">
                                 <div style="color:#636366; font-size:12px;">-</div>
                                 <div style="font-size:10px; color:#48484A; margin-top:2px;">無預估模型</div>
                             </td>
@@ -2506,7 +2520,14 @@
 
                         let fRankHtml = '';
                         if (!swimmerSec) {
-                            fRankHtml = `<div style="font-size:10px; color:#636366; margin-top:3px;">(選手無PB)</div>`;
+                            fRankHtml = `
+                                <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:600; color:#8E8E93; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,255,255,0.15);"
+                                     data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}"
+                                     onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     title="點擊或懸浮查看 2027 潛在 8 強名冊">
+                                    (選手無PB) 📋
+                                </div>
+                            `;
                         } else {
                             const fasterCount = fTopSecs.filter(s => s < swimmerSec).length;
                             let predictedRank = fasterCount + 1;
@@ -2516,7 +2537,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.35); transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}"
-                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看 2027 潛在 8 強名冊">
                                         🥇 預估第 1 名 (金牌) 📋
                                     </div>
@@ -2531,7 +2552,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:${medalColor}; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid ${medalColor}; transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}"
-                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看 2027 潛在 8 強名冊">
                                         ${medalEmoji} 預估第 ${medalRank} 名 (${medalTitle}) 📋
                                     </div>
@@ -2542,7 +2563,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(48,209,88,0.3); transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}"
-                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看 2027 潛在 8 強名冊">
                                         🔵 預估第 ${predictedRank} 名 📋
                                     </div>
@@ -2553,7 +2574,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,69,58,0.3); transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}"
-                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)"
+                                         onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看 2027 潛在 8 強名冊">
                                         🔴 未進前 8 名 📋
                                     </div>
@@ -2563,7 +2584,7 @@
                         }
 
                         f27CellHtml = `
-                            <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E; background:rgba(167,139,250,0.04); border-left:1px solid rgba(167,139,250,0.25);">
+                            <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E; background:rgba(167,139,250,0.04); border-right:1px solid rgba(167,139,250,0.25);">
                                 <div style="font-family:monospace; font-size:11px; color:#FFD700; font-weight:700;">🥇 ${fFirst.name ? fFirst.name + ' ' : ''}${fFirst.time_str}</div>
                                 ${fThird ? `<div style="font-family:monospace; font-size:11px; color:#CD7F32; margin-top:2px;">🥉 ${fThird.name ? fThird.name + ' ' : ''}${fThird.time_str}</div>` : ''}
                                 ${fEighth ? `<div style="font-family:monospace; font-size:11px; color:#A78BFA; margin-top:2px;" title="現役第8名PB">🎖️ 門檻: ${fEighth.time_str}</div>` : ''}
@@ -2584,8 +2605,8 @@
                                     ${swimmerPbObj.date ? `<div style="font-size:10px; color:#636366; font-family:monospace; margin-top:1px;">${formatRaceDate(swimmerPbObj.date)}</div>` : ''}
                                 ` : ''}
                             </td>
-                            ${yearCellsHtml}
                             ${f27CellHtml}
+                            ${yearCellsHtml}
                         </tr>
                     `;
                 });
@@ -2604,21 +2625,21 @@
                         </div>
                     </div>
                     <div style="width:100%; overflow-x:auto;">
-                        <table style="width:100%; min-width:960px; border-collapse:collapse;">
+                        <table style="width:100%; min-width:880px; border-collapse:collapse;">
                             <thead>
                                 <tr style="border-bottom:1px solid #38383A; background:rgba(255,255,255,0.02);">
                                     <th style="padding:8px 12px; text-align:left; font-size:12px; color:#8E8E93; width:120px;">項目</th>
                                     <th style="padding:8px 12px; text-align:center; font-size:12px; color:#FFF; width:140px; border-right:1px solid #38383A;">個人最佳 (PB)</th>
+                                    <th style="padding:8px 8px; text-align:center; font-size:12px; color:#A78BFA; background:rgba(167,139,250,0.08); border-right:1px solid rgba(167,139,250,0.3); width:170px;">
+                                        <div style="font-weight:800;">🔮 2027 下屆預估</div>
+                                        <div style="font-size:10px; color:#C4B5FD; margin-top:2px;">現役潛在對手榜</div>
+                                    </th>
                                     ${meetYears.map(yr => `
                                         <th style="padding:8px 8px; text-align:center; font-size:12px; color:#FFF;">
                                             <div style="font-weight:700;">${toTwYear(yr)}年 (${yr})</div>
                                             <div style="font-size:10px; color:#8E8E93; margin-top:2px;">${targetMeet.short}</div>
                                         </th>
                                     `).join('')}
-                                    <th style="padding:8px 8px; text-align:center; font-size:12px; color:#A78BFA; background:rgba(167,139,250,0.08); border-left:1px solid rgba(167,139,250,0.3); width:170px;">
-                                        <div style="font-weight:800;">🔮 2027 下屆預估</div>
-                                        <div style="font-size:10px; color:#C4B5FD; margin-top:2px;">現役潛在對手榜</div>
-                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
