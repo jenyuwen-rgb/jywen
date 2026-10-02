@@ -195,7 +195,7 @@
 
     <div class="header-title">游泳成績查詢</div>
     <div id="latestRaceTag" style="text-align: center; margin: -6px 0 12px 0;">
-        <span style="background: rgba(28,28,30,0.85); border: 1px solid #3A3A3C; padding: 5px 16px; border-radius: 20px; font-size: 0.8rem; color: #FFD933; display: inline-block; box-shadow: 0 2px 8px rgba(0,0,0,0.4); backdrop-filter: blur(8px);">
+        <span style="background: rgba(28,28,30,0.85); border: 1px solid #3A3A3C; padding: 5px 16px; border-radius: 20px; font-size: 0.8rem; color: #FFFFFF; display: inline-block; box-shadow: 0 2px 8px rgba(0,0,0,0.4); backdrop-filter: blur(8px);">
             🏆 資料庫最新賽事：<span id="latestRaceName" style="color: #FFFFFF; font-weight: 600;">載入中...</span>
         </span>
     </div>
@@ -2520,14 +2520,13 @@
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="1" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看決賽 8 強名冊">
-                                        🥇 預估第 1 名 (金牌) 📋
+                                        🥇 預估第 1 名 📋
                                     </div>
-                                    <div style="font-size:10px; color:#FFD700; margin-top:2px;">領先金牌 -${diff}s</div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">領先第1名 -${diff}s</div>
                                 `;
                             } else if (third && swimmerSec <= third.sec) {
                                 const medalRank = predictedRank <= 2 ? 2 : 3;
                                 const medalEmoji = medalRank === 2 ? '🥈' : '🥉';
-                                const medalTitle = medalRank === 2 ? '銀牌' : '銅牌';
                                 const medalColor = medalRank === 2 ? '#C0C0C0' : '#CD7F32';
                                 const diff = (swimmerSec - first.sec).toFixed(2);
                                 rankHtml = `
@@ -2535,9 +2534,9 @@
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${medalRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看決賽 8 強名冊">
-                                        ${medalEmoji} 預估第 ${medalRank} 名 (${medalTitle}) 📋
+                                        ${medalEmoji} 預估第 ${medalRank} 名 📋
                                     </div>
-                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距金牌 +${diff}s</div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距第1名 +${diff}s</div>
                                 `;
                             } else {
                                 const diffThird = third ? (swimmerSec - third.sec).toFixed(2) : '0.00';
@@ -2602,14 +2601,13 @@
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="1" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看 2027 潛在 8 強名冊">
-                                        🥇 預估第 1 名 (金牌) 📋
+                                        🥇 預估第 1 名 📋
                                     </div>
-                                    <div style="font-size:10px; color:#FFD700; margin-top:2px;">領先金牌 -${diff}s</div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">領先第1名 -${diff}s</div>
                                 `;
                             } else if (fThird && swimmerSec <= fThird.sec) {
                                 const medalRank = predictedRank <= 2 ? 2 : 3;
                                 const medalEmoji = medalRank === 2 ? '🥈' : '🥉';
-                                const medalTitle = medalRank === 2 ? '銀牌' : '銅牌';
                                 const medalColor = medalRank === 2 ? '#C0C0C0' : '#CD7F32';
                                 const diff = (swimmerSec - fFirst.sec).toFixed(2);
                                 fRankHtml = `
@@ -2617,9 +2615,9 @@
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${medalRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看 2027 潛在 8 強名冊">
-                                        ${medalEmoji} 預估第 ${medalRank} 名 (${medalTitle}) 📋
+                                        ${medalEmoji} 預估第 ${medalRank} 名 📋
                                     </div>
-                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距金牌 +${diff}s</div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距第1名 +${diff}s</div>
                                 `;
                             } else if (fEighth && swimmerSec <= fEighth.sec) {
                                 const diffThird = fThird ? (swimmerSec - fThird.sec).toFixed(2) : '0.00';
