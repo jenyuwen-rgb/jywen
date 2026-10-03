@@ -918,14 +918,13 @@
         };
 
         async function doCompare(names, birthYearOverrides = {}) {
-            if (!worker) return;
             currentCompareNames = names;
             currentCompareOverrides = birthYearOverrides || {};
 
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 1200));
+            const minWait = new Promise(r => setTimeout(r, 600));
             const main = document.getElementById('main'); main.innerHTML = '';
             cmpChartState = {}; // 重設圖表狀態
 
@@ -935,27 +934,28 @@
             const sexSelect = document.getElementById('sexSelect');
             if (sexSelect) sexSelect.style.display = 'none';
 
-            // 取得各選手有效出生年清單與性別（單次批次查詢 IN）
-            const safeNamesList = names.map(n => `'${n.replace(/'/g, "''")}'`).join(', ');
-            const byBatchRes = await remoteQuery(`SELECT 姓名, 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名 IN (${safeNamesList}) AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 姓名, 出生年, 性別 ORDER BY 姓名, c DESC`);
-            const allByValues = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
+            // 批次並行從 256split 桶取得各選手全部資料
+            const swimmersData = await Promise.all(names.map(n => fetchSwimmerBucketData(n)));
 
             const players = names.map((name, idx) => {
-                const matchedRows = allByValues.filter(v => v[0] === name);
-                let availableYears = [];
+                const sData = swimmersData[idx] || { birth_years: [], scores: [] };
+                const rawYears = sData.birth_years && sData.birth_years.length > 0
+                    ? sData.birth_years
+                    : [...new Set((sData.scores || []).map(r => r.出生年).filter(Boolean))];
+                let availableYears = [...new Set(rawYears.map(v => String(v).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
+
                 let birthYear = null, sex = null;
-                if (matchedRows.length > 0) {
-                    availableYears = [...new Set(matchedRows.map(v => String(v[1]).replace(/\.0$/, '').trim()).filter(Boolean))];
+                if (availableYears.length > 0) {
                     const overrideYr = (currentCompareOverrides && (currentCompareOverrides[idx] || currentCompareOverrides[name])) ? String(currentCompareOverrides[idx] || currentCompareOverrides[name]) : null;
                     if (overrideYr && availableYears.includes(overrideYr)) {
                         birthYear = overrideYr;
                     } else {
                         birthYear = availableYears[0];
                     }
-                    const matchedRow = matchedRows.find(v => String(v[1]).replace(/\.0$/, '').trim() === birthYear) || matchedRows[0];
-                    sex = matchedRow[2];
+                    const matchedScore = (sData.scores || []).find(r => String(r.出生年).replace(/\.0$/, '').trim() === birthYear) || (sData.scores || [])[0];
+                    sex = matchedScore ? matchedScore.性別 : null;
                 }
-                return { name, birthYear, sex, idx, availableYears };
+                return { name, birthYear, sex, idx, availableYears, rawScores: sData.scores || [] };
             });
 
             // 頂部多人比較狀態摘要列
@@ -990,30 +990,10 @@
             `;
             main.appendChild(headerBar);
 
-            // 預抓每位選手所有泳姿之有效資料（合併為單一 SQL 查詢，極速秒開且節省行動端記憶體）
             const cmpTargetCard = new URLSearchParams(window.location.search).get('card');
             let strokes = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
             if (cmpTargetCard && strokes.includes(cmpTargetCard)) {
                 strokes = [cmpTargetCard];
-            }
-            const playerConditions = players.filter(p => p.birthYear).map(p => {
-                const safePName = p.name.replace(/'/g, "''");
-                const sexClause = p.sex ? ` AND (性別 = '${p.sex}' OR 性別 = '${p.sex=='男'?'男生':'女生'}')` : '';
-                const birthFilter = ` AND (出生年 = '${p.birthYear}' OR 出生年 = '${p.birthYear}.0')`;
-                return `(姓名 = '${safePName}'${birthFilter}${sexClause})`;
-            });
-
-            let allRows = [];
-            let colIndexMap = {};
-            if (playerConditions.length > 0) {
-                const wherePlayers = playerConditions.join(' OR ');
-                const whereStrokes = strokes.map(s => `項目 LIKE '%${s}%'`).join(' OR ');
-                const mergedSql = `SELECT 姓名, 年份, 項目, 成績, 備註, 出生年, 性別, 賽事名稱 FROM swimming_scores WHERE (${wherePlayers}) AND (${whereStrokes}) AND ${LC_FILTER}`;
-                const mergedRes = await remoteQuery(mergedSql);
-                if (mergedRes && mergedRes[0] && mergedRes[0].values) {
-                    allRows = mergedRes[0].values;
-                    mergedRes[0].columns.forEach((col, idx) => colIndexMap[col] = idx);
-                }
             }
 
             const allPlayersData = players.map(p => {
@@ -1021,16 +1001,37 @@
                 strokes.forEach(s => strokesData[s] = []);
                 if (!p.birthYear) return { p, strokesData };
 
-                const pRows = allRows.filter(r => r[colIndexMap['姓名']] === p.name);
-                pRows.forEach(r => {
-                    const obj = {};
-                    Object.keys(colIndexMap).forEach(col => obj[col] = r[colIndexMap[col]]);
-                    obj.totalSec = timeToSec(obj.成績);
-                    if (obj.totalSec && !isNaN(obj.totalSec) && obj.totalSec > 0 && !isDQ(obj.備註)) {
-                        for (const s of strokes) {
-                            if (obj.項目.includes(s)) {
-                                strokesData[s].push(obj);
-                            }
+                const normSex = (p.sex === '女' || p.sex === '女生') ? '女' : '男';
+                p.rawScores.forEach(r => {
+                    const bY = String(r.出生年 || '').replace(/\.0$/, '').trim();
+                    if (bY && p.birthYear && bY !== p.birthYear) return;
+                    if (p.sex) {
+                        const rSex = (r.性別 === '女' || r.性別 === '女生') ? '女' : '男';
+                        if (rSex !== normSex) return;
+                    }
+                    const item = r.項目 || '';
+                    const meet = r.賽事名稱 || '';
+                    if (item.includes('接力') || item.includes('(25m)') || item.includes('短水道') || meet.includes('短水道')) return;
+                    if (isDQ(r.備註)) return;
+
+                    const sec = timeToSec(r.成績);
+                    if (sec <= 0 || sec > 3600) return;
+
+                    const obj = {
+                        姓名: p.name,
+                        年份: r.年份,
+                        項目: item,
+                        成績: r.成績,
+                        備註: r.備註,
+                        出生年: r.出生年,
+                        性別: r.性別,
+                        賽事名稱: meet,
+                        totalSec: sec
+                    };
+
+                    for (const s of strokes) {
+                        if (item.includes(s)) {
+                            strokesData[s].push(obj);
                         }
                     }
                 });
@@ -1382,28 +1383,39 @@
             if (!state.dataCache) {
                 state.dataCache = await Promise.all(players.map(async (p, idx) => {
                     if (!p.birthYear) return { player: p, points: [] };
-                    const safeName = p.name.replace(/'/g, "''");
-                    const sexClause = p.sex ? ` AND (性別 = '${p.sex}' OR 性別 = '${p.sex=='男'?'男生':'女生'}')` : '';
-                    const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${safeName}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND (出生年 = '${p.birthYear}' OR 出生年 = '${p.birthYear}.0')${sexClause} AND ${LC_FILTER} ORDER BY 年份 ASC`);
-                    if (!res || !res[0] || !res[0].values) return { player: p, points: [] };
+                    const sData = await fetchSwimmerBucketData(p.name, p.birthYear, p.sex);
+                    const scores = sData.scores || [];
 
-                    const pts = res[0].values.filter(v => {
-                        const m = v[4].match(/(\d+)公尺(?![池水])/);
-                        return m && String(m[1]) === String(dist) && !isDQ(v[5]);
-                    }).map(v => {
-                        const y = v[0].substring(0,4), m = v[0].substring(4,6), d = v[0].substring(6,8);
+                    const normTargetSex = p.sex ? ((p.sex === '女' || p.sex === '女生') ? '女' : '男') : null;
+
+                    const pts = scores.filter(r => {
+                        const bY = String(r.出生年 || '').replace(/\.0$/, '').trim();
+                        if (bY && p.birthYear && bY !== p.birthYear) return false;
+                        if (normTargetSex) {
+                            const rSex = (r.性別 === '女' || r.性別 === '女生') ? '女' : '男';
+                            if (rSex !== normTargetSex) return false;
+                        }
+                        const item = r.項目 || '';
+                        const meet = r.賽事名稱 || '';
+                        if (item.includes('接力') || item.includes('(25m)') || item.includes('短水道') || meet.includes('短水道')) return false;
+                        if (isDQ(r.備註)) return false;
+
+                        const m = item.match(/(\d+)公尺(?![池水])/);
+                        return m && String(m[1]) === String(dist) && item.includes(stroke);
+                    }).map(r => {
+                        const y = String(r.年份).substring(0,4), m = String(r.年份).substring(4,6), d = String(r.年份).substring(6,8);
                         const raceDate = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
-                        const birthYr = toAD(v[3]);
+                        const birthYr = toAD(r.出生年);
                         const birthDate = new Date(birthYr, 0, 1);
                         const age = Math.max(5, (raceDate - birthDate) / (365.25 * 86400 * 1000));
-                        const sec = timeToSec(v[1]);
+                        const sec = timeToSec(r.成績);
                         return {
                             age: parseFloat(age.toFixed(2)),
                             date: raceDate,
                             dateStr: `${y}/${m}/${d}`,
                             sec: sec,
-                            rawTime: v[1],
-                            meet: v[2],
+                            rawTime: r.成績,
+                            meet: r.賽事名稱,
                             playerName: p.name
                         };
                     }).filter(pt => pt.sec && !isNaN(pt.sec) && pt.sec > 0);
@@ -1720,27 +1732,31 @@
             }
             histRow.style.display = 'table-row';
 
-            const safeName = playerName.replace(/'/g, "''");
-            const sexClause = sex ? ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')` : '';
-            const birthFilter = birthYear ? ` AND (出生年 = '${birthYear}' OR 出生年 = '${birthYear}.0')` : '';
+            const sData = await fetchSwimmerBucketData(playerName, birthYear, sex);
+            const allScores = sData.scores || [];
 
-            const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目, 備註 FROM swimming_scores WHERE 姓名='${safeName}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${birthFilter} ${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
-            if (!res || !res[0] || !res[0].values || res[0].values.length === 0) {
-                histContent.innerHTML = `<div style="color:#8E8E93; font-size:13px; padding:6px 0;">查無「${playerName}」在 ${stroke} ${dist}m 之歷年出賽紀錄。</div>`;
-                return;
-            }
+            const normTargetSex = sex ? ((sex === '女' || sex === '女生') ? '女' : '男') : null;
+            const validRows = allScores.filter(r => {
+                const bY = String(r.出生年 || '').replace(/\.0$/, '').trim();
+                if (bY && birthYear && bY !== birthYear) return false;
+                if (normTargetSex) {
+                    const rSex = (r.性別 === '女' || r.性別 === '女生') ? '女' : '男';
+                    if (rSex !== normTargetSex) return false;
+                }
+                const item = r.項目 || '';
+                const meet = r.賽事名稱 || '';
+                if (item.includes('接力') || item.includes('(25m)') || item.includes('短水道') || meet.includes('短水道')) return false;
 
-            const validRows = res[0].values.filter(v => {
-                const m = v[3].match(/(\d+)公尺(?![池水])/);
-                return m && String(m[1]) === String(dist);
-            });
+                const m = item.match(/(\d+)公尺(?![池水])/);
+                return m && String(m[1]) === String(dist) && item.includes(stroke);
+            }).sort((a,b) => String(b.年份).localeCompare(String(a.年份)));
 
-            if (validRows.length === 0) {
+            if (!validRows || validRows.length === 0) {
                 histContent.innerHTML = `<div style="color:#8E8E93; font-size:13px; padding:6px 0;">查無「${playerName}」在 ${stroke} ${dist}m 之合格成績紀錄。</div>`;
                 return;
             }
 
-            const nonDQSecs = validRows.filter(v => !isDQ(v[4])).map(v => timeToSec(v[1])).filter(s => s > 0);
+            const nonDQSecs = validRows.filter(v => !isDQ(v.備註)).map(v => timeToSec(v.成績)).filter(s => s > 0);
             const minSec = nonDQSecs.length > 0 ? Math.min(...nonDQSecs) : null;
 
             let h = `
@@ -1757,14 +1773,14 @@
             `;
 
             validRows.forEach(v => {
-                const s = timeToSec(v[1]);
-                const dqFlag = isDQ(v[4]);
+                const s = timeToSec(v.成績);
+                const dqFlag = isDQ(v.備註);
                 const isPB = !dqFlag && minSec !== null && Math.abs(s - minSec) < 0.0001;
                 h += `
                     <div class="list-row ${isPB ? 'row-gold' : ''}" style="padding:4px 0;">
-                        <span class="col-8code-fixed">${formatDateStr(v[0])}</span>
+                        <span class="col-8code-fixed">${formatDateStr(v.年份)}</span>
                         <span class="col-time-fixed">${formatToXcode(s)}${dqFlag ? ' (違規)' : ''}</span>
-                        <span class="col-meet-fixed">${v[2]}</span>
+                        <span class="col-meet-fixed">${v.賽事名稱}</span>
                         ${isPB ? '<span class="row-gold" style="font-size:11px; font-weight:800; margin-left:8px;">★ PB</span>' : ''}
                     </div>
                 `;
@@ -1794,41 +1810,41 @@
         }
 
         async function doStandardsCheck(swimmerName, forcedBirthYear, forcedSex) {
-            if (!worker) return;
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 1200));
+            const minWait = new Promise(r => setTimeout(r, 600));
             const main = document.getElementById('main'); main.innerHTML = '';
 
-            const safeName = swimmerName.replace(/'/g, "''");
+            const swimmerResp = await fetchSwimmerBucketData(swimmerName, forcedBirthYear, forcedSex);
+            const allScores = swimmerResp.scores || [];
 
-            // 1. 查詢選手所有不重複出生年與性別
-            const byBatchRes = await remoteQuery(`SELECT 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名='${safeName}' AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 出生年, 性別 ORDER BY c DESC`);
-            const byRows = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
-
-            if (byRows.length === 0) {
+            if (!allScores || allScores.length === 0) {
                 await minWait;
                 loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
                 main.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; color:#8E8E93; gap:8px;"><span style="font-size:2rem;">🚫</span><span>查無「${swimmerName}」之出生年或性別資料，無法進行賽事達標檢驗</span></div>`;
                 return;
             }
 
-            const availableYears = [...new Set(byRows.map(v => String(v[0]).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
-            let availableSexes = [...new Set(byRows.map(v => (v[1] === '女' || v[1] === '女生') ? '女' : '男').filter(Boolean))];
+            const rawYears = swimmerResp.birth_years && swimmerResp.birth_years.length > 0
+                ? swimmerResp.birth_years
+                : [...new Set(allScores.map(r => r.出生年).filter(Boolean))];
+            const availableYears = [...new Set(rawYears.map(v => String(v).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
+
+            let availableSexes = [...new Set(allScores.map(r => (r.性別 === '女' || r.性別 === '女生') ? '女' : '男').filter(Boolean))];
             if (swimmerName === '陳品言' && !availableSexes.includes('男')) {
                 availableSexes.push('男');
             }
 
             let selectedBirthYear = forcedBirthYear;
             if (!selectedBirthYear || !availableYears.includes(selectedBirthYear)) {
-                selectedBirthYear = availableYears[0];
+                selectedBirthYear = availableYears.length > 0 ? availableYears[0] : '2010';
             }
 
             let sex = forcedSex;
             if (!sex || !availableSexes.includes(sex)) {
-                const matchedRow = byRows.find(v => String(v[0]).replace(/\.0$/, '').trim() === selectedBirthYear);
-                sex = matchedRow ? ((matchedRow[1] === '女' || matchedRow[1] === '女生') ? '女' : '男') : availableSexes[0];
+                const matchedRow = allScores.find(r => String(r.出生年).replace(/\.0$/, '').trim() === selectedBirthYear);
+                sex = matchedRow ? ((matchedRow.性別 === '女' || matchedRow.性別 === '女生') ? '女' : '男') : (availableSexes[0] || '男');
             }
 
             // 2. 同步頂部工具列下拉選單 (出生年與性別)，確保使用者習慣與常規模式無縫銜接
@@ -1897,47 +1913,49 @@
 
             const genderStandards = stdData.standards[sex] || {};
 
-            // 4. 查詢該選手特定出生年與性別的所有長水道最佳成績 (PB)
-            const birthFilter = ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')`;
-            const sexClause = ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')`;
-            const pbRes = await remoteQuery(`SELECT 項目, 成績, 備註, 賽事名稱, 年份 FROM swimming_scores WHERE 姓名='${safeName}'${birthFilter}${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
-            
+            // 4. 由記憶體計算該選手特定出生年與性別的所有長水道最佳成績 (PB)
             const swimmerPBs = {}; 
-            if (pbRes && pbRes[0] && pbRes[0].values) {
-                pbRes[0].values.forEach(row => {
-                    const item = row[0];
-                    const rawTime = row[1];
-                    const remark = row[2];
-                    const meet = row[3];
-                    const dateVal = row[4];
-                    if (isDQ(remark)) return;
-                    const sec = timeToSec(rawTime);
-                    if (sec <= 0 || sec > 3600) return;
+            const normTargetSex = (sex === '女' || sex === '女生') ? '女' : '男';
 
-                    const mDist = item.match(/(\d+)公尺(?![池水])/);
-                    if (!mDist) return;
-                    const dist = mDist[1];
-                    let stroke = '';
-                    if (item.includes('自由式')) stroke = '自由式';
-                    else if (item.includes('仰式')) stroke = '仰式';
-                    else if (item.includes('蛙式')) stroke = '蛙式';
-                    else if (item.includes('蝶式')) stroke = '蝶式';
-                    else if (item.includes('混合式')) stroke = '混合式';
-                    if (!stroke) return;
+            allScores.forEach(r => {
+                const bY = String(r.出生年 || '').replace(/\.0$/, '').trim();
+                if (bY && selectedBirthYear && bY !== selectedBirthYear) return;
+                const rSex = (r.性別 === '女' || r.性別 === '女生') ? '女' : '男';
+                if (rSex !== normTargetSex) return;
 
-                    const eventKey = `${dist}m ${stroke}`;
-                    if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
-                        swimmerPBs[eventKey] = {
-                            sec: sec,
-                            timeStr: formatToXcode(sec),
-                            meet: meet,
-                            date: dateVal,
-                            dist: dist,
-                            stroke: stroke
-                        };
-                    }
-                });
-            }
+                const item = r.項目 || '';
+                const meet = r.賽事名稱 || '';
+                // 排除接力與短水道
+                if (item.includes('接力') || item.includes('(25m)') || item.includes('短水道') || meet.includes('短水道')) return;
+                if (isDQ(r.備註)) return;
+
+                const rawTime = r.成績 || '';
+                const sec = timeToSec(rawTime);
+                if (sec <= 0 || sec > 3600) return;
+
+                const mDist = item.match(/(\d+)公尺(?![池水])/);
+                if (!mDist) return;
+                const dist = mDist[1];
+                let stroke = '';
+                if (item.includes('自由式')) stroke = '自由式';
+                else if (item.includes('仰式')) stroke = '仰式';
+                else if (item.includes('蛙式')) stroke = '蛙式';
+                else if (item.includes('蝶式')) stroke = '蝶式';
+                else if (item.includes('混合式')) stroke = '混合式';
+                if (!stroke) return;
+
+                const eventKey = `${dist}m ${stroke}`;
+                if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
+                    swimmerPBs[eventKey] = {
+                        sec: sec,
+                        timeStr: formatToXcode(sec),
+                        meet: meet,
+                        date: r.年份,
+                        dist: dist,
+                        stroke: stroke
+                    };
+                }
+            });
 
             function formatRaceDate(val) {
                 if (!val) return '';
@@ -2409,41 +2427,41 @@
         };
 
         async function doPodiumSimulation(swimmerName, forcedBirthYear, forcedSex, forcedMeetId, forcedFutureDivision) {
-            if (!worker) return;
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 1000));
+            const minWait = new Promise(r => setTimeout(r, 600));
             const main = document.getElementById('main'); main.innerHTML = '';
 
-            const safeName = swimmerName.replace(/'/g, "''");
+            const swimmerResp = await fetchSwimmerBucketData(swimmerName, forcedBirthYear, forcedSex);
+            const allScores = swimmerResp.scores || [];
 
-            // 1. 查詢選手所有不重複出生年與性別
-            const byBatchRes = await remoteQuery(`SELECT 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名='${safeName}' AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 出生年, 性別 ORDER BY c DESC`);
-            const byRows = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
-
-            if (byRows.length === 0) {
+            if (!allScores || allScores.length === 0) {
                 await minWait;
                 loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
                 main.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; color:#8E8E93; gap:8px;"><span style="font-size:2rem;">🚫</span><span>查無「${swimmerName}」之出生年或性別資料，無法進行得獎模擬分析</span></div>`;
                 return;
             }
 
-            const availableYears = [...new Set(byRows.map(v => String(v[0]).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
-            let availableSexes = [...new Set(byRows.map(v => (v[1] === '女' || v[1] === '女生') ? '女' : '男').filter(Boolean))];
+            const rawYears = swimmerResp.birth_years && swimmerResp.birth_years.length > 0
+                ? swimmerResp.birth_years
+                : [...new Set(allScores.map(r => r.出生年).filter(Boolean))];
+            const availableYears = [...new Set(rawYears.map(v => String(v).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
+
+            let availableSexes = [...new Set(allScores.map(r => (r.性別 === '女' || r.性別 === '女生') ? '女' : '男').filter(Boolean))];
             if (swimmerName === '陳品言' && !availableSexes.includes('男')) {
                 availableSexes.push('男');
             }
 
             let selectedBirthYear = forcedBirthYear;
             if (!selectedBirthYear || !availableYears.includes(selectedBirthYear)) {
-                selectedBirthYear = availableYears[0];
+                selectedBirthYear = availableYears.length > 0 ? availableYears[0] : '2010';
             }
 
             let sex = forcedSex;
             if (!sex || !availableSexes.includes(sex)) {
-                const matchedRow = byRows.find(v => String(v[0]).replace(/\.0$/, '').trim() === selectedBirthYear);
-                sex = matchedRow ? ((matchedRow[1] === '女' || matchedRow[1] === '女生') ? '女' : '男') : availableSexes[0];
+                const matchedRow = allScores.find(r => String(r.出生年).replace(/\.0$/, '').trim() === selectedBirthYear);
+                sex = matchedRow ? ((matchedRow.性別 === '女' || matchedRow.性別 === '女生') ? '女' : '男') : (availableSexes[0] || '男');
             }
 
             const currentYear = 2026;
@@ -2556,45 +2574,47 @@
                 activeFutureDiv = availableFutureDivs[0];
             }
 
-            // 5. 查詢選手長水道個人最佳成績 (PB)
-            const birthFilter = ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')`;
-            const sexClause = ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')`;
-            const pbRes = await remoteQuery(`SELECT 項目, 成績, 備註, 賽事名稱, 年份 FROM swimming_scores WHERE 姓名='${safeName}'${birthFilter}${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
+            // 5. 由記憶體計算選手長水道個人最佳成績 (PB)
+            const swimmerPBs = {};
+            const normTargetSex = (sex === '女' || sex === '女生') ? '女' : '男';
 
-            const swimmerPBs = {}; 
-            if (pbRes && pbRes[0] && pbRes[0].values) {
-                pbRes[0].values.forEach(row => {
-                    const item = row[0];
-                    const rawTime = row[1];
-                    const remark = row[2];
-                    const meet = row[3];
-                    const dateVal = row[4];
-                    if (isDQ(remark)) return;
-                    const sec = timeToSec(rawTime);
-                    if (sec <= 0 || sec > 3600) return;
+            allScores.forEach(r => {
+                const bY = String(r.出生年 || '').replace(/\.0$/, '').trim();
+                if (bY && selectedBirthYear && bY !== selectedBirthYear) return;
+                const rSex = (r.性別 === '女' || r.性別 === '女生') ? '女' : '男';
+                if (rSex !== normTargetSex) return;
 
-                    const mDist = item.match(/(\d+)公尺(?![池水])/);
-                    if (!mDist) return;
-                    const dist = mDist[1];
-                    let stroke = '';
-                    if (item.includes('自由式')) stroke = '自由式';
-                    else if (item.includes('仰式')) stroke = '仰式';
-                    else if (item.includes('蛙式')) stroke = '蛙式';
-                    else if (item.includes('蝶式')) stroke = '蝶式';
-                    else if (item.includes('混合式')) stroke = '混合式';
-                    if (!stroke) return;
+                const item = r.項目 || '';
+                const meet = r.賽事名稱 || '';
+                // 排除接力與短水道
+                if (item.includes('接力') || item.includes('(25m)') || item.includes('短水道') || meet.includes('短水道')) return;
+                if (isDQ(r.備註)) return;
 
-                    const eventKey = `${dist}m ${stroke}`;
-                    if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
-                        swimmerPBs[eventKey] = {
-                            sec: sec,
-                            timeStr: formatToXcode(sec),
-                            meet: meet,
-                            date: dateVal
-                        };
-                    }
-                });
-            }
+                const rawTime = r.成績 || '';
+                const sec = timeToSec(rawTime);
+                if (sec <= 0 || sec > 3600) return;
+
+                const mDist = item.match(/(\d+)公尺(?![池水])/);
+                if (!mDist) return;
+                const dist = mDist[1];
+                let stroke = '';
+                if (item.includes('自由式')) stroke = '自由式';
+                else if (item.includes('仰式')) stroke = '仰式';
+                else if (item.includes('蛙式')) stroke = '蛙式';
+                else if (item.includes('蝶式')) stroke = '蝶式';
+                else if (item.includes('混合式')) stroke = '混合式';
+                if (!stroke) return;
+
+                const eventKey = `${dist}m ${stroke}`;
+                if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
+                    swimmerPBs[eventKey] = {
+                        sec: sec,
+                        timeStr: formatToXcode(sec),
+                        meet: meet,
+                        date: r.年份
+                    };
+                }
+            });
 
             function formatRaceDate(val) {
                 if (!val) return '';
@@ -4146,8 +4166,6 @@
                 });
                 return;
             }
-
-            if (!worker) return;
 
             // 256split 姓名字典極速記憶體前綴比對
             const namesList = await loadSwimmerNamesList();
