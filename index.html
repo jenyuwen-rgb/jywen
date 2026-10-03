@@ -2012,8 +2012,8 @@
 
                     rowsHtml += `
                         <tr style="transition:background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
-                            <td style="padding:10px 12px; font-weight:800; font-size:14px; color:#FFF; white-space:nowrap; border-bottom:0.5px solid #2C2C2E;">
-                                ${eventName}
+                            <td style="padding:10px 12px; font-weight:800; font-size:14px; color:#FFF; white-space:nowrap; border-bottom:0.5px solid #2C2C2E; font-family:monospace;">
+                                ${eventName.split(' ')[0]}
                             </td>
                             <td style="padding:10px 12px; text-align:center; white-space:nowrap; border-bottom:0.5px solid #2C2C2E; border-right:1px solid #38383A;">
                                 <div style="font-family:monospace; font-weight:800; font-size:15px; color:#FFF;">${swimmerTimeStr}</div>
@@ -2748,8 +2748,8 @@
 
                     rowsHtml += `
                         <tr style="transition:background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
-                            <td style="padding:8px 6px; font-weight:800; font-size:13px; color:#FFF; white-space:nowrap; border-bottom:0.5px solid #2C2C2E;">
-                                ${eventName}
+                            <td style="padding:8px 6px; font-weight:800; font-size:13px; color:#FFF; white-space:nowrap; border-bottom:0.5px solid #2C2C2E; font-family:monospace;">
+                                ${eventName.split(' ')[0]}
                             </td>
                             <td style="padding:8px 4px; text-align:center; border-bottom:0.5px solid #2C2C2E; border-right:1px solid #38383A;">
                                 ${swimmerPbObj ? `
