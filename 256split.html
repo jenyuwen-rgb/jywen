@@ -10,6 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
     <style>
         body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; }
         .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 8px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; }
@@ -417,12 +419,62 @@
         }
         loadSwimmerNamesList(); // 預載 70KB 姓名字典
 
+        const rawBucketJsonCache = {}; // 快取 256 桶已解壓之 JSON 物件
         const swimmerDataMemoryCache = {}; // 記憶體快取已查過的選手
+        
+        function getBucketHexForName(cleanName) {
+            if (typeof md5 === 'function') {
+                const h = md5(cleanName);
+                const idx = parseInt(h.substring(0, 4), 16) % 256;
+                return idx.toString(16).padStart(2, '0');
+            }
+            return '00';
+        }
+
         async function fetchSwimmerBucketData(name, birth, sex) {
             const cleanName = normalizeName(name);
             const cacheKey = `${cleanName}_${birth||''}_${sex||''}`;
             if (swimmerDataMemoryCache[cacheKey]) return swimmerDataMemoryCache[cacheKey];
             
+            // 優先模式 A：直接由 CDN 下載靜態 bucket_xx.json.gz (30ms 極速、零伺服器開銷、100% 穩定)
+            try {
+                const bHex = getBucketHexForName(cleanName);
+                if (!rawBucketJsonCache[bHex]) {
+                    const gzResp = await fetch(`/data_buckets/bucket_${bHex}.json.gz`);
+                    if (gzResp.ok) {
+                        const arrayBuffer = await gzResp.arrayBuffer();
+                        if (typeof pako !== 'undefined') {
+                            const decompressed = pako.ungzip(new Uint8Array(arrayBuffer), { to: 'string' });
+                            rawBucketJsonCache[bHex] = JSON.parse(decompressed);
+                        }
+                    }
+                }
+                
+                if (rawBucketJsonCache[bHex] && rawBucketJsonCache[bHex][cleanName]) {
+                    const entry = rawBucketJsonCache[bHex][cleanName];
+                    const records = entry.records || (Array.isArray(entry) ? entry : []);
+                    const stats = entry.stats || {};
+                    
+                    let filtered = records;
+                    if (birth) filtered = filtered.filter(r => String(r.出生年||'').replace(/\.0$/, '').trim() === String(birth).trim());
+                    if (sex) filtered = filtered.filter(r => String(r.性別||'').trim() === String(sex).trim());
+                    
+                    const allBirthYears = sortedUniqueBirthYears(records);
+                    const result = {
+                        name: cleanName,
+                        total: filtered.length,
+                        birth_years: allBirthYears,
+                        stats: stats,
+                        scores: filtered
+                    };
+                    swimmerDataMemoryCache[cacheKey] = result;
+                    return result;
+                }
+            } catch (cdnErr) {
+                console.warn('靜態 CDN 桶直讀降級:', cdnErr);
+            }
+            
+            // 備援模式 B：後端 API 代理
             try {
                 let url = `/api/query_swimmer?name=${encodeURIComponent(cleanName)}`;
                 if (birth) url += `&birth=${encodeURIComponent(birth)}`;
@@ -436,7 +488,15 @@
             } catch (err) {
                 console.error('查詢選手桶失敗:', err);
             }
-            return { name: cleanName, total: 0, birth_years: [], scores: [] };
+            return { name: cleanName, total: 0, birth_years: [], stats: {}, scores: [] };
+        }
+
+        function sortedUniqueBirthYears(records) {
+            const set = new Set();
+            (records || []).forEach(r => {
+                if (r.出生年) set.add(String(r.出生年).replace(/\.0$/, '').trim());
+            });
+            return Array.from(set).sort((a,b) => b - a);
         }
 
         const rankingMemoryCache = {}; // 記憶體快取已查過的項目榜單
