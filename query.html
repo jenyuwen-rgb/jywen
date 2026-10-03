@@ -281,6 +281,7 @@
         </select>
         <span class="font-bold px-3 cursor-pointer" onclick="doSearch()" style="background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
+        <span class="font-bold text-[#8E8E93] hover:text-white px-3 cursor-pointer" onclick="shareCurrentView()" title="轉發分享目前畫面給朋友">分享 📤</span>
         
     </div>
 
@@ -433,7 +434,8 @@
 
         function initWorker() {
             const inputEl = document.getElementById('searchInput');
-            if (inputEl) inputEl.value = ''; // 強制清空 Chrome 瀏覽器自動記憶的歷史表單輸入值
+            const urlQuery = new URLSearchParams(window.location.search).get('q');
+            if (inputEl && !urlQuery) inputEl.value = ''; // 強制清空 Chrome 瀏覽器自動記憶的歷史表單輸入值
             const blob = new Blob([document.getElementById('worker-script').textContent], { type: 'text/javascript' });
             worker = new Worker(URL.createObjectURL(blob));
             worker.onmessage = function(e) {
@@ -3115,6 +3117,119 @@
             document.querySelectorAll('tr[id^="hist-row-"]').forEach(r => r.style.display = 'none');
         }
         function resetDB() { if (confirm("重置清除資料庫？")) { indexedDB.deleteDatabase("SwimSQL"); localStorage.removeItem('cached_db_time'); location.reload(); } }
+        
+        // ── 智能轉發分享功能 (Deep Link Share) ──
+        async function shareCurrentView() {
+            const rawInput = (document.getElementById('searchInput').value || '').trim();
+            const currentUrl = new URL(window.location.origin + window.location.pathname);
+            if (rawInput) {
+                currentUrl.searchParams.set('q', rawInput);
+            }
+            const shareUrl = currentUrl.toString();
+            
+            let shareTitle = '金水 ● 台灣游泳成績查詢';
+            let shareText = '邀請您查看台灣游泳選手歷史成績與得獎模擬分析！';
+            
+            if (rawInput) {
+                if (rawInput.toLowerCase().includes('/podium') || rawInput.toLowerCase().includes('/sim')) {
+                    const sName = rawInput.split('/')[0].trim();
+                    shareTitle = `【金水 游泳成績】${sName} · 得獎模擬與 8 強分析`;
+                    shareText = `點擊查看 ${sName} 的大賽得獎模擬預估與歷屆對手成績分析！`;
+                } else if (rawInput.toLowerCase().includes('/std')) {
+                    const sName = rawInput.split('/')[0].trim();
+                    shareTitle = `【金水 游泳成績】${sName} · 官方賽事達標檢驗`;
+                    shareText = `點擊查看 ${sName} 於全中運、全運會、總統盃的各項達標狀況！`;
+                } else if (rawInput.includes(';') || rawInput.includes('；')) {
+                    shareTitle = `【金水 游泳成績】多人對決成績與 Trend Chart 比較`;
+                    shareText = `點擊查看 ${rawInput} 的多人歷年 PB 矩陣與成績交叉比對！`;
+                } else {
+                    shareTitle = `【金水 游泳成績】${rawInput} · 個人全能成績看板`;
+                    shareText = `點擊查看 ${rawInput} 的長水道各泳式個人最佳 (PB) 與年度全國排行！`;
+                }
+            }
+
+            // 優先嘗試手機原生分享面板
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: shareTitle,
+                        text: shareText,
+                        url: shareUrl
+                    });
+                    return;
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.warn("navigator.share 異常，降級使用剪貼簿:", err);
+                    } else {
+                        return; // 使用者主動取消分享
+                    }
+                }
+            }
+
+            // 電腦版或不支援原生分享：一鍵複製專屬連結並彈出 Apple 磨砂提示
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                showShareToast(`✅ 已複製${rawInput ? '「' + rawInput + '」' : ''}專屬分享連結！直接貼給 LINE 朋友即可查看`);
+            } catch (clipErr) {
+                // 降級使用 prompt
+                prompt("請複製以下專屬分享連結：", shareUrl);
+            }
+        }
+
+        function showShareToast(msg) {
+            let toast = document.getElementById('shareToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'shareToast';
+                toast.style.position = 'fixed';
+                toast.style.top = '72px';
+                toast.style.left = '50%';
+                toast.style.transform = 'translateX(-50%) translateY(-20px)';
+                toast.style.background = 'rgba(28, 28, 30, 0.94)';
+                toast.style.backdropFilter = 'blur(20px)';
+                toast.style.webkitBackdropFilter = 'blur(20px)';
+                toast.style.color = '#FFF';
+                toast.style.padding = '10px 20px';
+                toast.style.borderRadius = '24px';
+                toast.style.border = '0.5px solid rgba(212, 175, 55, 0.4)';
+                toast.style.boxShadow = '0 12px 36px rgba(0, 0, 0, 0.6)';
+                toast.style.fontSize = '13px';
+                toast.style.fontWeight = '700';
+                toast.style.zIndex = '999999';
+                toast.style.opacity = '0';
+                toast.style.transition = 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+                toast.style.pointerEvents = 'none';
+                toast.style.whiteSpace = 'nowrap';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+            }, 10);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(-20px)';
+                setTimeout(() => { toast.style.display = 'none'; }, 250);
+            }, 2500);
+        }
+
+        // 自動解析 URL 查詢參數 (?q=選手名稱)
+        function checkUrlAutoSearch() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const q = params.get('q');
+                if (q) {
+                    const inputEl = document.getElementById('searchInput');
+                    if (inputEl) {
+                        inputEl.value = decodeURIComponent(q);
+                    }
+                }
+            } catch(e) {}
+        }
+        checkUrlAutoSearch();
+
         function toggleHistory() { let h = JSON.parse(localStorage.getItem('swim_h')||"[]"), html = `<div id="histModal" style="position:fixed; top:65px; left:50%; transform:translateX(-50%); width:calc(100% - 32px); max-width:860px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000; box-shadow:0 8px 32px rgba(0,0,0,0.6); box-sizing:border-box;"><div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;"><span style="color:#D4AF37; font-weight:bold;">歷史紀錄</span><span onclick="document.getElementById('histModal').remove()" style="color:#8E8E93; cursor:pointer;">關閉</span></div>`; h.forEach(n => html += `<div style="display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;"><span onclick="selectHist('${n}')" style="flex:1; cursor:pointer; color:#FFF;">${n}</span><span onclick="deleteHistory('${n}')" style="cursor:pointer;">🗑️</span></div>`); document.body.insertAdjacentHTML('beforeend', html+'</div>'); }
         function selectHist(n) { document.getElementById('searchInput').value = n; if(document.getElementById('histModal')) document.getElementById('histModal').remove(); doSearch(); }
         function deleteHistory(n) { let h = JSON.parse(localStorage.getItem('swim_h')||"[]").filter(x => x!==n); localStorage.setItem('swim_h', JSON.stringify(h)); if(document.getElementById('histModal')) document.getElementById('histModal').remove(); toggleHistory(); }
