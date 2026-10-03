@@ -2693,9 +2693,11 @@
                         } else if (prelimEighth && swimmerSec > prelimEighth.sec) {
                             // 未晉級決賽 (門檻為預賽第 8 名，保留警示網格紅底膠囊)
                             const diffPrelim = (swimmerSec - prelimEighth.sec).toFixed(2);
+                            const fasterCount = topSecs.filter(s => s < swimmerSec).length;
+                            const predictedRank = Math.max(9, fasterCount + 1);
                             rankHtml = `
                                 <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,69,58,0.3); transition:all 0.15s ease;"
-                                     data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="9" data-diff-eighth="${diffPrelim}" data-birth-year="${selectedBirthYear}"
+                                     data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="${diffPrelim}" data-birth-year="${selectedBirthYear}"
                                      onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                      title="點擊查看決賽名冊 (依序列至選手名次)">
                                     未進決賽
@@ -2834,7 +2836,7 @@
                                 const diffEighth = fEighth ? (swimmerSec - fEighth.sec).toFixed(2) : '0.00';
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:transparent; padding:2px 0; margin-top:4px; border:none; transition:all 0.15s ease;"
-                                         data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="9" data-diff-eighth="${diffEighth}" data-birth-year="${selectedBirthYear}"
+                                         data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="${diffEighth}" data-birth-year="${selectedBirthYear}"
                                          onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看下屆潛在名冊 (依序列至選手名次)">
                                         未進前 8
