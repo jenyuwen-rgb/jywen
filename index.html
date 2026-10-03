@@ -2098,7 +2098,7 @@
                 tt.id = 'podiumRosterTooltip';
                 tt.style.position = 'fixed';
                 tt.style.zIndex = '999999';
-                tt.style.width = '300px';
+                tt.style.width = '380px';
                 tt.style.maxWidth = '92vw';
                 tt.style.background = 'rgba(24, 24, 27, 0.96)';
                 tt.style.backdropFilter = 'blur(20px)';
@@ -2188,18 +2188,22 @@
                 const isMe = item.isMe;
                 const bgStyle = isMe ? 'background:rgba(255,255,255,0.12); border:0.5px solid rgba(255,255,255,0.3); border-radius:6px; font-weight:800;' : '';
                 const nameColor = '#FFF';
-                const meTag = isMe ? `<span style="font-size:10px; background:#FFF; color:#000; padding:1px 5px; border-radius:4px; font-weight:800; margin-left:4px;">預估</span>` : '';
-                const byInfo = item.birth_year ? `<span style="font-size:10px; color:#8E8E93; margin-left:4px;">(${item.birth_year}年次)</span>` : '';
+                const meTag = isMe ? `<span style="font-size:10px; background:#FFF; color:#000; padding:1px 4px; border-radius:3px; font-weight:800; margin-left:2px; flex-shrink:0;">預估</span>` : '';
+                const byInfo = item.birth_year ? `<span style="font-size:10px; color:#8E8E93; flex-shrink:0;">(${String(item.birth_year).slice(-2)})</span>` : '';
+                const regBadge = item.region ? `<span style="font-size:10px; color:#8E8E93; background:rgba(255,255,255,0.08); padding:0 3px; border-radius:3px; flex-shrink:0;">[${item.region}]</span>` : '';
+                const teamInfo = item.team ? `<span style="font-size:10.5px; color:#8E8E93; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:145px; flex-shrink:1;" title="${item.team}">${item.team}</span>` : '';
 
                 return `
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:3px 6px; ${bgStyle}">
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <span style="font-family:monospace; font-weight:700; color:${rankColor}; width:18px; text-align:center;">${badge}</span>
-                            <span style="color:${nameColor}; font-weight:600;">${item.name || '選手'}</span>
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:3px 6px; ${bgStyle}; white-space:nowrap; gap:6px;">
+                        <div style="display:flex; align-items:center; gap:5px; min-width:0; flex:1; overflow:hidden;">
+                            <span style="font-family:monospace; font-weight:700; color:${rankColor}; width:18px; text-align:center; flex-shrink:0;">${badge}</span>
+                            <span style="color:${nameColor}; font-weight:600; flex-shrink:0;">${item.name || '選手'}</span>
                             ${meTag}
                             ${byInfo}
+                            ${regBadge}
+                            ${teamInfo}
                         </div>
-                        <div style="font-family:monospace; font-size:11px; font-weight:700; color:#E5E5EA;">${item.time_str || '-'}</div>
+                        <div style="font-family:monospace; font-size:11px; font-weight:700; color:#E5E5EA; flex-shrink:0; text-align:right;">${item.time_str || '-'}</div>
                     </div>
                 `;
             }).join('');
