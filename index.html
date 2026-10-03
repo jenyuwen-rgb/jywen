@@ -2563,18 +2563,18 @@
                                      data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                      onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                      title="點擊或懸浮查看決賽 8 強名冊">
-                                    (選手無PB) 📋
+                                    (選手無PB)
                                 </div>
                             `;
                         } else if (prelimEighth && swimmerSec > prelimEighth.sec) {
-                            // 未晉級決賽 (門檻為預賽第 8 名)
+                            // 未晉級決賽 (門檻為預賽第 8 名，保留警示網格紅底膠囊)
                             const diffPrelim = (swimmerSec - prelimEighth.sec).toFixed(2);
                             rankHtml = `
-                                <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:transparent; padding:2px 0; margin-top:4px; border:none; transition:all 0.15s ease;"
+                                <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,69,58,0.3); transition:all 0.15s ease;"
                                      data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="9" data-diff-eighth="${diffPrelim}" data-birth-year="${selectedBirthYear}"
                                      onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                      title="點擊或懸浮查看決賽 8 強名冊">
-                                    未進決賽 📋
+                                    未進決賽
                                 </div>
                                 <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距預賽第8名 +${diffPrelim}s</div>
                             `;
@@ -2591,7 +2591,7 @@
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="1" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看決賽 8 強名冊">
-                                        🥇 預估第 1 📋
+                                        預估第 1
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">領先第1名 -${diff}s</div>
                                 `;
@@ -2605,7 +2605,7 @@
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${medalRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看決賽 8 強名冊">
-                                        ${medalEmoji} 預估第 ${medalRank} 📋
+                                        預估第 ${medalRank}
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距第1名 +${diff}s</div>
                                 `;
@@ -2616,7 +2616,7 @@
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看決賽 8 強名冊">
-                                        預估第 ${predictedRank} 📋
+                                        預估第 ${predictedRank}
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距頒獎台 +${diffThird}s</div>
                                 `;
@@ -2666,7 +2666,7 @@
                                      data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                      onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                      title="點擊或懸浮查看下屆潛在 8 強名冊">
-                                    (選手無PB) 📋
+                                    (選手無PB)
                                 </div>
                             `;
                         } else {
@@ -2680,7 +2680,7 @@
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="1" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看下屆潛在 8 強名冊">
-                                        🥇 預估第 1 📋
+                                        預估第 1
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">領先第1名 -${diff}s</div>
                                 `;
@@ -2694,7 +2694,7 @@
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${medalRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看下屆潛在 8 強名冊">
-                                        ${medalEmoji} 預估第 ${medalRank} 📋
+                                        預估第 ${medalRank}
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距第1名 +${diff}s</div>
                                 `;
@@ -2705,7 +2705,7 @@
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看下屆潛在 8 強名冊">
-                                        預估第 ${predictedRank} 📋
+                                        預估第 ${predictedRank}
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距頒獎台 +${diffThird}s</div>
                                 `;
@@ -2716,7 +2716,7 @@
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="9" data-diff-eighth="${diffEighth}" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看下屆潛在 8 強名冊">
-                                        未進前 8 📋
+                                        未進前 8
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距第8名 +${diffEighth}s</div>
                                 `;
