@@ -281,7 +281,7 @@
         </select>
         <span class="font-bold px-3 cursor-pointer" onclick="doSearch()" style="background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
-        <span class="cursor-pointer text-[#8E8E93] hover:text-white px-3 inline-flex items-center justify-center transition-colors" onclick="shareCurrentView()" title="轉發分享目前畫面給朋友"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M4 12v-1a6 6 0 0 1 6-6h9"/><polyline points="15 3 21 9 15 15"/></svg></span>
+        <span class="cursor-pointer text-[#8E8E93] hover:text-white px-3 inline-flex items-center justify-center transition-colors" onclick="shareCurrentView()" title="轉發分享目前畫面給朋友"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; transform: translateY(-1px);"><path d="M3.5 15.5C3.5 10 7.5 6 14 6V2.5L22 10L14 17.5V14C8.5 14 5.5 16 3.5 20.5C3.5 19 3.5 17 3.5 15.5Z"/></svg></span>
         
     </div>
 
@@ -765,7 +765,7 @@
                 const card = document.createElement('div'); card.className = "stroke-card";
                 card.cardHTML = "";
                 card.id = `card-stroke-${stroke}`;
-                card.innerHTML = `<div class="stroke-title-wrap" style="display:flex; align-items:center; justify-content:space-between;"><div class="stroke-title">${stroke}</div><div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${stroke}')" title="轉發分享${stroke}卡片"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M4 12v-1a6 6 0 0 1 6-6h9"/><polyline points="15 3 21 9 15 15"/></svg></div></div>`;
+                card.innerHTML = `<div class="stroke-title-wrap" style="display:flex; align-items:center; justify-content:space-between;"><div class="stroke-title">${stroke}</div><div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${stroke}')" title="轉發分享${stroke}卡片"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; transform: translateY(-1px);"><path d="M3.5 15.5C3.5 10 7.5 6 14 6V2.5L22 10L14 17.5V14C8.5 14 5.5 16 3.5 20.5C3.5 19 3.5 17 3.5 15.5Z"/></svg></div></div>`;
                 const trayInner = document.createElement('div'); trayInner.className = "tray-inner-container"; trayInner.style.minWidth = "710px";
                 const scrollTray = document.createElement('div'); scrollTray.className = "scroll-tray-wrap";
                 let allData = res[0].values.map(v => { 
@@ -964,7 +964,7 @@
                 const card = document.createElement('div');
                 card.className = 'stroke-card';
                 card.id = `card-stroke-${stroke}`;
-                card.innerHTML = `<div class="stroke-title-wrap" style="display:flex; align-items:center; justify-content:space-between;"><div class="stroke-title">${stroke}</div><div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${stroke}')" title="轉發分享${stroke}卡片"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M4 12v-1a6 6 0 0 1 6-6h9"/><polyline points="15 3 21 9 15 15"/></svg></div></div>`;
+                card.innerHTML = `<div class="stroke-title-wrap" style="display:flex; align-items:center; justify-content:space-between;"><div class="stroke-title">${stroke}</div><div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${stroke}')" title="轉發分享${stroke}卡片"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; transform: translateY(-1px);"><path d="M3.5 15.5C3.5 10 7.5 6 14 6V2.5L22 10L14 17.5V14C8.5 14 5.5 16 3.5 20.5C3.5 19 3.5 17 3.5 15.5Z"/></svg></div></div>`;
 
                 const scrollTray = document.createElement('div');
                 scrollTray.className = 'scroll-tray-wrap';
@@ -2036,7 +2036,7 @@
                         <div style="font-size:18px; font-weight:900; color:#FFF; display:flex; align-items:center; gap:8px;">
                             <span>${strokeName}</span>
                         </div>
-                        <div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${strokeName}')" title="轉發分享${strokeName}達標卡片"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M4 12v-1a6 6 0 0 1 6-6h9"/><polyline points="15 3 21 9 15 15"/></svg></div>
+                        <div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${strokeName}')" title="轉發分享${strokeName}達標卡片"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; transform: translateY(-1px);"><path d="M3.5 15.5C3.5 10 7.5 6 14 6V2.5L22 10L14 17.5V14C8.5 14 5.5 16 3.5 20.5C3.5 19 3.5 17 3.5 15.5Z"/></svg></div>
                     </div>
                     <div style="width:100%; overflow-x:auto;">
                         <table style="width:100%; min-width:760px; border-collapse:collapse;">
@@ -2783,7 +2783,7 @@
                             <span>${strokeName}</span>
                             <span style="font-size:12px; color:#8E8E93; font-weight:500;">(${targetMeet.short} · ${division})</span>
                         </div>
-                        <div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${strokeName}')" title="轉發分享${strokeName}得獎模擬卡片"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M4 12v-1a6 6 0 0 1 6-6h9"/><polyline points="15 3 21 9 15 15"/></svg></div>
+                        <div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${strokeName}')" title="轉發分享${strokeName}得獎模擬卡片"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; transform: translateY(-1px);"><path d="M3.5 15.5C3.5 10 7.5 6 14 6V2.5L22 10L14 17.5V14C8.5 14 5.5 16 3.5 20.5C3.5 19 3.5 17 3.5 15.5Z"/></svg></div>
                     </div>
                     <div style="width:100%; overflow-x:auto;">
                         <table style="width:100%; border-collapse:collapse; table-layout:fixed;">
