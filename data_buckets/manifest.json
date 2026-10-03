@@ -1,10 +1,10 @@
 {
-  "version": 1791034861,
-  "version_code": "v2026.10.03.2141-b1791034861",
+  "version": 1791041380,
+  "version_code": "v2026.10.03.2329-b1791041380",
   "total_buckets": 256,
   "total_swimmers": 25760,
   "total_records": 822328,
-  "total_size_mb": 14.3,
-  "avg_bucket_size_kb": 57.21,
-  "generated_at": "2026-10-03 21:41:01"
+  "total_size_mb": 16.07,
+  "avg_bucket_size_kb": 64.26,
+  "generated_at": "2026-10-03 23:29:40"
 }

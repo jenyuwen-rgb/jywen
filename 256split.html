@@ -566,7 +566,7 @@
             const rankData = await fetchProjectRankingData(stroke, parseInt(dist), sex);
             if (!rankData) return [];
             if (isNational) {
-                return (rankData.national_top || []).map(r => ({
+                const list = (rankData.national_top || []).map(r => ({
                     name: r.name,
                     sec: r.sec,
                     raw: formatToXcode(r.sec),
@@ -575,10 +575,12 @@
                     wa: getWA(dist, stroke, r.raw, sex),
                     birthYear: r.birth
                 }));
+                list.totalCompetitors = rankData.total_competitors || list.length;
+                return list;
             } else {
                 const bYearStr = String(birth || '').replace('.0', '').trim();
                 const groupList = (rankData.birth_groups || {})[bYearStr] || [];
-                return groupList.map(r => ({
+                const list = groupList.map(r => ({
                     name: r.name,
                     sec: r.sec,
                     raw: formatToXcode(r.sec),
@@ -587,6 +589,9 @@
                     wa: getWA(dist, stroke, r.raw, sex),
                     birthYear: r.birth
                 }));
+                const bTotals = rankData.birth_totals || {};
+                list.totalCompetitors = bTotals[bYearStr] || list.length;
+                return list;
             }
         }
 
@@ -774,8 +779,9 @@
                 if (birthSelect) birthSelect.classList.add('hidden');
             }
 
-            // 3. 256split: 由該選手紀錄中提取可用性別
+            // 3. 256split: 由該選手紀錄中提取可用性別與預算統計
             const allSwimmerScores = swimmerResp.scores || [];
+            const swimmerStats = swimmerResp.stats || {};
             let availableSexes = [...new Set(allSwimmerScores.map(r => r.性別).filter(Boolean))];
 
             // 特例相容：若為陳品言等已知同名不同性別選手，確保強行包含 ['女', '男']
@@ -865,13 +871,39 @@
                     
                     if (dData.length === 0) continue;
                     const pb = dData[0], id = `s${sIdx}d${dIdx}`;
-                    const ageG = await getRankData(dist, stroke, input, pb.出生年, sex, false);
-                    const natG = await getRankData(dist, stroke, input, null, sex, true);
-                    const ageIdx = ageG.findIndex(r => r.name === input), natIdx = natG.findIndex(r => r.name === input);
-                    const prRaw = (ageG && ageG.length > 0 && ageIdx >= 0) ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
-                    const pr = (!isNaN(prRaw) && isFinite(prRaw)) ? prRaw : 0;
-                    const ageRankStr = (ageIdx >= 0) ? `#${ageIdx+1}` : '-';
-                    const natRankStr = (natIdx >= 0) ? `#${natIdx+1}` : '-';
+                    const strokeDistKey = `${stroke}_${dist}`;
+                    const pStat = (swimmerStats && swimmerStats[strokeDistKey]) ? swimmerStats[strokeDistKey] : {};
+                    
+                    let ageRankNum = pStat.age_rank;
+                    let ageTotalNum = pStat.age_total;
+                    let natRankNum = pStat.nat_rank;
+                    let natTotalNum = pStat.nat_total;
+                    
+                    // 若 pStat 未命中，從 getRankData 回退計算
+                    if (!ageRankNum) {
+                        const ageG = await getRankData(dist, stroke, input, pb.出生年, sex, false);
+                        const ageIdx = ageG.findIndex(r => r.name === input);
+                        if (ageIdx >= 0) {
+                            ageRankNum = ageIdx + 1;
+                            ageTotalNum = ageG.totalCompetitors || ageG.length;
+                        }
+                    }
+                    if (!natRankNum) {
+                        const natG = await getRankData(dist, stroke, input, null, sex, true);
+                        const natIdx = natG.findIndex(r => r.name === input);
+                        if (natIdx >= 0) {
+                            natRankNum = natIdx + 1;
+                            natTotalNum = natG.totalCompetitors || natG.length;
+                        }
+                    }
+                    
+                    let pr = 0;
+                    if (ageRankNum && ageTotalNum && ageTotalNum > 0) {
+                        pr = (100 * (ageTotalNum - (ageRankNum - 1)) / ageTotalNum);
+                    }
+                    
+                    const ageRankStr = ageRankNum ? `#${ageRankNum}` : '-';
+                    const natRankStr = natRankNum ? `#${natRankNum}` : '-';
                     const row = document.createElement('div');
                     row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
                     row.innerHTML = `
@@ -1648,7 +1680,8 @@
                 }
                 let h = `<div class="data-panel p-3">${headerAD}<div style="overflow-x:auto;"><div style="min-width:610px;">`;
                 sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${r.name===p1?'row-gold':''}"><span class="col-rank-fixed">#${i+1}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
-                const total = sorted.length, tIdx = sorted.findIndex(r => r.name === p1);
+                const total = sorted.totalCompetitors || sorted.length;
+                const tIdx = sorted.findIndex(r => r.name === p1);
                 if (total > 0) {
                     h += `<div style="border-top:1px solid #444; margin:12px 0 8px 0;"></div>`;
                     if (tIdx >= 0) {

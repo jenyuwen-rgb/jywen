@@ -49,7 +49,13 @@ class handler(BaseHTTPRequestHandler):
             with gzip.open(bucket_file, "rb") as gf:
                 bucket_data = json.loads(gf.read().decode('utf-8'))
                 
-            records = bucket_data.get(clean_name, [])
+            swimmer_entry = bucket_data.get(clean_name, {})
+            if isinstance(swimmer_entry, dict) and "records" in swimmer_entry:
+                records = swimmer_entry.get("records", [])
+                stats = swimmer_entry.get("stats", {})
+            else:
+                records = swimmer_entry if isinstance(swimmer_entry, list) else []
+                stats = {}
             
             # 過濾出生年或性別（若有指定）
             if birth:
@@ -58,13 +64,14 @@ class handler(BaseHTTPRequestHandler):
                 records = [r for r in records if str(r.get("性別", "")).strip() == str(sex).strip()]
                 
             # 統計所有可選出生年
-            all_records_for_name = bucket_data.get(clean_name, [])
+            all_records_for_name = swimmer_entry.get("records", []) if isinstance(swimmer_entry, dict) else (swimmer_entry if isinstance(swimmer_entry, list) else [])
             all_birth_years = sorted(list(set(str(r.get("出生年", "")).strip() for r in all_records_for_name if r.get("出生年"))))
             
             response_data = {
                 "name": clean_name,
                 "total": len(records),
                 "birth_years": all_birth_years,
+                "stats": stats,
                 "scores": records
             }
             
