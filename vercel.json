@@ -18,7 +18,17 @@
       ]
     }
   ],
+  "rewrites": [
+    {
+      "source": "/256split",
+      "destination": "/256split.html"
+    }
+  ],
   "functions": {
+    "api/query_swimmer.py": {
+      "includeFiles": "data_buckets/**",
+      "excludeFiles": "static/db_parts/**"
+    },
     "api/*.py": {
       "excludeFiles": "static/db_parts/**"
     }
