@@ -19,14 +19,14 @@
             background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); 
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent; 
-            font-size: 46px; 
+            font-size: 34px; 
             font-weight: 900; 
             margin: 18px 0 10px 0; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            gap: 0.85em; 
-            letter-spacing: 0.1em;
+            gap: 12px; 
+            letter-spacing: 1px;
         }
         .header-marquee-wrap {
             max-width: 720px;
@@ -247,9 +247,10 @@
         <button id="manualUploadBtn" onclick="document.getElementById('dbFileInput').click()" class="mt-4 bg-transparent border border-[#555] hover:border-white text-gray-400 hover:text-white px-6 py-2 rounded-full text-xs font-bold transition-all duration-200">手動選擇裝置內檔案 (.db)</button>
     </div>
 
-    <div class="header-title">
-        <span>金</span>
-        <span>水</span>
+        <div class="header-title">
+        <span>金水</span>
+        <span style="font-size: 16px; -webkit-text-fill-color: #D4AF37; color: #D4AF37; opacity: 0.85; transform: translateY(-1px);">●</span>
+        <span>游泳成績查詢</span>
     </div>
     <div class="header-marquee-wrap">
         <div class="header-marquee-content">
