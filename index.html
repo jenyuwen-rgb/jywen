@@ -239,7 +239,7 @@
                 <div class="guide-dot" onclick="goToGuideStep(1)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 2 步：雙對手 Trend Chart 與 歷次參賽明細"></div>
                 <div class="guide-dot" onclick="goToGuideStep(2)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 3 步：同齡名冊、年度最佳矩陣 與 全國排行"></div>
                 <div class="guide-dot" onclick="goToGuideStep(3)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 4 步：多人對決、PB歷史明細 與 雙軸 Trend Chart"></div>
-                <div class="guide-dot" onclick="goToGuideStep(4)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 5 步：官方賽事達標檢驗 (/std · 蝶式)"></div>
+                <div class="guide-dot" onclick="goToGuideStep(4)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 5 步：官方賽事達標檢驗 (/STD · 蝶式)"></div>
                 <div class="guide-dot" onclick="goToGuideStep(5)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 6 步：得獎模擬分析 (/Podium Simulation · 蝶式)"></div>
                 <div class="guide-dot" onclick="goToGuideStep(6)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 7 步：快捷提示、歷史回查 (🕒) 與 一鍵收合"></div>
                 <div class="guide-dot" onclick="goToGuideStep(7)" style="width:8px; height:5px; border-radius:3px; background:#38383A; cursor:pointer; transition:all 0.25s ease;" title="第 8 步：同名同姓選手多重出生年/性別切換"></div>
@@ -1915,8 +1915,8 @@
                                         badgeHtml = `
                                             <div style="font-family:monospace; font-size:13px; font-weight:700; color:#FFF;">${stdTimeStr}</div>
                                             <div style="font-size:10px; color:#8E8E93; margin-top:1px;">${bracketLabel}</div>
-                                            <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#0A84FF; background:rgba(10,132,255,0.12); padding:1px 6px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(10,132,255,0.25);">
-                                                🔵 ${diffStr} (已達標)
+                                            <div style="display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#0A84FF; background:rgba(10,132,255,0.12); padding:1px 6px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(10,132,255,0.25); white-space:nowrap;">
+                                                ${diffStr}
                                             </div>
                                         `;
                                     } else {
@@ -1924,8 +1924,8 @@
                                         badgeHtml = `
                                             <div style="font-family:monospace; font-size:13px; color:#8E8E93;">${stdTimeStr}</div>
                                             <div style="font-size:10px; color:#8E8E93; margin-top:1px;">${bracketLabel}</div>
-                                            <div style="display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:1px 6px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(255,69,58,0.25);">
-                                                🔴 ${diffStr} (未達標)
+                                            <div style="display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:1px 6px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(255,69,58,0.25); white-space:nowrap;">
+                                                ${diffStr}
                                             </div>
                                         `;
                                     }
@@ -3254,21 +3254,21 @@
             {
                 badge: "步驟 05 · 達標檢驗",
                 icon: "🎯",
-                title: "官方賽事達標檢驗 (/std) (代表範例：王冠閎/std · 蝶式)",
+                title: "官方賽事達標檢驗 (/STD) (代表範例：王冠閎/STD · 蝶式)",
                 subtitle: "自動鎖定組別，精確比對五大賽事標準，附帶規程正本頁碼直達",
                 bullets: [
-                    "<b>輸入範例（請見上方示範框）</b>：在搜尋框鍵入 <code>王冠閎/std</code>（或鍵入 <code>/</code> 從自動完成選單中點選），點擊查詢即刻開啟達標檢驗！",
+                    "<b>輸入範例（請見上方示範框）</b>：在搜尋框鍵入 <code>王冠閎/STD</code>（或鍵入 <code>/</code> 從自動完成選單中點選），點擊查詢即刻開啟達標檢驗！",
                     "<b>100% 蝶式完整項目卡片</b>：完整涵蓋 50m 蝶式 (24.00)、100m 蝶式 (51.90)、200m 蝶式 (1:54.44 全國紀錄)！",
                     "<b>自動年齡鎖定</b>：依照選手出生年自動精確判定國小、國中、高中或公開組門檻，免手動切換。",
                     "<b>五大頂尖大賽標準庫</b>：同步比對全國小學、總統盃、全中運、全大運、全運會官方參賽門檻。",
-                    "<b>直觀燈號與規程直達</b>：藍色 <code>🔵 -XX.XXs (已達標)</code>、紅色 <code>🔴 +XX.XXs (未達標)</code>，表格上方更附帶官方規程 PDF 原文連結與手冊頁碼標注（如 <code>114年手冊第15頁規範</code>），大會稽核零爭議！"
+                    "<b>直觀燈號與規程直達</b>：藍色 <code>-XX.XXs (已達標)</code>、紅色 <code>+XX.XXs (未達標)</code>，表格上方更附帶官方規程 PDF 原文連結與手冊頁碼標注（如 <code>114年手冊第15頁規範</code>），大會稽核零爭議！"
                 ],
                 previewHtml: `
                     <!-- 輸入範例高亮示意框 -->
                     <div style="background:#09090B; border:1px solid #38383A; border-radius:12px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span style="color:#30D158; font-size:16px;">🔍</span>
-                            <span style="font-weight:900; color:#30D158; font-size:15px; font-family:monospace; background:#27272A; padding:2px 10px; border-radius:6px; border:0.5px solid #30D158;">王冠閎/std</span>
+                            <span style="font-weight:900; color:#30D158; font-size:15px; font-family:monospace; background:#27272A; padding:2px 10px; border-radius:6px; border:0.5px solid #30D158;">王冠閎/STD</span>
                             <span style="font-size:11px; color:#A1A1AA;">(或鍵入「/」從選單點選)</span>
                         </div>
                         <span style="background:#30D158; color:#000; font-size:12px; font-weight:800; padding:5px 12px; border-radius:8px;">點擊「查詢」➔</span>
@@ -3318,7 +3318,7 @@
                 title: "快捷模式提示 (/)、歷史紀錄回查 (🕒) 與 一鍵收合工具",
                 subtitle: "搜尋框指令快捷自動完成、歷史查詢紀錄即時回溯，以及一鍵折疊所有大表",
                 bullets: [
-                    "<b>👉 模式選單自動提示（輸入「/」）</b>：在搜尋框輸入 <code>/</code>，系統自動跳出模式選單提示（包含 <code>/std 參賽標準檢驗</code> 與 <code>/Podium Simulation 得獎模擬</code>），點擊即可自動填入，免手動記憶指令！",
+                    "<b>👉 模式選單自動提示（輸入「/」）</b>：在搜尋框輸入 <code>/</code>，系統自動跳出模式選單提示（包含 <code>/STD 參賽標準檢驗</code> 與 <code>/Podium Simulation 得獎模擬</code>），點擊即可自動填入，免手動記憶指令！",
                     "<b>👉 頂部「🕒」歷史查詢紀錄彈窗</b>：點擊搜尋列左側黃色時鐘 <code>🕒</code> 圖示，即可即時展開歷史查詢面板，記錄最近 30 筆選手查詢紀錄，點選姓名立即秒查回溯，並附帶垃圾桶圖示支援一鍵刪除個別紀錄！",
                     "<b>👉 工具列「收合」按鈕</b>：畫面展開多個 Trend Chart、明細表與同齡名冊後，點擊頂部工具列右側「收合」按鈕，能瞬間將畫面所有展開的卡片一次收折乾淨！",
                     "<b>👉 工具列「重置」按鈕</b>：遇到瀏覽器快取異常或欲重新下載最新雲端資料庫時，點擊「重置」即可一鍵清空 IndexedDB 快取並重新同步。"
@@ -3328,7 +3328,7 @@
                     <div style="margin-bottom:12px; border:1px solid #D4AF37; border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
                         <div style="background:#09090B; padding:8px 12px; border-bottom:0.5px solid #222; display:flex; align-items:center; justify-content:space-between;">
                             <span style="font-size:12px; font-weight:800; color:#D4AF37;">⚡ 工具 A：輸入「/」模式快捷自動完成選單提示</span>
-                            <span style="font-size:10px; color:#A1A1AA;">即時點選 /std 與 /Podium Simulation</span>
+                            <span style="font-size:10px; color:#A1A1AA;">即時點選 /STD 與 /Podium Simulation</span>
                         </div>
                         <img src="/static/guide/guide_feature_mode_autocomplete.png" alt="真實模式自動完成提示選單" style="width:100%; height:auto; display:block;" />
                     </div>
@@ -3675,7 +3675,7 @@
                 currentFocus = -1;
 
                 const modes = [
-                    { id: 'std', label: '/std', desc: '參賽標準 (五大賽事門檻檢驗)', fullText: `${prefixName}/std` },
+                    { id: 'std', label: '/STD', desc: '參賽標準 (五大賽事門檻檢驗)', fullText: `${prefixName}/STD` },
                     { id: 'podium', label: '/Podium Simulation', desc: '得獎模擬 (16大核心賽事歷年1、3、8名與頒獎台分析)', fullText: `${prefixName}/Podium Simulation` }
                 ];
 
