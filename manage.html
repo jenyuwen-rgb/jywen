@@ -584,7 +584,7 @@
         }
 
         .mac-day-cell {
-            min-height: 82px;
+            min-height: 122px;
             display: flex;
             flex-direction: column;
             align-items: stretch;
@@ -736,6 +736,8 @@
             border-radius: 16px;
             padding: 1.5rem;
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+            min-height: 720px;
+            box-sizing: border-box;
         }
 
         .mac-detail-header {
@@ -771,7 +773,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.85rem;
-            max-height: 380px;
+            max-height: 720px;
             overflow-y: auto;
             padding-right: 4px;
         }
@@ -2509,10 +2511,12 @@
             if (s.includes("秋季分齡")) return "秋季分齡";
             if (s.includes("冬季分齡")) return "冬季分齡";
             if (s.includes("風城盃")) return s.includes("新竹") ? "新竹風城盃" : "風城盃";
+            if (s.includes("議長盃")) return (s.includes("臺中") || s.includes("台中") ? "臺中議長盃" : (s.includes("高雄") ? "高雄議長盃" : (s.includes("桃園") ? "桃園議長盃" : "議長盃")));
+            if (s.includes("市長盃")) return (s.includes("臺中") || s.includes("台中") ? "臺中市長盃" : (s.includes("高雄") ? "高雄市長盃" : "市長盃"));
             if (s.includes("中小學") || s.includes("中運會")) return (s.includes("新竹") ? "新竹市中運" : "市中運");
 
             // 通用清理前綴與後綴
-            s = s.replace(/^(?:11\d|202\d)年?/, '');
+            s = s.replace(/^(?:11\d|202\d)\s*年?\s*/, '');
             s = s.replace(/^(?:中華民國|臺灣|台灣|全國)/, '');
             s = s.replace(/^(新竹|臺北|台北|新北|桃園|臺中|台中|臺南|台南|高雄|屏東|宜蘭|花蓮|彰化|嘉義)市?/, '$1');
             s = s.replace(/(?:分級游泳錦標賽|分齡游泳錦標賽|分級錦標賽|分齡錦標賽|游泳錦標賽|游泳排名賽|游泳邀請賽|游泳選拔賽|選拔賽|錦標賽|游泳賽)$/, '');
@@ -2616,7 +2620,7 @@
 
                 let eventsHtml = '';
                 if (hasEvents) {
-                    const maxDisplay = 2;
+                    const maxDisplay = 4;
                     const displayed = dayEvents.slice(0, maxDisplay);
                     const remaining = dayEvents.length - maxDisplay;
 

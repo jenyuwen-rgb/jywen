@@ -1959,7 +1959,7 @@
                 card.innerHTML = `
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #38383A; padding-bottom:8px;">
                         <div style="font-size:18px; font-weight:900; color:#FFF; display:flex; align-items:center; gap:8px;">
-                            <span>🏊</span> <span>${strokeName}</span>
+                            <span>${strokeName}</span>
                         </div>
                     </div>
                     <div style="width:100%; overflow-x:auto;">
@@ -2503,7 +2503,7 @@
                                      data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="9" data-diff-eighth="${diffPrelim}" data-birth-year="${selectedBirthYear}"
                                      onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                      title="點擊或懸浮查看決賽 8 強名冊">
-                                    🔴 未進決賽 📋
+                                    未進決賽 📋
                                 </div>
                                 <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距預賽第8名 +${diffPrelim}s</div>
                             `;
@@ -2545,7 +2545,7 @@
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看決賽 8 強名冊">
-                                        🔵 預估第 ${predictedRank} 名 📋
+                                        預估第 ${predictedRank} 名 📋
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距頒獎台 +${diffThird}s</div>
                                 `;
@@ -2626,7 +2626,7 @@
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看 2027 潛在 8 強名冊">
-                                        🔵 預估第 ${predictedRank} 名 📋
+                                        預估第 ${predictedRank} 名 📋
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距頒獎台 +${diffThird}s</div>
                                 `;
@@ -2637,7 +2637,7 @@
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="9" data-diff-eighth="${diffEighth}" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看 2027 潛在 8 強名冊">
-                                        🔴 未進前 8 名 📋
+                                        未進前 8 名 📋
                                     </div>
                                     <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距第8名 +${diffEighth}s</div>
                                 `;
@@ -2654,14 +2654,14 @@
 
                     rowsHtml += `
                         <tr style="transition:background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
-                            <td style="padding:10px 12px; font-weight:800; font-size:14px; color:#FFF; white-space:nowrap; border-bottom:0.5px solid #2C2C2E;">
+                            <td style="padding:8px 6px; font-weight:800; font-size:13px; color:#FFF; white-space:nowrap; border-bottom:0.5px solid #2C2C2E;">
                                 ${eventName}
                             </td>
-                            <td style="padding:10px 12px; text-align:center; white-space:nowrap; border-bottom:0.5px solid #2C2C2E; border-right:1px solid #38383A;">
+                            <td style="padding:8px 4px; text-align:center; border-bottom:0.5px solid #2C2C2E; border-right:1px solid #38383A;">
                                 ${swimmerPbObj ? `
-                                    <div style="font-family:monospace; font-weight:800; font-size:15px; color:#FFF;">${swimmerPbObj.timeStr}</div>
-                                    <div style="font-size:11px; color:#8E8E93; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px;" title="${swimmerPbObj.meet}">${swimmerPbObj.meet}</div>
-                                    ${swimmerPbObj.date ? `<div style="font-size:10px; color:#636366; font-family:monospace; margin-top:1px;">${formatRaceDate(swimmerPbObj.date)}</div>` : ''}
+                                    <div style="font-family:monospace; font-weight:800; font-size:14px; color:#FFF;">${swimmerPbObj.timeStr}</div>
+                                    <div style="font-size:10px; color:#8E8E93; max-width:110px; margin:0 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px;" title="${swimmerPbObj.meet}">${swimmerPbObj.meet}</div>
+                                    ${swimmerPbObj.date ? `<div style="font-size:9px; color:#636366; font-family:monospace; margin-top:1px;">${formatRaceDate(swimmerPbObj.date)}</div>` : ''}
                                 ` : `
                                     <div style="color:#636366; font-size:12px;">無成績</div>
                                 `}
@@ -2672,25 +2672,27 @@
                     `;
                 });
 
+                const yearColWidth = meetYears.length > 0 ? (44 / meetYears.length).toFixed(1) + '%' : '22%';
+
                 card.innerHTML = `
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #38383A; padding-bottom:8px;">
                         <div style="font-size:18px; font-weight:900; color:#FFF; display:flex; align-items:center; gap:8px;">
-                            <span>🏊</span> <span>${strokeName}</span>
+                            <span>${strokeName}</span>
                             <span style="font-size:12px; color:#8E8E93; font-weight:500;">(${targetMeet.short} · ${division})</span>
                         </div>
                     </div>
                     <div style="width:100%; overflow-x:auto;">
-                        <table style="width:100%; min-width:880px; border-collapse:collapse;">
+                        <table style="width:100%; border-collapse:collapse; table-layout:fixed;">
                             <thead>
                                 <tr style="border-bottom:1px solid #38383A; background:rgba(255,255,255,0.02);">
-                                    <th style="padding:8px 12px; text-align:left; font-size:12px; color:#8E8E93; width:120px;">項目</th>
-                                    <th style="padding:8px 12px; text-align:center; font-size:12px; color:#FFF; width:140px; border-right:1px solid #38383A;">個人最佳 (PB)</th>
-                                    <th style="padding:8px 8px; text-align:center; font-size:12px; color:#FFF; width:170px; border-right:1px solid #38383A;">
+                                    <th style="padding:8px 6px; text-align:left; font-size:12px; color:#8E8E93; width:14%;">項目</th>
+                                    <th style="padding:8px 4px; text-align:center; font-size:12px; color:#FFF; width:18%; border-right:1px solid #38383A;">個人最佳 (PB)</th>
+                                    <th style="padding:8px 4px; text-align:center; font-size:12px; color:#FFF; width:24%; border-right:1px solid #38383A;">
                                         <div style="font-weight:700;">2027 下屆預估</div>
                                         <div style="font-size:10px; color:#8E8E93; margin-top:2px;">現役潛在對手榜</div>
                                     </th>
                                     ${meetYears.map(yr => `
-                                        <th style="padding:8px 8px; text-align:center; font-size:12px; color:#FFF;">
+                                        <th style="padding:8px 4px; text-align:center; font-size:12px; color:#FFF; width:${yearColWidth};">
                                             <div style="font-weight:700;">${toTwYear(yr)}年 (${yr})</div>
                                             <div style="font-size:10px; color:#8E8E93; margin-top:2px;">${targetMeet.short}</div>
                                         </th>
