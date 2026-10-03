@@ -2606,8 +2606,10 @@
                             let predictedRank = fasterCount + 1;
                             if (predictedRank > 8) predictedRank = 8;
 
-                            if (swimmerSec < first.sec) {
-                                const diff = (first.sec - swimmerSec).toFixed(2);
+                            const isFirstSelf = (first.name === swimmerName);
+                            if (swimmerSec < first.sec || isFirstSelf) {
+                                const diff = isFirstSelf ? '0.00' : (first.sec - swimmerSec).toFixed(2);
+                                const leadText = isFirstSelf ? '現役排名第 1' : `領先第1名 -${diff}s`;
                                 rankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.35); transition:all 0.15s ease;"
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="1" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
@@ -2615,7 +2617,7 @@
                                          title="點擊或懸浮查看決賽 8 強名冊">
                                         預估第 1
                                     </div>
-                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">領先第1名 -${diff}s</div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">${leadText}</div>
                                 `;
                             } else if (third && swimmerSec <= third.sec) {
                                 const medalRank = predictedRank <= 2 ? 2 : 3;
@@ -2688,8 +2690,10 @@
                             const fasterCount = fTopSecs.filter(s => s < swimmerSec).length;
                             let predictedRank = fasterCount + 1;
 
-                            if (swimmerSec < fFirst.sec) {
-                                const diff = (fFirst.sec - swimmerSec).toFixed(2);
+                            const isFutFirstSelf = (fFirst.name === swimmerName);
+                            if (swimmerSec < fFirst.sec || isFutFirstSelf) {
+                                const diff = isFutFirstSelf ? '0.00' : (fFirst.sec - swimmerSec).toFixed(2);
+                                const leadText = isFutFirstSelf ? '現役排名第 1' : `領先第1名 -${diff}s`;
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.35); transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="1" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
@@ -2697,7 +2701,7 @@
                                          title="點擊或懸浮查看下屆潛在 8 強名冊">
                                         預估第 1
                                     </div>
-                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">領先第1名 -${diff}s</div>
+                                    <div style="font-size:10px; color:#8E8E93; margin-top:2px;">${leadText}</div>
                                 `;
                             } else if (fThird && swimmerSec <= fThird.sec) {
                                 const medalRank = predictedRank <= 2 ? 2 : 3;
