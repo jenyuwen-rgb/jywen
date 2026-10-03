@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>游泳成績查詢 v26.0 (AD Edition)</title>
+    <title>金水｜台灣游泳成績查詢 · 多人比較與得獎分析</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -48,6 +48,7 @@
         #queryLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
         #lottie-swimmer { width: 320px; height: 320px; margin-bottom: -40px; }
     </style>
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <div id="queryLoader">
@@ -64,7 +65,10 @@
         </div>
     </div>
 
-    <div class="header-title">游泳成績查詢</div>
+        <div class="header-title">金水</div>
+    <div class="header-subtitle" style="text-align: center; margin-top: -6px; margin-bottom: 14px; font-size: 14px; font-weight: 500; letter-spacing: 0.5px; color: #A1A1AA;">
+        台灣游泳成績 <span style="color: #48484A; margin: 0 4px;">·</span> <span style="color: #E4E4E7;">個人查詢</span> <span style="color: #48484A; margin: 0 2px;">/</span> <span style="color: #E4E4E7;">多人比較</span> <span style="color: #48484A; margin: 0 2px;">/</span> <span style="color: #E4E4E7;">得獎分析</span>
+    </div>
     <div class="nav-header">
         <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()">🕒</span>
         <input type="text" id="searchInput" value="温心妤">

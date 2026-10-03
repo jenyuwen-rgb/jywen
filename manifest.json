@@ -1,0 +1,15 @@
+{
+  "name": "金水 游泳成績",
+  "short_name": "金水",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3144/3144560.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
