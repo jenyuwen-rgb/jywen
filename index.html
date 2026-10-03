@@ -2541,7 +2541,7 @@
                             } else {
                                 const diffThird = third ? (swimmerSec - third.sec).toFixed(2) : '0.00';
                                 rankHtml = `
-                                    <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(48,209,88,0.3); transition:all 0.15s ease;"
+                                    <div style="cursor:pointer; display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800; color:#30D158; background:transparent; padding:2px 0; margin-top:4px; border:none; transition:all 0.15s ease;"
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看決賽 8 強名冊">
@@ -2622,7 +2622,7 @@
                             } else if (fEighth && swimmerSec <= fEighth.sec) {
                                 const diffThird = fThird ? (swimmerSec - fThird.sec).toFixed(2) : '0.00';
                                 fRankHtml = `
-                                    <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(48,209,88,0.3); transition:all 0.15s ease;"
+                                    <div style="cursor:pointer; display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800; color:#30D158; background:transparent; padding:2px 0; margin-top:4px; border:none; transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
                                          onmouseenter="window.showPodiumRoster(event, this)" onmouseleave="window.hidePodiumRoster()" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊或懸浮查看 2027 潛在 8 強名冊">
