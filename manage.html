@@ -1363,7 +1363,7 @@
                                 <th style="padding: 8px 8px; color: #8E8E93; text-align: center; width: 100px;">覆蓋率</th>
                                 <th style="padding: 8px 8px; color: #8E8E93; text-align: center; width: 70px;">健康分</th>
                                 <th style="padding: 8px 8px; color: #8E8E93; text-align: center; width: 80px;">狀態</th>
-                                <th style="padding: 8px 10px; color: #8E8E93; text-align: center; width: 90px;">自愈操作</th>
+                                <th style="padding: 8px 10px; color: #8E8E93; text-align: center; width: 90px;">缺漏詳情</th>
                             </tr>
                         </thead>
                         <tbody id="healthReportTableBody"></tbody>
@@ -3375,9 +3375,9 @@
                                     </span>
                                 </td>
                                 <td style="padding: 8px 10px; text-align: center;">
-                                    ${m.can_repair ? `
-                                        <button onclick="repairSingleMeet('${m.meet_name.replace(/'/g, "\\'")}', this)" style="background: rgba(255,215,0,0.15); border: 0.5px solid #FFD700; color: #FFD700; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; cursor: pointer;">
-                                            ⚡ 修復
+                                    ${m.missing_count > 0 ? `
+                                        <button onclick="viewMissingEvents('${m.meet_name.replace(/'/g, "\\'")}', ${JSON.stringify(m.missing_events || []).replace(/"/g, '&quot;')})" style="background: rgba(255,255,255,0.06); border: 0.5px solid #8E8E93; color: #E5E5EA; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; cursor: pointer;">
+                                            📋 檢視缺漏
                                         </button>
                                     ` : `
                                         <span style="color: #636366; font-size: 0.72rem;">無缺漏</span>
@@ -3396,29 +3396,10 @@
             }
         }
 
-        // 定向修復單場賽事
-        async function repairSingleMeet(meetName, btnEl) {
-            btnEl.disabled = true;
-            btnEl.textContent = '修復中...';
-
-            try {
-                const resp = await fetch(`${API_BASE}/api/health_inspector/repair`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ meet_name: meetName })
-                });
-                if (resp.ok) {
-                    const res = await resp.json();
-                    alert(res.message || '修復完成！');
-                    runDatabaseHealthScan();
-                } else {
-                    alert('修復失敗');
-                }
-            } catch(e) {
-                alert(`修復失敗: ${e.message}`);
-            } finally {
-                btnEl.disabled = false;
-            }
+        // 檢視缺漏項目詳情（遵循零造假最高協議，嚴禁任何一鍵塞假資料修復）
+        function viewMissingEvents(meetName, events) {
+            const listStr = Array.isArray(events) && events.length > 0 ? events.join('\n• ') : '無詳細項目清單';
+            alert(`【${meetName}】缺失項目清單：\n\n• ${listStr}\n\n⚠️ 【零造假守護】：若需補齊，必須使用官方爬蟲連線大會成績冊抓取真實紀錄，嚴禁任何假資料寫入！`);
         }
 
         // 當賽事下拉改變時觸發
