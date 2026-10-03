@@ -2267,7 +2267,7 @@
             }
         };
 
-        async function doPodiumSimulation(swimmerName, forcedBirthYear, forcedSex, forcedMeetId) {
+        async function doPodiumSimulation(swimmerName, forcedBirthYear, forcedSex, forcedMeetId, forcedFutureDivision) {
             if (!worker) return;
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
@@ -2341,7 +2341,7 @@
                     birthSelect.classList.remove('hidden');
                     birthSelect.onchange = function() {
                         const curSex = document.getElementById('sexSelect') ? document.getElementById('sexSelect').value : sex;
-                        doPodiumSimulation(swimmerName, this.value, curSex, currentSelectedMeetId);
+                        doPodiumSimulation(swimmerName, this.value, curSex, currentSelectedMeetId, activeFutureDiv);
                     };
                 }
             } else {
@@ -2356,7 +2356,7 @@
                     sexSelect.style.display = 'inline-block';
                     sexSelect.onchange = function() {
                         const curYear = document.getElementById('birthYearSelect') ? document.getElementById('birthYearSelect').value : selectedBirthYear;
-                        doPodiumSimulation(swimmerName, curYear, this.value, currentSelectedMeetId);
+                        doPodiumSimulation(swimmerName, curYear, this.value, currentSelectedMeetId, activeFutureDiv);
                     };
                 }
             } else {
@@ -2395,6 +2395,24 @@
                 const found = targetMeet.divisions.find(d => d.includes(division) || division.includes(d));
                 if (found) division = found;
                 else if (targetMeet.divisions.length > 0) division = targetMeet.divisions[0];
+            }
+
+            // 計算下屆可用組別清單與預設組別
+            const availableFutureDivs = (targetMeet.future_2027 && targetMeet.future_2027[sex]) ? Object.keys(targetMeet.future_2027[sex]) : (targetMeet.divisions || []);
+            let defaultFutureDiv = division;
+            if (targetMeet.id === 'high_school') {
+                const nextYearAge = swimmerAge + 1;
+                defaultFutureDiv = nextYearAge <= 15 ? '國中組' : '高中組';
+            } else if (targetMeet.id === 'primary') {
+                const nextYearAge = swimmerAge + 1;
+                defaultFutureDiv = nextYearAge <= 10 ? '中年級組' : '高年級組';
+            }
+            if (!availableFutureDivs.includes(defaultFutureDiv) && availableFutureDivs.length > 0) {
+                defaultFutureDiv = availableFutureDivs[0];
+            }
+            let activeFutureDiv = forcedFutureDivision || defaultFutureDiv;
+            if (!availableFutureDivs.includes(activeFutureDiv) && availableFutureDivs.length > 0) {
+                activeFutureDiv = availableFutureDivs[0];
             }
 
             // 5. 查詢選手長水道個人最佳成績 (PB)
@@ -2456,7 +2474,7 @@
             let yearSelectHtml = '';
             if (availableYears.length > 1) {
                 yearSelectHtml = `
-                    <select class="cmp-birth-select" onchange="doPodiumSimulation('${swimmerName}', this.value, '${sex}', '${currentSelectedMeetId}')" title="同名選手，點擊切換出生年">
+                    <select class="cmp-birth-select" onchange="doPodiumSimulation('${swimmerName}', this.value, '${sex}', '${currentSelectedMeetId}', '${activeFutureDiv}')" title="同名選手，點擊切換出生年">
                         ${availableYears.map(y => `<option value="${y}" ${y === selectedBirthYear ? 'selected' : ''}>${y}年次</option>`).join('')}
                     </select>
                 `;
@@ -2494,7 +2512,7 @@
                         </div>
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span style="font-size:12px; color:#8E8E93; font-weight:600;">模擬大賽：</span>
-                            <select class="cmp-birth-select" style="background:#1C1C1E; color:#FFF; font-weight:700; font-size:13px; border:1px solid rgba(255,255,255,0.25); padding:5px 12px; border-radius:10px; cursor:pointer;" onchange="doPodiumSimulation('${swimmerName}', '${selectedBirthYear}', '${sex}', this.value)">
+                            <select class="cmp-birth-select" style="background:#1C1C1E; color:#FFF; font-weight:700; font-size:13px; border:1px solid rgba(255,255,255,0.25); padding:5px 12px; border-radius:10px; cursor:pointer;" onchange="doPodiumSimulation('${swimmerName}', '${selectedBirthYear}', '${sex}', this.value, null)">
                                 ${meetOptionsHtml}
                             </select>
                         </div>
@@ -2631,15 +2649,8 @@
                         `;
                     }).join('');
 
-                    // ── 下屆大賽預估儲存格 (置於今年之左側，依選手下屆年齡/學制動態晉級) ──
-                    let futureDivision = division;
-                    if (targetMeet.id === 'high_school') {
-                        const nextYearAge = swimmerAge + 1;
-                        futureDivision = nextYearAge <= 15 ? '國中組' : '高中組';
-                    } else if (targetMeet.id === 'primary') {
-                        const nextYearAge = swimmerAge + 1;
-                        futureDivision = nextYearAge <= 10 ? '中年級組' : '高年級組';
-                    }
+                    // ── 下屆大賽預估儲存格 (使用者可自由切換組別 activeFutureDiv) ──
+                    const futureDivision = activeFutureDiv;
                     const f27 = targetMeet.future_2027 && targetMeet.future_2027[sex] && targetMeet.future_2027[sex][futureDivision] && targetMeet.future_2027[sex][futureDivision][eventName];
                     let f27CellHtml = '';
 
@@ -2767,8 +2778,14 @@
                                     <th style="padding:8px 6px; text-align:left; font-size:12px; color:#8E8E93; width:14%;">項目</th>
                                     <th style="padding:8px 4px; text-align:center; font-size:12px; color:#FFF; width:18%; border-right:1px solid #38383A;">個人最佳 (PB)</th>
                                     <th style="padding:8px 4px; text-align:center; font-size:12px; color:#FFF; width:24%; border-right:1px solid #38383A;">
-                                        <div style="font-weight:700;">下屆預估</div>
-                                        <div style="font-size:10px; color:#8E8E93; margin-top:2px;">${targetMeet.id === 'high_school' && swimmerAge >= 15 ? '升高中組潛在榜' : (targetMeet.id === 'primary' && swimmerAge >= 12 ? '升國中組潛在榜' : '現役潛在榜')}</div>
+                                        <div style="font-weight:700; margin-bottom:2px;">下屆預估</div>
+                                        <div style="display:inline-flex; align-items:center; justify-content:center;">
+                                            <select style="background:#1C1C1E; color:#38BDF8; font-size:11px; font-weight:700; border:0.5px solid rgba(56,189,248,0.4); border-radius:6px; padding:2px 6px; outline:none; cursor:pointer;" 
+                                                    onchange="doPodiumSimulation('${swimmerName}', '${selectedBirthYear}', '${sex}', '${currentSelectedMeetId}', this.value)"
+                                                    title="點擊切換下屆預估比較的組別">
+                                                ${availableFutureDivs.map(d => `<option value="${d}" ${d === activeFutureDiv ? 'selected' : ''}>${d} ▾</option>`).join('')}
+                                            </select>
+                                        </div>
                                     </th>
                                     ${meetYears.map(yr => `
                                         <th style="padding:8px 4px; text-align:center; font-size:12px; color:#FFF; width:${yearColWidth};">
