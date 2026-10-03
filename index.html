@@ -281,7 +281,7 @@
         </select>
         <span class="font-bold px-3 cursor-pointer" onclick="doSearch()" style="background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
-        <span class="font-bold text-[#8E8E93] hover:text-white px-3 cursor-pointer" onclick="shareCurrentView()" title="轉發分享目前畫面給朋友">分享 📤</span>
+        <span class="cursor-pointer text-[#8E8E93] hover:text-white px-3 inline-flex items-center justify-center transition-colors" onclick="shareCurrentView()" title="轉發分享目前畫面給朋友"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M4 12v-1a6 6 0 0 1 6-6h9"/><polyline points="15 3 21 9 15 15"/></svg></span>
         
     </div>
 
@@ -764,7 +764,8 @@
                 if (!res || !res[0]) continue;
                 const card = document.createElement('div'); card.className = "stroke-card";
                 card.cardHTML = "";
-                card.innerHTML = `<div class="stroke-title-wrap"><div class="stroke-title">${stroke}</div></div>`;
+                card.id = `card-stroke-${stroke}`;
+                card.innerHTML = `<div class="stroke-title-wrap" style="display:flex; align-items:center; justify-content:space-between;"><div class="stroke-title">${stroke}</div><div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${stroke}')" title="轉發分享${stroke}卡片"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M4 12v-1a6 6 0 0 1 6-6h9"/><polyline points="15 3 21 9 15 15"/></svg></div></div>`;
                 const trayInner = document.createElement('div'); trayInner.className = "tray-inner-container"; trayInner.style.minWidth = "710px";
                 const scrollTray = document.createElement('div'); scrollTray.className = "scroll-tray-wrap";
                 let allData = res[0].values.map(v => { 
@@ -962,7 +963,8 @@
                 // 大黑底卡片
                 const card = document.createElement('div');
                 card.className = 'stroke-card';
-                card.innerHTML = `<div class="stroke-title-wrap"><div class="stroke-title">${stroke}</div></div>`;
+                card.id = `card-stroke-${stroke}`;
+                card.innerHTML = `<div class="stroke-title-wrap" style="display:flex; align-items:center; justify-content:space-between;"><div class="stroke-title">${stroke}</div><div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${stroke}')" title="轉發分享${stroke}卡片"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M4 12v-1a6 6 0 0 1 6-6h9"/><polyline points="15 3 21 9 15 15"/></svg></div></div>`;
 
                 const scrollTray = document.createElement('div');
                 scrollTray.className = 'scroll-tray-wrap';
@@ -2034,6 +2036,7 @@
                         <div style="font-size:18px; font-weight:900; color:#FFF; display:flex; align-items:center; gap:8px;">
                             <span>${strokeName}</span>
                         </div>
+                        <div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${strokeName}')" title="轉發分享${strokeName}達標卡片"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M4 12v-1a6 6 0 0 1 6-6h9"/><polyline points="15 3 21 9 15 15"/></svg></div>
                     </div>
                     <div style="width:100%; overflow-x:auto;">
                         <table style="width:100%; min-width:760px; border-collapse:collapse;">
@@ -2780,6 +2783,7 @@
                             <span>${strokeName}</span>
                             <span style="font-size:12px; color:#8E8E93; font-weight:500;">(${targetMeet.short} · ${division})</span>
                         </div>
+                        <div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${strokeName}')" title="轉發分享${strokeName}得獎模擬卡片"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><path d="M4 12v-1a6 6 0 0 1 6-6h9"/><polyline points="15 3 21 9 15 15"/></svg></div>
                     </div>
                     <div style="width:100%; overflow-x:auto;">
                         <table style="width:100%; border-collapse:collapse; table-layout:fixed;">
@@ -3176,6 +3180,78 @@
             }
         }
 
+        
+        // ── 方案 A：單張卡片深度轉發分享核心函數 ──
+        async function shareCardView(strokeName) {
+            const rawInput = (document.getElementById('searchInput').value || '').trim();
+            const currentUrl = new URL(window.location.origin + window.location.pathname);
+            if (rawInput) {
+                currentUrl.searchParams.set('q', rawInput);
+            }
+            if (strokeName) {
+                currentUrl.searchParams.set('card', strokeName);
+            }
+            const shareUrl = currentUrl.toString();
+            
+            let shareTitle = '金水 ● 台灣游泳成績查詢';
+            let shareText = `點擊查看${rawInput ? ' ' + rawInput + ' 的' : ''}「${strokeName}」完整成績與對手分析！`;
+            
+            if (rawInput) {
+                const sName = rawInput.split('/')[0].split(';')[0].trim();
+                shareTitle = `【金水 游泳成績】${sName} · ${strokeName}卡片`;
+            }
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: shareTitle,
+                        text: shareText,
+                        url: shareUrl
+                    });
+                    return;
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.warn("navigator.share 異常，降級使用剪貼簿:", err);
+                    } else {
+                        return;
+                    }
+                }
+            }
+
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                showShareToast(`✅ 已複製「${rawInput ? rawInput + ' · ' : ''}${strokeName}」專屬卡片分享連結！`);
+            } catch (clipErr) {
+                prompt("請複製此卡片專屬分享連結：", shareUrl);
+            }
+        }
+
+        // 監聽並自動滾動高亮指定卡片
+        function checkAndScrollToCard() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const targetCard = params.get('card');
+                if (targetCard) {
+                    setTimeout(() => {
+                        const cards = document.querySelectorAll('.stroke-card');
+                        for (let c of cards) {
+                            if (c.textContent.includes(targetCard) || c.id === 'card-stroke-' + targetCard) {
+                                c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                c.style.outline = '2px solid rgba(212, 175, 55, 0.8)';
+                                c.style.boxShadow = '0 0 24px rgba(212, 175, 55, 0.3)';
+                                setTimeout(() => {
+                                    c.style.transition = 'all 1.5s ease';
+                                    c.style.outline = 'none';
+                                    c.style.boxShadow = 'none';
+                                }, 3000);
+                                break;
+                            }
+                        }
+                    }, 800);
+                }
+            } catch(e) {}
+        }
+
         function showShareToast(msg) {
             let toast = document.getElementById('shareToast');
             if (!toast) {
@@ -3229,6 +3305,8 @@
             } catch(e) {}
         }
         checkUrlAutoSearch();
+        window.addEventListener("load", checkAndScrollToCard);
+        setTimeout(checkAndScrollToCard, 1500);
 
         function toggleHistory() { let h = JSON.parse(localStorage.getItem('swim_h')||"[]"), html = `<div id="histModal" style="position:fixed; top:65px; left:50%; transform:translateX(-50%); width:calc(100% - 32px); max-width:860px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000; box-shadow:0 8px 32px rgba(0,0,0,0.6); box-sizing:border-box;"><div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;"><span style="color:#D4AF37; font-weight:bold;">歷史紀錄</span><span onclick="document.getElementById('histModal').remove()" style="color:#8E8E93; cursor:pointer;">關閉</span></div>`; h.forEach(n => html += `<div style="display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;"><span onclick="selectHist('${n}')" style="flex:1; cursor:pointer; color:#FFF;">${n}</span><span onclick="deleteHistory('${n}')" style="cursor:pointer;">🗑️</span></div>`); document.body.insertAdjacentHTML('beforeend', html+'</div>'); }
         function selectHist(n) { document.getElementById('searchInput').value = n; if(document.getElementById('histModal')) document.getElementById('histModal').remove(); doSearch(); }
