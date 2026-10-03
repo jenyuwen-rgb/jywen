@@ -281,8 +281,6 @@
         </select>
         <span class="font-bold px-3 cursor-pointer" onclick="doSearch()" style="background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
-        <span class="cursor-pointer text-[#8E8E93] hover:text-white px-3 inline-flex items-center justify-center transition-colors" onclick="shareCurrentView()" title="轉發分享目前畫面給朋友"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; transform: translateY(-1px);"><path d="M3.5 15.5C3.5 10 7.5 6 14 6V2.5L22 10L14 17.5V14C8.5 14 5.5 16 3.5 20.5C3.5 19 3.5 17 3.5 15.5Z"/></svg></span>
-        
     </div>
 
     <!-- 網站使用指南 (User Guide Modal) -->
@@ -758,7 +756,12 @@
                 }
             }
 
-            const strokes = ["仰式", "蛙式", "蝶式", "自由式", "混合式"];
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetCard = urlParams.get('card');
+            let strokes = ["仰式", "蛙式", "蝶式", "自由式", "混合式"];
+            if (targetCard && strokes.includes(targetCard)) {
+                strokes = [targetCard];
+            }
             for (let [sIdx, stroke] of strokes.entries()) {
                 const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${input}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}${activeBirthFilter}${sexFilterClause}`);
                 if (!res || !res[0]) continue;
@@ -807,6 +810,16 @@
                     dd.innerHTML = `<div id="c-${id}"></div>`; trayInner.appendChild(row); trayInner.appendChild(dd);
                 }
                 scrollTray.appendChild(trayInner); card.appendChild(scrollTray); main.appendChild(card);
+            }
+            if (targetCard) {
+                const expandBox = document.createElement('div');
+                expandBox.style.cssText = "text-align:center; margin:24px auto 32px auto;";
+                expandBox.innerHTML = `
+                    <button onclick="expandToFullView()" style="background:#1C1C1E; border:1px solid #38383A; color:#D4AF37; padding:10px 24px; border-radius:20px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.4); transition:all 0.2s ease;">
+                        🔍 查看「${input}」完整成績 (展開所有泳姿)
+                    </button>
+                `;
+                main.appendChild(expandBox);
             }
             await minWait; loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
         }
@@ -900,7 +913,11 @@
             main.appendChild(headerBar);
 
             // 預抓每位選手所有泳姿之有效資料（合併為單一 SQL 查詢，極速秒開且節省行動端記憶體）
-            const strokes = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
+            const cmpTargetCard = new URLSearchParams(window.location.search).get('card');
+            let strokes = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
+            if (cmpTargetCard && strokes.includes(cmpTargetCard)) {
+                strokes = [cmpTargetCard];
+            }
             const playerConditions = players.filter(p => p.birthYear).map(p => {
                 const safePName = p.name.replace(/'/g, "''");
                 const sexClause = p.sex ? ` AND (性別 = '${p.sex}' OR 性別 = '${p.sex=='男'?'男生':'女生'}')` : '';
@@ -1124,6 +1141,16 @@
                 scrollTray.appendChild(trayInner);
                 card.appendChild(scrollTray);
                 main.appendChild(card);
+            }
+            if (cmpTargetCard) {
+                const expandBox = document.createElement('div');
+                expandBox.style.cssText = "text-align:center; margin:24px auto 32px auto;";
+                expandBox.innerHTML = `
+                    <button onclick="expandToFullView()" style="background:#1C1C1E; border:1px solid #38383A; color:#D4AF37; padding:10px 24px; border-radius:20px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.4); transition:all 0.2s ease;">
+                        🔍 查看完整比較成績 (展開所有泳姿)
+                    </button>
+                `;
+                main.appendChild(expandBox);
             }
 
             await minWait;
@@ -1877,7 +1904,11 @@
             main.appendChild(headerBar);
 
             // 5. 依泳式分類呈現卡片 (大仁哥指示順序：仰、蛙、蝶、自、混合)
-            const strokeOrder = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
+            const stdTargetCard = new URLSearchParams(window.location.search).get('card');
+            let strokeOrder = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
+            if (stdTargetCard && strokeOrder.includes(stdTargetCard)) {
+                strokeOrder = [stdTargetCard];
+            }
             const meetOrderNames = ['全國小學錦標賽', '總統盃', '全中運', '全大運', '全運會'];
             const meetMetaMap = {};
             if (stdData && stdData.meets) {
@@ -2069,6 +2100,17 @@
 
                 main.appendChild(card);
             });
+
+            if (stdTargetCard) {
+                const expandBox = document.createElement('div');
+                expandBox.style.cssText = "text-align:center; margin:24px auto 32px auto;";
+                expandBox.innerHTML = `
+                    <button onclick="expandToFullView()" style="background:#1C1C1E; border:1px solid #38383A; color:#D4AF37; padding:10px 24px; border-radius:20px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.4); transition:all 0.2s ease;">
+                        🔍 查看「${swimmerName}」完整達標檢驗 (展開所有泳姿)
+                    </button>
+                `;
+                main.appendChild(expandBox);
+            }
 
             await minWait;
             loader.style.opacity = '0';
@@ -2531,7 +2573,11 @@
             main.appendChild(headerBar);
 
             // 7. 依泳式分類呈現卡片 (仰、蛙、蝶、自、混合)
-            const strokeOrder = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
+            const podiumTargetCard = new URLSearchParams(window.location.search).get('card');
+            let strokeOrder = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
+            if (podiumTargetCard && strokeOrder.includes(podiumTargetCard)) {
+                strokeOrder = [podiumTargetCard];
+            }
             const meetYears = (targetMeet.years || []).slice(0, 2);
 
             strokeOrder.forEach(strokeName => {
@@ -2817,6 +2863,17 @@
                 `;
                 main.appendChild(card);
             });
+
+            if (podiumTargetCard) {
+                const expandBox = document.createElement('div');
+                expandBox.style.cssText = "text-align:center; margin:24px auto 32px auto;";
+                expandBox.innerHTML = `
+                    <button onclick="expandToFullView()" style="background:#1C1C1E; border:1px solid #38383A; color:#D4AF37; padding:10px 24px; border-radius:20px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.4); transition:all 0.2s ease;">
+                        🔍 查看「${swimmerName}」完整得獎模擬 (展開所有泳姿)
+                    </button>
+                `;
+                main.appendChild(expandBox);
+            }
 
             await minWait;
             loader.style.opacity = '0';
@@ -3226,30 +3283,14 @@
             }
         }
 
-        // 監聽並自動滾動高亮指定卡片
-        function checkAndScrollToCard() {
+        // 點擊「查看完整成績」按鈕，清除 URL 上的 card 參數並展開所有卡片
+        function expandToFullView() {
             try {
-                const params = new URLSearchParams(window.location.search);
-                const targetCard = params.get('card');
-                if (targetCard) {
-                    setTimeout(() => {
-                        const cards = document.querySelectorAll('.stroke-card');
-                        for (let c of cards) {
-                            if (c.textContent.includes(targetCard) || c.id === 'card-stroke-' + targetCard) {
-                                c.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                c.style.outline = '2px solid rgba(212, 175, 55, 0.8)';
-                                c.style.boxShadow = '0 0 24px rgba(212, 175, 55, 0.3)';
-                                setTimeout(() => {
-                                    c.style.transition = 'all 1.5s ease';
-                                    c.style.outline = 'none';
-                                    c.style.boxShadow = 'none';
-                                }, 3000);
-                                break;
-                            }
-                        }
-                    }, 800);
-                }
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.delete('card');
+                window.history.replaceState({}, '', currentUrl.toString());
             } catch(e) {}
+            doSearch();
         }
 
         function showShareToast(msg) {
@@ -3305,8 +3346,6 @@
             } catch(e) {}
         }
         checkUrlAutoSearch();
-        window.addEventListener("load", checkAndScrollToCard);
-        setTimeout(checkAndScrollToCard, 1500);
 
         function toggleHistory() { let h = JSON.parse(localStorage.getItem('swim_h')||"[]"), html = `<div id="histModal" style="position:fixed; top:65px; left:50%; transform:translateX(-50%); width:calc(100% - 32px); max-width:860px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000; box-shadow:0 8px 32px rgba(0,0,0,0.6); box-sizing:border-box;"><div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;"><span style="color:#D4AF37; font-weight:bold;">歷史紀錄</span><span onclick="document.getElementById('histModal').remove()" style="color:#8E8E93; cursor:pointer;">關閉</span></div>`; h.forEach(n => html += `<div style="display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;"><span onclick="selectHist('${n}')" style="flex:1; cursor:pointer; color:#FFF;">${n}</span><span onclick="deleteHistory('${n}')" style="cursor:pointer;">🗑️</span></div>`); document.body.insertAdjacentHTML('beforeend', html+'</div>'); }
         function selectHist(n) { document.getElementById('searchInput').value = n; if(document.getElementById('histModal')) document.getElementById('histModal').remove(); doSearch(); }
