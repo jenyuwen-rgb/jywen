@@ -12,7 +12,59 @@
         body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; }
         .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 8px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; }
         #searchInput { background: transparent; flex: 1; min-width: 0; outline: none; font-weight: bold; font-size: 18px; color: white; }
-        .header-title { text-align: center; color: #D4AF37; font-size: 32px; font-weight: 900; margin: 15px 0; }
+        .header-title { 
+            text-align: center; 
+            background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            font-size: 44px; 
+            font-weight: 900; 
+            margin: 16px 0 8px 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 2.5em; 
+        }
+        .header-marquee-wrap {
+            max-width: 680px;
+            margin: 0 auto 14px auto;
+            overflow: hidden;
+            position: relative;
+            mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+            display: flex;
+            white-space: nowrap;
+        }
+        .header-marquee-content {
+            display: inline-flex;
+            align-items: center;
+            animation: marqueeScroll 24s linear infinite;
+        }
+        .header-marquee-wrap:hover .header-marquee-content {
+            animation-play-state: paused;
+        }
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .marquee-item {
+            display: inline-flex;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: #A1A1AA;
+            letter-spacing: 0.5px;
+            padding: 0 28px;
+        }
+        .marquee-item b {
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+        .marquee-sep {
+            color: #D4AF37;
+            margin: 0 10px;
+            opacity: 0.8;
+        }
         .stroke-card { background-color: #1C1C1E; border: 0.5px solid #38383A; border-radius: 12px; margin: 16px 12px; padding: 16px; }
         .stroke-title { font-size: 26px; font-weight: 900;  margin-bottom: 2px; }
         

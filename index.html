@@ -14,7 +14,60 @@
         body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; }
         .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 8px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; }
         #searchInput { background: transparent; flex: 1; min-width: 0; outline: none; font-weight: bold; font-size: 18px; color: white; }
-        .header-title { text-align: center; background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 32px; font-weight: 900; margin: 15px 0; display: block; }
+        .header-title { 
+            text-align: center; 
+            background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            font-size: 46px; 
+            font-weight: 900; 
+            margin: 18px 0 10px 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 2.8em; 
+            letter-spacing: 0.1em;
+        }
+        .header-marquee-wrap {
+            max-width: 720px;
+            margin: 0 auto 16px auto;
+            overflow: hidden;
+            position: relative;
+            mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+            display: flex;
+            white-space: nowrap;
+        }
+        .header-marquee-content {
+            display: inline-flex;
+            align-items: center;
+            animation: marqueeScroll 25s linear infinite;
+        }
+        .header-marquee-wrap:hover .header-marquee-content {
+            animation-play-state: paused;
+        }
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .marquee-item {
+            display: inline-flex;
+            align-items: center;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #A1A1AA;
+            letter-spacing: 0.5px;
+            padding: 0 32px;
+        }
+        .marquee-item b {
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+        .marquee-sep {
+            color: #D4AF37;
+            margin: 0 10px;
+            opacity: 0.85;
+        }
         .stroke-card { background-color: #1C1C1E; border: 0.5px solid #38383A; border-radius: 12px; margin: 16px 12px; padding: 16px; }
         .stroke-title { font-size: 26px; font-weight: 900;  margin-bottom: 2px; }
         .stroke-title-wrap { max-width: 900px; width: 100%; margin: 0 auto 6px auto; }
@@ -157,7 +210,7 @@
 
         /* 電腦大螢幕 (min-width: 1024px) 置中極簡排版 (最上方姓名搜尋列、標題與內文一併極簡置中) */
         @media (min-width: 1024px) {
-            #dbLoaderArea, #main, .nav-header, .search-container, .header-title, .header-subtitle, #latestRaceTag {
+            #dbLoaderArea, #main, .nav-header, .search-container, .header-title, .header-marquee-wrap {
                 max-width: 860px !important;
                 margin-left: auto !important;
                 margin-right: auto !important;
@@ -194,14 +247,25 @@
         <button id="manualUploadBtn" onclick="document.getElementById('dbFileInput').click()" class="mt-4 bg-transparent border border-[#555] hover:border-white text-gray-400 hover:text-white px-6 py-2 rounded-full text-xs font-bold transition-all duration-200">手動選擇裝置內檔案 (.db)</button>
     </div>
 
-        <div class="header-title">金水</div>
-    <div class="header-subtitle" style="text-align: center; margin-top: -6px; margin-bottom: 14px; font-size: 14px; font-weight: 500; letter-spacing: 0.5px; color: #A1A1AA;">
-        台灣游泳成績 <span style="color: #48484A; margin: 0 4px;">·</span> <span style="color: #E4E4E7;">個人查詢</span> <span style="color: #48484A; margin: 0 2px;">/</span> <span style="color: #E4E4E7;">多人比較</span> <span style="color: #48484A; margin: 0 2px;">/</span> <span style="color: #E4E4E7;">得獎分析</span>
+    <div class="header-title">
+        <span>金</span>
+        <span>水</span>
     </div>
-    <div id="latestRaceTag" style="text-align: center; margin: -6px 0 12px 0;">
-        <span style="background: rgba(28,28,30,0.85); border: 1px solid #3A3A3C; padding: 5px 16px; border-radius: 20px; font-size: 0.8rem; color: #FFFFFF; display: inline-block; box-shadow: 0 2px 8px rgba(0,0,0,0.4); backdrop-filter: blur(8px);">
-            🏆 資料庫最新賽事：<span id="latestRaceName" style="color: #FFFFFF; font-weight: 600;">載入中...</span>
-        </span>
+    <div class="header-marquee-wrap">
+        <div class="header-marquee-content">
+            <span class="marquee-item">
+                台灣游泳成績 <span class="marquee-sep">✦</span> <b>個人查詢</b> <span style="color:#52525B; margin:0 3px;">/</span> <b>多人比較</b> <span style="color:#52525B; margin:0 3px;">/</span> <b>得獎分析</b>
+            </span>
+            <span class="marquee-item">
+                🏆 資料庫最新賽事：<span id="latestRaceName">台南市中小學游泳錦標賽 (2026-09-21)</span>
+            </span>
+            <span class="marquee-item">
+                台灣游泳成績 <span class="marquee-sep">✦</span> <b>個人查詢</b> <span style="color:#52525B; margin:0 3px;">/</span> <b>多人比較</b> <span style="color:#52525B; margin:0 3px;">/</span> <b>得獎分析</b>
+            </span>
+            <span class="marquee-item">
+                🏆 資料庫最新賽事：<span id="latestRaceName_dup">台南市中小學游泳錦標賽 (2026-09-21)</span>
+            </span>
+        </div>
     </div>
     <div class="nav-header">
         <span class="text-[#D4AF37] cursor-pointer text-xl" onclick="toggleHistory()" title="歷史查詢紀錄">🕒</span>
@@ -353,9 +417,11 @@
                 if (res && res[0] && res[0].values && res[0].values.length > 0) {
                     const raceName = res[0].values[0][0];
                     const raceDate = formatDateStr(res[0].values[0][1]);
-                    const el = document.getElementById('latestRaceName');
+                    const el = document.getElementById("latestRaceName");
+                    const elDup = document.getElementById("latestRaceName_dup");
                     if (el) {
                         el.innerHTML = `<strong>${raceName}</strong> <span style="color:#A1A1A6; margin-left:4px;">(${raceDate})</span>`;
+                        if (elDup) elDup.innerHTML = el.innerHTML;
                         hasLoadedLatestRace = true;
                     }
                 }
