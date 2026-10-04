@@ -510,6 +510,7 @@
             return Math.floor(1000 * Math.pow((b[s]?.[parseInt(dist)]||100)/sec, 3));
         }
 
+        function normBirth(b) { return String(b ?? '').replace(/\.0$/, '').trim(); }
         async function getRankData(dist, stroke, name, birth, sex, isNational) {
             const pattern = `%${dist}公尺%${stroke}%`;
             let filter = `項目 LIKE '${pattern}' AND 性別 = '${sex}' AND ${LC_FILTER}`;
@@ -523,7 +524,10 @@
                 if (isDQ(v[6])) return;
 
                 const pN = v[0], sec = timeToSec(v[1]);
-                if (sec > 0 && (!pBs[pN] || sec < pBs[pN].sec)) pBs[pN] = { name: pN, sec, raw: formatToXcode(sec), fullDate: v[2], meet: v[3], wa: getWA(dist, stroke, v[1], sex), birthYear: v[4] };
+                // 全國排行以「姓名＋出生年」分組，避免同名同姓不同出生年被合併 (出生年空值自成一組)
+                const bKey = normBirth(v[4]);
+                const key = isNational ? `${pN}|${bKey}` : pN;
+                if (sec > 0 && (!pBs[key] || sec < pBs[key].sec)) pBs[key] = { name: pN, sec, raw: formatToXcode(sec), fullDate: v[2], meet: v[3], wa: getWA(dist, stroke, v[1], sex), birthYear: isNational ? bKey : v[4] };
             });
             return Object.values(pBs).sort((a,b) => a.sec - b.sec);
         }
@@ -797,7 +801,7 @@
                     const pb = dData[0], id = `s${sIdx}d${dIdx}`;
                     const ageG = await getRankData(dist, stroke, input, pb.出生年, sex, false);
                     const natG = await getRankData(dist, stroke, input, null, sex, true);
-                    const ageIdx0 = ageG.findIndex(r => r.name === input), natIdx0 = natG.findIndex(r => r.name === input);
+                    const ageIdx0 = ageG.findIndex(r => r.name === input), natIdx0 = natG.findIndex(r => r.name === input && r.birthYear === normBirth(pb.出生年));
                     const ageIdx = ageIdx0 >= 0 ? tieRank(ageG, ageIdx0) - 1 : -1, natIdx = natIdx0 >= 0 ? tieRank(natG, natIdx0) - 1 : -1;
                     const prRaw = (ageG && ageG.length > 0 && ageIdx >= 0) ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
                     const pr = (!isNaN(prRaw) && isFinite(prRaw)) ? prRaw : 0;
@@ -1566,8 +1570,9 @@
                     headerAD = `<div class="rank-header-AD"><span class="year-center" style="color:#FFF;">全國排行 (2025-2026)</span></div>`;
                 }
                 let h = `<div class="data-panel p-3">${headerAD}<div style="overflow-x:auto;"><div style="min-width:610px;">`;
-                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${r.name===p1?'row-gold':''}"><span class="col-rank-fixed">#${tieRank(sorted, i)}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
-                const total = sorted.length, tIdx = sorted.findIndex(r => r.name === p1);
+                const isMe = r => r.name === p1 && (mode !== 'natRank' || r.birthYear === normBirth(p2));
+                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${isMe(r)?'row-gold':''}"><span class="col-rank-fixed">#${tieRank(sorted, i)}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
+                const total = sorted.length, tIdx = sorted.findIndex(isMe);
                 if (total > 0) {
                     h += `<div style="border-top:1px solid #444; margin:12px 0 8px 0;"></div>`;
                     if (tIdx >= 0) {

@@ -951,8 +951,10 @@
                     
                     let ageRankNum = birthStat.age_rank || pStat.age_rank;
                     let ageTotalNum = birthStat.age_total || pStat.age_total;
-                    let natRankNum = pStat.nat_rank;
-                    let natTotalNum = pStat.nat_total;
+                    // 全國排行以「姓名＋出生年」分組：取 PB 那筆出生年對應的名次 (出生年空值自成一組)
+                    const natBirthStat = (pStat.nat_by_birth || {})[pbBirthStr];
+                    let natRankNum = natBirthStat ? natBirthStat.nat_rank : null;
+                    let natTotalNum = natBirthStat ? natBirthStat.nat_total : null;
                     
                     // 若 pStat 未命中，從 getRankData 回退計算
                     if (!ageRankNum) {
@@ -965,7 +967,7 @@
                     }
                     if (!natRankNum) {
                         const natG = await getRankData(dist, stroke, input, null, sex, true);
-                        const natIdx = natG.findIndex(r => r.name === input);
+                        const natIdx = natG.findIndex(r => r.name === input && String(r.birthYear || '').replace(/\.0$/, '').trim() === pbBirthStr);
                         if (natIdx >= 0) {
                             natRankNum = tieRank(natG, natIdx);
                             natTotalNum = natG.totalCompetitors || natG.length;
@@ -1754,9 +1756,11 @@
                     headerAD = `<div class="rank-header-AD"><span class="year-center" style="color:#FFF;">全國排行 (2025-2026)</span></div>`;
                 }
                 let h = `<div class="data-panel p-3">${headerAD}<div style="overflow-x:auto;"><div style="min-width:610px;">`;
-                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${r.name===p1?'row-gold':''}"><span class="col-rank-fixed">#${tieRank(sorted, i)}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
+                const p2Birth = String(p2 ?? '').replace(/\.0$/, '').trim();
+                const isMe = r => r.name === p1 && (mode !== 'natRank' || String(r.birthYear ?? '').replace(/\.0$/, '').trim() === p2Birth);
+                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${isMe(r)?'row-gold':''}"><span class="col-rank-fixed">#${tieRank(sorted, i)}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
                 const total = sorted.totalCompetitors || sorted.length;
-                const tIdx = sorted.findIndex(r => r.name === p1);
+                const tIdx = sorted.findIndex(isMe);
                 if (total > 0) {
                     h += `<div style="border-top:1px solid #444; margin:12px 0 8px 0;"></div>`;
                     if (tIdx >= 0) {
@@ -1770,7 +1774,8 @@
                         const pStat = (rawStat.by_sex && rawStat.by_sex[curSex]) ? rawStat.by_sex[curSex] : rawStat;
                         const pbBirthStr = String(p2 || '').replace(/\.0$/, '').trim();
                         const birthStat = (pStat.by_birth && pbBirthStr && pStat.by_birth[pbBirthStr]) ? pStat.by_birth[pbBirthStr] : pStat;
-                        const rankNum = (mode === 'natRank') ? pStat.nat_rank : (birthStat.age_rank || pStat.age_rank);
+                        const natBStat = (pStat.nat_by_birth || {})[pbBirthStr];
+                        const rankNum = (mode === 'natRank') ? (natBStat ? natBStat.nat_rank : null) : (birthStat.age_rank || pStat.age_rank);
                         if (rankNum) {
                             const pr = (100 * (total - (rankNum - 1)) / total).toFixed(1);
                             let userPbTime = "-", userPbMeet = "-", userPbDate = "-";
