@@ -260,13 +260,13 @@
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName">台南市中小學游泳錦標賽 (2026-09-21)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName">載入中...</span>
             </span>
             <span class="marquee-item">
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName_dup">台南市中小學游泳錦標賽 (2026-09-21)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName_dup">載入中...</span>
             </span>
         </div>
     </div>
@@ -533,10 +533,11 @@
         async function loadLatestRaceInfo() {
             if (hasLoadedLatestRace) return;
             try {
-                const res = await remoteQuery(`SELECT 賽事名稱, 年份 FROM swimming_scores WHERE 年份 IS NOT NULL AND 年份 != '' ORDER BY 年份 DESC LIMIT 1`);
-                if (res && res[0] && res[0].values && res[0].values.length > 0) {
-                    const raceName = res[0].values[0][0];
-                    const raceDate = formatDateStr(res[0].values[0][1]);
+                const mResp = await fetch('/data_buckets/manifest.json?t=' + Date.now());
+                const mf = mResp.ok ? await mResp.json() : null;
+                if (mf && mf.latest_race) {
+                    const raceName = mf.latest_race;
+                    const raceDate = formatDateStr(mf.latest_date);
                     const el = document.getElementById("latestRaceName");
                     const elDup = document.getElementById("latestRaceName_dup");
                     if (el) {
@@ -610,7 +611,15 @@
         function isDQ(remark) {
             if (!remark) return false;
             const r = String(remark);
-            return r.includes("違規") || r.includes("DQ") || r.includes("DNS") || r.includes("DNF") || r.includes("請假") || r.includes("棄權") || r.includes("取消資格") || r.includes("棄賽");
+            return ['違規', 'DQ', 'DNS', 'DNF', '請假', '棄權', '取消資格', '棄賽', '未到'].some(k => r.toUpperCase().includes(k));
+        }
+        // 同秒並列採相同名次：名次 = 比他快的人數 + 1（以百分之一秒比較；與 build_256split_full_indices.py 一致）
+        function tieRank(sorted, idx) {
+            if (!sorted || idx < 0 || idx >= sorted.length) return -1;
+            const cs = v => Math.round(Number(v) * 100), t = cs(sorted[idx].sec);
+            let r = idx;
+            while (r > 0 && cs(sorted[r - 1].sec) === t) r--;
+            return r + 1;
         }
 
         function getWA(dist, stroke, timeStr, sex) {
@@ -950,7 +959,7 @@
                         const ageG = await getRankData(dist, stroke, input, pb.出生年, sex, false);
                         const ageIdx = ageG.findIndex(r => r.name === input);
                         if (ageIdx >= 0) {
-                            ageRankNum = ageIdx + 1;
+                            ageRankNum = tieRank(ageG, ageIdx);
                             ageTotalNum = ageG.totalCompetitors || ageG.length;
                         }
                     }
@@ -958,7 +967,7 @@
                         const natG = await getRankData(dist, stroke, input, null, sex, true);
                         const natIdx = natG.findIndex(r => r.name === input);
                         if (natIdx >= 0) {
-                            natRankNum = natIdx + 1;
+                            natRankNum = tieRank(natG, natIdx);
                             natTotalNum = natG.totalCompetitors || natG.length;
                         }
                     }
@@ -1745,14 +1754,14 @@
                     headerAD = `<div class="rank-header-AD"><span class="year-center" style="color:#FFF;">全國排行 (2025-2026)</span></div>`;
                 }
                 let h = `<div class="data-panel p-3">${headerAD}<div style="overflow-x:auto;"><div style="min-width:610px;">`;
-                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${r.name===p1?'row-gold':''}"><span class="col-rank-fixed">#${i+1}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
+                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${r.name===p1?'row-gold':''}"><span class="col-rank-fixed">#${tieRank(sorted, i)}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
                 const total = sorted.totalCompetitors || sorted.length;
                 const tIdx = sorted.findIndex(r => r.name === p1);
                 if (total > 0) {
                     h += `<div style="border-top:1px solid #444; margin:12px 0 8px 0;"></div>`;
                     if (tIdx >= 0) {
-                        const u = sorted[tIdx], pr = (100 * (total - tIdx) / total).toFixed(1);
-                        h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${tIdx+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${formatDateStr(u.fullDate)}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
+                        const u = sorted[tIdx], tRank = tieRank(sorted, tIdx), pr = (100 * (total - (tRank - 1)) / total).toFixed(1);
+                        h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${tRank}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${formatDateStr(u.fullDate)}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
                     } else {
                         // 選手在 Top 50/100 之外，從分桶 stats 提取精確排名展示，並配合同時提取個人真實 PB
                         const strokeDistKey = `${stroke}_${dist}`;
@@ -4711,18 +4720,18 @@
             🏷️ 資料庫版本流水號: <span id="verCodeSpan">載入中...</span>
         </div>
         <div id="footerDbInfo" style="color: #D1D1D6; font-size: 12px; font-weight: 500;">
-            📊 <span id="verRowsSpan">817,480 筆成績紀錄</span>
+            📊 <span id="verRowsSpan">筆數載入中...</span>
         </div>
     </footer>
 
     <script>
         async function updateFooterVersionInfo() {
             try {
-                const res = await fetch('/static/db_parts/version.json?t=' + Date.now());
+                const res = await fetch('/data_buckets/manifest.json?t=' + Date.now());
                 if (res.ok) {
                     const data = await res.json();
-                    const verDisplay = data.version_display || data.version_code || (`Build #${data.version}`);
-                    const rowsStr = data.total_rows ? Number(data.total_rows).toLocaleString() : '817,480';
+                    const verDisplay = data.version_code || (`Build #${data.version}`);
+                    const rowsStr = data.total_records ? Number(data.total_records).toLocaleString() : '—';
                     const verCodeSpan = document.getElementById('verCodeSpan');
                     const verRowsSpan = document.getElementById('verRowsSpan');
                     if (verCodeSpan) verCodeSpan.textContent = verDisplay;
