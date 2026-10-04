@@ -2282,13 +2282,14 @@
                 `;
             }).join('');
 
+            let stickyBottomHtml = '';
             // 邊界情況 A：選手未進前 50 強（例如第 109 名）
-            // 在底端以高亮邊框接續呈現真實名次與全體現役總人數佔比
+            // 在底端以高亮邊框固定呈現真實名次與全體現役總人數佔比（固定釘選在底部，上方名單自由滾動）
             if (isOutsideRoster && swimmerName && predictedRank > 0) {
                 const totalText = totalCount > 0 ? `，全體現役 ${totalCount.toLocaleString()} 位選手中排名第 ${predictedRank}` : '';
                 const byInfo = swimmerBirthYear ? ` (${String(swimmerBirthYear).slice(-2)})` : '';
-                listHtml += `
-                    <div style="margin-top:8px; padding-top:8px; border-top:1px dashed rgba(255,255,255,0.22);">
+                stickyBottomHtml = `
+                    <div style="margin-top:8px; padding-top:8px; border-top:1px dashed rgba(255,255,255,0.22); flex-shrink:0;">
                         <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 8px; background:rgba(255,69,58,0.12); border:1px solid rgba(255,69,58,0.35); border-radius:8px;">
                             <div style="display:flex; align-items:center; gap:6px; min-width:0; flex:1; overflow:hidden;">
                                 <span style="font-family:monospace; font-weight:800; color:#FF453A; width:28px; text-align:center; flex-shrink:0;">${predictedRank}.</span>
@@ -2303,12 +2304,9 @@
                         </div>
                     </div>
                 `;
-            }
-
-            // 邊界情況 B：無 PB 提示
-            if (isNoPb && swimmerName) {
-                listHtml += `
-                    <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.18);">
+            } else if (isNoPb && swimmerName) {
+                stickyBottomHtml = `
+                    <div style="margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.18); flex-shrink:0;">
                         <div style="display:flex; align-items:center; justify-content:space-between; padding:5px 8px; background:rgba(255,255,255,0.06); border:0.5px solid rgba(255,255,255,0.18); border-radius:6px;">
                             <div style="display:flex; align-items:center; gap:6px;">
                                 <span style="font-family:monospace; font-weight:700; color:#8E8E93;">⚪</span>
@@ -2329,10 +2327,11 @@
                     </div>
                     <span style="font-size:10px; color:#8E8E93; cursor:pointer; padding:2px 4px;" onclick="window.hidePodiumRoster()">✕ 關閉</span>
                 </div>
-                <!-- 容器高度提升為 max-height:360px，支援前 50 強平順滾動與選手卡片展示 -->
-                <div id="podiumRosterScrollContainer" style="display:flex; flex-direction:column; gap:2px; max-height:360px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.3) transparent;">
+                <!-- 容器高度設為 max-height:290px，支援前 50 強平順滾動，下方固定釘選輸入選手卡片 -->
+                <div id="podiumRosterScrollContainer" style="display:flex; flex-direction:column; gap:2px; max-height:290px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.3) transparent;">
                     ${listHtml}
                 </div>
+                ${stickyBottomHtml}
             `;
 
             tt.style.display = 'block';
