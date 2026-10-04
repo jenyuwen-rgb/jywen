@@ -16,9 +16,48 @@
           "value": "0"
         }
       ]
+    },
+    {
+      "source": "/full",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/data_buckets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/static/db_parts/version.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate, max-age=0"
+        }
+      ]
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "destination": "/256split.html"
+    },
+    {
+      "source": "/index.html",
+      "destination": "/256split.html"
+    },
+    {
+      "source": "/full",
+      "destination": "/full.html"
+    },
     {
       "source": "/256split",
       "destination": "/256split.html"
