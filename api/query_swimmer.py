@@ -7,8 +7,18 @@ import hashlib
 import os
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-# data_buckets 位於上一層目錄 (01_整合平台_前端源碼/data_buckets)
+# 兼容地端、專案根目錄與 Vercel Serverless 打包路徑
+possible_dirs = [
+    os.path.join(CURRENT_DIR, "..", "data_buckets"),
+    os.path.join(CURRENT_DIR, "data_buckets"),
+    os.path.join(os.getcwd(), "data_buckets"),
+    os.path.join(os.getcwd(), "01_整合平台_前端源碼", "data_buckets")
+]
 BUCKETS_DIR = os.path.join(CURRENT_DIR, "..", "data_buckets")
+for d in possible_dirs:
+    if os.path.exists(d):
+        BUCKETS_DIR = d
+        break
 
 def get_bucket_index(name: str) -> int:
     clean_name = name.replace(" ", "").replace("　", "")

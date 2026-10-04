@@ -2684,7 +2684,7 @@
                         const finalRoster = cellData.final_roster || [];
                         const topSecs = cellData.top_secs || [];
                         const rosterJson = JSON.stringify(finalRoster).replace(/"/g, '&quot;');
-                        const ttTitle = `${toTwYear(yr)}年 (${yr}) ${targetMeet.short} · 決賽 8 強名冊`;
+                        const ttTitle = `${toTwYear(yr)}年 (${yr}) ${targetMeet.short} · ${eventName} 決賽 8 強名冊`;
 
                         let rankHtml = '';
                         if (!swimmerSec) {
@@ -2785,7 +2785,7 @@
                         const fTopSecs = f27.top_secs || [];
                         const fTotalCount = f27.total_count || 0;
                         const fRosterJson = JSON.stringify(fRoster).replace(/"/g, '&quot;');
-                        const fTtTitle = `${targetMeet.short} (${futureDivision}) · 下屆現役潛在 50 強名冊`;
+                        const fTtTitle = `${targetMeet.short} (${futureDivision}) · ${eventName} · 下屆現役潛在 50 強名冊`;
 
                         let fRankHtml = '';
                         if (!swimmerSec) {

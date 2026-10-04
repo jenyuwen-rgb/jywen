@@ -610,7 +610,7 @@
         function isDQ(remark) {
             if (!remark) return false;
             const r = String(remark);
-            return r.includes("違規") || r.includes("DQ") || r.includes("DNS") || r.includes("DNF") || r.includes("請假") || r.includes("棄權");
+            return r.includes("違規") || r.includes("DQ") || r.includes("DNS") || r.includes("DNF") || r.includes("請假") || r.includes("棄權") || r.includes("取消資格") || r.includes("棄賽");
         }
 
         function getWA(dist, stroke, timeStr, sex) {
@@ -842,6 +842,7 @@
             // 3. 256split: 由該選手紀錄中提取可用性別與預算統計
             const allSwimmerScores = swimmerResp.scores || [];
             const swimmerStats = swimmerResp.stats || {};
+            window.currentSwimmerStats = swimmerStats;
             let availableSexes = [...new Set(allSwimmerScores.map(r => r.性別).filter(Boolean))];
 
             // 特例相容：若為陳品言等已知同名不同性別選手，確保強行包含 ['女', '男']
@@ -932,10 +933,15 @@
                     if (dData.length === 0) continue;
                     const pb = dData[0], id = `s${sIdx}d${dIdx}`;
                     const strokeDistKey = `${stroke}_${dist}`;
-                    const pStat = (swimmerStats && swimmerStats[strokeDistKey]) ? swimmerStats[strokeDistKey] : {};
+                    const rawStat = (swimmerStats && swimmerStats[strokeDistKey]) ? swimmerStats[strokeDistKey] : {};
+                    const curSex = (sex && sex.includes('女')) ? '女' : '男';
+                    const pStat = (rawStat.by_sex && rawStat.by_sex[curSex]) ? rawStat.by_sex[curSex] : rawStat;
                     
-                    let ageRankNum = pStat.age_rank;
-                    let ageTotalNum = pStat.age_total;
+                    const pbBirthStr = String(pb.出生年 || '').replace(/\.0$/, '').trim();
+                    const birthStat = (pStat.by_birth && pbBirthStr && pStat.by_birth[pbBirthStr]) ? pStat.by_birth[pbBirthStr] : pStat;
+                    
+                    let ageRankNum = birthStat.age_rank || pStat.age_rank;
+                    let ageTotalNum = birthStat.age_total || pStat.age_total;
                     let natRankNum = pStat.nat_rank;
                     let natTotalNum = pStat.nat_total;
                     
@@ -1747,6 +1753,19 @@
                     if (tIdx >= 0) {
                         const u = sorted[tIdx], pr = (100 * (total - tIdx) / total).toFixed(1);
                         h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${tIdx+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${formatDateStr(u.fullDate)}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
+                    } else {
+                        // 選手在 Top 50/100 之外，從分桶 stats 提取精確排名與秒數展示
+                        const strokeDistKey = `${stroke}_${dist}`;
+                        const rawStat = (window.currentSwimmerStats && window.currentSwimmerStats[strokeDistKey]) ? window.currentSwimmerStats[strokeDistKey] : {};
+                        const curSex = (p3 && p3.includes('女')) ? '女' : '男';
+                        const pStat = (rawStat.by_sex && rawStat.by_sex[curSex]) ? rawStat.by_sex[curSex] : rawStat;
+                        const pbBirthStr = String(p2 || '').replace(/\.0$/, '').trim();
+                        const birthStat = (pStat.by_birth && pbBirthStr && pStat.by_birth[pbBirthStr]) ? pStat.by_birth[pbBirthStr] : pStat;
+                        const rankNum = (mode === 'natRank') ? pStat.nat_rank : (birthStat.age_rank || pStat.age_rank);
+                        if (rankNum) {
+                            const pr = (100 * (total - (rankNum - 1)) / total).toFixed(1);
+                            h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${rankNum}</span><span class="col-birth-fixed">${toAD(p2)}</span><span class="col-name-fixed">${p1}</span><span class="col-time-fixed">-</span><span class="col-wa-list">-</span><span class="col-8code-fixed">-</span><span class="col-meet-fixed">-</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
+                        }
                     }
                 }
                 c.innerHTML = h + "</div></div></div>";
