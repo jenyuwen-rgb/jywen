@@ -1270,23 +1270,73 @@
             renderFilteredSamples();
         }
 
-        // 渲染符合篩選條件的「前 5 筆」明細 (大仁哥指定：只顯示 5 筆)
-        function renderFilteredSamples() {
+        // 渲染符合篩選條件的「前 5 筆」明細 (大仁哥指定：選了時間與賽事後去撈資料庫，只呈現 5 筆)
+        async function renderFilteredSamples() {
             const dateStr = currentDateValue;
             const selectedMeet = document.getElementById('linkedMeetSelect').value;
             const tbody = document.getElementById('sampleTableBody');
 
             document.getElementById('currentDateLabel').innerHTML = `當前檢視：<span class="text-yellow-400 font-bold">${dateStr}</span> ${selectedMeet ? '· ' + selectedMeet : ''}`;
 
-            let allRows = (dashboardData && dashboardData.date_samples && dashboardData.date_samples[dateStr]) || [];
+            // 1. 若在地端且伺服器可用，直接對資料庫發起 SQL 即時查詢
+            if (!IS_CLOUD_ENV) {
+                try {
+                    let whereClauses = [];
+                    if (dateStr) whereClauses.push(`年份 = '${dateStr}'`);
+                    if (selectedMeet) whereClauses.push(`賽事名稱 = '${selectedMeet.replace(/'/g, "''")}'`);
+                    const whereSql = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
+                    const sql = `SELECT 年份, 名次, 姓名, 出生年, 單位, 項目, 成績, 賽事名稱 FROM swimming_scores ${whereSql} ORDER BY CAST(名次 AS INTEGER) ASC LIMIT 5`;
 
-            // 若有指定賽事名稱進行二次過濾
-            if (selectedMeet) {
-                allRows = allRows.filter(r => r.meet === selectedMeet || r.meet.includes(selectedMeet));
+                    const resp = await fetch('/api/local_query', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query: sql })
+                    });
+                    if (resp.ok) {
+                        const json = await resp.json();
+                        if (json && json.length > 0 && json[0].values && json[0].values.length > 0) {
+                            const dbRows = json[0].values.map(v => ({
+                                date: v[0],
+                                rank: v[1] || '-',
+                                name: v[2],
+                                birth: v[3],
+                                unit: v[4],
+                                item: v[5],
+                                time: v[6],
+                                meet: v[7]
+                            }));
+                            renderRowsToTable(dbRows, dateStr, selectedMeet);
+                            return;
+                        }
+                    }
+                } catch(e) {
+                    console.warn("地端即時 SQL 查詢降級至種子檔:", e);
+                }
             }
 
-            // 大仁哥指定：只取前 5 筆
-            const samples = allRows.slice(0, 5);
+            // 2. 雲端或地端備援：從完整包含各賽事 5 筆真實成績的 date_meet_samples 撈取
+            let samples = [];
+            if (dashboardData && dashboardData.date_meet_samples && dashboardData.date_meet_samples[dateStr]) {
+                if (selectedMeet && dashboardData.date_meet_samples[dateStr][selectedMeet]) {
+                    samples = dashboardData.date_meet_samples[dateStr][selectedMeet].slice(0, 5);
+                } else if (!selectedMeet) {
+                    // 若未指定賽事，合併當日所有賽事取前 5 筆
+                    const allMeetsOnDate = Object.values(dashboardData.date_meet_samples[dateStr]);
+                    samples = allMeetsOnDate.flat().slice(0, 5);
+                }
+            }
+
+            if (samples.length === 0 && dashboardData && dashboardData.date_samples && dashboardData.date_samples[dateStr]) {
+                let fallback = dashboardData.date_samples[dateStr];
+                if (selectedMeet) fallback = fallback.filter(r => r.meet === selectedMeet || r.meet.includes(selectedMeet));
+                samples = fallback.slice(0, 5);
+            }
+
+            renderRowsToTable(samples, dateStr, selectedMeet);
+        }
+
+        function renderRowsToTable(samples, dateStr, selectedMeet) {
+            const tbody = document.getElementById('sampleTableBody');
             document.getElementById('sampleCountLabel').innerText = `顯示筆數：前 ${samples.length} 筆`;
 
             if (samples.length === 0) {
