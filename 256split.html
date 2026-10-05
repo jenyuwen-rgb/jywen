@@ -140,6 +140,9 @@
         
         .cmp-dist-btn { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: 14px; color: #FFFFFF; cursor: pointer; text-decoration: none; padding: 3px 6px; border-radius: 6px; transition: background 0.15s ease; }
         .cmp-dist-btn:hover { background: rgba(255,255,255,0.12); }
+        /* 下彈提示三角形：收合 ▼ / 展開 ▲（偽元素，不影響文字內容） */
+        .dd-tri::after { content: '\25BC'; display: inline-block; font-size: 10px; margin-left: 3px; text-decoration: none; vertical-align: 1px; }
+        .dd-tri.dd-open::after { content: '\25B2'; }
         
         .cmp-count-tag { font-size: 12px; color: #8E8E93; margin-right: 6px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
         .cmp-count-tag:hover { color: #FFFFFF; }
@@ -984,14 +987,14 @@
                     const row = document.createElement('div');
                     row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
                     row.innerHTML = `
-                        <span class="col-dist-main" onclick="toggleD('${id}','trend','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dist}m</span>
-                        <span class="col-count-main" onclick="toggleD('${id}','history','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dData.length}場</span>
+                        <span class="col-dist-main dd-tri" data-dd-p="p-${id}" data-dd-mode="trend" onclick="toggleD('${id}','trend','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dist}m</span>
+                        <span class="col-count-main dd-tri" data-dd-p="p-${id}" data-dd-mode="history" onclick="toggleD('${id}','history','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dData.length}場</span>
                         <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}</span>
                         <span class="col-wa-main">WA:${getWA(dist, stroke, pb.成績, sex)}</span>
                         <span class="col-pr-main">PR ${pr.toFixed(1)}%</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行${ageRankStr}</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','matrix','${dist}','${stroke}', null, '${pb.出生年}', '${sex}')">年度最佳</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natRankStr}</span>
+                        <span class="col-rank-link dd-tri" data-dd-p="p-${id}" data-dd-mode="rank" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行${ageRankStr}</span>
+                        <span class="col-rank-link dd-tri" data-dd-p="p-${id}" data-dd-mode="matrix" onclick="toggleD('${id}','matrix','${dist}','${stroke}', null, '${pb.出生年}', '${sex}')">年度最佳</span>
+                        <span class="col-rank-link dd-tri" data-dd-p="p-${id}" data-dd-mode="natRank" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natRankStr}</span>
                     `;
                     const dd = document.createElement('div'); dd.id = `p-${id}`; dd.className = "drill-down";
                     dd.innerHTML = `<div id="c-${id}"></div>`; trayInner.appendChild(row); trayInner.appendChild(dd);
@@ -1225,8 +1228,8 @@
                     // 最左側：距離按鈕（50m ▼）
                     let cellsHtml = `
                         <td style="width:90px;">
-                            <span class="cmp-dist-btn" onclick="toggleCompareChart('${distKey}', '${stroke}', '${dist}', ${JSON.stringify(players).replace(/"/g, '&quot;')})">
-                                ${dist}m <span style="font-size:10px;">▼</span>
+                            <span class="cmp-dist-btn dd-tri" data-dd-row="chart-row-${distKey}" onclick="toggleCompareChart('${distKey}', '${stroke}', '${dist}', ${JSON.stringify(players).replace(/"/g, '&quot;')})">
+                                ${dist}m
                             </span>
                         </td>
                     `;
@@ -1242,7 +1245,7 @@
                         const diffSec = (!isFastest && bestSec !== null) ? (pb.totalSec - bestSec) : null;
                         const pbId = `${distKey}_p${pIdx}`;
 
-                        const countHtml = `<span class="cmp-count-tag" onclick="toggleCompareHistory('${pbId}', '${p.name}', '${stroke}', '${dist}', '${p.birthYear}', '${p.sex}')" title="點擊檢視歷年出賽紀錄">${dData.length}場</span>`;
+                        const countHtml = `<span class="cmp-count-tag dd-tri" data-dd-row="hist-row-${pbId}" onclick="toggleCompareHistory('${pbId}', '${p.name}', '${stroke}', '${dist}', '${p.birthYear}', '${p.sex}')" title="點擊檢視歷年出賽紀錄">${dData.length}場</span>`;
                         let timeDisplayHtml = '';
                         if (isFastest) {
                             timeDisplayHtml = `
@@ -1732,6 +1735,26 @@
         // ══════════════════════════════════════════════
         // 單人模式：項目抽屜展開與收合 (趨勢圖、歷年紀錄、同齡/全國排行、年度最佳)
         // ══════════════════════════════════════════════
+        // ── 下彈提示三角形：依實際展開狀態同步 ▼ / ▲ ──
+        function syncDdTri() {
+            document.querySelectorAll('.dd-tri').forEach(el => {
+                let open = false;
+                const pid = el.getAttribute('data-dd-p');
+                if (pid) {
+                    const p = document.getElementById(pid), c = document.getElementById(pid.replace(/^p-/, 'c-'));
+                    open = !!(p && c && p.classList.contains('active') && c.getAttribute('data-mode') === el.getAttribute('data-dd-mode'));
+                } else if (el.hasAttribute('data-dd-row')) {
+                    const r = document.getElementById(el.getAttribute('data-dd-row'));
+                    open = !!(r && r.style.display !== 'none');
+                } else if (el.hasAttribute('data-dd-podium')) {
+                    const tt = document.getElementById('podiumRosterTooltip');
+                    open = !!(tt && tt._currentEl === el);
+                }
+                el.classList.toggle('dd-open', open);
+            });
+        }
+        document.addEventListener('click', () => setTimeout(syncDdTri, 0));
+
         async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
             const p = document.getElementById(`p-${id}`), c = document.getElementById(`c-${id}`);
             if (!p || !c) return;
@@ -2613,6 +2636,7 @@
             tt.style.top = `${top}px`;
             tt.style.opacity = '1';
             tt.style.transform = 'translateY(0)';
+            syncDdTri();
         };
 
         window.hidePodiumRoster = function() {
@@ -2621,6 +2645,7 @@
                 tt.style.opacity = '0';
                 tt.style.transform = 'translateY(4px)';
                 tt._currentEl = null;
+                syncDdTri();
                 setTimeout(() => { 
                     if (tt.style.opacity === '0') tt.style.display = 'none'; 
                 }, 150);
@@ -2945,7 +2970,7 @@
                             rankHtml = `
                                 <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:600; color:#8E8E93; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,255,255,0.15);"
                                      data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
-                                     onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                      title="點擊查看決賽 8 強名冊">
                                     (選手無PB)
                                 </div>
@@ -2958,7 +2983,7 @@
                             rankHtml = `
                                 <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,69,58,0.3); transition:all 0.15s ease;"
                                      data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="${diffPrelim}" data-birth-year="${selectedBirthYear}"
-                                     onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                      title="點擊查看決賽 8 強名冊">
                                     未進決賽
                                 </div>
@@ -2977,7 +3002,7 @@
                                 rankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.35); transition:all 0.15s ease;"
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="1" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
-                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看決賽 8 強名冊">
                                         預估第 1
                                     </div>
@@ -2991,7 +3016,7 @@
                                 rankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:${medalColor}; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid ${medalColor}; transition:all 0.15s ease;"
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${medalRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
-                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看決賽 8 強名冊">
                                         預估第 ${medalRank}
                                     </div>
@@ -3002,7 +3027,7 @@
                                 rankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800; color:#30D158; background:transparent; padding:2px 0; margin-top:4px; border:none; transition:all 0.15s ease;"
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
-                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看決賽 8 強名冊">
                                         預估第 ${predictedRank}
                                     </div>
@@ -3046,7 +3071,7 @@
                             fRankHtml = `
                                 <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:600; color:#8E8E93; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,255,255,0.15);"
                                      data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${fTotalCount}"
-                                     onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                      title="點擊查看下屆潛在 50 強名冊">
                                     (選手無PB)
                                 </div>
@@ -3062,7 +3087,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.35); transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="1" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${fTotalCount}"
-                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看下屆潛在 50 強名冊">
                                         預估第 1
                                     </div>
@@ -3076,7 +3101,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:${medalColor}; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid ${medalColor}; transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${medalRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${fTotalCount}"
-                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看下屆潛在 50 強名冊">
                                         預估第 ${medalRank}
                                     </div>
@@ -3087,7 +3112,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800; color:#30D158; background:transparent; padding:2px 0; margin-top:4px; border:none; transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${fTotalCount}"
-                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看下屆潛在 50 強名冊">
                                         預估第 ${predictedRank}
                                     </div>
@@ -3098,7 +3123,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:transparent; padding:2px 0; margin-top:4px; border:none; transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="${diffEighth}" data-birth-year="${selectedBirthYear}" data-total-count="${fTotalCount}"
-                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看下屆潛在 50 強名冊">
                                         未進前 8
                                     </div>

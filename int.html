@@ -7,6 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #D4AF37;
+            --primary-light: #F3D078;
+        }
+
         body {
             background-color: #000000;
             color: #FFFFFF;
@@ -57,31 +62,54 @@
             color: #71717A;
         }
 
-        /* 賽事列表狀態區分：已入庫灰色 vs 未入庫高亮 */
-        .meet-row-done {
-            color: #71717A !important;
-            background: #101012;
-            border: 0.5px solid #222224;
-            opacity: 0.78;
+        /* 表單下拉選單美化 */
+        .tech-select {
+            background: #0D0D0E;
+            border: 1px solid #333336;
+            color: #FFF;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", monospace;
+            padding: 0 12px;
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.2s ease;
         }
-        .meet-row-done:hover {
-            opacity: 0.95;
-            border-color: #38383A;
-        }
-        .meet-row-done .meet-title {
-            color: #8E8E93 !important;
-            font-weight: 500;
+        .tech-select:focus {
+            border-color: #D4AF37;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
         }
 
-        .meet-row-pending {
-            color: #FFFFFF !important;
-            background: linear-gradient(180deg, #1A1A1E 0%, #141416 100%);
-            border: 1px solid rgba(212, 175, 55, 0.5);
-            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.08);
+        /* 關鍵：下拉選項中的「反灰」樣式 */
+        select option.opt-in-db, option.opt-in-db {
+            color: #71717A !important;
+            background-color: #121214 !important;
+            font-style: italic;
         }
-        .meet-row-pending .meet-title {
-            color: #FFF !important;
+        select option.opt-pending, option.opt-pending {
+            color: #FFFFFF !important;
+            background-color: #1C1C1E !important;
+            font-weight: bold;
+        }
+
+        /* 下載按鈕 */
+        .btn-download-action {
+            background: linear-gradient(135deg, #1C1C1E 0%, #0A0A0B 100%);
+            border: 1.5px solid #333336;
+            color: #8E8E93;
+            border-radius: 10px;
             font-weight: 700;
+            transition: all 0.2s ease;
+            cursor: not-allowed;
+        }
+        .btn-download-action.active-gold {
+            background: linear-gradient(135deg, #F3D078 0%, #D4AF37 100%);
+            border-color: #F3D078;
+            color: #000000;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35);
+        }
+        .btn-download-action.active-gold:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 22px rgba(212, 175, 55, 0.45);
         }
 
         /* 時間輸入與自動下拉彈窗 */
@@ -239,7 +267,82 @@
             </div>
         </section>
 
-        <!-- 區塊二：Normal 資料庫時間探針 (8碼日期快查) -->
+        <!-- 區塊二：地端整合平台 1:1 復刻下載控制面板 (大仁哥指定呈現) -->
+        <section class="tech-card p-5 space-y-4">
+            <!-- 頂部單位資訊列 -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🏊</span>
+                    <div>
+                        <div class="flex items-baseline gap-2.5 flex-wrap">
+                            <h3 id="unified-org-title" class="text-lg font-bold gold-gradient-text tracking-wide">中華泳協 CTSA</h3>
+                            <a id="unified-org-url" href="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" target="_blank" rel="noopener noreferrer" class="text-xs text-zinc-500 hover:text-zinc-300 transition truncate max-w-xs font-mono">https://ctsa.utk.com.tw/CTSA/pub...</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 self-start sm:self-auto">
+                    <span class="text-xs px-2.5 py-1 rounded-full badge-pending font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-bolt-lightning text-amber-400"></i>
+                        <span>官方賽事即時連動</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- 控制面板：步驟 1、步驟 2、下載按鈕 -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
+                <!-- 第一層：選擇主辦單位 (由北到南排序) -->
+                <div class="md:col-span-4 space-y-1.5">
+                    <label class="text-xs text-zinc-400 font-semibold flex items-center gap-1">
+                        <span>📍 步驟 1：選擇主辦單位（由北到南排序）</span>
+                    </label>
+                    <select id="unifiedOrgSelect" class="tech-select w-full h-[42px] text-xs sm:text-sm font-semibold" onchange="handleUnifiedOrgChange()">
+                        <option value="site_d" data-url="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" data-name="中華泳協 CTSA" selected>🇹🇼 中華民國游泳協會 (CTSA) [全國首位]</option>
+                        <option value="site_tpesa" data-url="https://www.tpesa.org.tw/" data-name="臺北體總 TPESA">🏛️ 臺北市體育總會游泳協會 (TPESA) [北部]</option>
+                        <option value="site_ntpc" data-url="https://ntpc-sports.com/" data-name="新北市游泳委員會">🌊 新北市體育總會游泳委員會 (NTPC) [北部]</option>
+                        <option value="site_tyc" data-url="https://sports.taoyuansport.org.tw/" data-name="桃園市游泳委員會">🏊 桃園市體育會游泳委員會 (TYC) [北部]</option>
+                        <option value="site_hcc" data-url="https://hcc-swim.org/" data-name="新竹市游泳委員會">🐬 新竹市體育會游泳委員會 (HCC) [北部]</option>
+                        <option value="site_a" data-url="https://swim8.kcsat.org/score_search" data-name="臺中市游泳委員會">☀️ 臺中市體育總會游泳委員會 (SWIM8) [中部]</option>
+                        <option value="site_b" data-url="https://www.tainanswim.com.tw/history.php" data-name="臺南市游泳委員會">🏛️ 臺南市體育總會游泳委員會 (TAINAN) [南部]</option>
+                        <option value="site_c" data-url="http://kcc.nowforyou.com/register/gameeventqry.asp" data-name="高雄市游泳委員會">⚓ 高雄市體育總會游泳委員會 (KCC) [南部]</option>
+                        <option value="site_e" data-url="https://swim.kcsat.org/score_search" data-name="高雄水上">🏊‍♂️ 高雄水上 (SWIM_KCSAT) [南部]</option>
+                    </select>
+                </div>
+
+                <!-- 第二層：選擇要下載的賽事清單 (資料庫已有直接反灰) -->
+                <div class="md:col-span-6 space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs text-zinc-400 font-semibold flex items-center gap-1">
+                            <span>🏆 步驟 2：選擇要下載的賽事清單</span>
+                        </label>
+                        <span class="text-[11px] font-mono text-zinc-500">
+                            已入庫：<strong class="text-zinc-400">灰色</strong> · 未入庫：<strong class="text-yellow-400">高亮</strong>
+                        </span>
+                    </div>
+                    <select id="unifiedRaceSelect" class="tech-select w-full h-[42px] text-xs sm:text-sm" onchange="handleUnifiedRaceChange()">
+                        <option value="">-- 載入中，請稍候... --</option>
+                    </select>
+                </div>
+
+                <!-- 第三層：下載賽事按鈕 -->
+                <div class="md:col-span-2">
+                    <button id="unifiedDownloadBtn" class="btn-download-action w-full h-[42px] text-xs sm:text-sm flex items-center justify-center gap-1.5" onclick="startUnifiedRaceUpdate()" disabled>
+                        <i class="fa-solid fa-cloud-arrow-down text-xs"></i>
+                        <span>下載賽事</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 即時狀態回饋提示 -->
+            <div id="raceStatusNotice" class="text-xs font-mono text-zinc-400 p-2.5 rounded-lg bg-zinc-950/60 border border-zinc-800/80 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span id="raceNoticeDot" class="w-2 h-2 rounded-full bg-zinc-600"></span>
+                    <span id="raceNoticeText">請選擇賽事以檢視入庫狀態</span>
+                </div>
+                <span id="gcpNoticeBadge" class="text-[11px] text-zinc-500 font-mono">GCP Task Ready</span>
+            </div>
+        </section>
+
+        <!-- 區塊三：Normal 資料庫時間探針 (8碼日期快查) -->
         <section class="tech-card p-6 space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
@@ -313,35 +416,6 @@
             </div>
         </section>
 
-        <!-- 區塊三：賽事調度與狀態儀表板 (GCP 任務來源) -->
-        <section class="space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                    <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
-                        <i class="fa-solid fa-list-check text-yellow-500/80"></i>
-                        <span>全國與地方泳協賽事儀表板</span>
-                    </h3>
-                    <p class="text-xs text-zinc-400">
-                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-zinc-600 mr-1 align-middle"></span>
-                        已入庫賽事以<strong class="text-zinc-400">灰色文字</strong>呈現，
-                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 ml-2 mr-1 align-middle"></span>
-                        未抓取賽事<strong class="text-amber-300">高亮顯示</strong>供 GCP 雲端代理自動領取任務。
-                    </p>
-                </div>
-                <!-- 篩選標籤 -->
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-mono">
-                    <button onclick="filterMeets('all')" id="filter-all" class="px-2.5 py-1 rounded-lg bg-zinc-800 text-white font-bold border border-zinc-700">全部 (<span id="cntAll">0</span>)</button>
-                    <button onclick="filterMeets('pending')" id="filter-pending" class="px-2.5 py-1 rounded-lg bg-zinc-900 text-amber-300 hover:bg-zinc-800 border border-amber-500/30">待抓取 (<span id="cntPending">0</span>)</button>
-                    <button onclick="filterMeets('done')" id="filter-done" class="px-2.5 py-1 rounded-lg bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-zinc-800">已入庫 (<span id="cntDone">0</span>)</button>
-                </div>
-            </div>
-
-            <!-- 賽事清單 -->
-            <div id="meetsListContainer" class="space-y-2.5">
-                <!-- 動態注入賽事卡片 -->
-            </div>
-        </section>
-
     </main>
 
     <!-- 底部版權與狀態列 -->
@@ -359,12 +433,12 @@
 
     <script>
         let dashboardData = null;
-        let currentFilter = 'all';
+        let catalogData = null;
 
         // 初始化加載
         async function initDashboard() {
             try {
-                // 讀取版本流水號
+                // 1. 讀取版本流水號
                 const verRes = await fetch('/static/db_parts/version.json');
                 if (verRes.ok) {
                     const ver = await verRes.json();
@@ -376,11 +450,11 @@
                     document.getElementById('splitParts').innerText = `${ver.parts || 20} / 256 桶`;
                 }
 
-                // 讀取賽事與日期探針種子資料
+                // 2. 讀取賽事與日期探針種子資料
                 const seedRes = await fetch('/static/int_dashboard_seed.json');
                 if (seedRes.ok) {
                     dashboardData = await seedRes.json();
-                    renderDashboard(dashboardData);
+                    document.getElementById('dateTotalCount').innerText = dashboardData.all_dates.length;
                     
                     // 預設展開最近一個有樣本的日期
                     const recentDates = Object.keys(dashboardData.date_samples || {});
@@ -388,92 +462,126 @@
                         selectDate(recentDates[0]);
                     }
                 }
+
+                // 3. 讀取各泳協下拉選單資料庫
+                const catRes = await fetch('/static/org_races_catalog.json');
+                if (catRes.ok) {
+                    catalogData = await catRes.json();
+                    handleUnifiedOrgChange();
+                }
             } catch (err) {
                 console.error("載入儀表板失敗:", err);
             }
         }
 
-        // 渲染儀表板
-        function renderDashboard(data) {
-            document.getElementById('dateTotalCount').innerText = data.all_dates.length;
-            
-            // 計算賽事統計
-            const meets = data.meets || [];
-            const doneCnt = meets.filter(m => m.in_db).length;
-            const pendingCnt = meets.filter(m => !m.in_db).length;
+        // ------------------ 步驟 1 & 2 下拉切換核心邏輯 ------------------
+        function handleUnifiedOrgChange() {
+            const orgSelect = document.getElementById('unifiedOrgSelect');
+            const raceSelect = document.getElementById('unifiedRaceSelect');
+            const downloadBtn = document.getElementById('unifiedDownloadBtn');
+            const titleEl = document.getElementById('unified-org-title');
+            const urlEl = document.getElementById('unified-org-url');
 
-            document.getElementById('cntAll').innerText = meets.length;
-            document.getElementById('cntPending').innerText = pendingCnt;
-            document.getElementById('cntDone').innerText = doneCnt;
+            const selectedOpt = orgSelect.options[orgSelect.selectedIndex];
+            const siteId = orgSelect.value;
+            const orgName = selectedOpt.getAttribute('data-name');
+            const orgUrl = selectedOpt.getAttribute('data-url');
 
-            renderMeetsList(meets);
-        }
+            // 更新標題與網址
+            if (titleEl) titleEl.textContent = orgName;
+            if (urlEl) {
+                urlEl.href = orgUrl;
+                urlEl.textContent = orgUrl.length > 32 ? orgUrl.substring(0, 32) + '...' : orgUrl;
+            }
 
-        // 渲染賽事列表
-        function renderMeetsList(meets) {
-            const container = document.getElementById('meetsListContainer');
-            container.innerHTML = '';
+            // 重設下載按鈕
+            downloadBtn.disabled = true;
+            downloadBtn.classList.remove('active-gold');
 
-            const filtered = meets.filter(m => {
-                if (currentFilter === 'done') return m.in_db;
-                if (currentFilter === 'pending') return !m.in_db;
-                return true;
-            });
+            if (!catalogData || !catalogData.site_catalog || !catalogData.site_catalog[siteId]) {
+                raceSelect.innerHTML = '<option value="">-- 無賽事資料 --</option>';
+                raceSelect.disabled = true;
+                return;
+            }
 
-            filtered.forEach(m => {
-                const isDone = m.in_db;
-                const card = document.createElement('div');
-                card.className = `p-3.5 rounded-xl transition-all ${isDone ? 'meet-row-done' : 'meet-row-pending'}`;
-                
-                card.innerHTML = `
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div class="space-y-1">
-                            <div class="flex items-center gap-2">
-                                ${isDone 
-                                    ? `<span class="badge-done text-[10px] px-2 py-0.5 rounded font-mono"><i class="fa-solid fa-check text-[9px] mr-1"></i>已入庫</span>`
-                                    : `<span class="badge-pending text-[10px] px-2 py-0.5 rounded font-mono animate-pulse"><i class="fa-solid fa-cloud-arrow-down text-[9px] mr-1"></i>GCP待抓取</span>`
-                                }
-                                <span class="text-[11px] font-mono text-zinc-500">${m.source || '官方泳協'}</span>
-                                <span class="text-[11px] font-mono ${isDone ? 'text-zinc-500' : 'text-amber-400'}">${m.start_date}${m.end_date !== m.start_date ? ' ~ ' + m.end_date : ''}</span>
-                            </div>
-                            <div class="meet-title text-sm sm:text-base">
-                                ${m.name}
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3 self-end sm:self-center font-mono text-xs">
-                            ${isDone 
-                                ? `<span class="text-zinc-500">${m.count.toLocaleString()} 筆紀錄</span>`
-                                : `<span class="text-amber-300 font-bold">新賽事即將同步</span>`
-                            }
-                            ${m.url ? `
-                                <a href="${m.url}" target="_blank" class="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[11px] flex items-center gap-1">
-                                    <span>官網</span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                                </a>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
+            const siteInfo = catalogData.site_catalog[siteId];
+            const races = siteInfo.races || [];
 
-        // 篩選賽事
-        function filterMeets(type) {
-            currentFilter = type;
-            ['all', 'pending', 'done'].forEach(t => {
-                const btn = document.getElementById(`filter-${t}`);
-                if (t === type) {
-                    btn.className = 'px-2.5 py-1 rounded-lg bg-zinc-800 text-white font-bold border border-zinc-600';
+            let html = '<option value="">-- 選擇要下載的賽事 --</option>';
+            races.forEach(r => {
+                const inDb = r.in_db;
+                // 關鍵：資料庫已存在的賽事使用 opt-in-db 樣式 (反灰)，並在文字後方標註 [已在資料庫]
+                if (inDb) {
+                    html += `<option value="${r.value}" class="opt-in-db" data-indb="true">${r.text}  ✓ (已在資料庫 - 灰色)</option>`;
                 } else {
-                    btn.className = 'px-2.5 py-1 rounded-lg bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-zinc-800';
+                    html += `<option value="${r.value}" class="opt-pending" data-indb="false">⚡ ${r.text}  ★ [未下載/高亮]</option>`;
                 }
             });
-            if (dashboardData) {
-                renderMeetsList(dashboardData.meets);
+
+            raceSelect.innerHTML = html;
+            raceSelect.disabled = false;
+            updateRaceNotice(null);
+        }
+
+        function handleUnifiedRaceChange() {
+            const raceSelect = document.getElementById('unifiedRaceSelect');
+            const downloadBtn = document.getElementById('unifiedDownloadBtn');
+            const selectedOpt = raceSelect.options[raceSelect.selectedIndex];
+
+            if (!raceSelect.value) {
+                downloadBtn.disabled = true;
+                downloadBtn.classList.remove('active-gold');
+                updateRaceNotice(null);
+                return;
+            }
+
+            const inDb = selectedOpt.getAttribute('data-indb') === 'true';
+            updateRaceNotice(inDb, selectedOpt.text);
+
+            if (inDb) {
+                // 已在資料庫中：按鈕反灰不可點，避免重複下載
+                downloadBtn.disabled = true;
+                downloadBtn.classList.remove('active-gold');
+            } else {
+                // 尚未下載：高亮金色按鈕，允許一鍵下載/GCP排程
+                downloadBtn.disabled = false;
+                downloadBtn.classList.add('active-gold');
             }
         }
 
-        // 8碼日期輸入與候選下拉
+        function updateRaceNotice(inDb, text = '') {
+            const noticeDot = document.getElementById('raceNoticeDot');
+            const noticeText = document.getElementById('raceNoticeText');
+            const gcpBadge = document.getElementById('gcpNoticeBadge');
+
+            if (inDb === null) {
+                noticeDot.className = 'w-2 h-2 rounded-full bg-zinc-600';
+                noticeText.innerHTML = '請於上方選擇賽事以檢視入庫狀態';
+                gcpBadge.innerText = '待命狀態';
+                gcpBadge.className = 'text-[11px] text-zinc-500 font-mono';
+                return;
+            }
+
+            if (inDb) {
+                noticeDot.className = 'w-2 h-2 rounded-full bg-zinc-500';
+                noticeText.innerHTML = `<span class="text-zinc-400 font-bold">【已入庫】</span> 本賽事成績已完整收錄於 normal.db 主資料庫中（文字呈現灰色），無需重複下載。`;
+                gcpBadge.innerText = '● 已同步主庫';
+                gcpBadge.className = 'text-[11px] text-zinc-400 font-mono';
+            } else {
+                noticeDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+                noticeText.innerHTML = `<span class="text-amber-300 font-bold">【新賽事 / 待抓取】</span> 本賽事尚未入庫！可點擊右側金色按鈕下載，或由 GCP 雲端代理自動定時爬取。`;
+                gcpBadge.innerText = '⚡ GCP 任務就緒';
+                gcpBadge.className = 'text-[11px] text-amber-400 font-bold font-mono';
+            }
+        }
+
+        function startUnifiedRaceUpdate() {
+            const raceSelect = document.getElementById('unifiedRaceSelect');
+            const selectedText = raceSelect.options[raceSelect.selectedIndex].text;
+            alert(`已啟動雲端任務：正在為您下載並合併【${selectedText}】！\n合併完成後將自動更新 normal.db 與 256split！`);
+        }
+
+        // ------------------ 時間探針核心邏輯 ------------------
         function onDateInput(val) {
             const input = val.trim();
             const dropdown = document.getElementById('suggestDropdown');
@@ -487,7 +595,6 @@
 
             if (!dashboardData || !dashboardData.all_dates) return;
 
-            // 模糊搜尋包含此前綴的日期
             const matches = dashboardData.all_dates.filter(d => d.includes(input)).slice(0, 15);
 
             if (matches.length > 0) {
@@ -504,7 +611,6 @@
             }
         }
 
-        // 選取特定日期
         function selectDate(dateStr) {
             document.getElementById('dateProbeInput').value = dateStr;
             document.getElementById('suggestDropdown').classList.add('hidden');
@@ -512,12 +618,10 @@
             
             document.getElementById('currentDateLabel').innerHTML = `當前檢視日期：<span class="text-yellow-400 font-bold">${dateStr}</span>`;
 
-            // 抓取樣本資料
             const samples = (dashboardData && dashboardData.date_samples && dashboardData.date_samples[dateStr]) || [];
             renderSamples(samples, dateStr);
         }
 
-        // 渲染前 10 筆樣本明細
         function renderSamples(samples, dateStr) {
             const tbody = document.getElementById('sampleTableBody');
             document.getElementById('sampleCountLabel').innerText = `顯示筆數：${samples.length} 筆`;
@@ -549,21 +653,18 @@
             `).join('');
         }
 
-        // 清除輸入
         function clearDateProbe() {
             document.getElementById('dateProbeInput').value = '';
             document.getElementById('suggestDropdown').classList.add('hidden');
             document.getElementById('clearDateBtn').classList.add('hidden');
         }
 
-        // 點擊空白處關閉下拉
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-input-wrap')) {
                 document.getElementById('suggestDropdown').classList.add('hidden');
             }
         });
 
-        // 重新整理
         function refreshData() {
             initDashboard();
         }
