@@ -993,6 +993,12 @@
     </footer>
 
     <script>
+        // ☁️ 智慧環境感知資料端點：
+        // 雲端 (swimming-pwa.vercel.app) -> 讀取 GCP 專屬雲端儲存貯體 (GCS Bucket)
+        // 地端 (localhost / 127.0.0.1) -> 100% 讀取原本的本地檔案 (/static/...)，完全不影響地端測試資料！
+        const IS_CLOUD_ENV = window.location.hostname.includes('vercel.app');
+        const GCS_BASE_URL = 'https://storage.googleapis.com/ctsa-swim-cloud-287296629155';
+
         let dashboardData = null;
         let catalogData = null;
         let currentSelectedRace = null;
@@ -1028,7 +1034,10 @@
                 }
 
                 // 3. 讀取各泳協下拉選單資料庫
-                const catRes = await fetch('/static/org_races_catalog.json?t=' + Date.now());
+                const catUrl = IS_CLOUD_ENV 
+                    ? `${GCS_BASE_URL}/org_races_catalog.json?t=${Date.now()}`
+                    : `/static/org_races_catalog.json?t=${Date.now()}`;
+                const catRes = await fetch(catUrl);
                 if (catRes.ok) {
                     catalogData = await catRes.json();
                     handleUnifiedOrgChange();
@@ -1409,7 +1418,10 @@
 
         async function loadCalendarData() {
             try {
-                const res = await fetch('/static/calendar.json?t=' + Date.now());
+                const calUrl = IS_CLOUD_ENV 
+                    ? `${GCS_BASE_URL}/calendar.json?t=${Date.now()}`
+                    : `/static/calendar.json?t=${Date.now()}`;
+                const res = await fetch(calUrl);
                 if (res.ok) {
                     window.currentEvents = await res.json();
                 } else {
@@ -1424,6 +1436,12 @@
                 countBadge.textContent = window.currentEvents.length > 0 
                     ? `共 ${window.currentEvents.length} 場賽事` 
                     : `待 GCP 抓取 (0 場)`;
+            }
+            const dsBadge = document.getElementById('calendarDataSourceBadge');
+            if (dsBadge) {
+                dsBadge.textContent = IS_CLOUD_ENV 
+                    ? `資料源：GCS 雲端儲存 (ctsa-swim-cloud)` 
+                    : `資料源：地端本地測試庫 (/static/calendar.json)`;
             }
             renderMacCalendar();
         }
@@ -1604,14 +1622,65 @@
             }
         }
 
+        async function fetchCrawlerLogs() {
+            const consoleEl = document.getElementById('errorLogConsole');
+            const statusBadge = document.getElementById('logStatusBadge');
+            const lastTimeEl = document.getElementById('logLastRunTime');
+            const breakerEl = document.getElementById('logCircuitBreaker');
+            const errorCountEl = document.getElementById('logErrorCount');
+            const updateTs = document.getElementById('logUpdateTimestamp');
+
+            if (updateTs) updateTs.textContent = new Date().toLocaleTimeString('zh-TW');
+
+            try {
+                const logsUrl = IS_CLOUD_ENV 
+                    ? `${GCS_BASE_URL}/crawler_error_logs.json?t=${Date.now()}`
+                    : `/static/crawler_error_logs.json?t=${Date.now()}`;
+                const res = await fetch(logsUrl);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (lastTimeEl) lastTimeEl.textContent = data.last_crawl_time || '尚未執行';
+                if (breakerEl) breakerEl.textContent = data.circuit_breaker || '正常 (0/3)';
+                if (errorCountEl) errorCountEl.textContent = `${data.error_count || 0} 筆`;
+                if (statusBadge) {
+                    if (data.status === 'CIRCUIT_BROKEN') {
+                        statusBadge.className = 'px-2.5 py-1 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 font-semibold flex items-center gap-1.5';
+                        statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span><span>已熔斷 (中斷保護)</span>';
+                    } else if (data.status === 'WAITING_FIRST_RUN') {
+                        statusBadge.className = 'px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold flex items-center gap-1.5';
+                        statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>等待首次執行</span>';
+                    } else {
+                        statusBadge.className = 'px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold flex items-center gap-1.5';
+                        statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>系統健康</span>';
+                    }
+                }
+                if (consoleEl && data.recent_logs && data.recent_logs.length > 0) {
+                    consoleEl.innerHTML = data.recent_logs.map(l => {
+                        const timeStr = l.timestamp ? (l.timestamp.includes(' ') ? l.timestamp.split(' ')[1] : l.timestamp) : '';
+                        const colorClass = l.level === 'ERROR' ? 'text-rose-400' : (l.level === 'WARN' ? 'text-amber-400' : 'text-emerald-400/90');
+                        return `
+                            <div class="${colorClass} flex items-start gap-2">
+                                <span class="text-zinc-600">[${timeStr}]</span>
+                                <span>[${l.component || l.level}] ${l.message}</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch(e) {
+                console.warn("無法取得爬蟲日誌:", e);
+            }
+        }
+
         function refreshData() {
             initDashboard();
             loadCalendarData();
+            fetchCrawlerLogs();
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             initDashboard();
             loadCalendarData();
+            fetchCrawlerLogs();
         });
     </script>
 </body>
