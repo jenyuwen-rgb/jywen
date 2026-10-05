@@ -78,7 +78,7 @@
             box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
         }
 
-        /* ------------------ 自訂自製高科技下拉選單 (突破原生 select option 顏色限制) ------------------ */
+        /* ------------------ 自訂自製高科技下拉選單 ------------------ */
         .custom-dropdown-wrap {
             position: relative;
             user-select: none;
@@ -128,18 +128,17 @@
             align-items: center;
             justify-content: space-between;
             gap: 8px;
-            color: #9CA3AF !important; /* 經典淺灰 text-gray-400 */
+            color: #9CA3AF !important; /* 淺灰色 text-gray-400 */
             background: transparent;
             transition: all 0.15s ease;
             font-size: 13px;
         }
         .custom-opt-done:hover {
             background: rgba(255, 255, 255, 0.05);
-            color: #D1D5DB !important; /* hover 時略亮淺灰 */
+            color: #D1D5DB !important;
         }
         .custom-opt-done .meet-name-text {
-            color: #9CA3AF !important; /* 淺灰色字體 */
-            text-decoration: none;
+            color: #9CA3AF !important;
         }
 
         /* 未下載賽事：醒目白色 + 金色圖標高亮 */
@@ -426,55 +425,71 @@
             </div>
         </section>
 
-        <!-- 區塊三：Normal 資料庫時間探針 (8碼日期快查) -->
+        <!-- 區塊三：Normal 資料庫雙向連動探針 (日期 8 碼 ＋ 賽事名稱連動，顯示前 5 筆) -->
         <section class="tech-card p-6 space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                     <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
                         <i class="fa-solid fa-database text-yellow-500/80"></i>
-                        <span>Normal 資料庫時間探針</span>
+                        <span>Normal 資料庫時間與賽事雙向探針</span>
                     </h3>
-                    <p class="text-xs text-zinc-400">輸入 8 碼日期（或前綴如 202609）自動聯想下拉，點選立即展開前 10 筆資料</p>
+                    <p class="text-xs text-zinc-400">輸入 8 碼日期自動連動賽事名稱，或選擇賽事反查日期，即時呈現前 <strong class="text-yellow-400">5</strong> 筆成績</p>
                 </div>
                 <div class="text-xs font-mono text-zinc-500">
-                    可查日期總量：<span id="dateTotalCount" class="text-zinc-300 font-bold">625</span> 個賽事日
+                    可查賽事日：<span id="dateTotalCount" class="text-zinc-300 font-bold">625</span> 天 · 賽事庫：<span id="meetTotalCount" class="text-zinc-300 font-bold">87</span> 場
                 </div>
             </div>
 
-            <!-- 輸入框與下拉提示 -->
-            <div class="search-input-wrap">
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm"></i>
-                    <input 
-                        type="text" 
-                        id="dateProbeInput" 
-                        placeholder="請輸入日期（例如：202609 或 20260910）..." 
-                        class="tech-input w-full pl-10 pr-24 py-2.5 rounded-xl text-sm"
-                        autocomplete="off"
-                        oninput="onDateInput(this.value)"
-                        onfocus="onDateInput(this.value)"
-                    >
-                    <button 
-                        id="clearDateBtn" 
-                        onclick="clearDateProbe()" 
-                        class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 hover:text-zinc-300 px-2 py-1"
-                    >
-                        清除
-                    </button>
+            <!-- 雙輸入控制列：日期 8 碼 ＋ 賽事名稱連動下拉 -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
+                <!-- 左側：日期 8 碼輸入框與下拉提示 -->
+                <div class="md:col-span-5 search-input-wrap">
+                    <label class="text-xs text-zinc-400 font-semibold mb-1 block">📅 日期 8 碼探針</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-calendar-days absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm"></i>
+                        <input 
+                            type="text" 
+                            id="dateProbeInput" 
+                            placeholder="輸入日期（如 20251207 或 202609）..." 
+                            class="tech-input w-full pl-10 pr-16 py-2.5 rounded-xl text-xs sm:text-sm"
+                            autocomplete="off"
+                            oninput="onDateInput(this.value)"
+                            onfocus="onDateInput(this.value)"
+                        >
+                        <button 
+                            id="clearDateBtn" 
+                            onclick="clearDateProbe()" 
+                            class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 hover:text-zinc-300 px-2 py-1"
+                        >
+                            清除
+                        </button>
+                    </div>
+                    <!-- 日期候選下拉 -->
+                    <div id="suggestDropdown" class="suggest-dropdown hidden"></div>
                 </div>
 
-                <!-- 下拉候選清單 -->
-                <div id="suggestDropdown" class="suggest-dropdown hidden"></div>
+                <!-- 右側：連動的賽事名稱下拉選單 -->
+                <div class="md:col-span-7 space-y-1">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs text-zinc-400 font-semibold flex items-center gap-1">
+                            <span>🏆 當日連動賽事名稱</span>
+                        </label>
+                        <span id="linkedMeetHint" class="text-[11px] font-mono text-amber-400">可選賽事：全量</span>
+                    </div>
+                    <select id="linkedMeetSelect" class="tech-select w-full h-[42px] text-xs sm:text-sm" onchange="onLinkedMeetChange()">
+                        <option value="">-- 請先選取日期或由此選擇賽事 --</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- 前 10 筆明細展示區 -->
+            <!-- 前 5 筆明細展示區 (大仁哥指定：只顯示 5 筆) -->
             <div id="sampleResultsContainer" class="space-y-3 pt-2">
                 <div class="flex items-center justify-between text-xs text-zinc-400 font-mono">
-                    <span id="currentDateLabel">當前檢視：請於上方輸入或選擇日期</span>
-                    <span id="sampleCountLabel" class="text-zinc-500">顯示筆數：0 筆</span>
+                    <span id="currentDateLabel">當前檢視：請於上方輸入日期或選擇賽事</span>
+                    <span id="sampleCountLabel" class="text-amber-400 font-bold">顯示筆數：前 5 筆</span>
                 </div>
 
-                <!-- 數據表格 -->
+                <!-- 數據表格 (前 5 筆) -->
                 <div class="overflow-x-auto rounded-xl border border-zinc-800/80">
                     <table class="w-full text-left text-xs font-mono">
                         <thead class="bg-zinc-900/90 text-zinc-400 uppercase border-b border-zinc-800">
@@ -490,8 +505,8 @@
                         </thead>
                         <tbody id="sampleTableBody" class="divide-y divide-zinc-800/60 bg-zinc-950/40 text-zinc-300">
                             <tr>
-                                <td colspan="7" class="py-8 text-center text-zinc-500">
-                                    請在上方面板輸入如「202609」並選取日期檢視前 10 筆資料
+                                <td colspan="7" class="py-6 text-center text-zinc-500">
+                                    請在上方面板輸入如「20251207」或「202609」檢視前 5 筆資料
                                 </td>
                             </tr>
                         </tbody>
@@ -519,6 +534,7 @@
         let dashboardData = null;
         let catalogData = null;
         let currentSelectedRace = null;
+        let currentDateValue = '20251207';
 
         // 初始化加載
         async function initDashboard() {
@@ -540,6 +556,7 @@
                 if (seedRes.ok) {
                     dashboardData = await seedRes.json();
                     document.getElementById('dateTotalCount').innerText = dashboardData.all_dates.length;
+                    document.getElementById('meetTotalCount').innerText = (dashboardData.all_meet_names || []).length;
                     
                     // 預設展開最近一個有樣本的日期
                     const recentDates = Object.keys(dashboardData.date_samples || {});
@@ -642,7 +659,6 @@
             const btnText = document.getElementById('selectedRaceText');
             const downloadBtn = document.getElementById('unifiedDownloadBtn');
 
-            // 根據是否已入庫，在按鈕顯示淺灰或亮白字
             if (inDb) {
                 btnText.innerHTML = `<span class="text-gray-400 font-medium">${text} <span class="text-[11px] text-gray-400 ml-1">✓ 已在資料庫</span></span>`;
                 downloadBtn.disabled = true;
@@ -688,7 +704,7 @@
             alert(`已啟動雲端任務：正在為您下載並合併【${currentSelectedRace.text}】！\n合併完成後將自動更新 normal.db 與 256split！`);
         }
 
-        // ------------------ 時間探針核心邏輯 ------------------
+        // ------------------ 雙向連動時間與賽事探針核心邏輯 ------------------
         function onDateInput(val) {
             const input = val.trim();
             const dropdown = document.getElementById('suggestDropdown');
@@ -705,12 +721,16 @@
             const matches = dashboardData.all_dates.filter(d => d.includes(input)).slice(0, 15);
 
             if (matches.length > 0) {
-                dropdown.innerHTML = matches.map(d => `
-                    <div class="suggest-item" onclick="selectDate('${d}')">
-                        <span class="text-zinc-200"><i class="fa-regular fa-calendar text-xs mr-2 text-zinc-500"></i>${d}</span>
-                        <span class="text-[11px] text-zinc-500 font-mono">點擊檢視 10 筆</span>
-                    </div>
-                `).join('');
+                dropdown.innerHTML = matches.map(d => {
+                    const linked = (dashboardData.date_to_meets && dashboardData.date_to_meets[d]) || [];
+                    const meetCount = linked.length;
+                    return `
+                        <div class="suggest-item" onclick="selectDate('${d}')">
+                            <span class="text-zinc-200"><i class="fa-regular fa-calendar text-xs mr-2 text-zinc-500"></i>${d}</span>
+                            <span class="text-[11px] text-amber-400 font-mono">${meetCount} 場賽事 · 檢視前 5 筆</span>
+                        </div>
+                    `;
+                }).join('');
                 dropdown.classList.remove('hidden');
             } else {
                 dropdown.innerHTML = `<div class="p-3 text-xs text-zinc-500 text-center">無相符的賽事日期</div>`;
@@ -719,25 +739,89 @@
         }
 
         function selectDate(dateStr) {
+            currentDateValue = dateStr;
             document.getElementById('dateProbeInput').value = dateStr;
             document.getElementById('suggestDropdown').classList.add('hidden');
             document.getElementById('clearDateBtn').classList.remove('hidden');
-            
-            document.getElementById('currentDateLabel').innerHTML = `當前檢視日期：<span class="text-yellow-400 font-bold">${dateStr}</span>`;
 
-            const samples = (dashboardData && dashboardData.date_samples && dashboardData.date_samples[dateStr]) || [];
-            renderSamples(samples, dateStr);
+            // 雙向連動：更新賽事下拉選單為「該日期舉辦之所有賽事」
+            updateLinkedMeetsDropdown(dateStr);
+
+            // 渲染前 5 筆明細
+            renderFilteredSamples();
         }
 
-        function renderSamples(samples, dateStr) {
+        // 更新賽事名稱連動下拉選單
+        function updateLinkedMeetsDropdown(dateStr) {
+            const selectEl = document.getElementById('linkedMeetSelect');
+            const hintEl = document.getElementById('linkedMeetHint');
+
+            if (!dashboardData) return;
+
+            const linkedMeets = (dashboardData.date_to_meets && dashboardData.date_to_meets[dateStr]) || [];
+            
+            if (linkedMeets.length > 0) {
+                hintEl.innerText = `該日共有 ${linkedMeets.length} 場賽事`;
+                hintEl.className = 'text-[11px] font-mono text-emerald-400';
+                
+                let html = `<option value="">-- 當日全部賽事 (${linkedMeets.length} 場) --</option>`;
+                linkedMeets.forEach(m => {
+                    html += `<option value="${m}">${m}</option>`;
+                });
+                selectEl.innerHTML = html;
+            } else {
+                hintEl.innerText = `全量賽事檢視`;
+                hintEl.className = 'text-[11px] font-mono text-zinc-500';
+                
+                let html = `<option value="">-- 全部賽事 --</option>`;
+                (dashboardData.all_meet_names || []).slice(0, 30).forEach(m => {
+                    html += `<option value="${m}">${m}</option>`;
+                });
+                selectEl.innerHTML = html;
+            }
+        }
+
+        // 賽事名稱下拉改變
+        function onLinkedMeetChange() {
+            const selectEl = document.getElementById('linkedMeetSelect');
+            const selectedMeet = selectEl.value;
+
+            // 若使用者先選了賽事名稱，反向推導日期候選
+            if (selectedMeet && dashboardData.meet_to_dates && dashboardData.meet_to_dates[selectedMeet]) {
+                const dates = dashboardData.meet_to_dates[selectedMeet];
+                if (dates.length > 0 && !dates.includes(currentDateValue)) {
+                    document.getElementById('dateProbeInput').value = dates[0];
+                    currentDateValue = dates[0];
+                }
+            }
+
+            renderFilteredSamples();
+        }
+
+        // 渲染符合篩選條件的「前 5 筆」明細 (大仁哥指定：只顯示 5 筆)
+        function renderFilteredSamples() {
+            const dateStr = currentDateValue;
+            const selectedMeet = document.getElementById('linkedMeetSelect').value;
             const tbody = document.getElementById('sampleTableBody');
-            document.getElementById('sampleCountLabel').innerText = `顯示筆數：${samples.length} 筆`;
+
+            document.getElementById('currentDateLabel').innerHTML = `當前檢視：<span class="text-yellow-400 font-bold">${dateStr}</span> ${selectedMeet ? '· ' + selectedMeet : ''}`;
+
+            let allRows = (dashboardData && dashboardData.date_samples && dashboardData.date_samples[dateStr]) || [];
+
+            // 若有指定賽事名稱進行二次過濾
+            if (selectedMeet) {
+                allRows = allRows.filter(r => r.meet === selectedMeet || r.meet.includes(selectedMeet));
+            }
+
+            // 大仁哥指定：只取前 5 筆
+            const samples = allRows.slice(0, 5);
+            document.getElementById('sampleCountLabel').innerText = `顯示筆數：前 ${samples.length} 筆`;
 
             if (samples.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="7" class="py-6 text-center text-zinc-500">
-                            日期 ${dateStr} 之資料庫樣本加載中或當前版本離線中
+                            日期 ${dateStr} ${selectedMeet ? '(' + selectedMeet + ')' : ''} 之資料庫樣本加載中或當前版本離線中
                         </td>
                     </tr>
                 `;
@@ -755,7 +839,7 @@
                     <td class="py-2.5 px-3 text-zinc-400 truncate max-w-[120px]">${row.unit || '-'}</td>
                     <td class="py-2.5 px-3 text-zinc-300 truncate max-w-[150px]">${row.item || '-'}</td>
                     <td class="py-2.5 px-3 text-amber-300 font-bold">${row.time || '-'}</td>
-                    <td class="py-2.5 px-3 text-zinc-500 truncate max-w-[160px]">${row.meet || '-'}</td>
+                    <td class="py-2.5 px-3 text-zinc-400 truncate max-w-[160px]">${row.meet || '-'}</td>
                 </tr>
             `).join('');
         }
