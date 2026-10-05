@@ -1371,6 +1371,54 @@
                 </div>
             </section>
 
+            <!-- ☁️ 09_GCP雲端自動管理游泳網頁：四大風險與待討論清單 -->
+            <section style="background: rgba(20, 20, 22, 0.95); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 14px; padding: 18px 22px; margin-bottom: 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.5);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #27272a; padding-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.35rem;">☁️</span>
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 8px;">
+                                <span>GCP 雲端自動管理：四大潛在風險與待討論清單</span>
+                                <span style="font-size: 0.72rem; background: rgba(212,175,55,0.15); color: #f3d078; border: 1px solid rgba(212,175,55,0.3); padding: 2px 8px; border-radius: 6px;">09 專案中樞</span>
+                            </h3>
+                            <div style="font-size: 0.76rem; color: #8e8e93; margin-top: 2px;">專案：ctsa-swimming-project · 排程定時：每天 06:00 (Asia/Taipei) · 預算護欄：1 美元 Alarm & Shutdown</div>
+                        </div>
+                    </div>
+                    <span style="font-size: 0.76rem; color: #30D158; background: rgba(48,209,88,0.12); border: 1px solid rgba(48,209,88,0.3); padding: 3px 10px; border-radius: 8px; font-weight: 600;">● 待大仁哥決策</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+                    <!-- 風險 1 -->
+                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a; border-left: 3.5px solid #0a84ff; border-radius: 10px; padding: 12px 14px;">
+                        <div style="font-size: 0.88rem; font-weight: 700; color: #8ac0ff; margin-bottom: 6px;">🔑 風險一：GCP 寫回 GitHub 的授權</div>
+                        <div style="font-size: 0.78rem; color: #d1d5db; line-height: 1.45;">GCP 跑在 Google 機房，爬完資料需 push 回 GitHub 覆寫 calendar.json，需配置一組專用 GitHub PAT 金鑰。</div>
+                        <div style="margin-top: 8px; font-size: 0.72rem; color: #9ca3af; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px;">推薦解法：放入 GCP Secret Manager 安全授權</div>
+                    </div>
+
+                    <!-- 風險 2 -->
+                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a; border-left: 3.5px solid #ff9f0a; border-radius: 10px; padding: 12px 14px;">
+                        <div style="font-size: 0.88rem; font-weight: 700; color: #ffd60a; margin-bottom: 6px;">🛡️ 風險二：官網對雲端機房 IP 的阻擋</div>
+                        <div style="font-size: 0.78rem; color: #d1d5db; line-height: 1.45;">部分協會主機可能針對資料中心 IP 攔截 (WAF / 403)。程式已內建真實瀏覽器 Header 與連線重試防禦。</div>
+                        <div style="margin-top: 8px; font-size: 0.72rem; color: #9ca3af; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px;">備援解法：遇阻擋自動標記 IP_BLOCKED 並通報</div>
+                    </div>
+
+                    <!-- 風險 3 -->
+                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a; border-left: 3.5px solid #ff453a; border-radius: 10px; padding: 12px 14px;">
+                        <div style="font-size: 0.88rem; font-weight: 700; color: #ff9f97; margin-bottom: 6px;">💰 風險三：死循環與意外扣款風險</div>
+                        <div style="font-size: 0.78rem; color: #d1d5db; line-height: 1.45;">若程式死鎖持續計費。已實裝 300 秒超時強制斬斷、大仁哥「3次自愈失敗立即熔斷」、及 1 美元 Alarm 停機！</div>
+                        <div style="margin-top: 8px; font-size: 0.72rem; color: #9ca3af; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px;">現狀防線：3次自愈物理熔斷 ＋ 0元免費額度保證</div>
+                    </div>
+
+                    <!-- 風險 4 -->
+                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid #27272a; border-left: 3.5px solid #30d158; border-radius: 10px; padding: 12px 14px;">
+                        <div style="font-size: 0.88rem; font-weight: 700; color: #7de898; margin-bottom: 6px;">🧠 風險四：AI 自我修復規則改壞錯亂</div>
+                        <div style="font-size: 0.78rem; color: #d1d5db; line-height: 1.45;">若官網改版劇烈，AI 恐推導錯誤規則。已實裝嚴格資料格式驗證門禁，不合規者拒絕採納並凍結現場。</div>
+                        <div style="margin-top: 8px; font-size: 0.72rem; color: #9ca3af; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px;">稽核存檔：全量落盤 repair_history_audit.log</div>
+                    </div>
+                </div>
+            </section>
+
+
 
 
             <!-- 游泳行事曆區段 (macOS 頂級原生風格) -->

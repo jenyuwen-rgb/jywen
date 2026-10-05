@@ -917,6 +917,66 @@
             </div>
         </section>
 
+        <!-- 區塊五：GCP 雲端爬蟲錯誤與自愈修復日誌檢視中心 (大仁哥專屬排查面板) -->
+        <section class="tech-card p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                        <span>GCP 爬蟲執行與自愈修復日誌 (Error Logs)</span>
+                    </h3>
+                    <p class="text-xs text-zinc-400">監控每日 06:00 爬蟲狀態、格式異常警告、AI 自我修復軌跡與熔斷保護機制</p>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-mono">
+                    <span id="logStatusBadge" class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span>系統健康</span>
+                    </span>
+                    <button onclick="fetchCrawlerLogs()" class="px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 transition flex items-center gap-1 text-[11px]">
+                        <i class="fa-solid fa-arrows-rotate text-[10px]"></i> 重新整理
+                    </button>
+                </div>
+            </div>
+
+            <!-- 日誌統計摘要欄 -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                    <div class="text-zinc-500 text-[11px]">最後執行時間</div>
+                    <div id="logLastRunTime" class="text-zinc-200 font-bold mt-1 text-sm">2026-10-05 21:14</div>
+                </div>
+                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                    <div class="text-zinc-500 text-[11px]">自愈熔斷器</div>
+                    <div id="logCircuitBreaker" class="text-emerald-400 font-bold mt-1 text-sm">正常 (0/3)</div>
+                </div>
+                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                    <div class="text-zinc-500 text-[11px]">異常記錄筆數</div>
+                    <div id="logErrorCount" class="text-zinc-200 font-bold mt-1 text-sm">0 筆</div>
+                </div>
+                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                    <div class="text-zinc-500 text-[11px]">雲端儲存路徑</div>
+                    <div class="text-zinc-400 font-mono mt-1 text-[11px] truncate" title="GitHub: /static/crawler_error_logs.json">GitHub 永久存檔</div>
+                </div>
+            </div>
+
+            <!-- 實體日誌控制台終端窗口 -->
+            <div class="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 font-mono text-xs overflow-hidden">
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800/80 text-[11px] text-zinc-500">
+                    <span>CONSOLE OUTPUT (固定同步至 GitHub 倉庫)</span>
+                    <span id="logUpdateTimestamp">LIVE STREAM</span>
+                </div>
+                <div id="errorLogConsole" class="space-y-1.5 max-h-56 overflow-y-auto text-zinc-300 pr-2">
+                    <div class="text-emerald-400/90 flex items-start gap-2">
+                        <span class="text-zinc-600">[21:14:00]</span>
+                        <span>[INFO] GCP 雲端管理系統就緒，Cloud Scheduler 鬧鐘鎖定每日 06:00 (Asia/Taipei)。</span>
+                    </div>
+                    <div class="text-zinc-400 flex items-start gap-2">
+                        <span class="text-zinc-600">[21:14:00]</span>
+                        <span>[MONITOR] 3-Attempt Circuit Breaker 已掛載，若遇官方格式異常自動啟動 AI 自我修復。</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- 底部版權與狀態列 -->
@@ -968,7 +1028,7 @@
                 }
 
                 // 3. 讀取各泳協下拉選單資料庫
-                const catRes = await fetch('/static/org_races_catalog.json');
+                const catRes = await fetch('/static/org_races_catalog.json?t=' + Date.now());
                 if (catRes.ok) {
                     catalogData = await catRes.json();
                     handleUnifiedOrgChange();
@@ -1017,13 +1077,14 @@
             downloadBtn.disabled = true;
             downloadBtn.classList.remove('active-gold');
 
-            if (!catalogData || !catalogData.site_catalog || !catalogData.site_catalog[siteId]) {
-                menu.innerHTML = '<div class="p-3 text-xs text-zinc-500 text-center">無賽事資料</div>';
+            const siteInfo = catalogData && catalogData.site_catalog ? catalogData.site_catalog[siteId] : null;
+            const races = siteInfo ? (siteInfo.races || []) : [];
+
+            if (!siteInfo || races.length === 0) {
+                menu.innerHTML = '<div class="p-4 text-xs text-amber-400 font-mono text-center flex flex-col items-center justify-center gap-1.5"><i class="fa-solid fa-cloud-arrow-down text-base text-amber-400"></i><span>⏳ 待 GCP 雲端爬蟲抓取 (0 場)</span><span class="text-[10px] text-zinc-500">（目前已清空，等 GCP 爬完寫入）</span></div>';
+                updateRaceNotice(null);
                 return;
             }
-
-            const siteInfo = catalogData.site_catalog[siteId];
-            const races = siteInfo.races || [];
 
             // 核心：自訂 HTML 項目，強制呈現淺灰色 (#9CA3AF)
             let html = '';
@@ -1348,7 +1409,7 @@
 
         async function loadCalendarData() {
             try {
-                const res = await fetch('/static/calendar.json');
+                const res = await fetch('/static/calendar.json?t=' + Date.now());
                 if (res.ok) {
                     window.currentEvents = await res.json();
                 } else {

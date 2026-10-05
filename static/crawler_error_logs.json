@@ -1,0 +1,15 @@
+{
+  "last_crawl_time": "2026-10-05 21:14:00",
+  "status": "HEALTHY",
+  "circuit_breaker": "NORMAL (0/3)",
+  "recent_logs": [
+    {
+      "timestamp": "2026-10-05 21:14:00",
+      "level": "INFO",
+      "component": "GCP Cloud Run Job",
+      "message": "系統初始化完畢，準備於明日 06:00 執行首次自動抓取與自愈監控。"
+    }
+  ],
+  "error_count": 0,
+  "recent_errors": []
+}
