@@ -61,6 +61,10 @@
     {
       "source": "/256split",
       "destination": "/256split.html"
+    },
+    {
+      "source": "/int",
+      "destination": "/int.html"
     }
   ],
   "functions": {

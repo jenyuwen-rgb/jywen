@@ -1497,9 +1497,11 @@
 
                     const normTargetSex = p.sex ? ((p.sex === '女' || p.sex === '女生') ? '女' : '男') : null;
 
+                    const targetBirth = String(p.birthYear || '').replace(/\.0$/, '').trim();
                     const pts = scores.filter(r => {
+                        // #14-A：與 normal 一致，出生年必須等於選定年次（空值不納入）
                         const bY = String(r.出生年 || '').replace(/\.0$/, '').trim();
-                        if (bY && p.birthYear && bY !== p.birthYear) return false;
+                        if (bY !== targetBirth) return false;
                         if (normTargetSex) {
                             const rSex = (r.性別 === '女' || r.性別 === '女生') ? '女' : '男';
                             if (rSex !== normTargetSex) return false;
@@ -1511,7 +1513,10 @@
 
                         const m = item.match(/(\d+)公尺(?![池水])/);
                         return m && String(m[1]) === String(dist) && item.includes(stroke);
-                    }).map(r => {
+                    })
+                    // #13-A：與 normal 的 ORDER BY 年份 ASC 一致，依比賽日期排序後再連線
+                    .sort((a, b) => String(a.年份 || '').localeCompare(String(b.年份 || '')))
+                    .map(r => {
                         const y = String(r.年份).substring(0,4), m = String(r.年份).substring(4,6), d = String(r.年份).substring(6,8);
                         const raceDate = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
                         const birthYr = toAD(r.出生年);

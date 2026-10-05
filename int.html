@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>賽事整合與雲端調度儀表板 · 金水 Swimming PWA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #000000;
+            color: #FFFFFF;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Mono", monospace;
+            padding-bottom: 120px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 標誌性黑金漸層文字 */
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F3D078 50%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 高科技暗色卡片與毛玻璃 */
+        .tech-card {
+            background: #141416;
+            border: 0.5px solid #2C2C2E;
+            border-radius: 14px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tech-card:hover {
+            border-color: #48484A;
+        }
+
+        .glass-panel {
+            background: rgba(20, 20, 22, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 0.5px solid #2C2C2E;
+        }
+
+        /* 狀態徽章與霓虹點綴 */
+        .badge-live {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34D399;
+        }
+        .badge-pending {
+            background: rgba(212, 175, 55, 0.12);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: #F3D078;
+        }
+        .badge-done {
+            background: rgba(113, 113, 122, 0.15);
+            border: 1px solid rgba(113, 113, 122, 0.3);
+            color: #71717A;
+        }
+
+        /* 賽事列表狀態區分：已入庫灰色 vs 未入庫高亮 */
+        .meet-row-done {
+            color: #71717A !important;
+            background: #101012;
+            border: 0.5px solid #222224;
+            opacity: 0.78;
+        }
+        .meet-row-done:hover {
+            opacity: 0.95;
+            border-color: #38383A;
+        }
+        .meet-row-done .meet-title {
+            color: #8E8E93 !important;
+            font-weight: 500;
+        }
+
+        .meet-row-pending {
+            color: #FFFFFF !important;
+            background: linear-gradient(180deg, #1A1A1E 0%, #141416 100%);
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.08);
+        }
+        .meet-row-pending .meet-title {
+            color: #FFF !important;
+            font-weight: 700;
+        }
+
+        /* 時間輸入與自動下拉彈窗 */
+        .search-input-wrap {
+            position: relative;
+        }
+        .tech-input {
+            background: #0D0D0E;
+            border: 1px solid #333336;
+            color: #FFF;
+            font-family: -apple-system, "SF Mono", monospace;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+        .tech-input:focus {
+            outline: none;
+            border-color: #D4AF37;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+        }
+
+        .suggest-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: #18181B;
+            border: 1px solid #3F3F46;
+            border-radius: 12px;
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 50;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
+        }
+        .suggest-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 0.5px solid #27272A;
+            transition: background 0.15s ease;
+        }
+        .suggest-item:hover {
+            background: #27272A;
+            color: #F3D078;
+        }
+
+        /* 滾動條修飾 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090B;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272A;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3F3F46;
+        }
+    </style>
+</head>
+<body class="selection:bg-yellow-500 selection:text-black">
+
+    <!-- 頂部高科技導航欄 -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-zinc-800/80 px-4 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <a href="/" class="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+                <span class="text-xs font-mono font-medium">PWA 首頁</span>
+            </a>
+            <span class="text-zinc-600">/</span>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                <h1 class="text-sm font-bold tracking-wide text-zinc-200 uppercase font-mono">Integration Center</h1>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-[11px] font-mono text-zinc-400 hidden sm:inline">GCP Cloud Dispatcher Active</span>
+            <button onclick="refreshData()" class="px-2.5 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition flex items-center gap-1.5 border border-zinc-700">
+                <i class="fa-solid fa-arrows-rotate text-[11px]"></i>
+                <span>重新整理</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 pt-6 space-y-8">
+
+        <!-- 頁面主題標題 -->
+        <div class="text-center space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-extrabold gold-gradient-text tracking-tight">
+                賽事整合與雲端調度儀表板
+            </h2>
+            <p class="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto font-light">
+                監控 GitHub 雙版本流水號 · 即時巡檢全台泳協賽事狀態 · GCP 自動化採集調度核心
+            </p>
+        </div>
+
+        <!-- 區塊一：GitHub 雙版本流水號卡片 -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Normal 資料庫卡片 -->
+            <div class="tech-card p-5 relative overflow-hidden group">
+                <div class="absolute -right-6 -bottom-6 text-zinc-800/30 text-8xl pointer-events-none font-mono">DB</div>
+                <div class="flex items-start justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">GitHub Normal 資料庫</span>
+                        </div>
+                        <div id="normalVersionCode" class="text-xl sm:text-2xl font-bold font-mono text-zinc-100">
+                            v2026.10.05.0115
+                        </div>
+                        <div class="text-xs text-zinc-500 font-mono mt-0.5">
+                            Build #<span id="normalBuildNo" class="text-zinc-400">1791134114</span>
+                        </div>
+                    </div>
+                    <span class="badge-live text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1">
+                        <i class="fa-brands fa-github text-xs"></i> 主庫同步
+                    </span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono">
+                    <span class="text-zinc-500">總成績筆數</span>
+                    <span id="normalTotalRows" class="text-emerald-400 font-bold">832,006 筆</span>
+                </div>
+            </div>
+
+            <!-- 256split 資料庫卡片 -->
+            <div class="tech-card p-5 relative overflow-hidden group">
+                <div class="absolute -right-6 -bottom-6 text-zinc-800/30 text-8xl pointer-events-none font-mono">256</div>
+                <div class="flex items-start justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                            <span class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">GitHub 256split 預處理</span>
+                        </div>
+                        <div id="splitVersionCode" class="text-xl sm:text-2xl font-bold font-mono text-amber-200">
+                            v2026.10.05.0115
+                        </div>
+                        <div class="text-xs text-zinc-500 font-mono mt-0.5">
+                            分塊索引：<span id="splitParts" class="text-zinc-300">20 / 256 桶</span>
+                        </div>
+                    </div>
+                    <span class="badge-pending text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1">
+                        <i class="fa-solid fa-bolt-lightning text-xs"></i> 邊緣預載入
+                    </span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono">
+                    <span class="text-zinc-500">前端 PWA 響應</span>
+                    <span class="text-amber-400 font-bold">&lt; 15ms 極速查詢</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 區塊二：Normal 資料庫時間探針 (8碼日期快查) -->
+        <section class="tech-card p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
+                        <i class="fa-solid fa-database text-yellow-500/80"></i>
+                        <span>Normal 資料庫時間探針</span>
+                    </h3>
+                    <p class="text-xs text-zinc-400">輸入 8 碼日期（或前綴如 202609）自動聯想下拉，點選立即展開前 10 筆資料</p>
+                </div>
+                <div class="text-xs font-mono text-zinc-500">
+                    可查日期總量：<span id="dateTotalCount" class="text-zinc-300 font-bold">625</span> 個賽事日
+                </div>
+            </div>
+
+            <!-- 輸入框與下拉提示 -->
+            <div class="search-input-wrap">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm"></i>
+                    <input 
+                        type="text" 
+                        id="dateProbeInput" 
+                        placeholder="請輸入日期（例如：202609 或 20260910）..." 
+                        class="tech-input w-full pl-10 pr-24 py-2.5 rounded-xl text-sm"
+                        autocomplete="off"
+                        oninput="onDateInput(this.value)"
+                        onfocus="onDateInput(this.value)"
+                    >
+                    <button 
+                        id="clearDateBtn" 
+                        onclick="clearDateProbe()" 
+                        class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 hover:text-zinc-300 px-2 py-1"
+                    >
+                        清除
+                    </button>
+                </div>
+
+                <!-- 下拉候選清單 -->
+                <div id="suggestDropdown" class="suggest-dropdown hidden"></div>
+            </div>
+
+            <!-- 前 10 筆明細展示區 -->
+            <div id="sampleResultsContainer" class="space-y-3 pt-2">
+                <div class="flex items-center justify-between text-xs text-zinc-400 font-mono">
+                    <span id="currentDateLabel">當前檢視：請於上方輸入或選擇日期</span>
+                    <span id="sampleCountLabel" class="text-zinc-500">顯示筆數：0 筆</span>
+                </div>
+
+                <!-- 數據表格 -->
+                <div class="overflow-x-auto rounded-xl border border-zinc-800/80">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-zinc-900/90 text-zinc-400 uppercase border-b border-zinc-800">
+                            <tr>
+                                <th class="py-2.5 px-3">日期</th>
+                                <th class="py-2.5 px-3">名次</th>
+                                <th class="py-2.5 px-3">姓名 (出生年)</th>
+                                <th class="py-2.5 px-3">代表單位</th>
+                                <th class="py-2.5 px-3">參賽項目</th>
+                                <th class="py-2.5 px-3">成績</th>
+                                <th class="py-2.5 px-3">賽事名稱</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sampleTableBody" class="divide-y divide-zinc-800/60 bg-zinc-950/40 text-zinc-300">
+                            <tr>
+                                <td colspan="7" class="py-8 text-center text-zinc-500">
+                                    請在上方面板輸入如「202609」並選取日期檢視前 10 筆資料
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 區塊三：賽事調度與狀態儀表板 (GCP 任務來源) -->
+        <section class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-yellow-500/80"></i>
+                        <span>全國與地方泳協賽事儀表板</span>
+                    </h3>
+                    <p class="text-xs text-zinc-400">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-zinc-600 mr-1 align-middle"></span>
+                        已入庫賽事以<strong class="text-zinc-400">灰色文字</strong>呈現，
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 ml-2 mr-1 align-middle"></span>
+                        未抓取賽事<strong class="text-amber-300">高亮顯示</strong>供 GCP 雲端代理自動領取任務。
+                    </p>
+                </div>
+                <!-- 篩選標籤 -->
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-mono">
+                    <button onclick="filterMeets('all')" id="filter-all" class="px-2.5 py-1 rounded-lg bg-zinc-800 text-white font-bold border border-zinc-700">全部 (<span id="cntAll">0</span>)</button>
+                    <button onclick="filterMeets('pending')" id="filter-pending" class="px-2.5 py-1 rounded-lg bg-zinc-900 text-amber-300 hover:bg-zinc-800 border border-amber-500/30">待抓取 (<span id="cntPending">0</span>)</button>
+                    <button onclick="filterMeets('done')" id="filter-done" class="px-2.5 py-1 rounded-lg bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-zinc-800">已入庫 (<span id="cntDone">0</span>)</button>
+                </div>
+            </div>
+
+            <!-- 賽事清單 -->
+            <div id="meetsListContainer" class="space-y-2.5">
+                <!-- 動態注入賽事卡片 -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 底部版權與狀態列 -->
+    <footer class="fixed bottom-0 left-0 right-0 glass-panel border-t border-zinc-800/80 py-2.5 px-4 z-30">
+        <div class="max-w-5xl mx-auto flex items-center justify-between text-[11px] font-mono text-zinc-500">
+            <div>
+                <span>金水 PWA 賽事數據中樞</span> · <span>Zero-Cost Serverless Pipeline</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span class="text-zinc-400">All Nodes Online</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let dashboardData = null;
+        let currentFilter = 'all';
+
+        // 初始化加載
+        async function initDashboard() {
+            try {
+                // 讀取版本流水號
+                const verRes = await fetch('/static/db_parts/version.json');
+                if (verRes.ok) {
+                    const ver = await verRes.json();
+                    document.getElementById('normalVersionCode').innerText = ver.version_code || 'v2026.10.05.0115';
+                    document.getElementById('normalBuildNo').innerText = ver.version || '1791134114';
+                    document.getElementById('normalTotalRows').innerText = (ver.total_rows ? ver.total_rows.toLocaleString() : '832,006') + ' 筆';
+                    
+                    document.getElementById('splitVersionCode').innerText = ver.version_code || 'v2026.10.05.0115';
+                    document.getElementById('splitParts').innerText = `${ver.parts || 20} / 256 桶`;
+                }
+
+                // 讀取賽事與日期探針種子資料
+                const seedRes = await fetch('/static/int_dashboard_seed.json');
+                if (seedRes.ok) {
+                    dashboardData = await seedRes.json();
+                    renderDashboard(dashboardData);
+                    
+                    // 預設展開最近一個有樣本的日期
+                    const recentDates = Object.keys(dashboardData.date_samples || {});
+                    if (recentDates.length > 0) {
+                        selectDate(recentDates[0]);
+                    }
+                }
+            } catch (err) {
+                console.error("載入儀表板失敗:", err);
+            }
+        }
+
+        // 渲染儀表板
+        function renderDashboard(data) {
+            document.getElementById('dateTotalCount').innerText = data.all_dates.length;
+            
+            // 計算賽事統計
+            const meets = data.meets || [];
+            const doneCnt = meets.filter(m => m.in_db).length;
+            const pendingCnt = meets.filter(m => !m.in_db).length;
+
+            document.getElementById('cntAll').innerText = meets.length;
+            document.getElementById('cntPending').innerText = pendingCnt;
+            document.getElementById('cntDone').innerText = doneCnt;
+
+            renderMeetsList(meets);
+        }
+
+        // 渲染賽事列表
+        function renderMeetsList(meets) {
+            const container = document.getElementById('meetsListContainer');
+            container.innerHTML = '';
+
+            const filtered = meets.filter(m => {
+                if (currentFilter === 'done') return m.in_db;
+                if (currentFilter === 'pending') return !m.in_db;
+                return true;
+            });
+
+            filtered.forEach(m => {
+                const isDone = m.in_db;
+                const card = document.createElement('div');
+                card.className = `p-3.5 rounded-xl transition-all ${isDone ? 'meet-row-done' : 'meet-row-pending'}`;
+                
+                card.innerHTML = `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                ${isDone 
+                                    ? `<span class="badge-done text-[10px] px-2 py-0.5 rounded font-mono"><i class="fa-solid fa-check text-[9px] mr-1"></i>已入庫</span>`
+                                    : `<span class="badge-pending text-[10px] px-2 py-0.5 rounded font-mono animate-pulse"><i class="fa-solid fa-cloud-arrow-down text-[9px] mr-1"></i>GCP待抓取</span>`
+                                }
+                                <span class="text-[11px] font-mono text-zinc-500">${m.source || '官方泳協'}</span>
+                                <span class="text-[11px] font-mono ${isDone ? 'text-zinc-500' : 'text-amber-400'}">${m.start_date}${m.end_date !== m.start_date ? ' ~ ' + m.end_date : ''}</span>
+                            </div>
+                            <div class="meet-title text-sm sm:text-base">
+                                ${m.name}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 self-end sm:self-center font-mono text-xs">
+                            ${isDone 
+                                ? `<span class="text-zinc-500">${m.count.toLocaleString()} 筆紀錄</span>`
+                                : `<span class="text-amber-300 font-bold">新賽事即將同步</span>`
+                            }
+                            ${m.url ? `
+                                <a href="${m.url}" target="_blank" class="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[11px] flex items-center gap-1">
+                                    <span>官網</span><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 篩選賽事
+        function filterMeets(type) {
+            currentFilter = type;
+            ['all', 'pending', 'done'].forEach(t => {
+                const btn = document.getElementById(`filter-${t}`);
+                if (t === type) {
+                    btn.className = 'px-2.5 py-1 rounded-lg bg-zinc-800 text-white font-bold border border-zinc-600';
+                } else {
+                    btn.className = 'px-2.5 py-1 rounded-lg bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-zinc-800';
+                }
+            });
+            if (dashboardData) {
+                renderMeetsList(dashboardData.meets);
+            }
+        }
+
+        // 8碼日期輸入與候選下拉
+        function onDateInput(val) {
+            const input = val.trim();
+            const dropdown = document.getElementById('suggestDropdown');
+            const clearBtn = document.getElementById('clearDateBtn');
+
+            if (input.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+
+            if (!dashboardData || !dashboardData.all_dates) return;
+
+            // 模糊搜尋包含此前綴的日期
+            const matches = dashboardData.all_dates.filter(d => d.includes(input)).slice(0, 15);
+
+            if (matches.length > 0) {
+                dropdown.innerHTML = matches.map(d => `
+                    <div class="suggest-item" onclick="selectDate('${d}')">
+                        <span class="text-zinc-200"><i class="fa-regular fa-calendar text-xs mr-2 text-zinc-500"></i>${d}</span>
+                        <span class="text-[11px] text-zinc-500 font-mono">點擊檢視 10 筆</span>
+                    </div>
+                `).join('');
+                dropdown.classList.remove('hidden');
+            } else {
+                dropdown.innerHTML = `<div class="p-3 text-xs text-zinc-500 text-center">無相符的賽事日期</div>`;
+                dropdown.classList.remove('hidden');
+            }
+        }
+
+        // 選取特定日期
+        function selectDate(dateStr) {
+            document.getElementById('dateProbeInput').value = dateStr;
+            document.getElementById('suggestDropdown').classList.add('hidden');
+            document.getElementById('clearDateBtn').classList.remove('hidden');
+            
+            document.getElementById('currentDateLabel').innerHTML = `當前檢視日期：<span class="text-yellow-400 font-bold">${dateStr}</span>`;
+
+            // 抓取樣本資料
+            const samples = (dashboardData && dashboardData.date_samples && dashboardData.date_samples[dateStr]) || [];
+            renderSamples(samples, dateStr);
+        }
+
+        // 渲染前 10 筆樣本明細
+        function renderSamples(samples, dateStr) {
+            const tbody = document.getElementById('sampleTableBody');
+            document.getElementById('sampleCountLabel').innerText = `顯示筆數：${samples.length} 筆`;
+
+            if (samples.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-6 text-center text-zinc-500">
+                            日期 ${dateStr} 之資料庫樣本加載中或當前版本離線中
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = samples.map(row => `
+                <tr class="hover:bg-zinc-900/60 transition-colors">
+                    <td class="py-2.5 px-3 text-zinc-400 font-mono">${row.date || dateStr}</td>
+                    <td class="py-2.5 px-3 font-bold ${row.rank === '1' ? 'text-amber-400' : 'text-zinc-300'}">${row.rank || '-'}</td>
+                    <td class="py-2.5 px-3 text-white font-medium">
+                        ${row.name}
+                        ${row.birth ? `<span class="text-zinc-500 text-[10px] ml-1">(${row.birth})</span>` : ''}
+                    </td>
+                    <td class="py-2.5 px-3 text-zinc-400 truncate max-w-[120px]">${row.unit || '-'}</td>
+                    <td class="py-2.5 px-3 text-zinc-300 truncate max-w-[150px]">${row.item || '-'}</td>
+                    <td class="py-2.5 px-3 text-amber-300 font-bold">${row.time || '-'}</td>
+                    <td class="py-2.5 px-3 text-zinc-500 truncate max-w-[160px]">${row.meet || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // 清除輸入
+        function clearDateProbe() {
+            document.getElementById('dateProbeInput').value = '';
+            document.getElementById('suggestDropdown').classList.add('hidden');
+            document.getElementById('clearDateBtn').classList.add('hidden');
+        }
+
+        // 點擊空白處關閉下拉
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-input-wrap')) {
+                document.getElementById('suggestDropdown').classList.add('hidden');
+            }
+        });
+
+        // 重新整理
+        function refreshData() {
+            initDashboard();
+        }
+
+        window.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
