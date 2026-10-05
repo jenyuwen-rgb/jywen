@@ -143,6 +143,15 @@
         /* 下彈提示三角形：收合 ▼ / 展開 ▲（偽元素，不影響文字內容） */
         .dd-tri::after { content: '\25BC'; display: inline-block; font-size: 10px; margin-left: 3px; text-decoration: none; vertical-align: 1px; }
         .dd-tri.dd-open::after { content: '\25B2'; }
+        /* 金色漸層統一（白→淡金→金，與主標題同款）：由 goldify 執行時套用 */
+        :root { --gg: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); }
+        .gg-text { background-image: var(--gg) !important; -webkit-background-clip: text !important; background-clip: text !important; -webkit-text-fill-color: transparent !important; }
+        .gg-text .gg-emoji { -webkit-text-fill-color: initial !important; }
+        .gg-text .gg-keep { -webkit-text-fill-color: currentColor !important; }
+        .year-side:hover { background-image: var(--gg); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .year-btn:hover { background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(243,208,120,0.2) 50%, rgba(212,175,55,0.2) 100%); border-color: #f3d078; }
+        .autocomplete-item:hover > .gg-hov, .autocomplete-active > .gg-hov { background-image: var(--gg); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .autocomplete-item:hover strong, .autocomplete-active strong { -webkit-text-fill-color: #000 !important; }
         
         .cmp-count-tag { font-size: 12px; color: #8E8E93; margin-right: 6px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
         .cmp-count-tag:hover { color: #FFFFFF; }
@@ -1075,7 +1084,7 @@
             headerBar.className = 'cmp-header-bar';
             headerBar.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <span style="font-size:15px; font-weight:800; color:#D4AF37;">🏊 多人項目並排比較</span>
+                    <span style="font-size:15px; font-weight:800; color:#D4AF37;">多人項目並排比較</span>
                     <span style="color:#636366; font-size:12px;">|</span>
                     ${players.map((p, i) => {
                         let yearHtml = '';
@@ -1092,7 +1101,6 @@
                         }
                         return `
                             <span style="display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:12px; border:0.5px solid #38383A;">
-                                <span class="cmp-player-badge cmp-badge-${i % 6}">${CMP_CIRCLES[i] || (i+1)}</span>
                                 <span style="font-weight:700; font-size:13px; color:#FFF;">${p.name}</span>
                                 ${yearHtml}
                             </span>
@@ -1192,7 +1200,6 @@
                         ${players.map((p, i) => `
                             <th style="text-align:left;">
                                 <div style="display:flex; align-items:center; gap:5px;">
-                                    <span class="cmp-player-badge cmp-badge-${i % 6}">${CMP_CIRCLES[i] || (i+1)}</span>
                                     <span style="color:#FFF; font-weight:700;">${p.name}</span>
                                 </div>
                             </th>
@@ -1585,7 +1592,7 @@
                 });
 
                 return {
-                    label: `${CMP_CIRCLES[idx] || (idx+1)} ${player.name} (${player.birthYear ? player.birthYear+'年次' : ''})`,
+                    label: `${player.name} (${player.birthYear ? player.birthYear+'年次' : ''})`,
                     data: chartData,
                     borderColor: color,
                     backgroundColor: color,
@@ -4746,12 +4753,12 @@
     </script>
 
     <!-- 頁面最底部狀態欄 (Footer) - 資料庫版本流水號展示 -->
-    <footer id="footerDbVersion" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1.5px solid #FFD700; padding: 8px 16px; font-size: 12px; color: #FFF; text-align: center; z-index: 99; display: flex; justify-content: space-between; align-items: center; max-width: 100vw; overflow-x: auto; white-space: nowrap; box-shadow: 0 -4px 12px rgba(0,0,0,0.5);">
+    <footer id="footerDbVersion" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid #48484A; padding: 8px 16px; font-size: 12px; color: #FFF; text-align: center; z-index: 99; display: flex; justify-content: space-between; align-items: center; max-width: 100vw; overflow-x: auto; white-space: nowrap; box-shadow: 0 -4px 12px rgba(0,0,0,0.5);">
         <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="display: inline-block; width: 8px; height: 8px; background-color: #FFD933; border-radius: 50%; box-shadow: 0 0 8px #FFD933;"></span>
-            <span id="footerDbStatus" style="font-weight: 600; color: #FFD933;">資料庫同步載入中...</span>
+            <span style="display: inline-block; width: 8px; height: 8px; background-color: #8E8E93; border-radius: 50%;"></span>
+            <span id="footerDbStatus" style="font-weight: 600; color: #8E8E93;">資料庫同步載入中...</span>
         </div>
-        <div id="footerDbVersionCode" style="font-family: monospace; color: #FFD700; font-weight: bold; font-size: 13px; text-shadow: 0 0 6px rgba(255,215,0,0.4);">
+        <div id="footerDbVersionCode" style="font-family: monospace; color: #8E8E93; font-weight: bold; font-size: 13px;">
             🏷️ 資料庫版本流水號: <span id="verCodeSpan">載入中...</span>
         </div>
         <div id="footerDbInfo" style="color: #D1D1D6; font-size: 12px; font-weight: 500;">
@@ -4777,6 +4784,140 @@
             }
         }
         updateFooterVersionInfo();
+    </script>
+    <script>
+    /* 金色漸層統一：金色字、金色外框、金色底色一律改為「白→淡金→金」漸層（與主標題同款） */
+    (function () {
+        const GOLD = new Set(['212,175,55', '255,215,0', '255,217,51', '255,214,10', '243,208,120']);
+        const SEL = ['D4AF37', 'FFD700', 'FFD933', 'FFD60A', '212, 175, 55', '212,175,55', '255, 215, 0', '255,215,0', '255, 217, 51', '255, 214, 10']
+            .map(s => `[style*="${s}" i]`)
+            .concat(['.marquee-sep', '.year-btn', '.autocomplete-item strong', '[class*="#D4AF37" i]'])
+            .join(',');
+        const FORM = /^(SELECT|OPTION|INPUT|TEXTAREA)$/;
+        const EMOJI = /(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*\uFE0F?)/u;
+        const gg = a => a >= 1
+            ? 'linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%)'
+            : `linear-gradient(135deg, rgba(255,255,255,${a}) 0%, rgba(243,208,120,${a}) 50%, rgba(212,175,55,${a}) 100%)`;
+        const parse = c => {
+            const m = /rgba?\(([^)]+)\)/.exec(c || '');
+            if (!m) return null;
+            const p = m[1].split(/[,\s/]+/).filter(Boolean).map(parseFloat);
+            return { key: p.slice(0, 3).join(','), a: p.length > 3 ? p[3] : 1 };
+        };
+        const isGold = c => { const p = parse(c); return (p && p.a > 0 && GOLD.has(p.key)) ? p : null; };
+        const isClear = c => { const p = parse(c); return !p || p.a === 0; };
+
+        function wrapEmoji(root) {
+            const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            const list = [];
+            let n;
+            while ((n = tw.nextNode())) {
+                if (EMOJI.test(n.nodeValue) && !(n.parentElement && n.parentElement.classList.contains('gg-emoji'))) list.push(n);
+            }
+            list.forEach(t => {
+                const frag = document.createDocumentFragment();
+                t.nodeValue.split(EMOJI).forEach((s, i) => {
+                    if (!s) return;
+                    if (i % 2) { const sp = document.createElement('span'); sp.className = 'gg-emoji'; sp.textContent = s; frag.appendChild(sp); }
+                    else frag.appendChild(document.createTextNode(s));
+                });
+                t.parentNode.replaceChild(frag, t);
+            });
+        }
+
+        function baseBg(el) {
+            for (let p = el.parentElement; p; p = p.parentElement) {
+                const c = getComputedStyle(p).backgroundColor;
+                const v = parse(c);
+                if (v && v.a >= 1) return c;
+            }
+            return '#000';
+        }
+
+        function borderTreat(el, cs) {
+            let g = null;
+            const goldSides = [];
+            ['Top', 'Right', 'Bottom', 'Left'].forEach(s => {
+                if (parseFloat(cs['border' + s + 'Width']) > 0) {
+                    const p = isGold(el.style['border' + s + 'Color']) || isGold(cs['border' + s + 'Color']);
+                    if (p) { g = g || p; goldSides.push(s); }
+                }
+            });
+            if (!g || cs.backgroundImage !== 'none') return;
+            const own = parse(cs.backgroundColor) || { a: 0 };
+            const layers = [];
+            if (own.a > 0) layers.push((isGold(cs.backgroundColor) ? gg(own.a) : `linear-gradient(${cs.backgroundColor}, ${cs.backgroundColor})`) + ' padding-box');
+            if (own.a < 1) { const b = baseBg(el); layers.push(`linear-gradient(${b}, ${b}) padding-box`); }
+            layers.push(gg(g.a) + ' border-box');
+            goldSides.forEach(s => { el.style['border' + s + 'Color'] = 'transparent'; });
+            el.style.background = layers.join(', ');
+        }
+
+        function bgTreat(el, cs) {
+            const p = isGold(el.style.backgroundColor) || isGold(cs.backgroundColor);
+            if (!p || cs.backgroundImage !== 'none') return;
+            el.style.backgroundImage = gg(p.a);
+            el.style.backgroundColor = 'transparent';
+        }
+
+        function textTreat(el, cs) {
+            if (FORM.test(el.tagName)) return;
+            if (el.style.webkitTextFillColor) el.style.webkitTextFillColor = '';
+            if (el.classList.contains('gg-text')) { wrapEmoji(el); return; }
+            const ownBg = !isClear(cs.backgroundColor) || cs.backgroundImage !== 'none';
+            if (!ownBg) {
+                el.classList.add('gg-text');
+                el.querySelectorAll('*').forEach(d => {
+                    if (!d.classList.contains('gg-keep') && !isGold(getComputedStyle(d).color)) d.classList.add('gg-keep');
+                });
+                wrapEmoji(el);
+                return;
+            }
+            [...el.childNodes].forEach(ch => {
+                if (ch.nodeType === 3 && ch.nodeValue.trim()) {
+                    const sp = document.createElement('span');
+                    sp.className = 'gg-text';
+                    ch.parentNode.replaceChild(sp, ch);
+                    sp.appendChild(ch);
+                    wrapEmoji(sp);
+                } else if (ch.nodeType === 1 && !ch.classList.contains('gg-text')) {
+                    const c2 = getComputedStyle(ch);
+                    if (isGold(c2.color)) textTreat(ch, c2);
+                }
+            });
+        }
+
+        let pending = false;
+        function goldify() {
+            pending = false;
+            document.querySelectorAll(SEL).forEach(el => {
+                if (el.closest('svg') || el.closest('#footerDbVersion')) return;
+                const cs = getComputedStyle(el);
+                borderTreat(el, cs);
+                bgTreat(el, cs);
+                if (isGold(el.style.color) || isGold(cs.color)) textTreat(el, cs);
+            });
+            document.querySelectorAll('.autocomplete-item').forEach(it => {
+                [...it.childNodes].forEach(ch => {
+                    if (ch.nodeType === 3 && ch.nodeValue.trim()) {
+                        const sp = document.createElement('span');
+                        sp.className = 'gg-hov';
+                        it.replaceChild(sp, ch);
+                        sp.appendChild(ch);
+                    }
+                });
+            });
+        }
+        window.goldify = goldify;
+        const schedule = () => { if (!pending) { pending = true; requestAnimationFrame(goldify); } };
+        const mo = new MutationObserver(schedule);
+        document.addEventListener('transitionend', schedule, true);
+        const start = () => {
+            goldify();
+            mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+        };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+    })();
     </script>
 </body>
 </html>
