@@ -10,8 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
     <style>
         body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; }
         .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 8px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; }
@@ -140,18 +138,6 @@
         
         .cmp-dist-btn { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: 14px; color: #FFFFFF; cursor: pointer; text-decoration: none; padding: 3px 6px; border-radius: 6px; transition: background 0.15s ease; }
         .cmp-dist-btn:hover { background: rgba(255,255,255,0.12); }
-        /* 下彈提示三角形：收合 ▼ / 展開 ▲（偽元素，不影響文字內容） */
-        .dd-tri::after { content: '\25BC'; display: inline-block; font-size: 10px; margin-left: 3px; text-decoration: none; vertical-align: 1px; }
-        .dd-tri.dd-open::after { content: '\25B2'; }
-        /* 金色漸層統一（白→淡金→金，與主標題同款）：由 goldify 執行時套用 */
-        :root { --gg: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); }
-        .gg-text { background-image: var(--gg) !important; -webkit-background-clip: text !important; background-clip: text !important; -webkit-text-fill-color: transparent !important; }
-        .gg-text .gg-emoji { -webkit-text-fill-color: initial !important; }
-        .gg-text .gg-keep { -webkit-text-fill-color: currentColor !important; }
-        .year-side:hover { background-image: var(--gg); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        .year-btn:hover { background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(243,208,120,0.2) 50%, rgba(212,175,55,0.2) 100%); border-color: #f3d078; }
-        .autocomplete-item:hover > .gg-hov, .autocomplete-active > .gg-hov { background-image: var(--gg); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-        .autocomplete-item:hover strong, .autocomplete-active strong { -webkit-text-fill-color: #000 !important; }
         
         .cmp-count-tag { font-size: 12px; color: #8E8E93; margin-right: 6px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
         .cmp-count-tag:hover { color: #FFFFFF; }
@@ -247,10 +233,10 @@
 
     <!-- 返回首頁與 PWA 標示 -->
     <div class="m-3 flex justify-end items-center">
-        <span class="text-xs text-gray-500">⚡ 極速秒開 · PWA Ready</span>
+        <span class="text-xs text-gray-500">PWA Offline Capable</span>
     </div>
 
-    <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E]/80 backdrop-blur-md rounded-xl text-center border border-[#38383A] shadow-sm" style="display:none;">
+    <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E]/80 backdrop-blur-md rounded-xl text-center border border-[#38383A] shadow-sm">
         <input type="file" id="dbFileInput" hidden onchange="handleDBUpload(this.files)">
         <div id="progressContainer" class="mt-2">
             <div id="loaderStatus" class="text-sm text-gray-300 font-medium mb-3">正在與雲端同步資料庫狀態...</div>
@@ -272,13 +258,13 @@
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName">載入中...</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName">台南市中小學游泳錦標賽 (2026-09-21)</span>
             </span>
             <span class="marquee-item">
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName_dup">載入中...</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName_dup">台南市中小學游泳錦標賽 (2026-09-21)</span>
             </span>
         </div>
     </div>
@@ -414,124 +400,6 @@
     </script>
 
     <script>
-
-        // ══════════════════════════════════════════════
-        // 256split 專屬輕量索引查詢適配器
-        // ══════════════════════════════════════════════
-        let allSwimmerNamesCache = null;
-        async function loadSwimmerNamesList() {
-            if (allSwimmerNamesCache) return allSwimmerNamesCache;
-            try {
-                const resp = await fetch('/data_buckets/swimmer_names.json');
-                if (resp.ok) {
-                    allSwimmerNamesCache = await resp.json();
-                }
-            } catch(e) { console.warn('無法載入姓名字典:', e); }
-            return allSwimmerNamesCache || [];
-        }
-        loadSwimmerNamesList(); // 預載 70KB 姓名字典
-
-        const rawBucketJsonCache = {}; // 快取 256 桶已解壓之 JSON 物件
-        const swimmerDataMemoryCache = {}; // 記憶體快取已查過的選手
-        
-        function getBucketHexForName(cleanName) {
-            if (typeof md5 === 'function') {
-                const h = md5(cleanName);
-                const idx = parseInt(h.substring(0, 4), 16) % 256;
-                return idx.toString(16).padStart(2, '0');
-            }
-            return '00';
-        }
-
-        async function fetchSwimmerBucketData(name, birth, sex) {
-            const cleanName = normalizeName(name);
-            const cacheKey = `${cleanName}_${birth||''}_${sex||''}`;
-            if (swimmerDataMemoryCache[cacheKey]) return swimmerDataMemoryCache[cacheKey];
-            
-            // 優先模式 A：直接由 CDN 下載靜態 bucket_xx.json.gz (30ms 極速、零伺服器開銷、100% 穩定)
-            try {
-                const bHex = getBucketHexForName(cleanName);
-                if (!rawBucketJsonCache[bHex]) {
-                    const gzResp = await fetch(`/data_buckets/bucket_${bHex}.json.gz`);
-                    if (gzResp.ok) {
-                        const arrayBuffer = await gzResp.arrayBuffer();
-                        if (typeof pako !== 'undefined') {
-                            const decompressed = pako.ungzip(new Uint8Array(arrayBuffer), { to: 'string' });
-                            rawBucketJsonCache[bHex] = JSON.parse(decompressed);
-                        }
-                    }
-                }
-                
-                if (rawBucketJsonCache[bHex] && rawBucketJsonCache[bHex][cleanName]) {
-                    const entry = rawBucketJsonCache[bHex][cleanName];
-                    const records = entry.records || (Array.isArray(entry) ? entry : []);
-                    const stats = entry.stats || {};
-                    
-                    let filtered = records;
-                    if (birth) filtered = filtered.filter(r => String(r.出生年||'').replace(/\.0$/, '').trim() === String(birth).trim());
-                    if (sex) filtered = filtered.filter(r => String(r.性別||'').trim() === String(sex).trim());
-                    
-                    const allBirthYears = sortedUniqueBirthYears(records);
-                    const result = {
-                        name: cleanName,
-                        total: filtered.length,
-                        birth_years: allBirthYears,
-                        stats: stats,
-                        scores: filtered
-                    };
-                    swimmerDataMemoryCache[cacheKey] = result;
-                    return result;
-                }
-            } catch (cdnErr) {
-                console.warn('靜態 CDN 桶直讀降級:', cdnErr);
-            }
-            
-            // 備援模式 B：後端 API 代理
-            try {
-                let url = `/api/query_swimmer?name=${encodeURIComponent(cleanName)}`;
-                if (birth) url += `&birth=${encodeURIComponent(birth)}`;
-                if (sex) url += `&sex=${encodeURIComponent(sex)}`;
-                const resp = await fetch(url);
-                if (resp.ok) {
-                    const data = await resp.json();
-                    swimmerDataMemoryCache[cacheKey] = data;
-                    return data;
-                }
-            } catch (err) {
-                console.error('查詢選手桶失敗:', err);
-            }
-            return { name: cleanName, total: 0, birth_years: [], stats: {}, scores: [] };
-        }
-
-        function sortedUniqueBirthYears(records) {
-            const set = new Set();
-            (records || []).forEach(r => {
-                if (r.出生年) set.add(String(r.出生年).replace(/\.0$/, '').trim());
-            });
-            return Array.from(set).sort((a,b) => b - a);
-        }
-
-        const rankingMemoryCache = {}; // 記憶體快取已查過的項目榜單
-        async function fetchProjectRankingData(stroke, dist, sex) {
-            const strokeCodeMap = {'蝶式':'fly', '仰式':'back', '蛙式':'breast', '自由式':'free', '混合式':'im'};
-            const sCode = strokeCodeMap[stroke] || 'free';
-            const normSex = sex && sex.includes('女') ? '女' : '男';
-            const cacheKey = `${sCode}_${dist}_${normSex}`;
-            if (rankingMemoryCache[cacheKey]) return rankingMemoryCache[cacheKey];
-            
-            try {
-                const resp = await fetch(`/data_buckets/rankings/rank_${sCode}_${dist}_${normSex}.json`);
-                if (resp.ok) {
-                    const data = await resp.json();
-                    rankingMemoryCache[cacheKey] = data;
-                    return data;
-                }
-            } catch (err) {
-                console.warn('讀取預排榜單失敗:', err);
-            }
-            return null;
-        }
-
         const swimmerJSON = {"v":"4.8.0","meta":{"g":"LottieFiles AE 1.1.0","a":"","k":"","d":"","tc":"#ffffff"},"fr":60,"ip":32,"op":97,"w":558,"h":558,"nm":"run forest run","ddd":0,"assets":[{"id":"comp_0","layers":[{"ddd":0,"ind":1,"ty":3,"nm":"Null 1","sr":1,"ks":{"o":{"a":0,"k":0,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[400,400,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"ip":0,"op":300,"st":0,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":"so uc Outlines 2","parent":3,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.445],"y":[0.77]},"o":{"x":[0.253],"y":[0.205]},"t":32,"s":[0]},{"i":{"x":[0.833],"y":[0.908]},"o":{"x":[0.066],"y":[0.352]},"t":48,"s":[-291]},{"i":{"x":[0.709],"y":[-0.568]},"o":{"x":[0.554],"y":[0.31]},"t":72,"s":[-325]},{"t":97,"s":[-360]}],"ix":10},"p":{"a":0,"k":[350,336,0],"ix":2},"a":{"a":0,"k":[350,336,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[4.381,5.995],[0,0],[5.994,-4.381],[0,0],[-4.382,-5.995],[-5.995,4.381],[0,0]],"o":[[0,0],[-4.381,-5.995],[0,0],[-5.995,4.382],[4.381,5.994],[0,0],[5.995,-4.381]],"v":[[33.205,-24.268],[33.205,-24.268],[14.34,-27.201],[-30.27,5.402],[-33.203,24.268],[-14.338,27.201],[30.271,-5.403]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[328.043,352.451],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":32,"op":97,"st":32,"bm":0},{"ddd":0,"ind":3,"ty":4,"nm":"so om Outlines 2","parent":1,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.407],"y":[0.831]},"o":{"x":[0.428],"y":[0.692]},"t":32,"s":[6]},{"i":{"x":[0.769],"y":[0.647]},"o":{"x":[0.443],"y":[0.306]},"t":56,"s":[172]},{"i":{"x":[0.404],"y":[0.514]},"o":{"x":[0.36],"y":[0.241]},"t":76,"s":[229]},{"t":97,"s":[366]}],"ix":10},"p":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":64,"s":[21.577,-29.249,0],"to":[-0.715,0.428,0],"ti":[0,0,0]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":82,"s":[17.285,-26.683,0],"to":[0,0,0],"ti":[-0.715,0.428,0]},{"t":97,"s":[21.577,-29.249,0]}],"ix":2},"a":{"a":0,"k":[418,367,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[3.113,-6.741],[0,0],[-6.741,-3.113],[0,0],[-3.113,6.74],[6.741,3.112],[0,0]],"o":[[0,0],[-3.113,6.741],[0,0],[6.742,3.113],[3.113,-6.742],[0,0],[-6.741,-3.112]],"v":[[-47.002,-21.705],[-47.002,-21.705],[-40.406,-3.789],[29.086,28.301],[47.002,21.705],[40.406,3.789],[-29.086,-28.302]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[384.772,352.03],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":32,"op":97,"st":32,"bm":0},{"ddd":0,"ind":4,"ty":4,"nm":"so uc Outlines 3","parent":5,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.445],"y":[0.77]},"o":{"x":[0.253],"y":[0.205]},"t":65,"s":[0]},{"i":{"x":[0.833],"y":[0.908]},"o":{"x":[0.066],"y":[0.352]},"t":81,"s":[-291]},{"i":{"x":[0.709],"y":[-0.568]},"o":{"x":[0.554],"y":[0.31]},"t":105,"s":[-325]},{"t":130,"s":[-360]}],"ix":10},"p":{"a":0,"k":[350,336,0],"ix":2},"a":{"a":0,"k":[350,336,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[4.381,5.995],[0,0],[5.994,-4.381],[0,0],[-4.382,-5.995],[-5.995,4.381],[0,0]],"o":[[0,0],[-4.381,-5.995],[0,0],[-5.995,4.382],[4.381,5.994],[0,0],[5.995,-4.381]],"v":[[33.205,-24.268],[33.205,-24.268],[14.34,-27.201],[-30.27,5.402],[-33.203,24.268],[-14.338,27.201],[30.271,-5.403]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[328.043,352.451],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":65,"op":130,"st":65,"bm":0},{"ddd":0,"ind":5,"ty":4,"nm":"so om Outlines 3","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.407],"y":[0.831]},"o":{"x":[0.428],"y":[0.692]},"t":65,"s":[6]},{"i":{"x":[0.769],"y":[0.647]},"o":{"x":[0.443],"y":[0.306]},"t":89,"s":[172]},{"i":{"x":[0.404],"y":[0.514]},"o":{"x":[0.36],"y":[0.241]},"t":109,"s":[229]},{"t":130,"s":[366]}],"ix":10},"p":{"a":1,"k":[{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":97,"s":[421.577,370.751,0],"to":[-0.715,0.428,0],"ti":[0,0,0]},{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":115,"s":[417.285,373.317,0],"to":[0,0,0],"ti":[-0.715,0.428,0]},{"t":130,"s":[421.577,370.751,0]}],"ix":2},"a":{"a":0,"k":[418,367,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[3.113,-6.741],[0,0],[-6.741,-3.113],[0,0],[-3.113,6.74],[6.741,3.112],[0,0]],"o":[[0,0],[-3.113,6.741],[0,0],[6.742,3.113],[3.113,-6.742],[0,0],[-6.741,-3.112]],"v":[[-47.002,-21.705],[-47.002,-21.705],[-40.406,-3.789],[29.086,28.301],[47.002,21.705],[40.406,3.789],[-29.086,-28.302]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[384.772,352.03],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":65,"op":130,"st":65,"bm":0},{"ddd":0,"ind":6,"ty":4,"nm":"so uc Outlines","parent":7,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.445],"y":[0.77]},"o":{"x":[0.253],"y":[0.205]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.908]},"o":{"x":[0.066],"y":[0.352]},"t":16,"s":[-291]},{"i":{"x":[0.709],"y":[-0.568]},"o":{"x":[0.554],"y":[0.31]},"t":40,"s":[-325]},{"t":65,"s":[-360]}],"ix":10},"p":{"a":0,"k":[350,336,0],"ix":2},"a":{"a":0,"k":[350,336,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[4.381,5.995],[0,0],[5.994,-4.381],[0,0],[-4.382,-5.995],[-5.995,4.381],[0,0]],"o":[[0,0],[-4.381,-5.995],[0,0],[-5.995,4.382],[4.381,5.994],[0,0],[5.995,-4.381]],"v":[[33.205,-24.268],[33.205,-24.268],[14.34,-27.201],[-30.27,5.402],[-33.203,24.268],[-14.338,27.201],[30.271,-5.403]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[328.043,352.451],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":65,"st":0,"bm":0},{"ddd":0,"ind":7,"ty":4,"nm":"so om Outlines","parent":8,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":1,"k":[{"i":{"x":[0.407],"y":[0.831]},"o":{"x":[0.428],"y":[0.692]},"t":0,"s":[0]},{"i":{"x":[0.769],"y":[0.647]},"o":{"x":[0.443],"y":[0.306]},"t":24,"s":[166]},{"i":{"x":[0.404],"y":[0.514]},"o":{"x":[0.36],"y":[0.241]},"t":44,"s":[223]},{"t":65,"s":[360]}],"ix":10},"p":{"a":1,"k":[{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":32,"s":[418,367,0],"to":[-0.667,0.5,0],"ti":[0,0,0]},{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":50,"s":[414,370,0],"to":[0,0,0],"ti":[-0.667,0.5,0]},{"t":65,"s":[418,367,0]}],"ix":2},"a":{"a":0,"k":[418,367,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[3.113,-6.741],[0,0],[-6.741,-3.113],[0,0],[-3.113,6.74],[6.741,3.112],[0,0]],"o":[[0,0],[-3.113,6.741],[0,0],[6.742,3.113],[3.113,-6.742],[0,0],[-6.741,-3.112]],"v":[[-47.002,-21.705],[-47.002,-21.705],[-40.406,-3.789],[29.086,28.301],[47.002,21.705],[40.406,3.789],[-29.086,-28.302]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[384.772,352.03],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":65,"st":0,"bm":0},{"ddd":0,"ind":8,"ty":4,"nm":"gov Outlines","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":6,"ix":10},"p":{"a":0,"k":[384,403,0],"ix":2},"a":{"a":0,"k":[384,403,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[10.116,11.696],[0,0],[-11.696,10.116],[0,0],[-10.116,-11.696],[11.695,-10.116],[0,0]],"o":[[0,0],[-10.116,-11.696],[0,0],[11.696,-10.116],[10.116,11.696],[0,0],[-11.696,10.117]],"v":[[-48.302,41.777],[-48.302,41.777],[-45.442,2.284],[8.807,-44.638],[48.302,-41.777],[45.442,-2.283],[-8.808,44.638]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[383.329,402.953],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":300,"st":0,"bm":0},{"ddd":0,"ind":9,"ty":4,"nm":"kafa Outlines","parent":8,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[438,352.5,0],"ix":2},"a":{"a":0,"k":[438,352.5,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[8.472,-15.194],[15.195,8.473],[-8.472,15.195],[-15.194,-8.471]],"o":[[-8.473,15.195],[-15.195,-8.471],[8.471,-15.195],[15.194,8.473]],"v":[[27.513,15.339],[-15.341,27.512],[-27.513,-15.341],[15.34,-27.514]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.83,0.68,0.21,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[453.587,334.518],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":300,"st":0,"bm":0}]}],"layers":[{"ddd":0,"ind":1,"ty":3,"nm":"Null 2","sr":1,"ks":{"o":{"a":0,"k":0,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[254,307,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"ip":0,"op":300,"st":0,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":"dajkfs Outlines 2","parent":1,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[78,40,0],"ix":2},"a":{"a":0,"k":[400,400,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0]],"o":[[27,0],[28,0],[28,0],[28,0],[27,0],[28,0],[28,0],[28,0],[0,0]],"v":[[-287,9],[-216,-9],[-144,9],[-72,-9],[0,9],[71,-9],[143,9],[215,-9],[287,9]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"tm","s":{"a":0,"k":4,"ix":1},"e":{"a":0,"k":46,"ix":2},"o":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":32,"s":[0]},{"t":97,"s":[180]}],"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false},{"ty":"st","c":{"a":0,"k":[0.039,0.52,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":20,"ix":5},"lc":2,"lj":2,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":32,"s":[492.5,405.5],"to":[-47.833,0],"ti":[47.833,0]},{"t":97,"s":[205.5,405.5]}],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":3,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":300,"st":0,"bm":0},{"ddd":0,"ind":3,"ty":4,"nm":"dajkfs Outlines","parent":1,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[78,0,0],"ix":2},"a":{"a":0,"k":[400,400,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0],[-28,0]],"o":[[27,0],[28,0],[28,0],[28,0],[27,0],[28,0],[28,0],[28,0],[0,0]],"v":[[-287,9],[-216,-9],[-144,9],[-72,-9],[0,9],[71,-9],[143,9],[215,-9],[287,9]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"tm","s":{"a":0,"k":0,"ix":1},"e":{"a":0,"k":50,"ix":2},"o":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":32,"s":[0]},{"t":97,"s":[180]}],"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false},{"ty":"st","c":{"a":0,"k":[0.039,0.52,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":20,"ix":5},"lc":2,"lj":2,"bm":0,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":32,"s":[492.5,405.5],"to":[-47.833,0],"ti":[47.833,0]},{"t":97,"s":[205.5,405.5]}],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":3,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":300,"st":0,"bm":0},{"ddd":0,"ind":4,"ty":0,"nm":"maan","parent":1,"refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":2,"ix":10},"p":{"a":1,"k":[{"i":{"x":0.705,"y":1},"o":{"x":0.411,"y":0},"t":32,"s":[0,0,0],"to":[0,0,0],"ti":[0,0,0]},{"i":{"x":0.585,"y":1},"o":{"x":0.292,"y":0},"t":64,"s":[0,3,0],"to":[0,0,0],"ti":[0,0,0]},{"t":97,"s":[0,0,0]}],"ix":2},"a":{"a":0,"k":[400,400,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":6}},"ao":0,"hasMask":true,"masksProperties":[{"inv":false,"mode":"a","pt":{"a":1,"k":[{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":40,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[286.249,400.581],[342.381,395.846],[401,412.5],[472.693,392.576],[547.441,413.17],[602.5,377.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":46,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[283.749,392.581],[316.881,395.846],[362.5,412.5],[435.693,392.576],[510.441,412.17],[605,380.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":51,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[282.613,395.763],[340.063,411.437],[394.227,397.318],[435.739,396.712],[502.85,409.124],[600.986,373.511],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":54,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[281.931,397.672],[329.722,410.892],[390.864,394.409],[448.466,403.644],[527.502,389.363],[603.493,384.006],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":57,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[281.249,399.581],[319.381,410.346],[387.5,391.5],[461.193,410.576],[521.941,392.67],[606,394.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":60,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[276.374,402.394],[315.381,407.284],[377.563,391.438],[442.443,411.514],[518.102,388.134],[605.063,403.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":63,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[271.499,405.206],[311.381,404.221],[367.625,391.375],[423.693,412.451],[506.391,387.375],[604.125,412.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":65,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[268.249,407.081],[309.381,402.347],[361.5,392.5],[427.193,409.076],[501.441,389.17],[603.5,418.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":68,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[268.249,407.081],[310.631,400.096],[368.25,394.5],[418.943,410.326],[490.191,390.17],[603.5,418.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":70,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[268.249,407.081],[321.464,392.93],[385.083,404.167],[472.314,389.871],[504.357,399.836],[603.5,418.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":71,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[268.249,407.081],[326.881,389.347],[393.5,409],[458.193,393.076],[511.441,404.67],[603.5,418.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":73,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[268.249,407.081],[322.381,391.347],[392,414.5],[465.693,391.076],[518.941,411.67],[603.5,418.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":75,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[272.083,404.081],[324.714,392.847],[388.5,410],[455.193,392.743],[516.282,408.936],[604.266,386.426],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":76,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[273.999,402.581],[325.881,393.596],[386.75,407.75],[449.943,393.576],[512.191,414.42],[602,402],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":79,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[279.749,398.081],[336.381,402.346],[383,406],[448.193,393.076],[506.941,411.67],[600.5,385.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":83,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[279.749,398.081],[344.81,411.132],[416.357,394],[458.479,404.219],[500.941,411.67],[600.5,385.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":86,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[279.749,398.081],[335.381,413.346],[409,393],[466.193,412.576],[521.441,397.67],[600.5,385.5],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":88,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[278.583,402.248],[335.714,412.18],[399.25,392.917],[466.193,413.576],[532.934,388.038],[600.667,397.167],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":90,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[277.416,406.415],[336.048,411.013],[389.5,392.834],[466.193,414.576],[534.783,388.749],[600.833,408.833],[532.5,262],[340.673,245.293]],"c":true}]},{"i":{"x":0.833,"y":0.833},"o":{"x":0.167,"y":0.167},"t":92,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[276.249,410.581],[334.881,405.347],[392,395.5],[457.193,412.576],[524.441,393.17],[601,420.5],[532.5,262],[340.673,245.293]],"c":true}]},{"t":96,"s":[{"i":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],"v":[[278.5,304],[279.249,414.081],[352.881,392.347],[384.5,399.5],[446.193,413.076],[508.941,392.17],[601,420.5],[532.5,262],[340.673,245.293]],"c":true}]}],"ix":1},"o":{"a":0,"k":100,"ix":3},"x":{"a":0,"k":0,"ix":4},"nm":"Mask 1"}],"w":800,"h":800,"ip":0,"op":300,"st":0,"bm":0}],"markers":[]};
 
         let swimmerAnim, worker = null;
@@ -545,11 +413,10 @@
         async function loadLatestRaceInfo() {
             if (hasLoadedLatestRace) return;
             try {
-                const mResp = await fetch('/data_buckets/manifest.json?t=' + Date.now());
-                const mf = mResp.ok ? await mResp.json() : null;
-                if (mf && mf.latest_race) {
-                    const raceName = mf.latest_race;
-                    const raceDate = formatDateStr(mf.latest_date);
+                const res = await remoteQuery(`SELECT 賽事名稱, 年份 FROM swimming_scores WHERE 年份 IS NOT NULL AND 年份 != '' ORDER BY 年份 DESC LIMIT 1`);
+                if (res && res[0] && res[0].values && res[0].values.length > 0) {
+                    const raceName = res[0].values[0][0];
+                    const raceDate = formatDateStr(res[0].values[0][1]);
                     const el = document.getElementById("latestRaceName");
                     const elDup = document.getElementById("latestRaceName_dup");
                     if (el) {
@@ -623,15 +490,7 @@
         function isDQ(remark) {
             if (!remark) return false;
             const r = String(remark);
-            return ['違規', 'DQ', 'DNS', 'DNF', '請假', '棄權', '取消資格', '棄賽', '未到'].some(k => r.toUpperCase().includes(k));
-        }
-        // 同秒並列採相同名次：名次 = 比他快的人數 + 1（以百分之一秒比較；與 build_256split_full_indices.py 一致）
-        function tieRank(sorted, idx) {
-            if (!sorted || idx < 0 || idx >= sorted.length) return -1;
-            const cs = v => Math.round(Number(v) * 100), t = cs(sorted[idx].sec);
-            let r = idx;
-            while (r > 0 && cs(sorted[r - 1].sec) === t) r--;
-            return r + 1;
+            return r.includes("違規") || r.includes("DQ") || r.includes("DNS") || r.includes("DNF") || r.includes("請假") || r.includes("棄權");
         }
 
         function getWA(dist, stroke, timeStr, sex) {
@@ -644,53 +503,24 @@
         }
 
         async function getRankData(dist, stroke, name, birth, sex, isNational) {
-            const rankData = await fetchProjectRankingData(stroke, parseInt(dist), sex);
-            if (!rankData) return [];
-            if (isNational) {
-                const list = (rankData.national_top || []).map(r => ({
-                    name: r.name,
-                    sec: r.sec,
-                    raw: formatToXcode(r.sec),
-                    fullDate: r.date,
-                    meet: r.meet,
-                    wa: getWA(dist, stroke, r.raw, sex),
-                    birthYear: r.birth
-                }));
-                list.totalCompetitors = rankData.total_competitors || list.length;
-                return list;
-            } else {
-                const bYearStr = String(birth || '').replace('.0', '').trim();
-                const groupList = (rankData.birth_groups || {})[bYearStr] || [];
-                const list = groupList.map(r => ({
-                    name: r.name,
-                    sec: r.sec,
-                    raw: formatToXcode(r.sec),
-                    fullDate: r.date,
-                    meet: r.meet,
-                    wa: getWA(dist, stroke, r.raw, sex),
-                    birthYear: r.birth
-                }));
-                const bTotals = rankData.birth_totals || {};
-                list.totalCompetitors = bTotals[bYearStr] || list.length;
-                return list;
-            }
+            const pattern = `%${dist}公尺%${stroke}%`;
+            let filter = `項目 LIKE '${pattern}' AND 性別 = '${sex}' AND ${LC_FILTER}`;
+            if (isNational) filter += ` AND (年份 LIKE '2026%' OR 年份 LIKE '2025%')`; else filter += ` AND 出生年='${birth}'`;
+            const res = await remoteQuery(`SELECT 姓名, 成績, 年份, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE ${filter}`);
+            if (!res[0]) return [];
+            const pBs = {};
+            res[0].values.forEach(v => {
+                const m = v[5].match(/(\d+)公尺/);
+                if (!m || m[1] !== String(dist)) return;
+                if (isDQ(v[6])) return;
+
+                const pN = v[0], sec = timeToSec(v[1]);
+                if (sec > 0 && (!pBs[pN] || sec < pBs[pN].sec)) pBs[pN] = { name: pN, sec, raw: formatToXcode(sec), fullDate: v[2], meet: v[3], wa: getWA(dist, stroke, v[1], sex), birthYear: v[4] };
+            });
+            return Object.values(pBs).sort((a,b) => a.sec - b.sec);
         }
 
         async function renderMatrix(dist, stroke, sex) {
-            const rankData = await fetchProjectRankingData(stroke, parseInt(dist), sex);
-            const currentYear = new Date().getFullYear();
-            const showYears = []; for (let i = 0; i < 5; i++) { showYears.push((currentYear - i).toString()); }
-            const groups = ["18以上", "高中", "國中", "國小高年級", "國小中年級", "國小低年級"];
-            const matrix = rankData && rankData.matrix ? rankData.matrix : { "All-Time": {} };
-            let colorMap = {}, all = new Set();
-            Object.values(matrix).forEach(row => groups.forEach(g => { if(row[g]) all.add(row[g].n); }));
-            Array.from(all).sort().forEach((n, i) => colorMap[n] = `hsl(${(i * (360 / Math.max(1, all.size)))}, 85%, 65%)`);
-            let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">年度最佳矩陣</div><div style="overflow-x:auto;"><table class="matrix-table"><tr style="background:#2C2C2E;"><th>年度</th>${groups.map(g=>`<th>${g}</th>`).join('')}</tr>`;
-            ["All-Time", ...showYears].forEach(y => { h += `<tr><td class="font-bold">${y}</td>`; groups.forEach(g => { const r = (matrix[y]||{})[g]; h += r ? `<td><b style="color:${colorMap[r.n]}; text-shadow:1px 1px 1px #000;">${r.n}</b><br><small>${formatToXcode(r.sec)}</small></td>` : `<td>-</td>`; }); h += `</tr>`; });
-            return h + "</table></div></div>";
-        }
-
-        async function old_renderMatrix(dist, stroke, sex) {
             const currentYear = new Date().getFullYear();
             const showYears = []; for (let i = 0; i < 5; i++) { showYears.push((currentYear - i).toString()); }
             const groups = ["18以上", "高中", "國中", "國小高年級", "國小中年級", "國小低年級"];
@@ -811,6 +641,18 @@
                 }
             }
 
+            // ── 各年齡組別跨組排行模式：偵測以 /RANK 或 /rank 結尾 ──
+            const rankMatch = rawInput.match(/^(.+?)\s*\/\s*rank$/i);
+            if (rankMatch) {
+                const rankSwimmerName = normalizeName(rankMatch[1]);
+                if (rankSwimmerName) {
+                    saveHistory(rawInput);
+                    sendTelemetry(rawInput);
+                    await doRankAnalysis(rankSwimmerName, forcedBirthYear, forcedSex);
+                    return;
+                }
+            }
+
             // ── 多人比較模式：偵測分號（;、；）或空格分隔多人姓名 ──
             let candidateNames = [];
             if (rawInput.includes(';') || rawInput.includes('；')) {
@@ -834,14 +676,18 @@
                 if (main) main.innerHTML = '';
                 return;
             }
+            if (!worker) return;
             sendTelemetry(input);
 
             const safeInput = input.replace(/'/g, "''");
 
-            // 1. 256split: 由後端輕量 API 查詢該選手對應桶之全部資料
-            const swimmerResp = await fetchSwimmerBucketData(input, forcedBirthYear, forcedSex);
-            let years = swimmerResp.birth_years || [];
-            years = [...new Set(years.map(y => String(y).replace(/\.0$/, '').trim()))].sort((a, b) => b - a);
+            // 1. 查詢該姓名在資料庫中擁有的所有不重複非空出生年
+            const birthRes = await remoteQuery(`SELECT DISTINCT 出生年 FROM swimming_scores WHERE 姓名='${safeInput}' AND 出生年 IS NOT NULL AND 出生年 != '' ORDER BY 出生年 DESC`);
+            let years = [];
+            if (birthRes && birthRes[0] && birthRes[0].values) {
+                years = birthRes[0].values.map(v => String(v[0]).replace(/\.0$/, '').trim()).filter(Boolean);
+                years = [...new Set(years)].sort((a, b) => b - a);
+            }
 
             let selectedBirthYear = forcedBirthYear || null;
             if (!selectedBirthYear && years.length > 0) {
@@ -860,11 +706,12 @@
                 if (birthSelect) birthSelect.classList.add('hidden');
             }
 
-            // 3. 256split: 由該選手紀錄中提取可用性別與預算統計
-            const allSwimmerScores = swimmerResp.scores || [];
-            const swimmerStats = swimmerResp.stats || {};
-            window.currentSwimmerStats = swimmerStats;
-            let availableSexes = [...new Set(allSwimmerScores.map(r => r.性別).filter(Boolean))];
+            // 3. 查詢在該姓名條件下的不重複性別 (只要資料庫或 known 名單有男有女，即顯示性別選單)
+            const sexResCount = await remoteQuery(`SELECT DISTINCT 性別 FROM swimming_scores WHERE 姓名='${safeInput}' AND 性別 IS NOT NULL AND 性別 != ''`);
+            let availableSexes = [];
+            if (sexResCount && sexResCount[0] && sexResCount[0].values) {
+                availableSexes = sexResCount[0].values.map(v => v[0]).filter(Boolean);
+            }
 
             // 特例相容：若為陳品言等已知同名不同性別選手，確保強行包含 ['女', '男']
             if (input === '陳品言' && !availableSexes.includes('男')) {
@@ -902,18 +749,24 @@
             if (normalizedSex === '女生') normalizedSex = '女';
             const sexFilterClause = normalizedSex ? ` AND (性別 = '${normalizedSex}' OR 性別 = '${normalizedSex=='男'?'男生':'女生'}')` : "";
 
-            let availableSexesInScores = allSwimmerScores.map(r => r.性別).filter(Boolean);
-            if (allSwimmerScores.length === 0) { 
+            let sexRes = await remoteQuery(`SELECT 性別 FROM swimming_scores WHERE 姓名='${safeInput}'${sexFilterClause} LIMIT 1`);
+            if (!sexRes || !sexRes[0] || !sexRes[0].values || sexRes[0].values.length === 0) { 
                 await minWait;
                 loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
                 main.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; color:#8E8E93; gap:8px;"><span style="font-size:2rem;">🚫</span><span>「${input}」查無符合條件之成績紀錄</span></div>`;
                 return; 
             }
-            const sex = normalizedSex || availableSexesInScores[0] || '男'; 
+            const sex = normalizedSex || sexRes[0].values[0][0]; 
             saveHistory(input);
             syncRecordToGoogleDrive(input, selectedBirthYear, sex, "查詢全套歷年PB與排名");
 
             let activeBirthFilter = selectedBirthYear ? ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')` : "";
+            if (selectedBirthYear && normalizedSex) {
+                const testRes = await remoteQuery(`SELECT rowid FROM swimming_scores WHERE 姓名='${input}'${activeBirthFilter}${sexFilterClause} LIMIT 1`);
+                if (!testRes || !testRes[0] || !testRes[0].values || testRes[0].values.length === 0) {
+                    activeBirthFilter = "";
+                }
+            }
 
             const urlParams = new URLSearchParams(window.location.search);
             const targetCard = urlParams.get('card');
@@ -922,26 +775,19 @@
                 strokes = [targetCard];
             }
             for (let [sIdx, stroke] of strokes.entries()) {
-                // 256split: 直接由記憶體 scores 過濾該泳姿
-                const strokeScores = allSwimmerScores.filter(r => {
-                    const item = r.項目 || '';
-                    if (!item.includes(stroke)) return false;
-                    if (item.includes('接力') || item.includes('(25m)') || item.includes('短水道')) return false;
-                    if (selectedBirthYear && String(r.出生年).replace(/\.0$/, '') !== String(selectedBirthYear)) return false;
-                    if (sex && r.性別 && !r.性別.includes(sex)) return false;
-                    return true;
-                });
-                if (strokeScores.length === 0) continue;
+                const res = await remoteQuery(`SELECT * FROM swimming_scores WHERE 姓名='${input}' AND 項目 LIKE '%${stroke}%' AND ${LC_FILTER}${activeBirthFilter}${sexFilterClause}`);
+                if (!res || !res[0]) continue;
                 const card = document.createElement('div'); card.className = "stroke-card";
                 card.cardHTML = "";
                 card.id = `card-stroke-${stroke}`;
                 card.innerHTML = `<div class="stroke-title-wrap" style="display:flex; align-items:center; justify-content:space-between;"><div class="stroke-title">${stroke}</div><div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${stroke}')" title="轉發分享${stroke}卡片"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; transform: translateY(-1px);"><path d="M3.5 15.5C3.5 10 7.5 6 14 6V2.5L22 10L14 17.5V14C8.5 14 5.5 16 3.5 20.5C3.5 19 3.5 17 3.5 15.5Z"/></svg></div></div>`;
                 const trayInner = document.createElement('div'); trayInner.className = "tray-inner-container"; trayInner.style.minWidth = "710px";
                 const scrollTray = document.createElement('div'); scrollTray.className = "scroll-tray-wrap";
-                let allData = strokeScores.map(r => {
-                    let o = Object.assign({}, r);
-                    o.totalSec = timeToSec(o.成績);
-                    return o;
+                let allData = res[0].values.map(v => { 
+                    let o = {}; 
+                    res[0].columns.forEach((col, i) => o[col] = v[i]); 
+                    o.totalSec = timeToSec(o.成績); 
+                    return o; 
                 }).filter(o => o.totalSec && !isNaN(o.totalSec) && o.totalSec > 0 && !isDQ(o.備註));
                 
                 const dists = [...new Set(allData.map(r => r.項目.match(/(\d+)公尺(?![池水])/)?.[1]))].filter(Boolean).map(Number).sort((a,b)=>a-b);
@@ -953,57 +799,24 @@
                     
                     if (dData.length === 0) continue;
                     const pb = dData[0], id = `s${sIdx}d${dIdx}`;
-                    const strokeDistKey = `${stroke}_${dist}`;
-                    const rawStat = (swimmerStats && swimmerStats[strokeDistKey]) ? swimmerStats[strokeDistKey] : {};
-                    const curSex = (sex && sex.includes('女')) ? '女' : '男';
-                    const pStat = (rawStat.by_sex && rawStat.by_sex[curSex]) ? rawStat.by_sex[curSex] : rawStat;
-                    
-                    const pbBirthStr = String(pb.出生年 || '').replace(/\.0$/, '').trim();
-                    const birthStat = (pStat.by_birth && pbBirthStr && pStat.by_birth[pbBirthStr]) ? pStat.by_birth[pbBirthStr] : pStat;
-                    
-                    let ageRankNum = birthStat.age_rank || pStat.age_rank;
-                    let ageTotalNum = birthStat.age_total || pStat.age_total;
-                    // 全國排行以「姓名＋出生年」分組：取 PB 那筆出生年對應的名次 (出生年空值自成一組)
-                    const natBirthStat = (pStat.nat_by_birth || {})[pbBirthStr];
-                    let natRankNum = natBirthStat ? natBirthStat.nat_rank : null;
-                    let natTotalNum = natBirthStat ? natBirthStat.nat_total : null;
-                    
-                    // 若 pStat 未命中，從 getRankData 回退計算
-                    if (!ageRankNum) {
-                        const ageG = await getRankData(dist, stroke, input, pb.出生年, sex, false);
-                        const ageIdx = ageG.findIndex(r => r.name === input);
-                        if (ageIdx >= 0) {
-                            ageRankNum = tieRank(ageG, ageIdx);
-                            ageTotalNum = ageG.totalCompetitors || ageG.length;
-                        }
-                    }
-                    if (!natRankNum) {
-                        const natG = await getRankData(dist, stroke, input, null, sex, true);
-                        const natIdx = natG.findIndex(r => r.name === input && String(r.birthYear || '').replace(/\.0$/, '').trim() === pbBirthStr);
-                        if (natIdx >= 0) {
-                            natRankNum = tieRank(natG, natIdx);
-                            natTotalNum = natG.totalCompetitors || natG.length;
-                        }
-                    }
-                    
-                    let pr = 0;
-                    if (ageRankNum && ageTotalNum && ageTotalNum > 0) {
-                        pr = (100 * (ageTotalNum - (ageRankNum - 1)) / ageTotalNum);
-                    }
-                    
-                    const ageRankStr = ageRankNum ? `#${ageRankNum}` : '-';
-                    const natRankStr = natRankNum ? `#${natRankNum}` : '-';
+                    const ageG = await getRankData(dist, stroke, input, pb.出生年, sex, false);
+                    const natG = await getRankData(dist, stroke, input, null, sex, true);
+                    const ageIdx = ageG.findIndex(r => r.name === input), natIdx = natG.findIndex(r => r.name === input);
+                    const prRaw = (ageG && ageG.length > 0 && ageIdx >= 0) ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
+                    const pr = (!isNaN(prRaw) && isFinite(prRaw)) ? prRaw : 0;
+                    const ageRankStr = (ageIdx >= 0) ? `#${ageIdx+1}` : '-';
+                    const natRankStr = (natIdx >= 0) ? `#${natIdx+1}` : '-';
                     const row = document.createElement('div');
                     row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
                     row.innerHTML = `
-                        <span class="col-dist-main dd-tri" data-dd-p="p-${id}" data-dd-mode="trend" onclick="toggleD('${id}','trend','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dist}m</span>
-                        <span class="col-count-main dd-tri" data-dd-p="p-${id}" data-dd-mode="history" onclick="toggleD('${id}','history','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dData.length}場</span>
+                        <span class="col-dist-main" onclick="toggleD('${id}','trend','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dist}m</span>
+                        <span class="col-count-main" onclick="toggleD('${id}','history','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dData.length}場</span>
                         <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}</span>
                         <span class="col-wa-main">WA:${getWA(dist, stroke, pb.成績, sex)}</span>
                         <span class="col-pr-main">PR ${pr.toFixed(1)}%</span>
-                        <span class="col-rank-link dd-tri" data-dd-p="p-${id}" data-dd-mode="rank" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行${ageRankStr}</span>
-                        <span class="col-rank-link dd-tri" data-dd-p="p-${id}" data-dd-mode="matrix" onclick="toggleD('${id}','matrix','${dist}','${stroke}', null, '${pb.出生年}', '${sex}')">年度最佳</span>
-                        <span class="col-rank-link dd-tri" data-dd-p="p-${id}" data-dd-mode="natRank" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natRankStr}</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行${ageRankStr}</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','matrix','${dist}','${stroke}', null, '${pb.出生年}', '${sex}')">年度最佳</span>
+                        <span class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natRankStr}</span>
                     `;
                     const dd = document.createElement('div'); dd.id = `p-${id}`; dd.className = "drill-down";
                     dd.innerHTML = `<div id="c-${id}"></div>`; trayInner.appendChild(row); trayInner.appendChild(dd);
@@ -1039,13 +852,14 @@
         };
 
         async function doCompare(names, birthYearOverrides = {}) {
+            if (!worker) return;
             currentCompareNames = names;
             currentCompareOverrides = birthYearOverrides || {};
 
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 600));
+            const minWait = new Promise(r => setTimeout(r, 1200));
             const main = document.getElementById('main'); main.innerHTML = '';
             cmpChartState = {}; // 重設圖表狀態
 
@@ -1055,28 +869,27 @@
             const sexSelect = document.getElementById('sexSelect');
             if (sexSelect) sexSelect.style.display = 'none';
 
-            // 批次並行從 256split 桶取得各選手全部資料
-            const swimmersData = await Promise.all(names.map(n => fetchSwimmerBucketData(n)));
+            // 取得各選手有效出生年清單與性別（單次批次查詢 IN）
+            const safeNamesList = names.map(n => `'${n.replace(/'/g, "''")}'`).join(', ');
+            const byBatchRes = await remoteQuery(`SELECT 姓名, 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名 IN (${safeNamesList}) AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 姓名, 出生年, 性別 ORDER BY 姓名, c DESC`);
+            const allByValues = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
 
             const players = names.map((name, idx) => {
-                const sData = swimmersData[idx] || { birth_years: [], scores: [] };
-                const rawYears = sData.birth_years && sData.birth_years.length > 0
-                    ? sData.birth_years
-                    : [...new Set((sData.scores || []).map(r => r.出生年).filter(Boolean))];
-                let availableYears = [...new Set(rawYears.map(v => String(v).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
-
+                const matchedRows = allByValues.filter(v => v[0] === name);
+                let availableYears = [];
                 let birthYear = null, sex = null;
-                if (availableYears.length > 0) {
+                if (matchedRows.length > 0) {
+                    availableYears = [...new Set(matchedRows.map(v => String(v[1]).replace(/\.0$/, '').trim()).filter(Boolean))];
                     const overrideYr = (currentCompareOverrides && (currentCompareOverrides[idx] || currentCompareOverrides[name])) ? String(currentCompareOverrides[idx] || currentCompareOverrides[name]) : null;
                     if (overrideYr && availableYears.includes(overrideYr)) {
                         birthYear = overrideYr;
                     } else {
                         birthYear = availableYears[0];
                     }
-                    const matchedScore = (sData.scores || []).find(r => String(r.出生年).replace(/\.0$/, '').trim() === birthYear) || (sData.scores || [])[0];
-                    sex = matchedScore ? matchedScore.性別 : null;
+                    const matchedRow = matchedRows.find(v => String(v[1]).replace(/\.0$/, '').trim() === birthYear) || matchedRows[0];
+                    sex = matchedRow[2];
                 }
-                return { name, birthYear, sex, idx, availableYears, rawScores: sData.scores || [] };
+                return { name, birthYear, sex, idx, availableYears };
             });
 
             // 頂部多人比較狀態摘要列
@@ -1084,7 +897,7 @@
             headerBar.className = 'cmp-header-bar';
             headerBar.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <span style="font-size:15px; font-weight:800; color:#D4AF37;">多人項目並排比較</span>
+                    <span style="font-size:15px; font-weight:800; color:#D4AF37;">🏊 多人項目並排比較</span>
                     <span style="color:#636366; font-size:12px;">|</span>
                     ${players.map((p, i) => {
                         let yearHtml = '';
@@ -1101,6 +914,7 @@
                         }
                         return `
                             <span style="display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:12px; border:0.5px solid #38383A;">
+                                <span class="cmp-player-badge cmp-badge-${i % 6}">${CMP_CIRCLES[i] || (i+1)}</span>
                                 <span style="font-weight:700; font-size:13px; color:#FFF;">${p.name}</span>
                                 ${yearHtml}
                             </span>
@@ -1110,10 +924,30 @@
             `;
             main.appendChild(headerBar);
 
+            // 預抓每位選手所有泳姿之有效資料（合併為單一 SQL 查詢，極速秒開且節省行動端記憶體）
             const cmpTargetCard = new URLSearchParams(window.location.search).get('card');
             let strokes = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
             if (cmpTargetCard && strokes.includes(cmpTargetCard)) {
                 strokes = [cmpTargetCard];
+            }
+            const playerConditions = players.filter(p => p.birthYear).map(p => {
+                const safePName = p.name.replace(/'/g, "''");
+                const sexClause = p.sex ? ` AND (性別 = '${p.sex}' OR 性別 = '${p.sex=='男'?'男生':'女生'}')` : '';
+                const birthFilter = ` AND (出生年 = '${p.birthYear}' OR 出生年 = '${p.birthYear}.0')`;
+                return `(姓名 = '${safePName}'${birthFilter}${sexClause})`;
+            });
+
+            let allRows = [];
+            let colIndexMap = {};
+            if (playerConditions.length > 0) {
+                const wherePlayers = playerConditions.join(' OR ');
+                const whereStrokes = strokes.map(s => `項目 LIKE '%${s}%'`).join(' OR ');
+                const mergedSql = `SELECT 姓名, 年份, 項目, 成績, 備註, 出生年, 性別, 賽事名稱 FROM swimming_scores WHERE (${wherePlayers}) AND (${whereStrokes}) AND ${LC_FILTER}`;
+                const mergedRes = await remoteQuery(mergedSql);
+                if (mergedRes && mergedRes[0] && mergedRes[0].values) {
+                    allRows = mergedRes[0].values;
+                    mergedRes[0].columns.forEach((col, idx) => colIndexMap[col] = idx);
+                }
             }
 
             const allPlayersData = players.map(p => {
@@ -1121,37 +955,16 @@
                 strokes.forEach(s => strokesData[s] = []);
                 if (!p.birthYear) return { p, strokesData };
 
-                const normSex = (p.sex === '女' || p.sex === '女生') ? '女' : '男';
-                p.rawScores.forEach(r => {
-                    const bY = String(r.出生年 || '').replace(/\.0$/, '').trim();
-                    if (bY && p.birthYear && bY !== p.birthYear) return;
-                    if (p.sex) {
-                        const rSex = (r.性別 === '女' || r.性別 === '女生') ? '女' : '男';
-                        if (rSex !== normSex) return;
-                    }
-                    const item = r.項目 || '';
-                    const meet = r.賽事名稱 || '';
-                    if (item.includes('接力') || item.includes('(25m)') || item.includes('短水道') || meet.includes('短水道')) return;
-                    if (isDQ(r.備註)) return;
-
-                    const sec = timeToSec(r.成績);
-                    if (sec <= 0 || sec > 3600) return;
-
-                    const obj = {
-                        姓名: p.name,
-                        年份: r.年份,
-                        項目: item,
-                        成績: r.成績,
-                        備註: r.備註,
-                        出生年: r.出生年,
-                        性別: r.性別,
-                        賽事名稱: meet,
-                        totalSec: sec
-                    };
-
-                    for (const s of strokes) {
-                        if (item.includes(s)) {
-                            strokesData[s].push(obj);
+                const pRows = allRows.filter(r => r[colIndexMap['姓名']] === p.name);
+                pRows.forEach(r => {
+                    const obj = {};
+                    Object.keys(colIndexMap).forEach(col => obj[col] = r[colIndexMap[col]]);
+                    obj.totalSec = timeToSec(obj.成績);
+                    if (obj.totalSec && !isNaN(obj.totalSec) && obj.totalSec > 0 && !isDQ(obj.備註)) {
+                        for (const s of strokes) {
+                            if (obj.項目.includes(s)) {
+                                strokesData[s].push(obj);
+                            }
                         }
                     }
                 });
@@ -1200,6 +1013,7 @@
                         ${players.map((p, i) => `
                             <th style="text-align:left;">
                                 <div style="display:flex; align-items:center; gap:5px;">
+                                    <span class="cmp-player-badge cmp-badge-${i % 6}">${CMP_CIRCLES[i] || (i+1)}</span>
                                     <span style="color:#FFF; font-weight:700;">${p.name}</span>
                                 </div>
                             </th>
@@ -1235,8 +1049,8 @@
                     // 最左側：距離按鈕（50m ▼）
                     let cellsHtml = `
                         <td style="width:90px;">
-                            <span class="cmp-dist-btn dd-tri" data-dd-row="chart-row-${distKey}" onclick="toggleCompareChart('${distKey}', '${stroke}', '${dist}', ${JSON.stringify(players).replace(/"/g, '&quot;')})">
-                                ${dist}m
+                            <span class="cmp-dist-btn" onclick="toggleCompareChart('${distKey}', '${stroke}', '${dist}', ${JSON.stringify(players).replace(/"/g, '&quot;')})">
+                                ${dist}m <span style="font-size:10px;">▼</span>
                             </span>
                         </td>
                     `;
@@ -1252,7 +1066,7 @@
                         const diffSec = (!isFastest && bestSec !== null) ? (pb.totalSec - bestSec) : null;
                         const pbId = `${distKey}_p${pIdx}`;
 
-                        const countHtml = `<span class="cmp-count-tag dd-tri" data-dd-row="hist-row-${pbId}" onclick="toggleCompareHistory('${pbId}', '${p.name}', '${stroke}', '${dist}', '${p.birthYear}', '${p.sex}')" title="點擊檢視歷年出賽紀錄">${dData.length}場</span>`;
+                        const countHtml = `<span class="cmp-count-tag" onclick="toggleCompareHistory('${pbId}', '${p.name}', '${stroke}', '${dist}', '${p.birthYear}', '${p.sex}')" title="點擊檢視歷年出賽紀錄">${dData.length}場</span>`;
                         let timeDisplayHtml = '';
                         if (isFastest) {
                             timeDisplayHtml = `
@@ -1502,44 +1316,28 @@
             if (!state.dataCache) {
                 state.dataCache = await Promise.all(players.map(async (p, idx) => {
                     if (!p.birthYear) return { player: p, points: [] };
-                    const sData = await fetchSwimmerBucketData(p.name, p.birthYear, p.sex);
-                    const scores = sData.scores || [];
+                    const safeName = p.name.replace(/'/g, "''");
+                    const sexClause = p.sex ? ` AND (性別 = '${p.sex}' OR 性別 = '${p.sex=='男'?'男生':'女生'}')` : '';
+                    const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${safeName}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND (出生年 = '${p.birthYear}' OR 出生年 = '${p.birthYear}.0')${sexClause} AND ${LC_FILTER} ORDER BY 年份 ASC`);
+                    if (!res || !res[0] || !res[0].values) return { player: p, points: [] };
 
-                    const normTargetSex = p.sex ? ((p.sex === '女' || p.sex === '女生') ? '女' : '男') : null;
-
-                    const targetBirth = String(p.birthYear || '').replace(/\.0$/, '').trim();
-                    const pts = scores.filter(r => {
-                        // #14-A：與 normal 一致，出生年必須等於選定年次（空值不納入）
-                        const bY = String(r.出生年 || '').replace(/\.0$/, '').trim();
-                        if (bY !== targetBirth) return false;
-                        if (normTargetSex) {
-                            const rSex = (r.性別 === '女' || r.性別 === '女生') ? '女' : '男';
-                            if (rSex !== normTargetSex) return false;
-                        }
-                        const item = r.項目 || '';
-                        const meet = r.賽事名稱 || '';
-                        if (item.includes('接力') || item.includes('(25m)') || item.includes('短水道') || meet.includes('短水道')) return false;
-                        if (isDQ(r.備註)) return false;
-
-                        const m = item.match(/(\d+)公尺(?![池水])/);
-                        return m && String(m[1]) === String(dist) && item.includes(stroke);
-                    })
-                    // #13-A：與 normal 的 ORDER BY 年份 ASC 一致，依比賽日期排序後再連線
-                    .sort((a, b) => String(a.年份 || '').localeCompare(String(b.年份 || '')))
-                    .map(r => {
-                        const y = String(r.年份).substring(0,4), m = String(r.年份).substring(4,6), d = String(r.年份).substring(6,8);
+                    const pts = res[0].values.filter(v => {
+                        const m = v[4].match(/(\d+)公尺(?![池水])/);
+                        return m && String(m[1]) === String(dist) && !isDQ(v[5]);
+                    }).map(v => {
+                        const y = v[0].substring(0,4), m = v[0].substring(4,6), d = v[0].substring(6,8);
                         const raceDate = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
-                        const birthYr = toAD(r.出生年);
+                        const birthYr = toAD(v[3]);
                         const birthDate = new Date(birthYr, 0, 1);
                         const age = Math.max(5, (raceDate - birthDate) / (365.25 * 86400 * 1000));
-                        const sec = timeToSec(r.成績);
+                        const sec = timeToSec(v[1]);
                         return {
                             age: parseFloat(age.toFixed(2)),
                             date: raceDate,
                             dateStr: `${y}/${m}/${d}`,
                             sec: sec,
-                            rawTime: r.成績,
-                            meet: r.賽事名稱,
+                            rawTime: v[1],
+                            meet: v[2],
                             playerName: p.name
                         };
                     }).filter(pt => pt.sec && !isNaN(pt.sec) && pt.sec > 0);
@@ -1592,7 +1390,7 @@
                 });
 
                 return {
-                    label: `${player.name} (${player.birthYear ? player.birthYear+'年次' : ''})`,
+                    label: `${CMP_CIRCLES[idx] || (idx+1)} ${player.name} (${player.birthYear ? player.birthYear+'年次' : ''})`,
                     data: chartData,
                     borderColor: color,
                     backgroundColor: color,
@@ -1742,26 +1540,6 @@
         // ══════════════════════════════════════════════
         // 單人模式：項目抽屜展開與收合 (趨勢圖、歷年紀錄、同齡/全國排行、年度最佳)
         // ══════════════════════════════════════════════
-        // ── 下彈提示三角形：依實際展開狀態同步 ▼ / ▲ ──
-        function syncDdTri() {
-            document.querySelectorAll('.dd-tri').forEach(el => {
-                let open = false;
-                const pid = el.getAttribute('data-dd-p');
-                if (pid) {
-                    const p = document.getElementById(pid), c = document.getElementById(pid.replace(/^p-/, 'c-'));
-                    open = !!(p && c && p.classList.contains('active') && c.getAttribute('data-mode') === el.getAttribute('data-dd-mode'));
-                } else if (el.hasAttribute('data-dd-row')) {
-                    const r = document.getElementById(el.getAttribute('data-dd-row'));
-                    open = !!(r && r.style.display !== 'none');
-                } else if (el.hasAttribute('data-dd-podium')) {
-                    const tt = document.getElementById('podiumRosterTooltip');
-                    open = !!(tt && tt._currentEl === el);
-                }
-                el.classList.toggle('dd-open', open);
-            });
-        }
-        document.addEventListener('click', () => setTimeout(syncDdTri, 0));
-
         async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
             const p = document.getElementById(`p-${id}`), c = document.getElementById(`c-${id}`);
             if (!p || !c) return;
@@ -1791,55 +1569,21 @@
                     headerAD = `<div class="rank-header-AD"><span class="year-center" style="color:#FFF;">全國排行 (2025-2026)</span></div>`;
                 }
                 let h = `<div class="data-panel p-3">${headerAD}<div style="overflow-x:auto;"><div style="min-width:610px;">`;
-                const p2Birth = String(p2 ?? '').replace(/\.0$/, '').trim();
-                const isMe = r => r.name === p1 && (mode !== 'natRank' || String(r.birthYear ?? '').replace(/\.0$/, '').trim() === p2Birth);
-                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${isMe(r)?'row-gold':''}"><span class="col-rank-fixed">#${tieRank(sorted, i)}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
-                const total = sorted.totalCompetitors || sorted.length;
-                const tIdx = sorted.findIndex(isMe);
+                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${r.name===p1?'row-gold':''}"><span class="col-rank-fixed">#${i+1}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
+                const total = sorted.length, tIdx = sorted.findIndex(r => r.name === p1);
                 if (total > 0) {
                     h += `<div style="border-top:1px solid #444; margin:12px 0 8px 0;"></div>`;
                     if (tIdx >= 0) {
-                        const u = sorted[tIdx], tRank = tieRank(sorted, tIdx), pr = (100 * (total - (tRank - 1)) / total).toFixed(1);
-                        h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${tRank}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${formatDateStr(u.fullDate)}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
-                    } else {
-                        // 選手在 Top 50/100 之外，從分桶 stats 提取精確排名展示，並配合同時提取個人真實 PB
-                        const strokeDistKey = `${stroke}_${dist}`;
-                        const rawStat = (window.currentSwimmerStats && window.currentSwimmerStats[strokeDistKey]) ? window.currentSwimmerStats[strokeDistKey] : {};
-                        const curSex = (p3 && p3.includes('女')) ? '女' : '男';
-                        const pStat = (rawStat.by_sex && rawStat.by_sex[curSex]) ? rawStat.by_sex[curSex] : rawStat;
-                        const pbBirthStr = String(p2 || '').replace(/\.0$/, '').trim();
-                        const birthStat = (pStat.by_birth && pbBirthStr && pStat.by_birth[pbBirthStr]) ? pStat.by_birth[pbBirthStr] : pStat;
-                        const natBStat = (pStat.nat_by_birth || {})[pbBirthStr];
-                        const rankNum = (mode === 'natRank') ? (natBStat ? natBStat.nat_rank : null) : (birthStat.age_rank || pStat.age_rank);
-                        if (rankNum) {
-                            const pr = (100 * (total - (rankNum - 1)) / total).toFixed(1);
-                            let userPbTime = "-", userPbMeet = "-", userPbDate = "-";
-                            try {
-                                const sData = await fetchSwimmerBucketData(p1, p2, p3);
-                                const validPbs = (sData.scores || []).filter(r => {
-                                    const itm = r.項目 || '';
-                                    const m = itm.match(/(\d+)公尺(?![池水])/);
-                                    return m && String(m[1]) === String(dist) && itm.includes(stroke) && !isDQ(r.備註);
-                                }).sort((a,b) => timeToSec(a.成績) - timeToSec(b.成績));
-                                if (validPbs.length > 0) {
-                                    userPbTime = formatToXcode(timeToSec(validPbs[0].成績));
-                                    userPbMeet = validPbs[0].賽事名稱 || "-";
-                                    userPbDate = formatDateStr(validPbs[0].年份) || "-";
-                                }
-                            } catch(e) {}
-                            h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${rankNum}</span><span class="col-birth-fixed">${toAD(p2)}</span><span class="col-name-fixed">${p1}</span><span class="col-time-fixed">${userPbTime}</span><span class="col-wa-list">-</span><span class="col-8code-fixed">${userPbDate}</span><span class="col-meet-fixed">${userPbMeet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
-                        }
+                        const u = sorted[tIdx], pr = (100 * (total - tIdx) / total).toFixed(1);
+                        h += `<div class="list-row row-gold" style="border-bottom:none; padding-bottom:8px;"><span class="col-rank-fixed">#${tIdx+1}</span><span class="col-birth-fixed">${toAD(u.birthYear)}</span><span class="col-name-fixed">${u.name}</span><span class="col-time-fixed">${u.raw}</span><span class="col-wa-list">WA ${Math.round(u.wa)}</span><span class="col-8code-fixed">${formatDateStr(u.fullDate)}</span><span class="col-meet-fixed">${u.meet}</span></div><div style="color:#A1A1A6; font-size:14px; line-height:1.8; margin-left:5px;"><div>共 ${total.toLocaleString()} 位選手</div><div>${p1} 排名百分位 ${pr}%</div></div>`;
                     }
                 }
                 c.innerHTML = h + "</div></div></div>";
             } else if (mode === 'trend') {
-                const sData = await fetchSwimmerBucketData(p1, p2, p3);
-                const scores = (sData.scores || []).filter(r => {
-                    const item = r.項目 || '';
-                    const m = item.match(/(\d+)公尺(?![池水])/);
-                    return m && String(m[1]) === String(dist) && item.includes(stroke) && !isDQ(r.備註);
-                }).sort((a,b) => String(a.年份).localeCompare(String(b.年份)));
-                const fV = scores.map(r => [r.年份, r.成績, r.賽事名稱, r.出生年, r.項目, r.備註]);
+                const sFilter = (p3 && p3 !== 'null' && p3 !== 'undefined') ? ` AND 性別 = '${p3}'` : '';
+                const bFilter = (p2 && p2 !== 'null' && p2 !== 'undefined') ? ` AND (出生年 = '${p2}' OR 出生年 = '${p2}.0')` : '';
+                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${bFilter} ${sFilter} AND ${LC_FILTER} ORDER BY 年份 ASC`);
+                const fV = res[0].values.filter(vv => { const m = vv[4].match(/(\d+)公尺(?![池水])/); return m && String(m[1]) === String(dist) && !isDQ(vv[5]); });
                 const mkD = (rs) => rs.map(v => ({ x: new Date(v[0].substring(0,4), v[0].substring(4,6)-1, v[0].substring(6,8)), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
                 const mkA = (rs) => rs.map(v => ({ x: (parseInt(v[0].substring(0,4)) + (parseInt(v[0].substring(4,6))-1)/12) - toAD(v[3]), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
                 const tD = mkD(fV), aD = mkA(fV);
@@ -1853,41 +1597,32 @@
                 const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type: 'line', data: { datasets: [{ data: tD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(true) });
                 const aC = new Chart(document.getElementById(`canvas-a-${id}`), { type: 'line', data: { datasets: [{ data: aD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(false) });
                 document.getElementById(`st-${id}`).onchange = async (e) => { 
-                    const sData = await fetchSwimmerBucketData(e.target.value);
-                    const scores = (sData.scores || []).filter(r => {
-                        const item = r.項目 || '';
-                        const mm = item.match(/(\d+)公尺(?![池水])/);
-                        return mm && String(mm[1]) === String(dist) && item.includes(stroke) && !isDQ(r.備註);
-                    }).sort((a,b) => String(a.年份).localeCompare(String(b.年份)));
-                    const ff = scores.map(r => [r.年份, r.成績, r.賽事名稱, r.出生年, r.項目, r.備註]);
+                    const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
+                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺(?![池水])/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
                     tC.data.datasets[1] = { label: e.target.value, data: mkD(ff), borderColor: '#0A84FF', borderDash: [5,5], pointBackgroundColor: '#0A84FF', pointRadius: 4 }; tC.update(); 
                 };
                 document.getElementById(`sa-${id}`).onchange = async (e) => { 
-                    const sData = await fetchSwimmerBucketData(e.target.value);
-                    const scores = (sData.scores || []).filter(r => {
-                        const item = r.項目 || '';
-                        const mm = item.match(/(\d+)公尺(?![池水])/);
-                        return mm && String(mm[1]) === String(dist) && item.includes(stroke) && !isDQ(r.備註);
-                    }).sort((a,b) => String(a.年份).localeCompare(String(b.年份)));
-                    const ff = scores.map(r => [r.年份, r.成績, r.賽事名稱, r.出生年, r.項目, r.備註]);
+                    const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
+                    const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺(?![池水])/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
                     aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 }; aC.update(); 
                 };
             } else if (mode === 'matrix') { c.innerHTML = await renderMatrix(dist, stroke, (p3 || p2 || '男')); }
             else if (mode === 'history') {
-                const sData = await fetchSwimmerBucketData(p1, p2, p3);
-                const scores = (sData.scores || []).filter(r => {
-                    const item = r.項目 || '';
-                    const m = item.match(/(\d+)公尺(?![池水])/);
-                    return m && String(m[1]) === String(dist) && item.includes(stroke);
-                }).sort((a, b) => String(b.年份).localeCompare(String(a.年份)));
-                const validFR = scores.filter(r => !isDQ(r.備註));
-                const minS = validFR.length > 0 ? Math.min(...validFR.map(r => timeToSec(r.成績))) : 0;
+                const sFilter = (p3 && p3 !== 'null' && p3 !== 'undefined') ? ` AND 性別 = '${p3}'` : '';
+                const bFilter = (p2 && p2 !== 'null' && p2 !== 'undefined') ? ` AND (出生年 = '${p2}' OR 出生年 = '${p2}.0')` : '';
+                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目, 備註 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${bFilter} ${sFilter} AND ${LC_FILTER} ORDER BY 年份 DESC`);
+                const fR = res[0].values.filter(v => {
+                    const m = v[3].match(/(\d+)公尺(?![池水])/);
+                    return m && String(m[1]) === String(dist);
+                });
+                const validFR = fR.filter(v => !isDQ(v[4]));
+                const minS = validFR.length > 0 ? Math.min(...validFR.map(v => timeToSec(v[1]))) : 0;
                 let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">歷年紀錄</div>`;
-                scores.forEach(r => {
-                    const s = timeToSec(r.成績);
-                    const dqFlag = isDQ(r.備註);
+                fR.forEach(v => {
+                    const s = timeToSec(v[1]);
+                    const dqFlag = isDQ(v[4]);
                     const isBest = !dqFlag && s === minS;
-                    h += `<div class="list-row ${isBest?'row-gold':''}"><span class="col-8code-fixed">${formatDateStr(r.年份)}</span><span class="col-time-fixed">${formatToXcode(s)}${dqFlag?' (違規)':''}</span><span class="col-meet-fixed">${r.賽事名稱}</span></div>`;
+                    h += `<div class="list-row ${isBest?'row-gold':''}"><span class="col-8code-fixed">${formatDateStr(v[0])}</span><span class="col-time-fixed">${formatToXcode(s)}${dqFlag?' (違規)':''}</span><span class="col-meet-fixed">${v[2]}</span></div>`;
                 });
                 c.innerHTML = h + "</div>";
             }
@@ -1907,31 +1642,27 @@
             }
             histRow.style.display = 'table-row';
 
-            const sData = await fetchSwimmerBucketData(playerName, birthYear, sex);
-            const allScores = sData.scores || [];
+            const safeName = playerName.replace(/'/g, "''");
+            const sexClause = sex ? ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')` : '';
+            const birthFilter = birthYear ? ` AND (出生年 = '${birthYear}' OR 出生年 = '${birthYear}.0')` : '';
 
-            const normTargetSex = sex ? ((sex === '女' || sex === '女生') ? '女' : '男') : null;
-            const validRows = allScores.filter(r => {
-                const bY = String(r.出生年 || '').replace(/\.0$/, '').trim();
-                if (bY && birthYear && bY !== birthYear) return false;
-                if (normTargetSex) {
-                    const rSex = (r.性別 === '女' || r.性別 === '女生') ? '女' : '男';
-                    if (rSex !== normTargetSex) return false;
-                }
-                const item = r.項目 || '';
-                const meet = r.賽事名稱 || '';
-                if (item.includes('接力') || item.includes('(25m)') || item.includes('短水道') || meet.includes('短水道')) return false;
+            const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目, 備註 FROM swimming_scores WHERE 姓名='${safeName}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${birthFilter} ${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
+            if (!res || !res[0] || !res[0].values || res[0].values.length === 0) {
+                histContent.innerHTML = `<div style="color:#8E8E93; font-size:13px; padding:6px 0;">查無「${playerName}」在 ${stroke} ${dist}m 之歷年出賽紀錄。</div>`;
+                return;
+            }
 
-                const m = item.match(/(\d+)公尺(?![池水])/);
-                return m && String(m[1]) === String(dist) && item.includes(stroke);
-            }).sort((a,b) => String(b.年份).localeCompare(String(a.年份)));
+            const validRows = res[0].values.filter(v => {
+                const m = v[3].match(/(\d+)公尺(?![池水])/);
+                return m && String(m[1]) === String(dist);
+            });
 
-            if (!validRows || validRows.length === 0) {
+            if (validRows.length === 0) {
                 histContent.innerHTML = `<div style="color:#8E8E93; font-size:13px; padding:6px 0;">查無「${playerName}」在 ${stroke} ${dist}m 之合格成績紀錄。</div>`;
                 return;
             }
 
-            const nonDQSecs = validRows.filter(v => !isDQ(v.備註)).map(v => timeToSec(v.成績)).filter(s => s > 0);
+            const nonDQSecs = validRows.filter(v => !isDQ(v[4])).map(v => timeToSec(v[1])).filter(s => s > 0);
             const minSec = nonDQSecs.length > 0 ? Math.min(...nonDQSecs) : null;
 
             let h = `
@@ -1948,14 +1679,14 @@
             `;
 
             validRows.forEach(v => {
-                const s = timeToSec(v.成績);
-                const dqFlag = isDQ(v.備註);
+                const s = timeToSec(v[1]);
+                const dqFlag = isDQ(v[4]);
                 const isPB = !dqFlag && minSec !== null && Math.abs(s - minSec) < 0.0001;
                 h += `
                     <div class="list-row ${isPB ? 'row-gold' : ''}" style="padding:4px 0;">
-                        <span class="col-8code-fixed">${formatDateStr(v.年份)}</span>
+                        <span class="col-8code-fixed">${formatDateStr(v[0])}</span>
                         <span class="col-time-fixed">${formatToXcode(s)}${dqFlag ? ' (違規)' : ''}</span>
-                        <span class="col-meet-fixed">${v.賽事名稱}</span>
+                        <span class="col-meet-fixed">${v[2]}</span>
                         ${isPB ? '<span class="row-gold" style="font-size:11px; font-weight:800; margin-left:8px;">★ PB</span>' : ''}
                     </div>
                 `;
@@ -1985,41 +1716,41 @@
         }
 
         async function doStandardsCheck(swimmerName, forcedBirthYear, forcedSex) {
+            if (!worker) return;
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 600));
+            const minWait = new Promise(r => setTimeout(r, 1200));
             const main = document.getElementById('main'); main.innerHTML = '';
 
-            const swimmerResp = await fetchSwimmerBucketData(swimmerName, forcedBirthYear, forcedSex);
-            const allScores = swimmerResp.scores || [];
+            const safeName = swimmerName.replace(/'/g, "''");
 
-            if (!allScores || allScores.length === 0) {
+            // 1. 查詢選手所有不重複出生年與性別
+            const byBatchRes = await remoteQuery(`SELECT 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名='${safeName}' AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 出生年, 性別 ORDER BY c DESC`);
+            const byRows = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
+
+            if (byRows.length === 0) {
                 await minWait;
                 loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
                 main.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; color:#8E8E93; gap:8px;"><span style="font-size:2rem;">🚫</span><span>查無「${swimmerName}」之出生年或性別資料，無法進行賽事達標檢驗</span></div>`;
                 return;
             }
 
-            const rawYears = swimmerResp.birth_years && swimmerResp.birth_years.length > 0
-                ? swimmerResp.birth_years
-                : [...new Set(allScores.map(r => r.出生年).filter(Boolean))];
-            const availableYears = [...new Set(rawYears.map(v => String(v).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
-
-            let availableSexes = [...new Set(allScores.map(r => (r.性別 === '女' || r.性別 === '女生') ? '女' : '男').filter(Boolean))];
+            const availableYears = [...new Set(byRows.map(v => String(v[0]).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
+            let availableSexes = [...new Set(byRows.map(v => (v[1] === '女' || v[1] === '女生') ? '女' : '男').filter(Boolean))];
             if (swimmerName === '陳品言' && !availableSexes.includes('男')) {
                 availableSexes.push('男');
             }
 
             let selectedBirthYear = forcedBirthYear;
             if (!selectedBirthYear || !availableYears.includes(selectedBirthYear)) {
-                selectedBirthYear = availableYears.length > 0 ? availableYears[0] : '2010';
+                selectedBirthYear = availableYears[0];
             }
 
             let sex = forcedSex;
             if (!sex || !availableSexes.includes(sex)) {
-                const matchedRow = allScores.find(r => String(r.出生年).replace(/\.0$/, '').trim() === selectedBirthYear);
-                sex = matchedRow ? ((matchedRow.性別 === '女' || matchedRow.性別 === '女生') ? '女' : '男') : (availableSexes[0] || '男');
+                const matchedRow = byRows.find(v => String(v[0]).replace(/\.0$/, '').trim() === selectedBirthYear);
+                sex = matchedRow ? ((matchedRow[1] === '女' || matchedRow[1] === '女生') ? '女' : '男') : availableSexes[0];
             }
 
             // 2. 同步頂部工具列下拉選單 (出生年與性別)，確保使用者習慣與常規模式無縫銜接
@@ -2088,49 +1819,47 @@
 
             const genderStandards = stdData.standards[sex] || {};
 
-            // 4. 由記憶體計算該選手特定出生年與性別的所有長水道最佳成績 (PB)
+            // 4. 查詢該選手特定出生年與性別的所有長水道最佳成績 (PB)
+            const birthFilter = ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')`;
+            const sexClause = ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')`;
+            const pbRes = await remoteQuery(`SELECT 項目, 成績, 備註, 賽事名稱, 年份 FROM swimming_scores WHERE 姓名='${safeName}'${birthFilter}${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
+            
             const swimmerPBs = {}; 
-            const normTargetSex = (sex === '女' || sex === '女生') ? '女' : '男';
+            if (pbRes && pbRes[0] && pbRes[0].values) {
+                pbRes[0].values.forEach(row => {
+                    const item = row[0];
+                    const rawTime = row[1];
+                    const remark = row[2];
+                    const meet = row[3];
+                    const dateVal = row[4];
+                    if (isDQ(remark)) return;
+                    const sec = timeToSec(rawTime);
+                    if (sec <= 0 || sec > 3600) return;
 
-            allScores.forEach(r => {
-                const bY = String(r.出生年 || '').replace(/\.0$/, '').trim();
-                if (bY && selectedBirthYear && bY !== selectedBirthYear) return;
-                const rSex = (r.性別 === '女' || r.性別 === '女生') ? '女' : '男';
-                if (rSex !== normTargetSex) return;
+                    const mDist = item.match(/(\d+)公尺(?![池水])/);
+                    if (!mDist) return;
+                    const dist = mDist[1];
+                    let stroke = '';
+                    if (item.includes('自由式')) stroke = '自由式';
+                    else if (item.includes('仰式')) stroke = '仰式';
+                    else if (item.includes('蛙式')) stroke = '蛙式';
+                    else if (item.includes('蝶式')) stroke = '蝶式';
+                    else if (item.includes('混合式')) stroke = '混合式';
+                    if (!stroke) return;
 
-                const item = r.項目 || '';
-                const meet = r.賽事名稱 || '';
-                // 排除接力與短水道
-                if (item.includes('接力') || item.includes('(25m)') || item.includes('短水道') || meet.includes('短水道')) return;
-                if (isDQ(r.備註)) return;
-
-                const rawTime = r.成績 || '';
-                const sec = timeToSec(rawTime);
-                if (sec <= 0 || sec > 3600) return;
-
-                const mDist = item.match(/(\d+)公尺(?![池水])/);
-                if (!mDist) return;
-                const dist = mDist[1];
-                let stroke = '';
-                if (item.includes('自由式')) stroke = '自由式';
-                else if (item.includes('仰式')) stroke = '仰式';
-                else if (item.includes('蛙式')) stroke = '蛙式';
-                else if (item.includes('蝶式')) stroke = '蝶式';
-                else if (item.includes('混合式')) stroke = '混合式';
-                if (!stroke) return;
-
-                const eventKey = `${dist}m ${stroke}`;
-                if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
-                    swimmerPBs[eventKey] = {
-                        sec: sec,
-                        timeStr: formatToXcode(sec),
-                        meet: meet,
-                        date: r.年份,
-                        dist: dist,
-                        stroke: stroke
-                    };
-                }
-            });
+                    const eventKey = `${dist}m ${stroke}`;
+                    if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
+                        swimmerPBs[eventKey] = {
+                            sec: sec,
+                            timeStr: formatToXcode(sec),
+                            meet: meet,
+                            date: dateVal,
+                            dist: dist,
+                            stroke: stroke
+                        };
+                    }
+                });
+            }
 
             function formatRaceDate(val) {
                 if (!val) return '';
@@ -2643,7 +2372,6 @@
             tt.style.top = `${top}px`;
             tt.style.opacity = '1';
             tt.style.transform = 'translateY(0)';
-            syncDdTri();
         };
 
         window.hidePodiumRoster = function() {
@@ -2652,7 +2380,6 @@
                 tt.style.opacity = '0';
                 tt.style.transform = 'translateY(4px)';
                 tt._currentEl = null;
-                syncDdTri();
                 setTimeout(() => { 
                     if (tt.style.opacity === '0') tt.style.display = 'none'; 
                 }, 150);
@@ -2660,41 +2387,41 @@
         };
 
         async function doPodiumSimulation(swimmerName, forcedBirthYear, forcedSex, forcedMeetId, forcedFutureDivision) {
+            if (!worker) return;
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 600));
+            const minWait = new Promise(r => setTimeout(r, 1000));
             const main = document.getElementById('main'); main.innerHTML = '';
 
-            const swimmerResp = await fetchSwimmerBucketData(swimmerName, forcedBirthYear, forcedSex);
-            const allScores = swimmerResp.scores || [];
+            const safeName = swimmerName.replace(/'/g, "''");
 
-            if (!allScores || allScores.length === 0) {
+            // 1. 查詢選手所有不重複出生年與性別
+            const byBatchRes = await remoteQuery(`SELECT 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名='${safeName}' AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 出生年, 性別 ORDER BY c DESC`);
+            const byRows = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
+
+            if (byRows.length === 0) {
                 await minWait;
                 loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
                 main.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; color:#8E8E93; gap:8px;"><span style="font-size:2rem;">🚫</span><span>查無「${swimmerName}」之出生年或性別資料，無法進行得獎模擬分析</span></div>`;
                 return;
             }
 
-            const rawYears = swimmerResp.birth_years && swimmerResp.birth_years.length > 0
-                ? swimmerResp.birth_years
-                : [...new Set(allScores.map(r => r.出生年).filter(Boolean))];
-            const availableYears = [...new Set(rawYears.map(v => String(v).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
-
-            let availableSexes = [...new Set(allScores.map(r => (r.性別 === '女' || r.性別 === '女生') ? '女' : '男').filter(Boolean))];
+            const availableYears = [...new Set(byRows.map(v => String(v[0]).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
+            let availableSexes = [...new Set(byRows.map(v => (v[1] === '女' || v[1] === '女生') ? '女' : '男').filter(Boolean))];
             if (swimmerName === '陳品言' && !availableSexes.includes('男')) {
                 availableSexes.push('男');
             }
 
             let selectedBirthYear = forcedBirthYear;
             if (!selectedBirthYear || !availableYears.includes(selectedBirthYear)) {
-                selectedBirthYear = availableYears.length > 0 ? availableYears[0] : '2010';
+                selectedBirthYear = availableYears[0];
             }
 
             let sex = forcedSex;
             if (!sex || !availableSexes.includes(sex)) {
-                const matchedRow = allScores.find(r => String(r.出生年).replace(/\.0$/, '').trim() === selectedBirthYear);
-                sex = matchedRow ? ((matchedRow.性別 === '女' || matchedRow.性別 === '女生') ? '女' : '男') : (availableSexes[0] || '男');
+                const matchedRow = byRows.find(v => String(v[0]).replace(/\.0$/, '').trim() === selectedBirthYear);
+                sex = matchedRow ? ((matchedRow[1] === '女' || matchedRow[1] === '女生') ? '女' : '男') : availableSexes[0];
             }
 
             const currentYear = 2026;
@@ -2807,47 +2534,45 @@
                 activeFutureDiv = availableFutureDivs[0];
             }
 
-            // 5. 由記憶體計算選手長水道個人最佳成績 (PB)
-            const swimmerPBs = {};
-            const normTargetSex = (sex === '女' || sex === '女生') ? '女' : '男';
+            // 5. 查詢選手長水道個人最佳成績 (PB)
+            const birthFilter = ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')`;
+            const sexClause = ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')`;
+            const pbRes = await remoteQuery(`SELECT 項目, 成績, 備註, 賽事名稱, 年份 FROM swimming_scores WHERE 姓名='${safeName}'${birthFilter}${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
 
-            allScores.forEach(r => {
-                const bY = String(r.出生年 || '').replace(/\.0$/, '').trim();
-                if (bY && selectedBirthYear && bY !== selectedBirthYear) return;
-                const rSex = (r.性別 === '女' || r.性別 === '女生') ? '女' : '男';
-                if (rSex !== normTargetSex) return;
+            const swimmerPBs = {}; 
+            if (pbRes && pbRes[0] && pbRes[0].values) {
+                pbRes[0].values.forEach(row => {
+                    const item = row[0];
+                    const rawTime = row[1];
+                    const remark = row[2];
+                    const meet = row[3];
+                    const dateVal = row[4];
+                    if (isDQ(remark)) return;
+                    const sec = timeToSec(rawTime);
+                    if (sec <= 0 || sec > 3600) return;
 
-                const item = r.項目 || '';
-                const meet = r.賽事名稱 || '';
-                // 排除接力與短水道
-                if (item.includes('接力') || item.includes('(25m)') || item.includes('短水道') || meet.includes('短水道')) return;
-                if (isDQ(r.備註)) return;
+                    const mDist = item.match(/(\d+)公尺(?![池水])/);
+                    if (!mDist) return;
+                    const dist = mDist[1];
+                    let stroke = '';
+                    if (item.includes('自由式')) stroke = '自由式';
+                    else if (item.includes('仰式')) stroke = '仰式';
+                    else if (item.includes('蛙式')) stroke = '蛙式';
+                    else if (item.includes('蝶式')) stroke = '蝶式';
+                    else if (item.includes('混合式')) stroke = '混合式';
+                    if (!stroke) return;
 
-                const rawTime = r.成績 || '';
-                const sec = timeToSec(rawTime);
-                if (sec <= 0 || sec > 3600) return;
-
-                const mDist = item.match(/(\d+)公尺(?![池水])/);
-                if (!mDist) return;
-                const dist = mDist[1];
-                let stroke = '';
-                if (item.includes('自由式')) stroke = '自由式';
-                else if (item.includes('仰式')) stroke = '仰式';
-                else if (item.includes('蛙式')) stroke = '蛙式';
-                else if (item.includes('蝶式')) stroke = '蝶式';
-                else if (item.includes('混合式')) stroke = '混合式';
-                if (!stroke) return;
-
-                const eventKey = `${dist}m ${stroke}`;
-                if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
-                    swimmerPBs[eventKey] = {
-                        sec: sec,
-                        timeStr: formatToXcode(sec),
-                        meet: meet,
-                        date: r.年份
-                    };
-                }
-            });
+                    const eventKey = `${dist}m ${stroke}`;
+                    if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
+                        swimmerPBs[eventKey] = {
+                            sec: sec,
+                            timeStr: formatToXcode(sec),
+                            meet: meet,
+                            date: dateVal
+                        };
+                    }
+                });
+            }
 
             function formatRaceDate(val) {
                 if (!val) return '';
@@ -2977,7 +2702,7 @@
                             rankHtml = `
                                 <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:600; color:#8E8E93; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,255,255,0.15);"
                                      data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
-                                     class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                      title="點擊查看決賽 8 強名冊">
                                     (選手無PB)
                                 </div>
@@ -2990,8 +2715,8 @@
                             rankHtml = `
                                 <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.12); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,69,58,0.3); transition:all 0.15s ease;"
                                      data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="${diffPrelim}" data-birth-year="${selectedBirthYear}"
-                                     class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
-                                     title="點擊查看決賽 8 強名冊">
+                                     onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     title="點擊查看決賽名冊 (依序列至選手名次)">
                                     未進決賽
                                 </div>
                                 <div style="font-size:10px; color:#8E8E93; margin-top:2px;">距預賽第8名 +${diffPrelim}s</div>
@@ -3009,7 +2734,7 @@
                                 rankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.35); transition:all 0.15s ease;"
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="1" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
-                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看決賽 8 強名冊">
                                         預估第 1
                                     </div>
@@ -3023,7 +2748,7 @@
                                 rankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:${medalColor}; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid ${medalColor}; transition:all 0.15s ease;"
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${medalRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
-                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看決賽 8 強名冊">
                                         預估第 ${medalRank}
                                     </div>
@@ -3034,7 +2759,7 @@
                                 rankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800; color:#30D158; background:transparent; padding:2px 0; margin-top:4px; border:none; transition:all 0.15s ease;"
                                          data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}"
-                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看決賽 8 強名冊">
                                         預估第 ${predictedRank}
                                     </div>
@@ -3078,7 +2803,7 @@
                             fRankHtml = `
                                 <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:600; color:#8E8E93; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,255,255,0.15);"
                                      data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${fTotalCount}"
-                                     class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                      title="點擊查看下屆潛在 50 強名冊">
                                     (選手無PB)
                                 </div>
@@ -3094,7 +2819,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid rgba(255,215,0,0.35); transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="1" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${fTotalCount}"
-                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看下屆潛在 50 強名冊">
                                         預估第 1
                                     </div>
@@ -3108,7 +2833,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:${medalColor}; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:6px; margin-top:4px; border:0.5px solid ${medalColor}; transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${medalRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${fTotalCount}"
-                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看下屆潛在 50 強名冊">
                                         預估第 ${medalRank}
                                     </div>
@@ -3119,7 +2844,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800; color:#30D158; background:transparent; padding:2px 0; margin-top:4px; border:none; transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${fTotalCount}"
-                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看下屆潛在 50 強名冊">
                                         預估第 ${predictedRank}
                                     </div>
@@ -3130,7 +2855,7 @@
                                 fRankHtml = `
                                     <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:transparent; padding:2px 0; margin-top:4px; border:none; transition:all 0.15s ease;"
                                          data-roster="${fRosterJson}" data-title="${fTtTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec || ''}" data-predicted-rank="${predictedRank}" data-diff-eighth="${diffEighth}" data-birth-year="${selectedBirthYear}" data-total-count="${fTotalCount}"
-                                         class="dd-tri" data-dd-podium="1" onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
                                          title="點擊查看下屆潛在 50 強名冊">
                                         未進前 8
                                     </div>
@@ -3216,6 +2941,368 @@
                 expandBox.innerHTML = `
                     <button onclick="expandToFullView()" style="background:#1C1C1E; border:1px solid #38383A; color:#D4AF37; padding:10px 24px; border-radius:20px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.4); transition:all 0.2s ease;">
                         🔍 查看「${swimmerName}」完整得獎模擬 (展開所有泳姿)
+                    </button>
+                `;
+                main.appendChild(expandBox);
+            }
+
+            await minWait;
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 300);
+        }
+
+        // ═════════════════════════════════════════════════════════════════════════
+        // ── 模式三：各年齡組別跨組排行分析核心引擎 (Age Bracket Cross-Ranking Engine) ──
+        // ═════════════════════════════════════════════════════════════════════════
+        let ageBracketRanksData = null;
+
+        async function loadAgeBracketRanksData() {
+            if (ageBracketRanksData) return ageBracketRanksData;
+            try {
+                const resp = await fetch('/static/age_bracket_ranks.json');
+                if (resp.ok) {
+                    ageBracketRanksData = await resp.json();
+                    return ageBracketRanksData;
+                }
+            } catch(e) {
+                console.warn("載入 age_bracket_ranks.json 失敗:", e);
+            }
+            return null;
+        }
+
+        async function doRankAnalysis(swimmerName, forcedBirthYear, forcedSex, rankTargetCard) {
+            if (!worker) return;
+            const loader = document.getElementById('queryLoader');
+            loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
+            swimmerAnim.playSegments([32, 97], true);
+            const minWait = new Promise(r => setTimeout(r, 1200));
+            const main = document.getElementById('main'); main.innerHTML = '';
+
+            const safeName = swimmerName.replace(/'/g, "''");
+
+            // 1. 查詢選手所有不重複出生年與性別
+            const byBatchRes = await remoteQuery(`SELECT 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名='${safeName}' AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 出生年, 性別 ORDER BY c DESC`);
+            const byRows = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
+
+            if (byRows.length === 0) {
+                await minWait;
+                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+                main.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px; color:#8E8E93; gap:8px;"><span style="font-size:2rem;">🚫</span><span>查無「${swimmerName}」之出生年或性別資料，無法進行跨組排行分析</span></div>`;
+                return;
+            }
+
+            const availableYears = [...new Set(byRows.map(v => String(v[0]).replace(/\.0$/, '').trim()).filter(Boolean))].sort((a, b) => b - a);
+            let availableSexes = [...new Set(byRows.map(v => (v[1] === '女' || v[1] === '女生') ? '女' : '男').filter(Boolean))];
+            if (swimmerName === '陳品言' && !availableSexes.includes('男')) {
+                availableSexes.push('男');
+            }
+
+            let selectedBirthYear = forcedBirthYear;
+            if (!selectedBirthYear || !availableYears.includes(selectedBirthYear)) {
+                selectedBirthYear = availableYears[0];
+            }
+
+            let sex = forcedSex;
+            if (!sex || !availableSexes.includes(sex)) {
+                const matchedRow = byRows.find(v => String(v[0]).replace(/\.0$/, '').trim() === selectedBirthYear);
+                sex = matchedRow ? ((matchedRow[1] === '女' || matchedRow[1] === '女生') ? '女' : '男') : availableSexes[0];
+            }
+
+            // 2. 載入各年齡組排行數據庫
+            const rankData = await loadAgeBracketRanksData();
+            if (!rankData || !rankData.data) {
+                await minWait;
+                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
+                main.innerHTML = `<div style="padding:30px; text-align:center; color:#FF453A;">❌ 載入各年齡組別排行數據庫失敗，請確認網路連線或稍後再試。</div>`;
+                return;
+            }
+
+            const currentYear = rankData.base_year || 2026;
+            const birthYearNum = parseInt(selectedBirthYear) || 2010;
+            const swimmerAge = currentYear - birthYearNum;
+
+            // 3. 同步頂部工具列下拉選單 (出生年與性別)
+            const birthSelect = document.getElementById('birthYearSelect');
+            if (availableYears.length >= 2) {
+                let optionsHtml = availableYears.map(y => `<option value="${y}" ${y === selectedBirthYear ? 'selected' : ''}>${y}年次</option>`).join('');
+                if (birthSelect) {
+                    birthSelect.innerHTML = optionsHtml;
+                    birthSelect.classList.remove('hidden');
+                    birthSelect.onchange = function() {
+                        const curSex = document.getElementById('sexSelect') ? document.getElementById('sexSelect').value : sex;
+                        doRankAnalysis(swimmerName, this.value, curSex);
+                    };
+                }
+            } else {
+                if (birthSelect) birthSelect.classList.add('hidden');
+            }
+
+            const sexSelect = document.getElementById('sexSelect');
+            if (availableSexes.length >= 2) {
+                let optionsHtml = availableSexes.map(s => `<option value="${s}" ${s === sex ? 'selected' : ''}>${s}生</option>`).join('');
+                if (sexSelect) {
+                    sexSelect.innerHTML = optionsHtml;
+                    sexSelect.style.display = 'inline-block';
+                    sexSelect.onchange = function() {
+                        const curYear = document.getElementById('birthYearSelect') ? document.getElementById('birthYearSelect').value : selectedBirthYear;
+                        doRankAnalysis(swimmerName, curYear, this.value);
+                    };
+                }
+            } else {
+                if (sexSelect) sexSelect.style.display = 'none';
+            }
+
+            // 4. 查詢選手長水道個人最佳成績 (PB)
+            const birthFilter = ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')`;
+            const sexClause = ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')`;
+            const pbRes = await remoteQuery(`SELECT 項目, 成績, 備註, 賽事名稱, 年份 FROM swimming_scores WHERE 姓名='${safeName}'${birthFilter}${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
+
+            const swimmerPBs = {}; 
+            if (pbRes && pbRes[0] && pbRes[0].values) {
+                pbRes[0].values.forEach(row => {
+                    const item = row[0];
+                    const rawTime = row[1];
+                    const remark = row[2];
+                    const meet = row[3];
+                    const dateVal = row[4];
+                    if (isDQ(remark)) return;
+                    const sec = timeToSec(rawTime);
+                    if (sec <= 0 || sec > 3600) return;
+
+                    const mDist = item.match(/(\d+)公尺(?![池水])/);
+                    if (!mDist) return;
+                    const dist = mDist[1];
+                    let stroke = '';
+                    if (item.includes('自由式')) stroke = '自由式';
+                    else if (item.includes('仰式')) stroke = '仰式';
+                    else if (item.includes('蛙式')) stroke = '蛙式';
+                    else if (item.includes('蝶式')) stroke = '蝶式';
+                    else if (item.includes('混合式')) stroke = '混合式';
+                    if (!stroke) return;
+
+                    const eventKey = `${dist}m ${stroke}`;
+                    if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
+                        swimmerPBs[eventKey] = {
+                            sec: sec,
+                            timeStr: formatToXcode(sec),
+                            meet: meet,
+                            date: dateVal,
+                            dist: dist,
+                            stroke: stroke
+                        };
+                    }
+                });
+            }
+
+            // 5. 頂部選手資訊卡片
+            const banner = document.createElement('div');
+            banner.className = 'w-full mb-5 bg-[#1C1C1E] border border-[#38383A] rounded-xl p-4 shadow-lg';
+            banner.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="font-size:20px; font-weight:900; color:#FFF; display:flex; align-items:center; gap:8px;">
+                            <span>${swimmerName}</span>
+                            <span style="font-size:12px; color:#A1A1A6; background:rgba(255,255,255,0.08); padding:2px 8px; border-radius:6px; font-weight:600;">(${selectedBirthYear}年次)</span>
+                            <span style="font-size:12px; color:#A1A1A6; background:rgba(255,255,255,0.08); padding:2px 8px; border-radius:6px; font-weight:600;">${sex}生 · ${swimmerAge}歲</span>
+                        </div>
+                        <div style="font-size:11.5px; color:#30D158; background:rgba(48,209,88,0.12); padding:3px 8px; border-radius:6px; font-weight:700; border:0.5px solid rgba(48,209,88,0.3);">
+                            🏆 各年齡組別跨組排行 (/RANK)
+                        </div>
+                    </div>
+                    <div style="font-size:12px; color:#8E8E93;">
+                        基準年度：<b style="color:#FFF;">${currentYear} 年</b> (當前現役選手池)
+                    </div>
+                </div>
+            `;
+            main.appendChild(banner);
+
+            // 6. 渲染 5 大泳姿卡片 (自由式、仰式、蛙式、蝶式、混合式)
+            const brackets = rankData.brackets || [
+                { id: "adult", name: "18歲以上", short_name: "18歲以上", age_desc: "18歲以上" },
+                { id: "high_school", name: "高中組", short_name: "高中組", age_desc: "16~18歲" },
+                { id: "junior_high", name: "國中組", short_name: "國中組", age_desc: "13~15歲" },
+                { id: "primary_senior", name: "國小高年級", short_name: "國小高年級", age_desc: "11~12歲" },
+                { id: "primary_mid", name: "國小中年級", short_name: "國小中年級", age_desc: "9~10歲" },
+                { id: "primary_junior", name: "國小低年級", short_name: "國小低年級", age_desc: "8歲以下" }
+            ];
+
+            const strokeList = ['仰式', '蛙式', '蝶式', '自由式', '混合式'];
+            const targetStrokes = rankTargetCard ? [rankTargetCard] : strokeList;
+
+            targetStrokes.forEach(strokeName => {
+                const distances = (rankData.events_by_stroke && rankData.events_by_stroke[strokeName]) || [50, 100, 200];
+                const card = document.createElement('div');
+                card.className = 'w-full mb-6 bg-[#1C1C1E] border border-[#38383A] rounded-xl p-4 shadow-xl';
+
+                let rowsHtml = '';
+                distances.forEach(dist => {
+                    const eventName = `${dist}m ${strokeName}`;
+                    const swimmerPbObj = swimmerPBs[eventName];
+                    const swimmerSec = swimmerPbObj ? swimmerPbObj.sec : 0;
+                    const swimmerTimeStr = swimmerPbObj ? swimmerPbObj.timeStr : '';
+
+                    let cellsHtml = brackets.map(b => {
+                        const bId = b.id;
+                        const bName = b.name;
+                        const pool = (rankData.data[sex] && rankData.data[sex][eventName]) ? rankData.data[sex][eventName][bId] : null;
+
+                        if (!pool || pool.total_count === 0) {
+                            return `
+                                <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E;">
+                                    <div style="font-family:monospace; font-size:12px; color:#48484A;">-</div>
+                                </td>
+                            `;
+                        }
+
+                        const first = pool.first;
+                        const third = pool.third;
+                        const eighth = pool.eighth;
+                        const ninth = pool.ninth;
+                        const totalCount = pool.total_count || 0;
+                        const rosterJson = JSON.stringify(pool.roster || []).replace(/"/g, '&quot;');
+                        const ttTitle = `${bName} · ${eventName} · 現役潛在 50 強名冊`;
+
+                        let firstBenchmarkHtml = first ? `
+                            <div style="font-family:monospace; font-size:11px; color:#A1A1A6; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="第1名: ${first.name} ${first.time_str}">
+                                🥇 ${first.name ? first.name + ' ' : ''}${first.time_str}
+                            </div>
+                        ` : '';
+
+                        if (!swimmerSec || swimmerSec <= 0) {
+                            return `
+                                <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E;">
+                                    ${firstBenchmarkHtml}
+                                    <div style="cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#8E8E93; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:6px; border:0.5px solid rgba(255,255,255,0.15); transition:all 0.15s ease;"
+                                         data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="" data-swimmer-sec="0" data-predicted-rank="0" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${totalCount}"
+                                         onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                         title="點擊查看 ${bName} 50 強名冊">
+                                        無PB (看名冊)
+                                    </div>
+                                </td>
+                            `;
+                        }
+
+                        // 計算跨組名次 (Binary search / filter)
+                        const fasterCount = (pool.all_secs || []).filter(s => s < swimmerSec).length;
+                        const predictedRank = fasterCount + 1;
+
+                        let badgeHtml = '';
+                        let diffHtml = '';
+
+                        if (predictedRank === 1) {
+                            const isFirstSelf = (first && first.name === swimmerName);
+                            const leadText = isFirstSelf ? '現役榜首' : (first ? `領先第1名 -${(first.sec - swimmerSec).toFixed(2)}s` : '現役第 1');
+                            badgeHtml = `
+                                <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FFD700; background:rgba(255,215,0,0.15); padding:3px 8px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(255,215,0,0.35); transition:all 0.15s ease;"
+                                     data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec}" data-predicted-rank="1" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${totalCount}"
+                                     onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     title="點擊查看 ${bName} 50 強名冊">
+                                    🥇 第 1 名
+                                </div>
+                            `;
+                            diffHtml = `<div style="font-size:10px; color:#30D158; margin-top:2px; font-weight:700;">${leadText}</div>`;
+                        } else if (predictedRank === 2 || predictedRank === 3) {
+                            const medalEmoji = predictedRank === 2 ? '🥈' : '🥉';
+                            const medalColor = predictedRank === 2 ? '#C0C0C0' : '#CD7F32';
+                            const diff1 = first ? (swimmerSec - first.sec).toFixed(2) : '0.00';
+                            badgeHtml = `
+                                <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:${medalColor}; background:rgba(255,255,255,0.1); padding:3px 8px; border-radius:6px; margin-top:2px; border:0.5px solid ${medalColor}; transition:all 0.15s ease;"
+                                     data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${totalCount}"
+                                     onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     title="點擊查看 ${bName} 50 強名冊">
+                                    ${medalEmoji} 第 ${predictedRank} 名
+                                </div>
+                            `;
+                            diffHtml = `<div style="font-size:10px; color:#8E8E93; margin-top:2px;">距第1名 +${diff1}s</div>`;
+                        } else if (predictedRank <= 8) {
+                            const diffNinth = ninth ? (ninth.sec - swimmerSec).toFixed(2) : '0.00';
+                            const leadText = ninth ? `領先第9名 ${diffNinth}s` : '已進前 8';
+                            badgeHtml = `
+                                <div style="cursor:pointer; display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:800; color:#30D158; background:rgba(48,209,88,0.12); padding:3px 8px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(48,209,88,0.25); transition:all 0.15s ease;"
+                                     data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec}" data-predicted-rank="${predictedRank}" data-diff-eighth="" data-birth-year="${selectedBirthYear}" data-total-count="${totalCount}"
+                                     onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     title="點擊查看 ${bName} 50 強名冊">
+                                    🎖️ 第 ${predictedRank} 名
+                                </div>
+                            `;
+                            diffHtml = `<div style="font-size:10px; color:#30D158; margin-top:2px; font-weight:600;">已進決賽 (${leadText})</div>`;
+                        } else {
+                            const diffEighth = eighth ? (swimmerSec - eighth.sec).toFixed(2) : '0.00';
+                            badgeHtml = `
+                                <div style="cursor:pointer; display:inline-flex; align-items:center; gap:2px; font-size:11px; font-weight:800; color:#FF453A; background:rgba(255,69,58,0.1); padding:3px 8px; border-radius:6px; margin-top:2px; border:0.5px solid rgba(255,69,58,0.25); transition:all 0.15s ease;"
+                                     data-roster="${rosterJson}" data-title="${ttTitle}" data-swimmer="${swimmerName}" data-swimmer-time="${swimmerTimeStr}" data-swimmer-sec="${swimmerSec}" data-predicted-rank="${predictedRank}" data-diff-eighth="${diffEighth}" data-birth-year="${selectedBirthYear}" data-total-count="${totalCount}"
+                                     onclick="window.showPodiumRoster(event, this, true)" ontouchstart="window.showPodiumRoster(event, this, true)"
+                                     title="點擊查看 ${bName} 50 強名冊">
+                                    第 ${predictedRank} 名
+                                </div>
+                            `;
+                            diffHtml = `<div style="font-size:10px; color:#FF453A; margin-top:2px; font-weight:600;">距第8名 +${diffEighth}s</div>`;
+                        }
+
+                        return `
+                            <td style="padding:10px 8px; text-align:center; vertical-align:middle; border-bottom:0.5px solid #2C2C2E;">
+                                ${firstBenchmarkHtml}
+                                ${badgeHtml}
+                                ${diffHtml}
+                            </td>
+                        `;
+                    }).join('');
+
+                    rowsHtml += `
+                        <tr style="transition:background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                            <td style="padding:10px 12px; font-weight:800; font-size:14px; color:#FFF; white-space:nowrap; border-bottom:0.5px solid #2C2C2E; font-family:monospace;">
+                                ${eventName.split(' ')[0]}
+                            </td>
+                            <td style="padding:10px 12px; text-align:center; white-space:nowrap; border-bottom:0.5px solid #2C2C2E; border-right:1px solid #38383A;">
+                                <div style="font-family:monospace; font-weight:800; font-size:15px; color:#FFF;">${swimmerTimeStr || '無成績'}</div>
+                                ${swimmerPbObj ? `
+                                    <div style="font-size:11px; color:#8E8E93; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:2px;" title="${swimmerPbObj.meet}">${swimmerPbObj.meet}</div>
+                                    ${swimmerPbObj.date ? `<div style="font-size:10px; color:#636366; font-family:monospace; margin-top:1px;">${formatDateStr(swimmerPbObj.date)}</div>` : ''}
+                                ` : ''}
+                            </td>
+                            ${cellsHtml}
+                        </tr>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #38383A; padding-bottom:8px;">
+                        <div style="font-size:18px; font-weight:900; color:#FFF; display:flex; align-items:center; gap:8px;">
+                            <span>${strokeName}</span>
+                            <span style="font-size:12px; color:#A1A1A6; font-weight:500;">各年齡組別跨組排行</span>
+                        </div>
+                        <div class="cursor-pointer text-[#8E8E93] hover:text-white p-1 rounded transition-colors" onclick="shareCardView('${strokeName}')" title="轉發分享${strokeName}排行卡片"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; transform: translateY(-1px);"><path d="M3.5 15.5C3.5 10 7.5 6 14 6V2.5L22 10L14 17.5V14C8.5 14 5.5 16 3.5 20.5C3.5 19 3.5 17 3.5 15.5Z"/></svg></div>
+                    </div>
+                    <div style="width:100%; overflow-x:auto;">
+                        <table style="width:100%; min-width:980px; border-collapse:collapse;">
+                            <thead>
+                                <tr style="border-bottom:1px solid #38383A; background:rgba(255,255,255,0.02);">
+                                    <th style="padding:8px 12px; text-align:left; font-size:12px; color:#8E8E93; width:100px;">項目</th>
+                                    <th style="padding:8px 12px; text-align:center; font-size:12px; color:#FFF; width:140px; border-right:1px solid #38383A;">個人最佳 (PB)</th>
+                                    ${brackets.map(b => `
+                                        <th style="padding:8px 8px; text-align:center; font-size:12px; color:#FFF; width:125px;">
+                                            <div style="font-weight:700;">${b.name}</div>
+                                            <div style="font-size:10px; color:#8E8E93; margin-top:2px;">${b.age_desc}</div>
+                                        </th>
+                                    `).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                main.appendChild(card);
+            });
+
+            if (rankTargetCard) {
+                const expandBox = document.createElement('div');
+                expandBox.style.cssText = "text-align:center; margin:24px auto 32px auto;";
+                expandBox.innerHTML = `
+                    <button onclick="expandToFullView()" style="background:#1C1C1E; border:1px solid #38383A; color:#D4AF37; padding:10px 24px; border-radius:20px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 16px rgba(0,0,0,0.4); transition:all 0.2s ease;">
+                        🔍 查看「${swimmerName}」完整跨組排行 (展開所有泳姿)
                     </button>
                 `;
                 main.appendChild(expandBox);
@@ -3353,23 +3440,6 @@
         }
 
         async function startSystem() {
-            sendTelemetry('[256split頁面造訪]');
-            const statusEl = document.getElementById('loaderStatus');
-            const dbLoader = document.getElementById('dbLoaderArea');
-            if (dbLoader) dbLoader.style.display = 'none';
-            loadLatestRaceInfo();
-            const footerDbStatus = document.getElementById('footerDbStatus');
-            if (footerDbStatus) {
-                footerDbStatus.textContent = '⚡ 256split 雲端秒開索引已就緒';
-                footerDbStatus.style.color = '#38BDF8';
-            }
-            doSearch();
-            if (typeof checkAutoOpenUserGuide === 'function') {
-                checkAutoOpenUserGuide();
-            }
-            return;
-        }
-        async function old_startSystem() {
             sendTelemetry('[頁面造訪]');
             if (isLocal) {
                 const statusEl = document.getElementById('loaderStatus');
@@ -4375,7 +4445,8 @@
 
                 const modes = [
                     { id: 'std', label: '/STD', desc: '參賽標準 (五大賽事門檻檢驗)', fullText: `${prefixName}/STD` },
-                    { id: 'podium', label: '/Podium Simulation', desc: '得獎模擬 (16大核心賽事歷年1、3、8名與頒獎台分析)', fullText: `${prefixName}/Podium Simulation` }
+                    { id: 'podium', label: '/Podium Simulation', desc: '得獎模擬 (16大核心賽事歷年1、3、8名與頒獎台分析)', fullText: `${prefixName}/Podium Simulation` },
+                    { id: 'rank', label: '/RANK', desc: '跨組排行 (各年齡組別跨組排行與50強名冊)', fullText: `${prefixName}/RANK` }
                 ];
 
                 modes.forEach(m => {
@@ -4403,16 +4474,14 @@
                 return;
             }
 
-            // 256split 姓名字典極速記憶體前綴比對
-            const namesList = await loadSwimmerNamesList();
-            const matched = [];
-            for (let i = 0; i < namesList.length; i++) {
-                if (namesList[i].startsWith(val)) {
-                    matched.push(namesList[i]);
-                    if (matched.length >= 15) break;
-                }
-            }
-            const names = matched;
+            if (!worker) return;
+
+            // 查詢符合開頭字元的選手姓名 (已建立 idx_swimming_scores_name 索引，查詢極快)
+            const query = `SELECT DISTINCT 姓名 FROM swimming_scores WHERE 姓名 LIKE '${val}%' LIMIT 15`;
+            const res = await remoteQuery(query);
+            if (!res[0] || !res[0].values) return;
+
+            const names = res[0].values.map(v => v[0]);
             if (names.length === 0) return;
 
             autocompleteList.innerHTML = '';
@@ -4753,27 +4822,27 @@
     </script>
 
     <!-- 頁面最底部狀態欄 (Footer) - 資料庫版本流水號展示 -->
-    <footer id="footerDbVersion" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid #48484A; padding: 8px 16px; font-size: 12px; color: #FFF; text-align: center; z-index: 99; display: flex; justify-content: space-between; align-items: center; max-width: 100vw; overflow-x: auto; white-space: nowrap; box-shadow: 0 -4px 12px rgba(0,0,0,0.5);">
+    <footer id="footerDbVersion" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1.5px solid #FFD700; padding: 8px 16px; font-size: 12px; color: #FFF; text-align: center; z-index: 99; display: flex; justify-content: space-between; align-items: center; max-width: 100vw; overflow-x: auto; white-space: nowrap; box-shadow: 0 -4px 12px rgba(0,0,0,0.5);">
         <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="display: inline-block; width: 8px; height: 8px; background-color: #8E8E93; border-radius: 50%;"></span>
-            <span id="footerDbStatus" style="font-weight: 600; color: #8E8E93;">資料庫同步載入中...</span>
+            <span style="display: inline-block; width: 8px; height: 8px; background-color: #FFD933; border-radius: 50%; box-shadow: 0 0 8px #FFD933;"></span>
+            <span id="footerDbStatus" style="font-weight: 600; color: #FFD933;">資料庫同步載入中...</span>
         </div>
-        <div id="footerDbVersionCode" style="font-family: monospace; color: #8E8E93; font-weight: bold; font-size: 13px;">
+        <div id="footerDbVersionCode" style="font-family: monospace; color: #FFD700; font-weight: bold; font-size: 13px; text-shadow: 0 0 6px rgba(255,215,0,0.4);">
             🏷️ 資料庫版本流水號: <span id="verCodeSpan">載入中...</span>
         </div>
         <div id="footerDbInfo" style="color: #D1D1D6; font-size: 12px; font-weight: 500;">
-            📊 <span id="verRowsSpan">筆數載入中...</span>
+            📊 <span id="verRowsSpan">817,480 筆成績紀錄</span>
         </div>
     </footer>
 
     <script>
         async function updateFooterVersionInfo() {
             try {
-                const res = await fetch('/data_buckets/manifest.json?t=' + Date.now());
+                const res = await fetch('/static/db_parts/version.json?t=' + Date.now());
                 if (res.ok) {
                     const data = await res.json();
-                    const verDisplay = data.version_code || (`Build #${data.version}`);
-                    const rowsStr = data.total_records ? Number(data.total_records).toLocaleString() : '—';
+                    const verDisplay = data.version_display || data.version_code || (`Build #${data.version}`);
+                    const rowsStr = data.total_rows ? Number(data.total_rows).toLocaleString() : '817,480';
                     const verCodeSpan = document.getElementById('verCodeSpan');
                     const verRowsSpan = document.getElementById('verRowsSpan');
                     if (verCodeSpan) verCodeSpan.textContent = verDisplay;
@@ -4784,140 +4853,6 @@
             }
         }
         updateFooterVersionInfo();
-    </script>
-    <script>
-    /* 金色漸層統一：金色字、金色外框、金色底色一律改為「白→淡金→金」漸層（與主標題同款） */
-    (function () {
-        const GOLD = new Set(['212,175,55', '255,215,0', '255,217,51', '255,214,10', '243,208,120']);
-        const SEL = ['D4AF37', 'FFD700', 'FFD933', 'FFD60A', '212, 175, 55', '212,175,55', '255, 215, 0', '255,215,0', '255, 217, 51', '255, 214, 10']
-            .map(s => `[style*="${s}" i]`)
-            .concat(['.marquee-sep', '.year-btn', '.autocomplete-item strong', '[class*="#D4AF37" i]'])
-            .join(',');
-        const FORM = /^(SELECT|OPTION|INPUT|TEXTAREA)$/;
-        const EMOJI = /(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*\uFE0F?)/u;
-        const gg = a => a >= 1
-            ? 'linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%)'
-            : `linear-gradient(135deg, rgba(255,255,255,${a}) 0%, rgba(243,208,120,${a}) 50%, rgba(212,175,55,${a}) 100%)`;
-        const parse = c => {
-            const m = /rgba?\(([^)]+)\)/.exec(c || '');
-            if (!m) return null;
-            const p = m[1].split(/[,\s/]+/).filter(Boolean).map(parseFloat);
-            return { key: p.slice(0, 3).join(','), a: p.length > 3 ? p[3] : 1 };
-        };
-        const isGold = c => { const p = parse(c); return (p && p.a > 0 && GOLD.has(p.key)) ? p : null; };
-        const isClear = c => { const p = parse(c); return !p || p.a === 0; };
-
-        function wrapEmoji(root) {
-            const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-            const list = [];
-            let n;
-            while ((n = tw.nextNode())) {
-                if (EMOJI.test(n.nodeValue) && !(n.parentElement && n.parentElement.classList.contains('gg-emoji'))) list.push(n);
-            }
-            list.forEach(t => {
-                const frag = document.createDocumentFragment();
-                t.nodeValue.split(EMOJI).forEach((s, i) => {
-                    if (!s) return;
-                    if (i % 2) { const sp = document.createElement('span'); sp.className = 'gg-emoji'; sp.textContent = s; frag.appendChild(sp); }
-                    else frag.appendChild(document.createTextNode(s));
-                });
-                t.parentNode.replaceChild(frag, t);
-            });
-        }
-
-        function baseBg(el) {
-            for (let p = el.parentElement; p; p = p.parentElement) {
-                const c = getComputedStyle(p).backgroundColor;
-                const v = parse(c);
-                if (v && v.a >= 1) return c;
-            }
-            return '#000';
-        }
-
-        function borderTreat(el, cs) {
-            let g = null;
-            const goldSides = [];
-            ['Top', 'Right', 'Bottom', 'Left'].forEach(s => {
-                if (parseFloat(cs['border' + s + 'Width']) > 0) {
-                    const p = isGold(el.style['border' + s + 'Color']) || isGold(cs['border' + s + 'Color']);
-                    if (p) { g = g || p; goldSides.push(s); }
-                }
-            });
-            if (!g || cs.backgroundImage !== 'none') return;
-            const own = parse(cs.backgroundColor) || { a: 0 };
-            const layers = [];
-            if (own.a > 0) layers.push((isGold(cs.backgroundColor) ? gg(own.a) : `linear-gradient(${cs.backgroundColor}, ${cs.backgroundColor})`) + ' padding-box');
-            if (own.a < 1) { const b = baseBg(el); layers.push(`linear-gradient(${b}, ${b}) padding-box`); }
-            layers.push(gg(g.a) + ' border-box');
-            goldSides.forEach(s => { el.style['border' + s + 'Color'] = 'transparent'; });
-            el.style.background = layers.join(', ');
-        }
-
-        function bgTreat(el, cs) {
-            const p = isGold(el.style.backgroundColor) || isGold(cs.backgroundColor);
-            if (!p || cs.backgroundImage !== 'none') return;
-            el.style.backgroundImage = gg(p.a);
-            el.style.backgroundColor = 'transparent';
-        }
-
-        function textTreat(el, cs) {
-            if (FORM.test(el.tagName)) return;
-            if (el.style.webkitTextFillColor) el.style.webkitTextFillColor = '';
-            if (el.classList.contains('gg-text')) { wrapEmoji(el); return; }
-            const ownBg = !isClear(cs.backgroundColor) || cs.backgroundImage !== 'none';
-            if (!ownBg) {
-                el.classList.add('gg-text');
-                el.querySelectorAll('*').forEach(d => {
-                    if (!d.classList.contains('gg-keep') && !isGold(getComputedStyle(d).color)) d.classList.add('gg-keep');
-                });
-                wrapEmoji(el);
-                return;
-            }
-            [...el.childNodes].forEach(ch => {
-                if (ch.nodeType === 3 && ch.nodeValue.trim()) {
-                    const sp = document.createElement('span');
-                    sp.className = 'gg-text';
-                    ch.parentNode.replaceChild(sp, ch);
-                    sp.appendChild(ch);
-                    wrapEmoji(sp);
-                } else if (ch.nodeType === 1 && !ch.classList.contains('gg-text')) {
-                    const c2 = getComputedStyle(ch);
-                    if (isGold(c2.color)) textTreat(ch, c2);
-                }
-            });
-        }
-
-        let pending = false;
-        function goldify() {
-            pending = false;
-            document.querySelectorAll(SEL).forEach(el => {
-                if (el.closest('svg') || el.closest('#footerDbVersion')) return;
-                const cs = getComputedStyle(el);
-                borderTreat(el, cs);
-                bgTreat(el, cs);
-                if (isGold(el.style.color) || isGold(cs.color)) textTreat(el, cs);
-            });
-            document.querySelectorAll('.autocomplete-item').forEach(it => {
-                [...it.childNodes].forEach(ch => {
-                    if (ch.nodeType === 3 && ch.nodeValue.trim()) {
-                        const sp = document.createElement('span');
-                        sp.className = 'gg-hov';
-                        it.replaceChild(sp, ch);
-                        sp.appendChild(ch);
-                    }
-                });
-            });
-        }
-        window.goldify = goldify;
-        const schedule = () => { if (!pending) { pending = true; requestAnimationFrame(goldify); } };
-        const mo = new MutationObserver(schedule);
-        document.addEventListener('transitionend', schedule, true);
-        const start = () => {
-            goldify();
-            mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
-        };
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
-    })();
     </script>
 </body>
 </html>

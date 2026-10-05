@@ -1705,16 +1705,16 @@
                     }
                 }
                 if (consoleEl && data.recent_logs && data.recent_logs.length > 0) {
-                    consoleEl.innerHTML = data.recent_logs.map(l => {
+                    const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+                    consoleEl.textContent = '';
+                    data.recent_logs.forEach(l => {
                         const timeStr = l.timestamp ? (l.timestamp.includes(' ') ? l.timestamp.split(' ')[1] : l.timestamp) : '';
                         const colorClass = l.level === 'ERROR' ? 'text-rose-400' : (l.level === 'WARN' ? 'text-amber-400' : 'text-emerald-400/90');
-                        return `
-                            <div class="${colorClass} flex items-start gap-2">
-                                <span class="text-zinc-600">[${timeStr}]</span>
-                                <span>[${l.component || l.level}] ${l.message}</span>
-                            </div>
-                        `;
-                    }).join('');
+                        const row = document.createElement('div');
+                        row.className = `${colorClass} flex items-start gap-2`;
+                        row.innerHTML = `<span class="text-zinc-600">[${esc(timeStr)}]</span><span>[${esc(l.component || l.level)}] ${esc(l.message)}</span>`;
+                        consoleEl.appendChild(row);
+                    });
                 }
             } catch(e) {
                 console.warn("無法取得爬蟲日誌:", e);
