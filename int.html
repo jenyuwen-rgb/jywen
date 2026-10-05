@@ -20,11 +20,41 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 標誌性黑金漸層文字 */
-        .gold-gradient-text {
-            background: linear-gradient(135deg, #FFFFFF 0%, #F3D078 50%, #D4AF37 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        /* 標誌性黑金漸層文字與組件 (1:1 完美對齊 256split / 首頁頂級 Apple 奢華質感) */
+        .gold-gradient-text,
+        .row-gold,
+        .gold-text {
+            background-image: linear-gradient(135deg, #FFFFFF 0%, #F3D078 50%, #D4AF37 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            display: inline-block;
+        }
+
+        /* 圖示專屬金色漸層 (FontAwesome 向量文字專用) */
+        .gold-gradient-icon {
+            background-image: linear-gradient(135deg, #FFFFFF 0%, #F3D078 50%, #D4AF37 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            display: inline-block;
+        }
+
+        /* 圓點指示燈專屬金色漸層與發光光暈 */
+        .gold-gradient-dot {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F3D078 50%, #D4AF37 100%) !important;
+            box-shadow: 0 0 10px rgba(243, 208, 120, 0.75) !important;
+        }
+
+        /* 金色漸層徽章外框與微光 */
+        .gold-gradient-badge {
+            background: rgba(212, 175, 55, 0.12) !important;
+            border: 1px solid rgba(243, 208, 120, 0.45) !important;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.15) !important;
+        }
+        .gold-gradient-badge span,
+        .gold-gradient-badge i {
+            background-image: linear-gradient(135deg, #FFFFFF 0%, #F3D078 50%, #D4AF37 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
         }
 
         /* 高科技暗色卡片與毛玻璃 */
@@ -53,8 +83,14 @@
         }
         .badge-pending {
             background: rgba(212, 175, 55, 0.12);
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            color: #F3D078;
+            border: 1px solid rgba(243, 208, 120, 0.45);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.18);
+        }
+        .badge-pending span,
+        .badge-pending i {
+            background-image: linear-gradient(135deg, #FFFFFF 0%, #F3D078 50%, #D4AF37 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
         }
         .badge-done {
             background: rgba(113, 113, 122, 0.15);
@@ -177,15 +213,22 @@
             cursor: not-allowed;
         }
         .btn-download-action.active-gold {
-            background: linear-gradient(135deg, #F3D078 0%, #D4AF37 100%);
-            border-color: #F3D078;
-            color: #000000;
-            cursor: pointer;
-            box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35);
+            background: linear-gradient(135deg, #FFFFFF 0%, #F3D078 50%, #D4AF37 100%) !important;
+            border: 1.5px solid #F3D078 !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.5) !important;
+            font-weight: 800 !important;
+        }
+        .btn-download-action.active-gold * {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
         .btn-download-action.active-gold:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 22px rgba(212, 175, 55, 0.45);
+            transform: translateY(-1.5px) !important;
+            box-shadow: 0 6px 26px rgba(243, 208, 120, 0.75) !important;
+            filter: brightness(1.05) !important;
         }
 
         /* 時間輸入與自動下拉彈窗 */
@@ -657,10 +700,10 @@
                 <div class="flex items-start justify-between">
                     <div>
                         <div class="flex items-center gap-2 mb-1">
-                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                            <span class="w-2 h-2 rounded-full gold-gradient-dot"></span>
                             <span class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">GitHub 256split 預處理</span>
                         </div>
-                        <div id="splitVersionCode" class="text-xl sm:text-2xl font-bold font-mono text-amber-200">
+                        <div id="splitVersionCode" class="text-xl sm:text-2xl font-bold font-mono gold-gradient-text">
                             v2026.10.05.0115
                         </div>
                         <div class="text-xs text-zinc-500 font-mono mt-0.5">
@@ -668,12 +711,12 @@
                         </div>
                     </div>
                     <span class="badge-pending text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1">
-                        <i class="fa-solid fa-bolt-lightning text-xs"></i> 邊緣預載入
+                        <i class="fa-solid fa-bolt-lightning text-xs gold-gradient-icon"></i> 邊緣預載入
                     </span>
                 </div>
                 <div class="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono">
                     <span class="text-zinc-500">前端 PWA 響應</span>
-                    <span class="text-amber-400 font-bold">&lt; 15ms 極速查詢</span>
+                    <span class="gold-gradient-text font-bold">&lt; 15ms 極速查詢</span>
                 </div>
             </div>
         </section>
@@ -693,7 +736,7 @@
                 </div>
                 <div class="flex items-center gap-2 self-start sm:self-auto">
                     <span class="text-xs px-2.5 py-1 rounded-full badge-pending font-bold flex items-center gap-1">
-                        <i class="fa-solid fa-bolt-lightning text-amber-400"></i>
+                        <i class="fa-solid fa-bolt-lightning gold-gradient-icon"></i>
                         <span>官方賽事即時連動</span>
                     </span>
                 </div>
@@ -726,7 +769,7 @@
                             <span>🏆 步驟 2：選擇要下載的賽事清單</span>
                         </label>
                         <span class="text-[11px] font-mono text-zinc-500">
-                            已入庫：<strong class="text-gray-400">淺灰色</strong> · 未入庫：<strong class="text-yellow-400">高亮</strong>
+                            已入庫：<strong class="text-gray-400">淺灰色</strong> · 未入庫：<strong class="gold-gradient-text font-bold">高亮</strong>
                         </span>
                     </div>
 
@@ -765,10 +808,10 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                     <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
-                        <i class="fa-solid fa-database text-yellow-500/80"></i>
+                        <i class="fa-solid fa-database gold-gradient-icon"></i>
                         <span>Normal 資料庫時間與賽事雙向探針</span>
                     </h3>
-                    <p class="text-xs text-zinc-400">輸入 8 碼日期自動連動賽事名稱，或選擇賽事反查日期，即時呈現前 <strong class="text-yellow-400">5</strong> 筆成績</p>
+                    <p class="text-xs text-zinc-400">輸入 8 碼日期自動連動賽事名稱，或選擇賽事反查日期，即時呈現前 <strong class="gold-gradient-text font-bold">5</strong> 筆成績</p>
                 </div>
                 <div class="text-xs font-mono text-zinc-500">
                     可查賽事日：<span id="dateTotalCount" class="text-zinc-300 font-bold">625</span> 天 · 賽事庫：<span id="meetTotalCount" class="text-zinc-300 font-bold">87</span> 場
@@ -809,7 +852,7 @@
                         <label class="text-xs text-zinc-400 font-semibold flex items-center gap-1">
                             <span>🏆 當日連動賽事名稱</span>
                         </label>
-                        <span id="linkedMeetHint" class="text-[11px] font-mono text-amber-400">可選賽事：全量</span>
+                        <span id="linkedMeetHint" class="text-[11px] font-mono gold-gradient-text font-bold">可選賽事：全量</span>
                     </div>
                     <select id="linkedMeetSelect" class="tech-select w-full h-[42px] text-xs sm:text-sm" onchange="onLinkedMeetChange()">
                         <option value="">-- 請先選取日期或由此選擇賽事 --</option>
@@ -821,7 +864,7 @@
             <div id="sampleResultsContainer" class="space-y-3 pt-2">
                 <div class="flex items-center justify-between text-xs text-zinc-400 font-mono">
                     <span id="currentDateLabel">當前檢視：請於上方輸入日期或選擇賽事</span>
-                    <span id="sampleCountLabel" class="text-amber-400 font-bold">顯示筆數：前 5 筆</span>
+                    <span id="sampleCountLabel" class="gold-gradient-text font-bold">顯示筆數：前 5 筆</span>
                 </div>
 
                 <!-- 數據表格 (前 5 筆) -->
@@ -857,7 +900,7 @@
                     <span class="text-xl">📅</span>
                     <h2 class="text-base font-bold text-zinc-100 flex items-center gap-2">
                         <span>游泳行事曆</span>
-                        <span id="calendar-total-badge" class="text-xs font-mono font-semibold px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">載入中...</span>
+                        <span id="calendar-total-badge" class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full gold-gradient-badge"><span class="gold-gradient-text font-bold">載入中...</span></span>
                     </h2>
                 </div>
                 <div class="flex items-center gap-3 text-xs font-mono text-zinc-400">
@@ -922,7 +965,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                     <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                        <i class="fa-solid fa-triangle-exclamation gold-gradient-icon"></i>
                         <span>GCP 爬蟲執行與自愈修復日誌 (Error Logs)</span>
                     </h3>
                     <p class="text-xs text-zinc-400">監控每日 06:00 爬蟲狀態、格式異常警告、AI 自我修復軌跡與熔斷保護機制</p>
@@ -1090,7 +1133,7 @@
             const races = siteInfo ? (siteInfo.races || []) : [];
 
             if (!siteInfo || races.length === 0) {
-                menu.innerHTML = '<div class="p-4 text-xs text-amber-400 font-mono text-center flex flex-col items-center justify-center gap-1.5"><i class="fa-solid fa-cloud-arrow-down text-base text-amber-400"></i><span>⏳ 待 GCP 雲端爬蟲抓取 (0 場)</span><span class="text-[10px] text-zinc-500">（目前已清空，等 GCP 爬完寫入）</span></div>';
+                menu.innerHTML = '<div class="p-4 text-xs font-mono text-center flex flex-col items-center justify-center gap-1.5"><i class="fa-solid fa-cloud-arrow-down text-base gold-gradient-icon"></i><span class="gold-gradient-text font-bold">⏳ 待 GCP 雲端爬蟲抓取 (0 場)</span><span class="text-[10px] text-zinc-500">（目前已清空，等 GCP 爬完寫入）</span></div>';
                 updateRaceNotice(null);
                 return;
             }
@@ -1113,10 +1156,10 @@
                     html += `
                         <div class="custom-opt-pending" onclick="selectRaceItem('${r.value}', '${r.text.replace(/'/g, "\\'")}', false)">
                             <div class="flex items-center gap-2 truncate">
-                                <i class="fa-solid fa-bolt-lightning text-xs text-amber-400"></i>
+                                <i class="fa-solid fa-bolt-lightning text-xs gold-gradient-icon"></i>
                                 <span class="meet-name-text">${r.text}</span>
                             </div>
-                            <span class="text-[11px] font-mono text-amber-300 font-bold shrink-0">★ [未下載/高亮]</span>
+                            <span class="text-[11px] font-mono gold-gradient-text font-bold shrink-0">★ [未下載/高亮]</span>
                         </div>
                     `;
                 }
@@ -1136,7 +1179,7 @@
                 downloadBtn.disabled = true;
                 downloadBtn.classList.remove('active-gold');
             } else {
-                btnText.innerHTML = `<span class="text-white font-bold flex items-center gap-1.5"><i class="fa-solid fa-bolt-lightning text-amber-400 text-xs"></i>${text}</span>`;
+                btnText.innerHTML = `<span class="text-white font-bold flex items-center gap-1.5"><i class="fa-solid fa-bolt-lightning gold-gradient-icon text-xs"></i>${text}</span>`;
                 downloadBtn.disabled = false;
                 downloadBtn.classList.add('active-gold');
             }
@@ -1164,10 +1207,10 @@
                 gcpBadge.innerText = '● 已同步主庫';
                 gcpBadge.className = 'text-[11px] text-gray-400 font-mono';
             } else {
-                noticeDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
-                noticeText.innerHTML = `<span class="text-amber-300 font-bold">【新賽事 / 待抓取】</span> 本賽事尚未入庫！可點擊右側金色按鈕下載，或由 GCP 雲端代理自動定時爬取。`;
+                noticeDot.className = 'w-2 h-2 rounded-full gold-gradient-dot animate-pulse';
+                noticeText.innerHTML = `<span class="gold-gradient-text font-bold">【新賽事 / 待抓取】</span> 本賽事尚未入庫！可點擊右側金色按鈕下載，或由 GCP 雲端代理自動定時爬取。`;
                 gcpBadge.innerText = '⚡ GCP 任務就緒';
-                gcpBadge.className = 'text-[11px] text-amber-400 font-bold font-mono';
+                gcpBadge.className = 'text-[11px] gold-gradient-text font-bold font-mono';
             }
         }
 
@@ -1199,7 +1242,7 @@
                     return `
                         <div class="suggest-item" onclick="selectDate('${d}')">
                             <span class="text-zinc-200"><i class="fa-regular fa-calendar text-xs mr-2 text-zinc-500"></i>${d}</span>
-                            <span class="text-[11px] text-amber-400 font-mono">${meetCount} 場賽事 · 檢視前 5 筆</span>
+                            <span class="text-[11px] gold-gradient-text font-bold font-mono">${meetCount} 場賽事 · 檢視前 5 筆</span>
                         </div>
                     `;
                 }).join('');
@@ -1276,7 +1319,7 @@
             const selectedMeet = document.getElementById('linkedMeetSelect').value;
             const tbody = document.getElementById('sampleTableBody');
 
-            document.getElementById('currentDateLabel').innerHTML = `當前檢視：<span class="text-yellow-400 font-bold">${dateStr}</span> ${selectedMeet ? '· ' + selectedMeet : ''}`;
+            document.getElementById('currentDateLabel').innerHTML = `當前檢視：<span class="gold-gradient-text font-bold">${dateStr}</span> ${selectedMeet ? '· ' + selectedMeet : ''}`;
 
             // 1. 若在地端且伺服器可用，直接對資料庫發起 SQL 即時查詢
             if (!IS_CLOUD_ENV) {
@@ -1353,14 +1396,14 @@
             tbody.innerHTML = samples.map(row => `
                 <tr class="hover:bg-zinc-900/60 transition-colors">
                     <td class="py-2.5 px-3 text-zinc-400 font-mono">${row.date || dateStr}</td>
-                    <td class="py-2.5 px-3 font-bold ${row.rank === '1' ? 'text-amber-400' : 'text-zinc-300'}">${row.rank || '-'}</td>
+                    <td class="py-2.5 px-3 font-bold ${row.rank === '1' ? 'gold-gradient-text font-extrabold' : 'text-zinc-300'}">${row.rank || '-'}</td>
                     <td class="py-2.5 px-3 text-white font-medium">
                         ${row.name}
                         ${row.birth ? `<span class="text-zinc-500 text-[10px] ml-1">(${row.birth})</span>` : ''}
                     </td>
                     <td class="py-2.5 px-3 text-zinc-400 truncate max-w-[120px]">${row.unit || '-'}</td>
                     <td class="py-2.5 px-3 text-zinc-300 truncate max-w-[150px]">${row.item || '-'}</td>
-                    <td class="py-2.5 px-3 text-amber-300 font-bold">${row.time || '-'}</td>
+                    <td class="py-2.5 px-3 gold-gradient-text font-bold font-mono">${row.time || '-'}</td>
                     <td class="py-2.5 px-3 text-zinc-400 truncate max-w-[160px]">${row.meet || '-'}</td>
                 </tr>
             `).join('');

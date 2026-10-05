@@ -443,7 +443,7 @@
                     const footerDbStatus = document.getElementById('footerDbStatus');
                     if (footerDbStatus) {
                         footerDbStatus.textContent = '雲端資料庫已就緒';
-                        footerDbStatus.style.color = '#30D158';
+                        footerDbStatus.style.color = '#8E8E93'; const dot = document.getElementById('footerDbDot'); if(dot) dot.style.backgroundColor = '#30D158';
                     }
                     loadLatestRaceInfo();
                     doSearch(); 
@@ -897,7 +897,7 @@
             headerBar.className = 'cmp-header-bar';
             headerBar.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <span style="font-size:15px; font-weight:800; color:#D4AF37;">🏊 多人項目並排比較</span>
+                    <span style="font-size:15px; font-weight:800; color:#D4AF37;">多人項目並排比較</span>
                     <span style="color:#636366; font-size:12px;">|</span>
                     ${players.map((p, i) => {
                         let yearHtml = '';
@@ -914,7 +914,6 @@
                         }
                         return `
                             <span style="display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:12px; border:0.5px solid #38383A;">
-                                <span class="cmp-player-badge cmp-badge-${i % 6}">${CMP_CIRCLES[i] || (i+1)}</span>
                                 <span style="font-weight:700; font-size:13px; color:#FFF;">${p.name}</span>
                                 ${yearHtml}
                             </span>
@@ -1013,7 +1012,6 @@
                         ${players.map((p, i) => `
                             <th style="text-align:left;">
                                 <div style="display:flex; align-items:center; gap:5px;">
-                                    <span class="cmp-player-badge cmp-badge-${i % 6}">${CMP_CIRCLES[i] || (i+1)}</span>
                                     <span style="color:#FFF; font-weight:700;">${p.name}</span>
                                 </div>
                             </th>
@@ -1390,7 +1388,7 @@
                 });
 
                 return {
-                    label: `${CMP_CIRCLES[idx] || (idx+1)} ${player.name} (${player.birthYear ? player.birthYear+'年次' : ''})`,
+                    label: `${player.name} (${player.birthYear ? player.birthYear+'年次' : ''})`,
                     data: chartData,
                     borderColor: color,
                     backgroundColor: color,
@@ -4822,15 +4820,15 @@
     </script>
 
     <!-- 頁面最底部狀態欄 (Footer) - 資料庫版本流水號展示 -->
-    <footer id="footerDbVersion" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1.5px solid #FFD700; padding: 8px 16px; font-size: 12px; color: #FFF; text-align: center; z-index: 99; display: flex; justify-content: space-between; align-items: center; max-width: 100vw; overflow-x: auto; white-space: nowrap; box-shadow: 0 -4px 12px rgba(0,0,0,0.5);">
+    <footer id="footerDbVersion" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid #38383A; padding: 8px 16px; font-size: 12px; color: #8E8E93; text-align: center; z-index: 99; display: flex; justify-content: space-between; align-items: center; max-width: 100vw; overflow-x: auto; white-space: nowrap; box-shadow: 0 -4px 12px rgba(0,0,0,0.5);">
         <div style="display: flex; align-items: center; gap: 6px;">
-            <span style="display: inline-block; width: 8px; height: 8px; background-color: #FFD933; border-radius: 50%; box-shadow: 0 0 8px #FFD933;"></span>
-            <span id="footerDbStatus" style="font-weight: 600; color: #FFD933;">資料庫同步載入中...</span>
+            <span id="footerDbDot" style="display: inline-block; width: 8px; height: 8px; background-color: #8E8E93; border-radius: 50%;"></span>
+            <span id="footerDbStatus" style="font-weight: 600; color: #8E8E93;">資料庫同步載入中...</span>
         </div>
-        <div id="footerDbVersionCode" style="font-family: monospace; color: #FFD700; font-weight: bold; font-size: 13px; text-shadow: 0 0 6px rgba(255,215,0,0.4);">
+        <div id="footerDbVersionCode" style="font-family: monospace; color: #8E8E93; font-weight: 500; font-size: 13px;">
             🏷️ 資料庫版本流水號: <span id="verCodeSpan">載入中...</span>
         </div>
-        <div id="footerDbInfo" style="color: #D1D1D6; font-size: 12px; font-weight: 500;">
+        <div id="footerDbInfo" style="color: #8E8E93; font-size: 12px; font-weight: 500;">
             📊 <span id="verRowsSpan">817,480 筆成績紀錄</span>
         </div>
     </footer>
