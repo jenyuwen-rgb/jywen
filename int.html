@@ -78,16 +78,93 @@
             box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
         }
 
-        /* 關鍵：下拉選項中的「反灰」樣式 */
-        select option.opt-in-db, option.opt-in-db {
-            color: #71717A !important;
-            background-color: #121214 !important;
-            font-style: italic;
+        /* ------------------ 自訂自製高科技下拉選單 (突破原生 select option 顏色限制) ------------------ */
+        .custom-dropdown-wrap {
+            position: relative;
+            user-select: none;
         }
-        select option.opt-pending, option.opt-pending {
+        .custom-dropdown-btn {
+            background: #0D0D0E;
+            border: 1px solid #333336;
+            color: #FFF;
+            padding: 0 12px;
+            border-radius: 10px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+        .custom-dropdown-btn:hover {
+            border-color: #48484A;
+        }
+        .custom-dropdown-btn.active {
+            border-color: #D4AF37;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+        }
+        .custom-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: #161618;
+            border: 1px solid #38383A;
+            border-radius: 12px;
+            max-height: 280px;
+            overflow-y: auto;
+            z-index: 50;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85);
+            padding: 4px;
+        }
+
+        /* 大仁哥指定：資料庫已有賽事使用「淺灰色」*/
+        .custom-opt-done {
+            padding: 9px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            color: #9CA3AF !important; /* 經典淺灰 text-gray-400 */
+            background: transparent;
+            transition: all 0.15s ease;
+            font-size: 13px;
+        }
+        .custom-opt-done:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #D1D5DB !important; /* hover 時略亮淺灰 */
+        }
+        .custom-opt-done .meet-name-text {
+            color: #9CA3AF !important; /* 淺灰色字體 */
+            text-decoration: none;
+        }
+
+        /* 未下載賽事：醒目白色 + 金色圖標高亮 */
+        .custom-opt-pending {
+            padding: 9px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
             color: #FFFFFF !important;
-            background-color: #1C1C1E !important;
-            font-weight: bold;
+            background: rgba(212, 175, 55, 0.08);
+            border: 0.5px solid rgba(212, 175, 55, 0.25);
+            margin: 2px 0;
+            transition: all 0.15s ease;
+            font-weight: 700;
+            font-size: 13px;
+        }
+        .custom-opt-pending:hover {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #D4AF37;
+        }
+        .custom-opt-pending .meet-name-text {
+            color: #FFFFFF !important;
         }
 
         /* 下載按鈕 */
@@ -267,7 +344,7 @@
             </div>
         </section>
 
-        <!-- 區塊二：地端整合平台 1:1 復刻下載控制面板 (大仁哥指定呈現) -->
+        <!-- 區塊二：地端整合平台 1:1 復刻下載控制面板 (已在資料庫以淺灰色呈現) -->
         <section class="tech-card p-5 space-y-4">
             <!-- 頂部單位資訊列 -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
@@ -308,19 +385,26 @@
                     </select>
                 </div>
 
-                <!-- 第二層：選擇要下載的賽事清單 (資料庫已有直接反灰) -->
+                <!-- 第二層：自訂高科技下拉選單 (淺灰字體突破瀏覽器原生限制) -->
                 <div class="md:col-span-6 space-y-1.5">
                     <div class="flex items-center justify-between">
                         <label class="text-xs text-zinc-400 font-semibold flex items-center gap-1">
                             <span>🏆 步驟 2：選擇要下載的賽事清單</span>
                         </label>
                         <span class="text-[11px] font-mono text-zinc-500">
-                            已入庫：<strong class="text-zinc-400">灰色</strong> · 未入庫：<strong class="text-yellow-400">高亮</strong>
+                            已入庫：<strong class="text-gray-400">淺灰色</strong> · 未入庫：<strong class="text-yellow-400">高亮</strong>
                         </span>
                     </div>
-                    <select id="unifiedRaceSelect" class="tech-select w-full h-[42px] text-xs sm:text-sm" onchange="handleUnifiedRaceChange()">
-                        <option value="">-- 載入中，請稍候... --</option>
-                    </select>
+
+                    <div class="custom-dropdown-wrap">
+                        <div id="customRaceSelectBtn" class="custom-dropdown-btn" onclick="toggleRaceDropdown()">
+                            <span id="selectedRaceText" class="truncate text-zinc-400">-- 選擇要下載的賽事 --</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-zinc-500 ml-2"></i>
+                        </div>
+                        <div id="customRaceDropdownMenu" class="custom-dropdown-menu hidden">
+                            <!-- 動態注入自訂選單項目 -->
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 第三層：下載賽事按鈕 -->
@@ -336,7 +420,7 @@
             <div id="raceStatusNotice" class="text-xs font-mono text-zinc-400 p-2.5 rounded-lg bg-zinc-950/60 border border-zinc-800/80 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span id="raceNoticeDot" class="w-2 h-2 rounded-full bg-zinc-600"></span>
-                    <span id="raceNoticeText">請選擇賽事以檢視入庫狀態</span>
+                    <span id="raceNoticeText">請點擊上方步驟 2 展開賽事選單檢視入庫狀態</span>
                 </div>
                 <span id="gcpNoticeBadge" class="text-[11px] text-zinc-500 font-mono">GCP Task Ready</span>
             </div>
@@ -434,6 +518,7 @@
     <script>
         let dashboardData = null;
         let catalogData = null;
+        let currentSelectedRace = null;
 
         // 初始化加載
         async function initDashboard() {
@@ -474,13 +559,26 @@
             }
         }
 
-        // ------------------ 步驟 1 & 2 下拉切換核心邏輯 ------------------
+        // ------------------ 步驟 1 & 2 自訂下拉核心邏輯 ------------------
+        function toggleRaceDropdown(forceClose = false) {
+            const menu = document.getElementById('customRaceDropdownMenu');
+            const btn = document.getElementById('customRaceSelectBtn');
+            if (forceClose || !menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+                btn.classList.remove('active');
+            } else {
+                menu.classList.remove('hidden');
+                btn.classList.add('active');
+            }
+        }
+
         function handleUnifiedOrgChange() {
             const orgSelect = document.getElementById('unifiedOrgSelect');
-            const raceSelect = document.getElementById('unifiedRaceSelect');
             const downloadBtn = document.getElementById('unifiedDownloadBtn');
             const titleEl = document.getElementById('unified-org-title');
             const urlEl = document.getElementById('unified-org-url');
+            const menu = document.getElementById('customRaceDropdownMenu');
+            const btnText = document.getElementById('selectedRaceText');
 
             const selectedOpt = orgSelect.options[orgSelect.selectedIndex];
             const siteId = orgSelect.value;
@@ -494,59 +592,69 @@
                 urlEl.textContent = orgUrl.length > 32 ? orgUrl.substring(0, 32) + '...' : orgUrl;
             }
 
-            // 重設下載按鈕
+            // 重設選取狀態
+            currentSelectedRace = null;
+            btnText.innerHTML = '<span class="text-zinc-500">-- 選擇要下載的賽事 --</span>';
             downloadBtn.disabled = true;
             downloadBtn.classList.remove('active-gold');
 
             if (!catalogData || !catalogData.site_catalog || !catalogData.site_catalog[siteId]) {
-                raceSelect.innerHTML = '<option value="">-- 無賽事資料 --</option>';
-                raceSelect.disabled = true;
+                menu.innerHTML = '<div class="p-3 text-xs text-zinc-500 text-center">無賽事資料</div>';
                 return;
             }
 
             const siteInfo = catalogData.site_catalog[siteId];
             const races = siteInfo.races || [];
 
-            let html = '<option value="">-- 選擇要下載的賽事 --</option>';
+            // 核心：自訂 HTML 項目，強制呈現淺灰色 (#9CA3AF)
+            let html = '';
             races.forEach(r => {
                 const inDb = r.in_db;
-                // 關鍵：資料庫已存在的賽事使用 opt-in-db 樣式 (反灰)，並在文字後方標註 [已在資料庫]
                 if (inDb) {
-                    html += `<option value="${r.value}" class="opt-in-db" data-indb="true">${r.text}  ✓ (已在資料庫 - 灰色)</option>`;
+                    html += `
+                        <div class="custom-opt-done" onclick="selectRaceItem('${r.value}', '${r.text.replace(/'/g, "\\'")}', true)">
+                            <div class="flex items-center gap-2 truncate">
+                                <i class="fa-solid fa-check text-xs text-gray-500"></i>
+                                <span class="meet-name-text">${r.text}</span>
+                            </div>
+                            <span class="text-[11px] font-mono text-gray-400 shrink-0">✓ (已在資料庫 - 淺灰)</span>
+                        </div>
+                    `;
                 } else {
-                    html += `<option value="${r.value}" class="opt-pending" data-indb="false">⚡ ${r.text}  ★ [未下載/高亮]</option>`;
+                    html += `
+                        <div class="custom-opt-pending" onclick="selectRaceItem('${r.value}', '${r.text.replace(/'/g, "\\'")}', false)">
+                            <div class="flex items-center gap-2 truncate">
+                                <i class="fa-solid fa-bolt-lightning text-xs text-amber-400"></i>
+                                <span class="meet-name-text">${r.text}</span>
+                            </div>
+                            <span class="text-[11px] font-mono text-amber-300 font-bold shrink-0">★ [未下載/高亮]</span>
+                        </div>
+                    `;
                 }
             });
 
-            raceSelect.innerHTML = html;
-            raceSelect.disabled = false;
+            menu.innerHTML = html;
             updateRaceNotice(null);
         }
 
-        function handleUnifiedRaceChange() {
-            const raceSelect = document.getElementById('unifiedRaceSelect');
+        function selectRaceItem(value, text, inDb) {
+            currentSelectedRace = { value, text, inDb };
+            const btnText = document.getElementById('selectedRaceText');
             const downloadBtn = document.getElementById('unifiedDownloadBtn');
-            const selectedOpt = raceSelect.options[raceSelect.selectedIndex];
 
-            if (!raceSelect.value) {
-                downloadBtn.disabled = true;
-                downloadBtn.classList.remove('active-gold');
-                updateRaceNotice(null);
-                return;
-            }
-
-            const inDb = selectedOpt.getAttribute('data-indb') === 'true';
-            updateRaceNotice(inDb, selectedOpt.text);
-
+            // 根據是否已入庫，在按鈕顯示淺灰或亮白字
             if (inDb) {
-                // 已在資料庫中：按鈕反灰不可點，避免重複下載
+                btnText.innerHTML = `<span class="text-gray-400 font-medium">${text} <span class="text-[11px] text-gray-400 ml-1">✓ 已在資料庫</span></span>`;
                 downloadBtn.disabled = true;
                 downloadBtn.classList.remove('active-gold');
             } else {
-                // 尚未下載：高亮金色按鈕，允許一鍵下載/GCP排程
+                btnText.innerHTML = `<span class="text-white font-bold flex items-center gap-1.5"><i class="fa-solid fa-bolt-lightning text-amber-400 text-xs"></i>${text}</span>`;
                 downloadBtn.disabled = false;
                 downloadBtn.classList.add('active-gold');
             }
+
+            toggleRaceDropdown(true);
+            updateRaceNotice(inDb, text);
         }
 
         function updateRaceNotice(inDb, text = '') {
@@ -556,17 +664,17 @@
 
             if (inDb === null) {
                 noticeDot.className = 'w-2 h-2 rounded-full bg-zinc-600';
-                noticeText.innerHTML = '請於上方選擇賽事以檢視入庫狀態';
+                noticeText.innerHTML = '請點擊上方步驟 2 展開賽事選單檢視入庫狀態';
                 gcpBadge.innerText = '待命狀態';
                 gcpBadge.className = 'text-[11px] text-zinc-500 font-mono';
                 return;
             }
 
             if (inDb) {
-                noticeDot.className = 'w-2 h-2 rounded-full bg-zinc-500';
-                noticeText.innerHTML = `<span class="text-zinc-400 font-bold">【已入庫】</span> 本賽事成績已完整收錄於 normal.db 主資料庫中（文字呈現灰色），無需重複下載。`;
+                noticeDot.className = 'w-2 h-2 rounded-full bg-gray-400';
+                noticeText.innerHTML = `<span class="text-gray-400 font-bold">【已入庫 · 淺灰色】</span> 本賽事成績已完整收錄於 normal.db 主資料庫中（文字呈現淺灰色），無需重複下載。`;
                 gcpBadge.innerText = '● 已同步主庫';
-                gcpBadge.className = 'text-[11px] text-zinc-400 font-mono';
+                gcpBadge.className = 'text-[11px] text-gray-400 font-mono';
             } else {
                 noticeDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
                 noticeText.innerHTML = `<span class="text-amber-300 font-bold">【新賽事 / 待抓取】</span> 本賽事尚未入庫！可點擊右側金色按鈕下載，或由 GCP 雲端代理自動定時爬取。`;
@@ -576,9 +684,8 @@
         }
 
         function startUnifiedRaceUpdate() {
-            const raceSelect = document.getElementById('unifiedRaceSelect');
-            const selectedText = raceSelect.options[raceSelect.selectedIndex].text;
-            alert(`已啟動雲端任務：正在為您下載並合併【${selectedText}】！\n合併完成後將自動更新 normal.db 與 256split！`);
+            if (!currentSelectedRace) return;
+            alert(`已啟動雲端任務：正在為您下載並合併【${currentSelectedRace.text}】！\n合併完成後將自動更新 normal.db 與 256split！`);
         }
 
         // ------------------ 時間探針核心邏輯 ------------------
@@ -659,9 +766,13 @@
             document.getElementById('clearDateBtn').classList.add('hidden');
         }
 
+        // 全域點擊關閉下拉選單
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-input-wrap')) {
                 document.getElementById('suggestDropdown').classList.add('hidden');
+            }
+            if (!e.target.closest('.custom-dropdown-wrap')) {
+                toggleRaceDropdown(true);
             }
         });
 
