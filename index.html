@@ -253,16 +253,25 @@
         <span style="font-size: 16px; -webkit-text-fill-color: #D4AF37; color: #D4AF37; opacity: 0.85; transform: translateY(-1px);">●</span>
         <span>游泳成績查詢</span>
     </div>
+    <div style="text-align:center; font-size:13px; color:#A1A1AA; font-weight:500; margin:-4px 0 10px 0; letter-spacing:0.5px;">
+        一位泳者父親的池畔筆記｜全台泳者永久免費查閱
+    </div>
     <div class="header-marquee-wrap">
         <div class="header-marquee-content">
             <span class="marquee-item">
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
+            </span>
+            <span class="marquee-item" style="color:#D4AF37; font-weight:600;">
+                一位泳者父親的池畔筆記｜全台泳者永久免費查閱
             </span>
             <span class="marquee-item">
                 🏆 資料庫最新賽事：<span id="latestRaceName">台中市議長盃游泳錦標賽 (2026-10-02)</span>
             </span>
             <span class="marquee-item">
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
+            </span>
+            <span class="marquee-item" style="color:#D4AF37; font-weight:600;">
+                一位泳者父親的池畔筆記｜全台泳者永久免費查閱
             </span>
             <span class="marquee-item">
                 🏆 資料庫最新賽事：<span id="latestRaceName_dup">台中市議長盃游泳錦標賽 (2026-10-02)</span>
@@ -1370,6 +1379,17 @@
                                 <div class="cmp-chart-container">
                                     <canvas id="canvas-${distKey}"></canvas>
                                 </div>
+                                <div class="inspirational-card" style="margin-top:12px; background:linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(28,28,30,0.85) 100%); border:0.5px solid rgba(212,175,55,0.35); border-radius:10px; padding:10px 14px; display:flex; align-items:flex-start; gap:10px;">
+                                    <span style="font-size:16px; line-height:1.2;">🏊‍♂️</span>
+                                    <div style="flex:1;">
+                                        <div style="font-size:12.5px; color:#F4F4F5; line-height:1.5; font-weight:600;">
+                                            「每一次劃水都不會白費。良性競爭不是為了擊敗對手，而是看見不斷突破的自己。」
+                                        </div>
+                                        <div style="font-size:11px; color:#D4AF37; margin-top:3px; font-weight:500;">
+                                            ✦ 一位泳者父親的池畔筆記
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </td>
                     `;
@@ -1843,7 +1863,7 @@
                 let ageOpt = '<option value=""># 選擇同齡對手</option>', natOpt = '<option value=""># 選擇全國對手</option>';
                 ageS.slice(0,25).forEach(r => { if(r.name!==p1) ageOpt += `<option value="${r.name}" style="color:#0A84FF;">${r.name} (${r.raw})</option>`; });
                 natS.slice(0,25).forEach(r => { if(r.name!==p1) natOpt += `<option value="${r.name}" style="color:#FF3B30;">${r.name} (${r.raw})</option>`; });
-                c.innerHTML = `<div class="p-3" style="background:#000;"><div class="mb-8"><div class="font-bold mb-2">${dist}m 趨勢圖</div><select id="st-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#0A84FF]">${ageOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-t-${id}"></canvas></div></div><div><div class="font-bold mb-2">成長對比圖</div><select id="sa-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#FF3B30]">${natOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-a-${id}"></canvas></div></div></div>`;
+                c.innerHTML = `<div class="p-3" style="background:#000;"><div class="mb-8"><div class="font-bold mb-2">${dist}m 趨勢圖</div><select id="st-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#0A84FF]">${ageOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-t-${id}"></canvas></div></div><div><div class="font-bold mb-2">成長對比圖</div><select id="sa-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#FF3B30]">${natOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-a-${id}"></canvas></div></div><div class="inspirational-card" style="margin-top:16px; background:linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(28,28,30,0.85) 100%); border:0.5px solid rgba(212,175,55,0.35); border-radius:12px; padding:14px 16px; display:flex; align-items:flex-start; gap:12px; box-shadow:0 4px 16px rgba(0,0,0,0.4);"><span style="font-size:18px; line-height:1.2;">🏊‍♂️</span><div style="flex:1;"><div style="font-size:13.5px; color:#F4F4F5; line-height:1.6; font-weight:600; letter-spacing:0.3px;">「每一次劃水都不會白費。良性競爭不是為了擊敗對手，而是看見不斷突破的自己。」</div><div style="font-size:11.5px; color:#D4AF37; margin-top:5px; font-weight:500; opacity:0.9;">✦ 一位泳者父親的池畔筆記</div></div></div></div>`;
                 const tt = { backgroundColor: 'rgba(28,28,30,0.95)', titleFont: {weight:'bold'}, padding:12, displayColors:false, titleColor: (ctx) => ctx.tooltip.dataPoints[0].dataset.borderColor, callbacks: { title: (its) => its[0].raw.date8, label: (it) => [`賽事: ${it.raw.meet}`, `成績: ${formatToXcode(it.raw.y)}`], labelTextColor: (it) => it.dataset.borderColor } };
                 const opt = (isT) => ({ responsive: true, maintainAspectRatio: false, scales: { x: { type: isT?'time':'linear', grid: { color:'#333' }, ticks: { color:'#FFF' } }, y: { ticks: { callback: v => formatToXcode(v), color:'#FFF' }, grid: { color:'#333' } } }, plugins: { legend: { display: false }, tooltip: tt } });
                 const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type: 'line', data: { datasets: [{ data: tD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(true) });
@@ -5048,6 +5068,81 @@
             }
         }
         updateFooterVersionInfo();
+    </script>
+
+    <!-- ── PWA「加入主畫面」安裝引導橫幅 (PWA Install Prompt Banner) ── -->
+    <div id="pwaInstallBanner" style="display:none; position:fixed; bottom:52px; left:50%; transform:translateX(-50%); width:calc(100% - 24px); max-width:520px; background:rgba(28,28,30,0.96); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:0.5px solid rgba(212,175,55,0.45); border-radius:16px; padding:12px 16px; box-shadow:0 12px 36px rgba(0,0,0,0.7); z-index:99999;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
+                <div style="width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg, #D4AF37 0%, #F3D078 100%); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; box-shadow:0 2px 8px rgba(212,175,55,0.3);">
+                    🏊
+                </div>
+                <div style="flex:1; min-width:0;">
+                    <div style="font-size:13px; font-weight:700; color:#FFF; line-height:1.4;">
+                        安裝到手機桌面，一鍵追蹤比賽成績
+                    </div>
+                    <div style="font-size:11.5px; color:#A1A1AA; line-height:1.4; margin-top:2px;">
+                        無廣告、不收費，專為台灣泳者打造。
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                <button id="pwaInstallBtn" onclick="triggerPwaInstall()" style="background:#0A84FF; color:#FFF; font-size:12px; font-weight:700; padding:6px 14px; border-radius:18px; border:none; cursor:pointer; box-shadow:0 2px 8px rgba(10,132,255,0.4); transition:transform 0.15s ease;">
+                    加入桌面
+                </button>
+                <button onclick="dismissPwaInstall()" style="background:transparent; color:#8E8E93; border:none; padding:6px; cursor:pointer; font-size:16px; line-height:1; display:flex; align-items:center; justify-content:center;" title="關閉">
+                    ✕
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── PWA 加入主畫面安裝引導腳本 ──
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const dismissed = localStorage.getItem('pwa_prompt_dismissed');
+            if (!dismissed) {
+                const banner = document.getElementById('pwaInstallBanner');
+                if (banner) banner.style.display = 'block';
+            }
+        });
+
+        window.triggerPwaInstall = async function() {
+            const banner = document.getElementById('pwaInstallBanner');
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                if (banner) banner.style.display = 'none';
+            } else {
+                alert('📱 請點擊瀏覽器下方或右上角的「分享」按鈕 ⎋，然後選擇「加入主畫面 ➕」即可快速安裝！');
+                if (banner) banner.style.display = 'none';
+            }
+            localStorage.setItem('pwa_prompt_dismissed', 'true');
+        };
+
+        window.dismissPwaInstall = function() {
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner) banner.style.display = 'none';
+            localStorage.setItem('pwa_prompt_dismissed', 'true');
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+            const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
+            if (isIos && !isInStandaloneMode) {
+                const dismissed = localStorage.getItem('pwa_prompt_dismissed');
+                if (!dismissed) {
+                    setTimeout(() => {
+                        const banner = document.getElementById('pwaInstallBanner');
+                        if (banner) banner.style.display = 'block';
+                    }, 2500);
+                }
+            }
+        });
     </script>
 </body>
 </html>
