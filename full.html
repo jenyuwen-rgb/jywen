@@ -414,7 +414,7 @@
         async function loadLatestRaceInfo() {
             if (hasLoadedLatestRace) return;
             try {
-                const res = await remoteQuery(`SELECT 賽事名稱, 年份 FROM swimming_scores WHERE 年份 IS NOT NULL AND 年份 != '' ORDER BY 年份 DESC, rowid DESC LIMIT 1`);
+                const res = await remoteQuery(`SELECT 賽事名稱, 年份 FROM swimming_scores WHERE 年份 IS NOT NULL AND 年份 != '' ORDER BY 年份 DESC, rowid ASC LIMIT 1`);
                 if (res && res[0] && res[0].values && res[0].values.length > 0) {
                     const raceName = res[0].values[0][0];
                     const raceDate = formatDateStr(res[0].values[0][1]);

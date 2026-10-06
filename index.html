@@ -259,13 +259,13 @@
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName">全國北區A(2)游泳錦標賽 (2026-10-02)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName">台中市議長盃游泳錦標賽 (2026-10-02)</span>
             </span>
             <span class="marquee-item">
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName_dup">全國北區A(2)游泳錦標賽 (2026-10-02)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName_dup">台中市議長盃游泳錦標賽 (2026-10-02)</span>
             </span>
         </div>
     </div>
@@ -631,7 +631,7 @@
         async function loadLatestRaceInfo() {
             if (hasLoadedLatestRace) return;
             try {
-                const res = await remoteQuery(`SELECT 賽事名稱, 年份 FROM swimming_scores WHERE 年份 IS NOT NULL AND 年份 != '' ORDER BY 年份 DESC, rowid DESC LIMIT 1`);
+                const res = await remoteQuery(`SELECT 賽事名稱, 年份 FROM swimming_scores WHERE 年份 IS NOT NULL AND 年份 != '' ORDER BY 年份 DESC, rowid ASC LIMIT 1`);
                 if (res && res[0] && res[0].values && res[0].values.length > 0) {
                     const raceName = res[0].values[0][0];
                     const raceDate = formatDateStr(res[0].values[0][1]);
@@ -2062,47 +2062,46 @@
 
             const genderStandards = stdData.standards[sex] || {};
 
-            // 4. 查詢該選手特定出生年與性別的所有長水道最佳成績 (PB)
-            const birthFilter = ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')`;
-            const sexClause = ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')`;
-            const pbRes = await remoteQuery(`SELECT 項目, 成績, 備註, 賽事名稱, 年份 FROM swimming_scores WHERE 姓名='${safeName}'${birthFilter}${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
-            
-            const swimmerPBs = {}; 
-            if (pbRes && pbRes[0] && pbRes[0].values) {
-                pbRes[0].values.forEach(row => {
-                    const item = row[0];
-                    const rawTime = row[1];
-                    const remark = row[2];
-                    const meet = row[3];
-                    const dateVal = row[4];
-                    if (isDQ(remark)) return;
-                    const sec = timeToSec(rawTime);
-                    if (sec <= 0 || sec > 3600) return;
+                        // 4. 256split: 計算個人最佳成績 (PB) (0.001s)
+            const swimmerPBs = {};
+            const poolScores = (sData.scores || []).filter(r => {
+                if (selectedBirthYear && String(r.出生年).replace(/\.0$/, '') !== String(selectedBirthYear)) return false;
+                if (sex && r.性別 && !r.性別.includes(sex)) return false;
+                return true;
+            });
+            poolScores.forEach(row => {
+                const item = row.項目 || '';
+                const rawTime = row.成績 || '';
+                const remark = row.備註 || '';
+                const meet = row.賽事名稱 || '';
+                const dateVal = row.年份 || '';
+                if (isDQ(remark)) return;
+                const sec = timeToSec(rawTime);
+                if (sec <= 0 || sec > 3600) return;
 
-                    const mDist = item.match(/(\d+)公尺(?![池水])/);
-                    if (!mDist) return;
-                    const dist = mDist[1];
-                    let stroke = '';
-                    if (item.includes('自由式')) stroke = '自由式';
-                    else if (item.includes('仰式')) stroke = '仰式';
-                    else if (item.includes('蛙式')) stroke = '蛙式';
-                    else if (item.includes('蝶式')) stroke = '蝶式';
-                    else if (item.includes('混合式')) stroke = '混合式';
-                    if (!stroke) return;
+                const mDist = item.match(/(\d+)公尺(?![池水])/);
+                if (!mDist) return;
+                const dist = mDist[1];
+                let stroke = '';
+                if (item.includes('自由式')) stroke = '自由式';
+                else if (item.includes('仰式')) stroke = '仰式';
+                else if (item.includes('蛙式')) stroke = '蛙式';
+                else if (item.includes('蝶式')) stroke = '蝶式';
+                else if (item.includes('混合式')) stroke = '混合式';
+                if (!stroke) return;
 
-                    const eventKey = `${dist}m ${stroke}`;
-                    if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
-                        swimmerPBs[eventKey] = {
-                            sec: sec,
-                            timeStr: formatToXcode(sec),
-                            meet: meet,
-                            date: dateVal,
-                            dist: dist,
-                            stroke: stroke
-                        };
-                    }
-                });
-            }
+                const eventKey = `${dist}m ${stroke}`;
+                if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
+                    swimmerPBs[eventKey] = {
+                        sec: sec,
+                        timeStr: formatToXcode(sec),
+                        meet: meet,
+                        date: dateVal,
+                        dist: dist,
+                        stroke: stroke
+                    };
+                }
+            });
 
             function formatRaceDate(val) {
                 if (!val) return '';
@@ -2774,45 +2773,44 @@
                 activeFutureDiv = availableFutureDivs[0];
             }
 
-            // 5. 查詢選手長水道個人最佳成績 (PB)
-            const birthFilter = ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')`;
-            const sexClause = ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')`;
-            const pbRes = await remoteQuery(`SELECT 項目, 成績, 備註, 賽事名稱, 年份 FROM swimming_scores WHERE 姓名='${safeName}'${birthFilter}${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
+                        // 5. 256split: 查詢選手長水道個人最佳成績 (PB) (0.001s)
+            const swimmerPBs = {};
+            const poolScores = (sData.scores || []).filter(r => {
+                if (selectedBirthYear && String(r.出生年).replace(/\.0$/, '') !== String(selectedBirthYear)) return false;
+                if (sex && r.性別 && !r.性別.includes(sex)) return false;
+                return true;
+            });
+            poolScores.forEach(row => {
+                const item = row.項目 || '';
+                const rawTime = row.成績 || '';
+                const remark = row.備註 || '';
+                const meet = row.賽事名稱 || '';
+                const dateVal = row.年份 || '';
+                if (isDQ(remark)) return;
+                const sec = timeToSec(rawTime);
+                if (sec <= 0 || sec > 3600) return;
 
-            const swimmerPBs = {}; 
-            if (pbRes && pbRes[0] && pbRes[0].values) {
-                pbRes[0].values.forEach(row => {
-                    const item = row[0];
-                    const rawTime = row[1];
-                    const remark = row[2];
-                    const meet = row[3];
-                    const dateVal = row[4];
-                    if (isDQ(remark)) return;
-                    const sec = timeToSec(rawTime);
-                    if (sec <= 0 || sec > 3600) return;
+                const mDist = item.match(/(\d+)公尺(?![池水])/);
+                if (!mDist) return;
+                const dist = mDist[1];
+                let stroke = '';
+                if (item.includes('自由式')) stroke = '自由式';
+                else if (item.includes('仰式')) stroke = '仰式';
+                else if (item.includes('蛙式')) stroke = '蛙式';
+                else if (item.includes('蝶式')) stroke = '蝶式';
+                else if (item.includes('混合式')) stroke = '混合式';
+                if (!stroke) return;
 
-                    const mDist = item.match(/(\d+)公尺(?![池水])/);
-                    if (!mDist) return;
-                    const dist = mDist[1];
-                    let stroke = '';
-                    if (item.includes('自由式')) stroke = '自由式';
-                    else if (item.includes('仰式')) stroke = '仰式';
-                    else if (item.includes('蛙式')) stroke = '蛙式';
-                    else if (item.includes('蝶式')) stroke = '蝶式';
-                    else if (item.includes('混合式')) stroke = '混合式';
-                    if (!stroke) return;
-
-                    const eventKey = `${dist}m ${stroke}`;
-                    if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
-                        swimmerPBs[eventKey] = {
-                            sec: sec,
-                            timeStr: formatToXcode(sec),
-                            meet: meet,
-                            date: dateVal
-                        };
-                    }
-                });
-            }
+                const eventKey = `${dist}m ${stroke}`;
+                if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
+                    swimmerPBs[eventKey] = {
+                        sec: sec,
+                        timeStr: formatToXcode(sec),
+                        meet: meet,
+                        date: dateVal
+                    };
+                }
+            });
 
             function formatRaceDate(val) {
                 if (!val) return '';
@@ -3299,46 +3297,47 @@
                 if (sexSelect) sexSelect.style.display = 'none';
             }
 
-                        // 4. 256split: 計算個人最佳成績 (PB) (0.001s)
-            const swimmerPBs = {};
-            const poolScores = (sData.scores || []).filter(r => {
-                if (selectedBirthYear && String(r.出生年).replace(/\.0$/, '') !== String(selectedBirthYear)) return false;
-                if (sex && r.性別 && !r.性別.includes(sex)) return false;
-                return true;
-            });
-            poolScores.forEach(row => {
-                const item = row.項目 || '';
-                const rawTime = row.成績 || '';
-                const remark = row.備註 || '';
-                const meet = row.賽事名稱 || '';
-                const dateVal = row.年份 || '';
-                if (isDQ(remark)) return;
-                const sec = timeToSec(rawTime);
-                if (sec <= 0 || sec > 3600) return;
+            // 4. 查詢選手長水道個人最佳成績 (PB)
+            const birthFilter = ` AND (出生年 = '${selectedBirthYear}' OR 出生年 = '${selectedBirthYear}.0')`;
+            const sexClause = ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')`;
+            const pbRes = await remoteQuery(`SELECT 項目, 成績, 備註, 賽事名稱, 年份 FROM swimming_scores WHERE 姓名='${safeName}'${birthFilter}${sexClause} AND ${LC_FILTER} ORDER BY 年份 DESC`);
 
-                const mDist = item.match(/(\d+)公尺(?![池水])/);
-                if (!mDist) return;
-                const dist = mDist[1];
-                let stroke = '';
-                if (item.includes('自由式')) stroke = '自由式';
-                else if (item.includes('仰式')) stroke = '仰式';
-                else if (item.includes('蛙式')) stroke = '蛙式';
-                else if (item.includes('蝶式')) stroke = '蝶式';
-                else if (item.includes('混合式')) stroke = '混合式';
-                if (!stroke) return;
+            const swimmerPBs = {}; 
+            if (pbRes && pbRes[0] && pbRes[0].values) {
+                pbRes[0].values.forEach(row => {
+                    const item = row[0];
+                    const rawTime = row[1];
+                    const remark = row[2];
+                    const meet = row[3];
+                    const dateVal = row[4];
+                    if (isDQ(remark)) return;
+                    const sec = timeToSec(rawTime);
+                    if (sec <= 0 || sec > 3600) return;
 
-                const eventKey = `${dist}m ${stroke}`;
-                if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
-                    swimmerPBs[eventKey] = {
-                        sec: sec,
-                        timeStr: formatToXcode(sec),
-                        meet: meet,
-                        date: dateVal,
-                        dist: dist,
-                        stroke: stroke
-                    };
-                }
-            });
+                    const mDist = item.match(/(\d+)公尺(?![池水])/);
+                    if (!mDist) return;
+                    const dist = mDist[1];
+                    let stroke = '';
+                    if (item.includes('自由式')) stroke = '自由式';
+                    else if (item.includes('仰式')) stroke = '仰式';
+                    else if (item.includes('蛙式')) stroke = '蛙式';
+                    else if (item.includes('蝶式')) stroke = '蝶式';
+                    else if (item.includes('混合式')) stroke = '混合式';
+                    if (!stroke) return;
+
+                    const eventKey = `${dist}m ${stroke}`;
+                    if (!swimmerPBs[eventKey] || sec < swimmerPBs[eventKey].sec) {
+                        swimmerPBs[eventKey] = {
+                            sec: sec,
+                            timeStr: formatToXcode(sec),
+                            meet: meet,
+                            date: dateVal,
+                            dist: dist,
+                            stroke: stroke
+                        };
+                    }
+                });
+            }
 
             // 5. 頂部選手資訊卡片
             const banner = document.createElement('div');
