@@ -454,7 +454,7 @@
             } catch (err) {
                 console.error('查詢選手桶失敗:', err);
             }
-            return { name: cleanName, total: 0, birth_years: [], scores: [] };
+            return { name: cleanName, total: 0, birth_years: [], scores: [], stats: {} };
         }
 
         const rankingMemoryCache = {}; // 記憶體快取已查過的項目榜單
@@ -493,7 +493,6 @@
             } catch(e){}
         }
 
-        // 256split: 安全模擬 remoteQuery 以防任何未捕捉之舊調用
         async function remoteQuery(q) {
             return [];
         }
@@ -854,7 +853,7 @@
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 600));
+            const minWait = new Promise(r => setTimeout(r, 200));
             const main = document.getElementById('main'); main.innerHTML = "";
 
             if (allSwimmerScores.length === 0) {
@@ -909,13 +908,17 @@
                     
                     if (dData.length === 0) continue;
                     const pb = dData[0], id = `s${sIdx}d${dIdx}`;
-                    const ageG = await getRankData(dist, stroke, input, pb.出生年, sex, false);
-                    const natG = await getRankData(dist, stroke, input, null, sex, true);
-                    const ageIdx = ageG.findIndex(r => r.name === input), natIdx = natG.findIndex(r => r.name === input);
-                    const prRaw = (ageG && ageG.length > 0 && ageIdx >= 0) ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
-                    const pr = (!isNaN(prRaw) && isFinite(prRaw)) ? prRaw : 0;
-                    const ageRankStr = (ageIdx >= 0) ? `#${ageIdx+1}` : '-';
-                    const natRankStr = (natIdx >= 0) ? `#${natIdx+1}` : '-';
+                    
+                    // 256split: 優先讀取選手桶中已預先計算之 stats，極速 0ms 渲染
+                    const statKey = `${stroke}_${dist}`;
+                    const swimmerStats = (swimmerResp.stats || {})[statKey] || {};
+                    let ageRankStr = swimmerStats.age_rank ? `#${swimmerStats.age_rank}` : '-';
+                    let natRankStr = swimmerStats.nat_rank ? `#${swimmerStats.nat_rank}` : '-';
+                    let pr = 0;
+                    if (swimmerStats.age_rank && swimmerStats.age_total) {
+                        pr = 100 * (swimmerStats.age_total - swimmerStats.age_rank + 1) / swimmerStats.age_total;
+                    }
+                    
                     const row = document.createElement('div');
                     row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
                     row.innerHTML = `
@@ -968,7 +971,7 @@
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 600));
+            const minWait = new Promise(r => setTimeout(r, 200));
             const main = document.getElementById('main'); main.innerHTML = '';
             cmpChartState = {}; // 重設圖表狀態
 
@@ -1805,7 +1808,7 @@
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 600));
+            const minWait = new Promise(r => setTimeout(r, 200));
             const main = document.getElementById('main'); main.innerHTML = '';
 
             // 256split: 由後端輕量 API 查詢該選手對應桶
@@ -2473,7 +2476,7 @@
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 600));
+            const minWait = new Promise(r => setTimeout(r, 200));
             const main = document.getElementById('main'); main.innerHTML = '';
 
             // 256split: 由後端輕量 API 查詢該選手對應桶
@@ -3054,7 +3057,7 @@
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 600));
+            const minWait = new Promise(r => setTimeout(r, 200));
             const main = document.getElementById('main'); main.innerHTML = '';
 
             // 256split: 由後端輕量 API 查詢該選手對應桶
