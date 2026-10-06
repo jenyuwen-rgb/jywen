@@ -641,7 +641,13 @@
                 }
             }
 
-            // ── 各年齡組別跨組排行模式：偵測以 /RANK 或 /rank 結尾 ──
+            // ── 各年齡組別跨組排行模式：偵測以 /RANK 或 /rank 結尾或單獨 /rank ──
+            if (/^\s*\/\s*rank\s*$/i.test(rawInput)) {
+                saveHistory(rawInput);
+                sendTelemetry(rawInput);
+                await doRankAnalysis('', forcedBirthYear, forcedSex);
+                return;
+            }
             const rankMatch = rawInput.match(/^(.+?)\s*\/\s*rank$/i);
             if (rankMatch) {
                 const rankSwimmerName = normalizeName(rankMatch[1]);
@@ -653,12 +659,13 @@
                 }
             }
 
-            // ── 多人比較模式：偵測分號（;、；）或空格分隔多人姓名 ──
+            // ── 多人比較模式：偵測分號（;、；）或空格分隔多人姓名 (支援 vs / VS) ──
             let candidateNames = [];
-            if (rawInput.includes(';') || rawInput.includes('；')) {
-                candidateNames = rawInput.split(/[;；]/).map(n => normalizeName(n)).filter(Boolean);
-            } else if (/\s+/.test(rawInput)) {
-                candidateNames = rawInput.split(/\s+/).map(n => normalizeName(n)).filter(Boolean);
+            let cleanVs = rawInput.replace(/\s+(vs|v\.s\.|VS|V\.S\.)\s+/gi, ' ').trim();
+            if (cleanVs.includes(';') || cleanVs.includes('；')) {
+                candidateNames = cleanVs.split(/[;；]/).map(n => normalizeName(n)).filter(n => n && !['vs','VS'].includes(n));
+            } else if (/\s+/.test(cleanVs)) {
+                candidateNames = cleanVs.split(/\s+/).map(n => normalizeName(n)).filter(n => n && !['vs','VS'].includes(n));
             }
             if (candidateNames.length >= 2) {
                 saveHistory(rawInput);
