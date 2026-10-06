@@ -79,8 +79,9 @@
             .stroke-title-wrap { margin: 0 0 6px 0; }
         }
         
-        .race-row { display: grid; grid-template-columns: 55px 50px 105px 80px 85px 115px 85px 115px; align-items: center; padding: 3px 0; border-bottom: 0.5px solid #38383A; font-size: 14px; color: #FFF; white-space: nowrap; }
-        .col-dist-main { text-decoration: underline; font-weight: 800; cursor: pointer; }
+        .race-row { display: grid; grid-template-columns: 60px 50px 105px 80px 85px 115px 85px 115px; align-items: center; padding: 3px 0; border-bottom: 0.5px solid #38383A; font-size: 14px; color: #FFF; white-space: nowrap; }
+        .col-dist-main { text-decoration: none; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; }
+        .col-dist-main:hover { text-decoration: underline; }
         .col-count-main { text-decoration: underline; cursor: pointer; font-size: 12px; }
         .col-pb-main { font-family: monospace; font-weight: bold; }
         .col-wa-main { font-size: 13px; }
@@ -258,13 +259,13 @@
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName">台南市中小學游泳錦標賽 (2026-09-21)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName">全國北區A(2)游泳錦標賽 (2026-10-02)</span>
             </span>
             <span class="marquee-item">
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName_dup">台南市中小學游泳錦標賽 (2026-09-21)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName_dup">全國北區A(2)游泳錦標賽 (2026-10-02)</span>
             </span>
         </div>
     </div>
@@ -573,16 +574,23 @@
 
         async function loadLatestRaceInfo256() {
             try {
-                const resp = await fetch('/data_buckets/metadata.json');
+                let resp = await fetch('/data_buckets/manifest.json');
+                if (!resp.ok) resp = await fetch('/data_buckets/metadata.json');
+                if (!resp.ok) resp = await fetch('/static/metadata.json');
                 if (resp.ok) {
                     const meta = await resp.json();
-                    const raceName = meta.latest_race_name || "全國春季游泳錦標賽";
-                    const raceDate = meta.latest_race_date || "2026-03";
+                    const raceName = meta.latest_race || meta.latest_race_name || "台中市議長盃游泳錦標賽";
+                    const rawDate = meta.latest_date || meta.latest_race_date || "20261002";
+                    const raceDate = formatDateStr(rawDate);
                     const el = document.getElementById("latestRaceName");
                     const elDup = document.getElementById("latestRaceName_dup");
                     if (el) {
                         el.innerHTML = `<strong>${raceName}</strong> <span style="color:#A1A1A6; margin-left:4px;">(${raceDate})</span>`;
                         if (elDup) elDup.innerHTML = el.innerHTML;
+                    }
+                    if (meta.total_records) {
+                        const countEl = document.getElementById("totalRecordCount");
+                        if (countEl) countEl.innerText = Number(meta.total_records).toLocaleString();
                     }
                 }
             } catch(e){}
@@ -623,7 +631,7 @@
         async function loadLatestRaceInfo() {
             if (hasLoadedLatestRace) return;
             try {
-                const res = await remoteQuery(`SELECT 賽事名稱, 年份 FROM swimming_scores WHERE 年份 IS NOT NULL AND 年份 != '' ORDER BY 年份 DESC LIMIT 1`);
+                const res = await remoteQuery(`SELECT 賽事名稱, 年份 FROM swimming_scores WHERE 年份 IS NOT NULL AND 年份 != '' ORDER BY 年份 DESC, rowid DESC LIMIT 1`);
                 if (res && res[0] && res[0].values && res[0].values.length > 0) {
                     const raceName = res[0].values[0][0];
                     const raceDate = formatDateStr(res[0].values[0][1]);
@@ -1072,7 +1080,7 @@
                     const row = document.createElement('div');
                     row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
                     row.innerHTML = `
-                        <span class="col-dist-main" onclick="toggleD('${id}','trend','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dist}m</span>
+                        <span id="btn-trend-${id}" class="col-dist-main" onclick="toggleD('${id}','trend','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dist}m <span class="arrow-icon" style="font-size:10px;">▼</span></span>
                         <span class="col-count-main" onclick="toggleD('${id}','history','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dData.length}場</span>
                         <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}</span>
                         <span class="col-wa-main">WA:${getWA(dist, stroke, pb.成績, sex)}</span>
@@ -1285,8 +1293,8 @@
                     // 最左側：距離按鈕（50m ▼）
                     let cellsHtml = `
                         <td style="width:90px;">
-                            <span class="cmp-dist-btn" onclick="toggleCompareChart('${distKey}', '${stroke}', '${dist}', ${JSON.stringify(players).replace(/"/g, '&quot;')})">
-                                ${dist}m <span style="font-size:10px;">▼</span>
+                            <span id="cmp-dist-btn-${distKey}" class="cmp-dist-btn" onclick="toggleCompareChart('${distKey}', '${stroke}', '${dist}', ${JSON.stringify(players).replace(/"/g, '&quot;')})">
+                                ${dist}m <span class="arrow-icon" style="font-size:10px;">▼</span>
                             </span>
                         </td>
                     `;
@@ -1410,13 +1418,17 @@
         // ══════════════════════════════════════════════
         async function toggleCompareChart(distKey, stroke, dist, players) {
             const chartRow = document.getElementById(`chart-row-${distKey}`);
+            const btn = document.getElementById(`cmp-dist-btn-${distKey}`);
+            const arrowSpan = btn ? btn.querySelector('.arrow-icon') : null;
             if (!chartRow) return;
 
             if (chartRow.style.display !== 'none') {
                 chartRow.style.display = 'none';
+                if (arrowSpan) arrowSpan.textContent = '▼';
                 return;
             }
             chartRow.style.display = 'table-row';
+            if (arrowSpan) arrowSpan.textContent = '▲';
 
             // 若尚未載入資料，進行圖表繪製
             if (!cmpChartState[distKey]) {
@@ -1778,6 +1790,8 @@
         // ══════════════════════════════════════════════
         async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
             const p = document.getElementById(`p-${id}`), c = document.getElementById(`c-${id}`);
+            const btnTrend = document.getElementById(`btn-trend-${id}`);
+            const arrowSpan = btnTrend ? btnTrend.querySelector('.arrow-icon') : null;
             if (!p || !c) return;
             const currentMode = c.getAttribute('data-mode');
             const currentBirth = c.getAttribute('data-birth');
@@ -1785,9 +1799,11 @@
 
             if (p.classList.contains('active') && currentMode === mode && currentBirth === targetBirth) {
                 p.classList.remove('active');
+                if (arrowSpan) arrowSpan.textContent = '▼';
                 return;
             }
             p.classList.add('active');
+            if (arrowSpan) arrowSpan.textContent = (mode === 'trend') ? '▲' : '▼';
             c.setAttribute('data-mode', mode);
             c.setAttribute('data-birth', targetBirth);
             if (mode === 'rank' || mode === 'natRank') {
