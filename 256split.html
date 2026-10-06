@@ -727,12 +727,6 @@
         }
 
         async function renderMatrix(dist, stroke, sex) {
-            const strokeMap = { '蝶式': 'butterfly', '仰式': 'backstroke', '蛙式': 'breaststroke', '自由式': 'freestyle', '混合式': 'medley' };
-            const sKey = strokeMap[stroke] || stroke;
-            const containerId = `matrix-${sKey}-${dist}`;
-            const container = document.getElementById(containerId);
-            if (!container) return;
-
             // 256split: 讀取預算好的矩陣檔案 (0.001s)
             const strokeCodeMap = {'蝶式':'fly', '仰式':'back', '蛙式':'breast', '自由式':'free', '混合式':'im'};
             const sCode = strokeCodeMap[stroke] || 'free';
@@ -745,8 +739,7 @@
             } catch(e) {}
 
             if (!matrixData || !matrixData.years || matrixData.years.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:12px; color:#8E8E93; font-size:12px;">查無「${dist}m ${stroke}」之年度最佳數據</div>`;
-                return;
+                return `<div class="data-panel" style="text-align:center; padding:12px; color:#8E8E93; font-size:12px;">查無「${dist}m ${stroke}」之年度最佳數據</div>`;
             }
 
             const allYears = matrixData.years;
@@ -789,7 +782,7 @@
             });
 
             h += "</table></div></div>";
-            container.innerHTML = h;
+            return h;
         }
 
         function sendTelemetry(swimmerName) {
