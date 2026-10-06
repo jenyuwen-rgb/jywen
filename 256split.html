@@ -738,7 +738,7 @@
                 if (main) main.innerHTML = '';
                 return;
             }
-            if (!worker) return;
+            // 256split pure mode: no worker check
             sendTelemetry(input);
 
             const safeInput = input.replace(/'/g, "''");
@@ -906,13 +906,14 @@
         };
 
         async function doCompare(names, birthYearOverrides = {}) {
+            // 256split pure mode: no worker check
             currentCompareNames = names;
             currentCompareOverrides = birthYearOverrides || {};
 
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 200));
+            const minWait = new Promise(r => setTimeout(r, 1200));
             const main = document.getElementById('main'); main.innerHTML = '';
             cmpChartState = {}; // 重設圖表狀態
 
@@ -922,27 +923,27 @@
             const sexSelect = document.getElementById('sexSelect');
             if (sexSelect) sexSelect.style.display = 'none';
 
-            // 256split: 並行抓取各選手之小桶資料 (0.05s)
-            const playerResponses = await Promise.all(names.map(n => fetchSwimmerBucketData(n)));
+            // 取得各選手有效出生年清單與性別（單次批次查詢 IN）
+            const safeNamesList = names.map(n => `'${n.replace(/'/g, "''")}'`).join(', ');
+            const byBatchRes = await remoteQuery(`SELECT 姓名, 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名 IN (${safeNamesList}) AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 姓名, 出生年, 性別 ORDER BY 姓名, c DESC`);
+            const allByValues = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
 
             const players = names.map((name, idx) => {
-                const sData = playerResponses[idx] || {};
-                const availableYears = sData.birth_years || [];
-                const scores = sData.scores || [];
+                const matchedRows = allByValues.filter(v => v[0] === name);
+                let availableYears = [];
                 let birthYear = null, sex = null;
-                if (availableYears.length > 0) {
+                if (matchedRows.length > 0) {
+                    availableYears = [...new Set(matchedRows.map(v => String(v[1]).replace(/\.0$/, '').trim()).filter(Boolean))];
                     const overrideYr = (currentCompareOverrides && (currentCompareOverrides[idx] || currentCompareOverrides[name])) ? String(currentCompareOverrides[idx] || currentCompareOverrides[name]) : null;
                     if (overrideYr && availableYears.includes(overrideYr)) {
                         birthYear = overrideYr;
                     } else {
                         birthYear = availableYears[0];
                     }
+                    const matchedRow = matchedRows.find(v => String(v[1]).replace(/\.0$/, '').trim() === birthYear) || matchedRows[0];
+                    sex = matchedRow[2];
                 }
-                if (scores.length > 0) {
-                    const matchedScore = scores.find(r => String(r.出生年).replace(/\.0$/, '') === String(birthYear)) || scores[0];
-                    sex = matchedScore.性別;
-                }
-                return { name, birthYear, sex, idx, availableYears, scores };
+                return { name, birthYear, sex, idx, availableYears };
             });
 
             // 頂部多人比較狀態摘要列
@@ -1746,15 +1747,18 @@
         }
 
         async function doStandardsCheck(swimmerName, forcedBirthYear, forcedSex) {
+            // 256split pure mode: no worker check
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 200));
+            const minWait = new Promise(r => setTimeout(r, 1200));
             const main = document.getElementById('main'); main.innerHTML = '';
 
-            // 256split: 由後端輕量 API 查詢該選手對應桶
-            const sData = await fetchSwimmerBucketData(swimmerName);
-            const byRows = (sData.birth_years || []).map(y => [y, (sData.scores.find(r=>String(r.出生年).replace(/\.0$/,'')===String(y))||{}).性別 || '男', 1]);
+            const safeName = swimmerName.replace(/'/g, "''");
+
+            // 1. 查詢選手所有不重複出生年與性別
+            const byBatchRes = await remoteQuery(`SELECT 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名='${safeName}' AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 出生年, 性別 ORDER BY c DESC`);
+            const byRows = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
 
             if (byRows.length === 0) {
                 await minWait;
@@ -2414,15 +2418,18 @@
         };
 
         async function doPodiumSimulation(swimmerName, forcedBirthYear, forcedSex, forcedMeetId, forcedFutureDivision) {
+            // 256split pure mode: no worker check
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 200));
+            const minWait = new Promise(r => setTimeout(r, 1000));
             const main = document.getElementById('main'); main.innerHTML = '';
 
-            // 256split: 由後端輕量 API 查詢該選手對應桶
-            const sData = await fetchSwimmerBucketData(swimmerName);
-            const byRows = (sData.birth_years || []).map(y => [y, (sData.scores.find(r=>String(r.出生年).replace(/\.0$/,'')===String(y))||{}).性別 || '男', 1]);
+            const safeName = swimmerName.replace(/'/g, "''");
+
+            // 1. 查詢選手所有不重複出生年與性別
+            const byBatchRes = await remoteQuery(`SELECT 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名='${safeName}' AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 出生年, 性別 ORDER BY c DESC`);
+            const byRows = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
 
             if (byRows.length === 0) {
                 await minWait;
@@ -2995,15 +3002,18 @@
         }
 
         async function doRankAnalysis(swimmerName, forcedBirthYear, forcedSex, rankTargetCard) {
+            // 256split pure mode: no worker check
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
             swimmerAnim.playSegments([32, 97], true);
-            const minWait = new Promise(r => setTimeout(r, 200));
+            const minWait = new Promise(r => setTimeout(r, 1200));
             const main = document.getElementById('main'); main.innerHTML = '';
 
-            // 256split: 由後端輕量 API 查詢該選手對應桶
-            const sData = await fetchSwimmerBucketData(swimmerName);
-            const byRows = (sData.birth_years || []).map(y => [y, (sData.scores.find(r=>String(r.出生年).replace(/\.0$/,'')===String(y))||{}).性別 || '男', 1]);
+            const safeName = swimmerName.replace(/'/g, "''");
+
+            // 1. 查詢選手所有不重複出生年與性別
+            const byBatchRes = await remoteQuery(`SELECT 出生年, 性別, COUNT(*) as c FROM swimming_scores WHERE 姓名='${safeName}' AND 出生年 IS NOT NULL AND 出生年 != '' GROUP BY 出生年, 性別 ORDER BY c DESC`);
+            const byRows = (byBatchRes && byBatchRes[0] && byBatchRes[0].values) ? byBatchRes[0].values : [];
 
             if (byRows.length === 0) {
                 await minWait;
@@ -4516,7 +4526,7 @@
                 return;
             }
 
-            if (!worker) return;
+            // 256split pure mode: no worker check
 
             // 256split 姓名字典極速記憶體前綴比對 (0.01s)
             const namesList = await loadSwimmerNamesList();
