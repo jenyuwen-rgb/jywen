@@ -960,7 +960,239 @@
             </div>
         </section>
 
-        <!-- 區塊五：GCP 雲端爬蟲錯誤與自愈修復日誌檢視中心 (大仁哥專屬排查面板) -->
+        <!-- 區塊五：GCP 雲端託管任務與自動化排程清單 (大仁哥指定：任務逐一列表與執行頻率) -->
+        <section class="tech-card p-6 space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-cloud-arrow-down gold-gradient-icon"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-zinc-100 flex items-center gap-2">
+                            <span>GCP 雲端託管任務與自動化排程清單</span>
+                            <span class="text-[11px] font-mono px-2 py-0.5 rounded-full gold-gradient-badge">
+                                <span class="gold-gradient-text font-bold">4 項核心雲端任務</span>
+                            </span>
+                        </h3>
+                        <p class="text-xs text-zinc-400">大仁哥指示建檔 · 逐一記錄 GCP 託管之自動化爬蟲、自愈引擎、邊緣分發與執行頻率</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-mono">
+                    <span class="px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>機房：asia-east1 (台灣)</span>
+                    </span>
+                    <span class="px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400">
+                        維護成本：NT$ 0 /月
+                    </span>
+                </div>
+            </div>
+
+            <!-- GCP 雲端架構配置摘要卡片 -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                    <div class="text-zinc-500 text-[11px]">GCP 專案名稱</div>
+                    <div class="text-zinc-200 font-bold mt-1 text-xs truncate" title="ctsa-swimming-project">ctsa-swimming-project</div>
+                    <div class="text-[10px] text-zinc-500 mt-0.5">ID: 287296629155</div>
+                </div>
+                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                    <div class="text-zinc-500 text-[11px]">每日自動排程</div>
+                    <div class="gold-gradient-text font-bold mt-1 text-xs">每天 06:00:00</div>
+                    <div class="text-[10px] text-zinc-500 mt-0.5">Cron: 0 6 * * * (台北時間)</div>
+                </div>
+                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                    <div class="text-zinc-500 text-[11px]">算力調度引擎</div>
+                    <div class="text-emerald-400 font-bold mt-1 text-xs">Cloud Run Job</div>
+                    <div class="text-[10px] text-zinc-500 mt-0.5">容器按需秒級啟動</div>
+                </div>
+                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                    <div class="text-zinc-500 text-[11px]">雲端儲存貯體</div>
+                    <div class="text-zinc-200 font-bold mt-1 text-xs truncate" title="gs://ctsa-swim-cloud-287296629155">ctsa-swim-cloud</div>
+                    <div class="text-[10px] text-zinc-500 mt-0.5">GCS Bucket (零快取)</div>
+                </div>
+            </div>
+
+            <!-- 任務逐一列表 (4 大任務卡片) -->
+            <div class="space-y-3">
+                <!-- 任務 1：每日全台賽事與行事曆自動採集 -->
+                <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs flex items-center justify-center font-bold">1</span>
+                            <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                                <span>每日全台賽事與行事曆自動爬蟲採集</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">核心定時任務</span>
+                            </h4>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-mono">
+                            <span class="px-2 py-0.5 rounded bg-zinc-800 text-amber-300 font-bold flex items-center gap-1">
+                                <i class="fa-regular fa-clock text-[10px]"></i>
+                                <span>執行頻率：每天清晨 06:00:00 (Asia/Taipei)</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
+                        <div>
+                            <span class="text-zinc-500">調度鬧鐘：</span>
+                            <span class="text-zinc-300">Cloud Scheduler (swim-daily-0600-schedule)</span>
+                        </div>
+                        <div>
+                            <span class="text-zinc-500">執行單元：</span>
+                            <span class="text-zinc-300">Cloud Run Job (swim-daily-crawler)</span>
+                        </div>
+                        <div>
+                            <span class="text-zinc-500">同步目標：</span>
+                            <span class="text-zinc-300">GCS Bucket (3 個核心 JSON)</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-zinc-300 space-y-1 pl-1">
+                        <div class="flex items-start gap-2">
+                            <span class="text-amber-400">▸</span>
+                            <span><strong>CTSA 中華泳協官方全國賽事即時採集</strong>：發起 HTTP 連線至官方賽事系統 (<code class="text-zinc-400">game_data.aspx</code>)，解析 <code class="text-zinc-400">DD_Activity_ID</code> 下拉清單，精準抓取 115 年全國春季、小學、青年盃、中正盃、總統盃等 13 大官方賽事。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-amber-400">▸</span>
+                            <span><strong>臺南市泳協歷屆賽事即時爬取</strong>：採集臺南市體育總會 (<code class="text-zinc-400">tainanswim.com.tw/history.php</code>) 歷屆賽事編號與名稱。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-amber-400">▸</span>
+                            <span><strong>全台 9 大泳協賽事目錄彙整同步</strong>：維護 CTSA、TPESA(台北)、NTPC(新北)、TYC(桃園)、HCC(新竹)、SWIM8(台中)、TAINAN(台南)、KCC(高雄)、SWIM_KCSAT(高雄水上) 完整結構，杜絕各縣市 0 場空缺。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-amber-400">▸</span>
+                            <span><strong>115 年度 96 場官方行事曆維護</strong>：完整保障 96 場官方核定排程，動態產出標準月曆 JSON (<code class="text-zinc-400">calendar.json</code>)。</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任務 2：AI 異常偵測與自動自愈修復引擎 -->
+                <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 font-mono text-xs flex items-center justify-center font-bold">2</span>
+                            <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                                <span>AI 異常偵測與自動自愈修復引擎 (Cloud Self-Healer)</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">智能守護</span>
+                            </h4>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-mono">
+                            <span class="px-2 py-0.5 rounded bg-zinc-800 text-blue-300 font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-microchip text-[10px]"></i>
+                                <span>執行頻率：事件觸發（遇官網改版或異常時秒級喚醒）</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
+                        <div>
+                            <span class="text-zinc-500">自愈大腦：</span>
+                            <span class="text-zinc-300">Gemini LLM (智慧 HTML 診斷)</span>
+                        </div>
+                        <div>
+                            <span class="text-zinc-500">熔斷限制：</span>
+                            <span class="text-emerald-400">最多重試 3 次 (MAX_RETRY_LIMIT=3)</span>
+                        </div>
+                        <div>
+                            <span class="text-zinc-500">保護機制：</span>
+                            <span class="text-zinc-300">超額立即物理熔斷 + 現場 Snapshot 封存</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-zinc-300 space-y-1 pl-1">
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-400">▸</span>
+                            <span><strong>官網版面突變自愈</strong>：若泳協官網更改 HTML 標籤或選擇器導致爬取為空，自動傳送最新 HTML 片段至 Gemini 進行智慧分析並重生規則。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-blue-400">▸</span>
+                            <span><strong>3 次硬性物理熔斷</strong>：為防止無窮重試消耗 API 配額，設定 3 次上限，超過即停止並留下完整錯誤堆疊。</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任務 3：多端無伺服器唯讀分發 (GCS Edge Distribution) -->
+                <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 font-mono text-xs flex items-center justify-center font-bold">3</span>
+                            <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                                <span>多端無伺服器靜態資源分發 (Serverless Edge Distribution)</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">邊緣分發</span>
+                            </h4>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-mono">
+                            <span class="px-2 py-0.5 rounded bg-zinc-800 text-purple-300 font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-infinity text-[10px]"></i>
+                                <span>執行頻率：7×24 小時常駐高可用存取</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
+                        <div>
+                            <span class="text-zinc-500">儲存服務：</span>
+                            <span class="text-zinc-300">Google Cloud Storage (GCS)</span>
+                        </div>
+                        <div>
+                            <span class="text-zinc-500">快取原則：</span>
+                            <span class="text-amber-400">Cache-Control: no-cache (零快取即時更新)</span>
+                        </div>
+                        <div>
+                            <span class="text-zinc-500">存取協議：</span>
+                            <span class="text-zinc-300">HTTPS CORS 公開唯讀 REST</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-zinc-300 space-y-1 pl-1">
+                        <div class="flex items-start gap-2">
+                            <span class="text-purple-400">▸</span>
+                            <span><strong>純靜態無伺服器架構 (方案 B)</strong>：爬蟲跑完直接將 JSON 檔案推入 GCS，前端 Vercel PWA 透過瀏覽器直接向 GCS 抓取，免除雲端常駐虛擬機（VM）或資料庫連線維護開銷。</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-purple-400">▸</span>
+                            <span><strong>零延遲與零快取</strong>：透過 HTTP Header <code class="text-zinc-400">no-cache, no-store</code> 確保全台選手家長與教練點開網頁永遠看到第一手最新賽事。</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任務 4：雲端結構化審計與健康日誌監控 (Cloud Audit & Logging) -->
+                <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 font-mono text-xs flex items-center justify-center font-bold">4</span>
+                            <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                                <span>雲端結構化審計與健康日誌監控 (Cloud Logging & Audit)</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">審計監控</span>
+                            </h4>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-mono">
+                            <span class="px-2 py-0.5 rounded bg-zinc-800 text-amber-300 font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-list-check text-[10px]"></i>
+                                <span>執行頻率：每次爬蟲作業啟動/完工時同步記錄</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
+                        <div>
+                            <span class="text-zinc-500">日誌平台：</span>
+                            <span class="text-zinc-300">Google Cloud Logging 原生結構化格式</span>
+                        </div>
+                        <div>
+                            <span class="text-zinc-500">前端同步：</span>
+                            <span class="text-zinc-300">GCS crawler_error_logs.json</span>
+                        </div>
+                        <div>
+                            <span class="text-zinc-500">監控指標：</span>
+                            <span class="text-emerald-400">HEALTHY / FAILED 與執行秒數</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-zinc-300 space-y-1 pl-1">
+                        <div class="flex items-start gap-2">
+                            <span class="text-amber-400">▸</span>
+                            <span><strong>透明可視化稽核</strong>：將每次採集之賽事筆數、各協會狀態、耗時毫秒數發布至 GCS，供本頁下方「GCP 爬蟲執行與自愈修復日誌」終端機窗口即時讀取呈現。</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 區塊六：GCP 雲端爬蟲錯誤與自愈修復日誌檢視中心 (大仁哥專屬排查面板) -->
         <section class="tech-card p-6 space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
