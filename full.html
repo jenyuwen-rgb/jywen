@@ -840,13 +840,13 @@
                     row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
                     row.innerHTML = `
                         <span id="btn-trend-${id}" class="col-dist-main" onclick="toggleD('${id}','trend','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dist}m <span class="arrow-icon" style="font-size:10px;">▼</span></span>
-                        <span class="col-count-main" onclick="toggleD('${id}','history','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dData.length}場</span>
+                        <span id="btn-hist-${id}" class="col-count-main" onclick="toggleD('${id}','history','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dData.length}場 <span class="arrow-icon" style="font-size:10px;">▼</span></span>
                         <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}</span>
                         <span class="col-wa-main">WA:${getWA(dist, stroke, pb.成績, sex)}</span>
                         <span class="col-pr-main">PR ${pr.toFixed(1)}%</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行${ageRankStr}</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','matrix','${dist}','${stroke}', null, '${pb.出生年}', '${sex}')">年度最佳</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natRankStr}</span>
+                        <span id="btn-rank-${id}" class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行${ageRankStr} <span class="arrow-icon" style="font-size:10px;">▼</span></span>
+                        <span id="btn-mat-${id}" class="col-rank-link" onclick="toggleD('${id}','matrix','${dist}','${stroke}', null, '${pb.出生年}', '${sex}')">年度最佳 <span class="arrow-icon" style="font-size:10px;">▼</span></span>
+                        <span id="btn-nat-${id}" class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natRankStr} <span class="arrow-icon" style="font-size:10px;">▼</span></span>
                     `;
                     const dd = document.createElement('div'); dd.id = `p-${id}`; dd.className = "drill-down";
                     dd.innerHTML = `<div id="c-${id}"></div>`; trayInner.appendChild(row); trayInner.appendChild(dd);
@@ -1086,9 +1086,7 @@
                         const isFastest = bestSec !== null && Math.abs(pb.totalSec - bestSec) < 0.0001;
                         const isSlowest = worstSec !== null && Math.abs(pb.totalSec - worstSec) < 0.0001 && worstSec > bestSec;
                         const diffSec = (!isFastest && bestSec !== null) ? (pb.totalSec - bestSec) : null;
-                        const pbId = `${distKey}_p${pIdx}`;
-
-                        const countHtml = `<span class="cmp-count-tag" onclick="toggleCompareHistory('${pbId}', '${p.name}', '${stroke}', '${dist}', '${p.birthYear}', '${p.sex}')" title="點擊檢視歷年出賽紀錄">${dData.length}場</span>`;
+                        const countHtml = `<span id="cmp-hist-btn-${pbId}" class="cmp-count-tag" onclick="toggleCompareHistory('${pbId}', '${p.name}', '${stroke}', '${dist}', '${p.birthYear}', '${p.sex}')" title="點擊檢視歷年出賽紀錄">${dData.length}場 <span class="arrow-icon" style="font-size:9px;">▼</span></span>`;
                         let timeDisplayHtml = '';
                         if (isFastest) {
                             timeDisplayHtml = `
@@ -1574,13 +1572,27 @@
             }
         }
 
-        // ══════════════════════════════════════════════
-        // 單人模式：項目抽屜展開與收合 (趨勢圖、歷年紀錄、同齡/全國排行、年度最佳)
-        // ══════════════════════════════════════════════
+        function updateRowArrows(rowId, activeMode) {
+            const map = {
+                'trend': `btn-trend-${rowId}`,
+                'history': `btn-hist-${rowId}`,
+                'rank': `btn-rank-${rowId}`,
+                'matrix': `btn-mat-${rowId}`,
+                'natRank': `btn-nat-${rowId}`
+            };
+            Object.keys(map).forEach(m => {
+                const btn = document.getElementById(map[m]);
+                if (btn) {
+                    const arr = btn.querySelector('.arrow-icon');
+                    if (arr) {
+                        arr.textContent = (m === activeMode) ? '▲' : '▼';
+                    }
+                }
+            });
+        }
+
         async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
             const p = document.getElementById(`p-${id}`), c = document.getElementById(`c-${id}`);
-            const btnTrend = document.getElementById(`btn-trend-${id}`);
-            const arrowSpan = btnTrend ? btnTrend.querySelector('.arrow-icon') : null;
             if (!p || !c) return;
             const currentMode = c.getAttribute('data-mode');
             const currentBirth = c.getAttribute('data-birth');
@@ -1588,11 +1600,11 @@
 
             if (p.classList.contains('active') && currentMode === mode && currentBirth === targetBirth) {
                 p.classList.remove('active');
-                if (arrowSpan) arrowSpan.textContent = '▼';
+                updateRowArrows(id, null);
                 return;
             }
             p.classList.add('active');
-            if (arrowSpan) arrowSpan.textContent = (mode === 'trend') ? '▲' : '▼';
+            updateRowArrows(id, mode);
             c.setAttribute('data-mode', mode);
             c.setAttribute('data-birth', targetBirth);
             if (mode === 'rank' || mode === 'natRank') {
@@ -1647,8 +1659,9 @@
                     const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺(?![池水])/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
                     aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 }; aC.update(); 
                 };
-            } else if (mode === 'matrix') { c.innerHTML = await renderMatrix(dist, stroke, (p3 || p2 || '男')); }
-            else if (mode === 'history') {
+            } else if (mode === 'matrix') {
+                c.innerHTML = await renderMatrix(dist, stroke, (p3 || p2 || '男'));
+            } else if (mode === 'history') {
                 const sFilter = (p3 && p3 !== 'null' && p3 !== 'undefined') ? ` AND 性別 = '${p3}'` : '';
                 const bFilter = (p2 && p2 !== 'null' && p2 !== 'undefined') ? ` AND (出生年 = '${p2}' OR 出生年 = '${p2}.0')` : '';
                 const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目, 備註 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${bFilter} ${sFilter} AND ${LC_FILTER} ORDER BY 年份 DESC`);
@@ -1675,13 +1688,17 @@
         async function toggleCompareHistory(pbId, playerName, stroke, dist, birthYear, sex) {
             const histRow = document.getElementById(`hist-row-${pbId}`);
             const histContent = document.getElementById(`hist-content-${pbId}`);
+            const btn = document.getElementById(`cmp-hist-btn-${pbId}`);
+            const arrowSpan = btn ? btn.querySelector('.arrow-icon') : null;
             if (!histRow || !histContent) return;
 
             if (histRow.style.display !== 'none') {
                 histRow.style.display = 'none';
+                if (arrowSpan) arrowSpan.textContent = '▼';
                 return;
             }
             histRow.style.display = 'table-row';
+            if (arrowSpan) arrowSpan.textContent = '▲';
 
             const safeName = playerName.replace(/'/g, "''");
             const sexClause = sex ? ` AND (性別 = '${sex}' OR 性別 = '${sex=='男'?'男生':'女生'}')` : '';
@@ -1711,7 +1728,7 @@
                     <div class="row-gold" style="font-weight:800; font-size:14px;">
                         📋 ${playerName} - 【${stroke} ${dist}m】歷年出賽紀錄 (${validRows.length}場)
                     </div>
-                    <span onclick="document.getElementById('hist-row-${pbId}').style.display='none'" style="color:#8E8E93; font-size:12px; cursor:pointer;">
+                    <span onclick="document.getElementById('hist-row-${pbId}').style.display='none'; const b=document.getElementById('cmp-hist-btn-${pbId}'); if(b){const a=b.querySelector('.arrow-icon'); if(a) a.textContent='▼';}" style="color:#8E8E93; font-size:12px; cursor:pointer;">
                         ✕ 關閉
                     </span>
                 </div>

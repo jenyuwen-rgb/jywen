@@ -1090,13 +1090,13 @@
                     row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
                     row.innerHTML = `
                         <span id="btn-trend-${id}" class="col-dist-main" onclick="toggleD('${id}','trend','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dist}m <span class="arrow-icon" style="font-size:10px;">▼</span></span>
-                        <span class="col-count-main" onclick="toggleD('${id}','history','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dData.length}場</span>
+                        <span id="btn-hist-${id}" class="col-count-main" onclick="toggleD('${id}','history','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">${dData.length}場 <span class="arrow-icon" style="font-size:10px;">▼</span></span>
                         <span class="col-pb-main">PB ${formatToXcode(pb.totalSec)}</span>
                         <span class="col-wa-main">WA:${getWA(dist, stroke, pb.成績, sex)}</span>
                         <span class="col-pr-main">PR ${pr.toFixed(1)}%</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行${ageRankStr}</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','matrix','${dist}','${stroke}', null, '${pb.出生年}', '${sex}')">年度最佳</span>
-                        <span class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natRankStr}</span>
+                        <span id="btn-rank-${id}" class="col-rank-link" onclick="toggleD('${id}','rank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">同齡排行${ageRankStr} <span class="arrow-icon" style="font-size:10px;">▼</span></span>
+                        <span id="btn-mat-${id}" class="col-rank-link" onclick="toggleD('${id}','matrix','${dist}','${stroke}', null, '${pb.出生年}', '${sex}')">年度最佳 <span class="arrow-icon" style="font-size:10px;">▼</span></span>
+                        <span id="btn-nat-${id}" class="col-rank-link" onclick="toggleD('${id}','natRank','${dist}','${stroke}','${input}','${pb.出生年}','${sex}')">全國排行${natRankStr} <span class="arrow-icon" style="font-size:10px;">▼</span></span>
                     `;
                     const dd = document.createElement('div'); dd.id = `p-${id}`; dd.className = "drill-down";
                     dd.innerHTML = `<div id="c-${id}"></div>`; trayInner.appendChild(row); trayInner.appendChild(dd);
@@ -1317,9 +1317,7 @@
                         const isFastest = bestSec !== null && Math.abs(pb.totalSec - bestSec) < 0.0001;
                         const isSlowest = worstSec !== null && Math.abs(pb.totalSec - worstSec) < 0.0001 && worstSec > bestSec;
                         const diffSec = (!isFastest && bestSec !== null) ? (pb.totalSec - bestSec) : null;
-                        const pbId = `${distKey}_p${pIdx}`;
-
-                        const countHtml = `<span class="cmp-count-tag" onclick="toggleCompareHistory('${pbId}', '${p.name}', '${stroke}', '${dist}', '${p.birthYear}', '${p.sex}')" title="點擊檢視歷年出賽紀錄">${dData.length}場</span>`;
+                        const countHtml = `<span id="cmp-hist-btn-${pbId}" class="cmp-count-tag" onclick="toggleCompareHistory('${pbId}', '${p.name}', '${stroke}', '${dist}', '${p.birthYear}', '${p.sex}')" title="點擊檢視歷年出賽紀錄">${dData.length}場 <span class="arrow-icon" style="font-size:9px;">▼</span></span>`;
                         let timeDisplayHtml = '';
                         if (isFastest) {
                             timeDisplayHtml = `
@@ -1580,32 +1578,32 @@
             if (!state) return;
             const { mode, metric = 'abs', stroke, dist, players } = state;
 
-            // 快取各選手歷史出賽點
+                        // 256split: 讀取各選手小桶資料以建立對比圖 (0.001s)
             if (!state.dataCache) {
-                state.dataCache = await Promise.all(players.map(async (p, idx) => {
+                state.dataCache = await Promise.all(players.map(async (p) => {
                     if (!p.birthYear) return { player: p, points: [] };
-                    const safeName = p.name.replace(/'/g, "''");
-                    const sexClause = p.sex ? ` AND (性別 = '${p.sex}' OR 性別 = '${p.sex=='男'?'男生':'女生'}')` : '';
-                    const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${safeName}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND (出生年 = '${p.birthYear}' OR 出生年 = '${p.birthYear}.0')${sexClause} AND ${LC_FILTER} ORDER BY 年份 ASC`);
-                    if (!res || !res[0] || !res[0].values) return { player: p, points: [] };
+                    const sData = await fetchSwimmerBucketData(p.name, p.birthYear, p.sex);
+                    const pScores = (sData.scores || []).filter(r => {
+                        const item = r.項目 || '';
+                        const m = item.match(/(\d+)公尺(?![池水])/);
+                        return m && String(m[1]) === String(dist) && item.includes(stroke) && !item.includes('接力') && !item.includes('(25m)') && !item.includes('短水道') && !isDQ(r.備註);
+                    }).sort((a, b) => String(a.年份).localeCompare(String(b.年份)));
 
-                    const pts = res[0].values.filter(v => {
-                        const m = v[4].match(/(\d+)公尺(?![池水])/);
-                        return m && String(m[1]) === String(dist) && !isDQ(v[5]);
-                    }).map(v => {
-                        const y = v[0].substring(0,4), m = v[0].substring(4,6), d = v[0].substring(6,8);
+                    const pts = pScores.map(v => {
+                        const yrStr = String(v.年份 || '');
+                        const y = yrStr.substring(0,4), m = yrStr.substring(4,6), d = yrStr.substring(6,8);
                         const raceDate = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
-                        const birthYr = toAD(v[3]);
+                        const birthYr = toAD(v.出生年 || p.birthYear);
                         const birthDate = new Date(birthYr, 0, 1);
                         const age = Math.max(5, (raceDate - birthDate) / (365.25 * 86400 * 1000));
-                        const sec = timeToSec(v[1]);
+                        const sec = timeToSec(v.成績);
                         return {
                             age: parseFloat(age.toFixed(2)),
                             date: raceDate,
                             dateStr: `${y}/${m}/${d}`,
                             sec: sec,
-                            rawTime: v[1],
-                            meet: v[2],
+                            rawTime: v.成績,
+                            meet: v.賽事名稱,
                             playerName: p.name
                         };
                     }).filter(pt => pt.sec && !isNaN(pt.sec) && pt.sec > 0);
@@ -1805,13 +1803,27 @@
             }
         }
 
-        // ══════════════════════════════════════════════
-        // 單人模式：項目抽屜展開與收合 (趨勢圖、歷年紀錄、同齡/全國排行、年度最佳)
-        // ══════════════════════════════════════════════
+        function updateRowArrows(rowId, activeMode) {
+            const map = {
+                'trend': `btn-trend-${rowId}`,
+                'history': `btn-hist-${rowId}`,
+                'rank': `btn-rank-${rowId}`,
+                'matrix': `btn-mat-${rowId}`,
+                'natRank': `btn-nat-${rowId}`
+            };
+            Object.keys(map).forEach(m => {
+                const btn = document.getElementById(map[m]);
+                if (btn) {
+                    const arr = btn.querySelector('.arrow-icon');
+                    if (arr) {
+                        arr.textContent = (m === activeMode) ? '▲' : '▼';
+                    }
+                }
+            });
+        }
+
         async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
             const p = document.getElementById(`p-${id}`), c = document.getElementById(`c-${id}`);
-            const btnTrend = document.getElementById(`btn-trend-${id}`);
-            const arrowSpan = btnTrend ? btnTrend.querySelector('.arrow-icon') : null;
             if (!p || !c) return;
             const currentMode = c.getAttribute('data-mode');
             const currentBirth = c.getAttribute('data-birth');
@@ -1819,11 +1831,11 @@
 
             if (p.classList.contains('active') && currentMode === mode && currentBirth === targetBirth) {
                 p.classList.remove('active');
-                if (arrowSpan) arrowSpan.textContent = '▼';
+                updateRowArrows(id, null);
                 return;
             }
             p.classList.add('active');
-            if (arrowSpan) arrowSpan.textContent = (mode === 'trend') ? '▲' : '▼';
+            updateRowArrows(id, mode);
             c.setAttribute('data-mode', mode);
             c.setAttribute('data-birth', targetBirth);
             if (mode === 'rank' || mode === 'natRank') {
@@ -1851,11 +1863,15 @@
                     }
                 }
                 c.innerHTML = h + "</div></div></div>";
-            } else if (mode === 'trend') {
-                const sFilter = (p3 && p3 !== 'null' && p3 !== 'undefined') ? ` AND 性別 = '${p3}'` : '';
-                const bFilter = (p2 && p2 !== 'null' && p2 !== 'undefined') ? ` AND (出生年 = '${p2}' OR 出生年 = '${p2}.0')` : '';
-                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${bFilter} ${sFilter} AND ${LC_FILTER} ORDER BY 年份 ASC`);
-                const fV = res[0].values.filter(vv => { const m = vv[4].match(/(\d+)公尺(?![池水])/); return m && String(m[1]) === String(dist) && !isDQ(vv[5]); });
+                        } else if (mode === 'trend') {
+                // 256split: 讀取該選手全量歷史成績 (0.001s)
+                const sData = await fetchSwimmerBucketData(p1, p2, p3);
+                const pScores = (sData.scores || []).filter(r => {
+                    const item = r.項目 || '';
+                    const m = item.match(/(\d+)公尺(?![池水])/);
+                    return m && String(m[1]) === String(dist) && item.includes(stroke) && !item.includes('接力') && !item.includes('(25m)') && !item.includes('短水道') && !isDQ(r.備註);
+                }).sort((a, b) => String(a.年份).localeCompare(String(b.年份)));
+                const fV = pScores.map(r => [r.年份, r.成績, r.賽事名稱, r.出生年, r.項目, r.備註]);
                 const mkD = (rs) => rs.map(v => ({ x: new Date(v[0].substring(0,4), v[0].substring(4,6)-1, v[0].substring(6,8)), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
                 const mkA = (rs) => rs.map(v => ({ x: (parseInt(v[0].substring(0,4)) + (parseInt(v[0].substring(4,6))-1)/12) - toAD(v[3]), y: timeToSec(v[1]), meet: v[2], date8: v[0] }));
                 const tD = mkD(fV), aD = mkA(fV);
@@ -1888,16 +1904,17 @@
                     const ff = pScores.map(r => [r.年份, r.成績, r.賽事名稱, r.出生年, r.項目, r.備註]);
                     aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 }; aC.update(); 
                 };
-            } else if (mode === 'matrix') { c.innerHTML = await renderMatrix(dist, stroke, (p3 || p2 || '男')); }
-            else if (mode === 'history') {
-                const sFilter = (p3 && p3 !== 'null' && p3 !== 'undefined') ? ` AND 性別 = '${p3}'` : '';
-                const bFilter = (p2 && p2 !== 'null' && p2 !== 'undefined') ? ` AND (出生年 = '${p2}' OR 出生年 = '${p2}.0')` : '';
-                const res = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 項目, 備註 FROM swimming_scores WHERE 姓名='${p1}' AND 項目 LIKE '%${dist}公尺%${stroke}%' ${bFilter} ${sFilter} AND ${LC_FILTER} ORDER BY 年份 DESC`);
-                const fR = res[0].values.filter(v => {
-                    const m = v[3].match(/(\d+)公尺(?![池水])/);
-                    return m && String(m[1]) === String(dist);
-                });
-                const validFR = fR.filter(v => !isDQ(v[4]));
+            } else if (mode === 'matrix') {
+                c.innerHTML = await renderMatrix(dist, stroke, (p3 || p2 || '男'));
+                        } else if (mode === 'history') {
+                // 256split: 讀取該選手全量歷史出賽紀錄 (0.001s)
+                const sData = await fetchSwimmerBucketData(p1, p2, p3);
+                const pScores = (sData.scores || []).filter(r => {
+                    const item = r.項目 || '';
+                    const m = item.match(/(\d+)公尺(?![池水])/);
+                    return m && String(m[1]) === String(dist) && item.includes(stroke) && !item.includes('接力') && !item.includes('(25m)') && !item.includes('短水道') && !isDQ(r.備註);
+                }).sort((a, b) => String(b.年份).localeCompare(String(a.年份)));
+                const validFR = pScores.map(r => [r.年份, r.成績, r.賽事名稱, r.項目, r.備註]);
                 const minS = validFR.length > 0 ? Math.min(...validFR.map(v => timeToSec(v[1]))) : 0;
                 let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">歷年紀錄</div>`;
                 fR.forEach(v => {
@@ -1916,13 +1933,17 @@
         async function toggleCompareHistory(pbId, playerName, stroke, dist, birthYear, sex) {
             const histRow = document.getElementById(`hist-row-${pbId}`);
             const histContent = document.getElementById(`hist-content-${pbId}`);
+            const btn = document.getElementById(`cmp-hist-btn-${pbId}`);
+            const arrowSpan = btn ? btn.querySelector('.arrow-icon') : null;
             if (!histRow || !histContent) return;
 
             if (histRow.style.display !== 'none') {
                 histRow.style.display = 'none';
+                if (arrowSpan) arrowSpan.textContent = '▼';
                 return;
             }
             histRow.style.display = 'table-row';
+            if (arrowSpan) arrowSpan.textContent = '▲';
 
                         // 256split: 讀取該選手在此距離項目下的全量有效歷史歷程 (0.001s)
             const sData = await fetchSwimmerBucketData(playerName, birthYear, sex);
@@ -1946,7 +1967,7 @@
                     <div class="row-gold" style="font-weight:800; font-size:14px;">
                         📋 ${playerName} - 【${stroke} ${dist}m】歷年出賽紀錄 (${validRows.length}場)
                     </div>
-                    <span onclick="document.getElementById('hist-row-${pbId}').style.display='none'" style="color:#8E8E93; font-size:12px; cursor:pointer;">
+                    <span onclick="document.getElementById('hist-row-${pbId}').style.display='none'; const b=document.getElementById('cmp-hist-btn-${pbId}'); if(b){const a=b.querySelector('.arrow-icon'); if(a) a.textContent='▼';}" style="color:#8E8E93; font-size:12px; cursor:pointer;">
                         ✕ 關閉
                     </span>
                 </div>
