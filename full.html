@@ -289,7 +289,7 @@
         </select>
         <select id="sexSelect" style="display:none; background:#1C1C1E; color:#38BDF8; font-weight:bold; font-size:13px; border:0.5px solid #38383A; border-radius:8px; padding:4px 8px; outline:none; cursor:pointer; margin:0 4px; flex-shrink:0;" onchange="doSearch(null, this.value)">
         </select>
-        <span class="font-bold px-3 cursor-pointer" onclick="doSearch()" style="background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">查詢</span>
+        <span id="searchBtn" class="font-bold px-3 cursor-pointer" onclick="doSearch()" style="background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
     </div>
 
@@ -1079,6 +1079,7 @@
 
                     // 右側依序填入每位選手成績格
                     playerEntries.forEach(({ p, dData, pb }, pIdx) => {
+                        const pbId = `${distKey}_p${pIdx}`;
                         if (!pb) {
                             cellsHtml += `<td class="cmp-no-data-cell">-</td>`;
                             return;

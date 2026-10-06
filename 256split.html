@@ -289,7 +289,7 @@
         </select>
         <select id="sexSelect" style="display:none; background:#1C1C1E; color:#38BDF8; font-weight:bold; font-size:13px; border:0.5px solid #38383A; border-radius:8px; padding:4px 8px; outline:none; cursor:pointer; margin:0 4px; flex-shrink:0;" onchange="doSearch(null, this.value)">
         </select>
-        <span class="font-bold px-3 cursor-pointer" onclick="doSearch()" style="background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">查詢</span>
+        <span id="searchBtn" class="font-bold px-3 cursor-pointer" onclick="doSearch()" style="background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">查詢</span>
         <span class="font-bold text-white px-3 cursor-pointer" onclick="collapseAll()">收合</span>
     </div>
 
@@ -727,35 +727,34 @@
         }
 
         async function renderMatrix(dist, stroke, sex) {
-            // 256split: 讀取預算好的矩陣檔案 (0.001s)
+            // 256split: 讀取預算好的榜單與矩陣檔案 (0.001s)
             const strokeCodeMap = {'蝶式':'fly', '仰式':'back', '蛙式':'breast', '自由式':'free', '混合式':'im'};
             const sCode = strokeCodeMap[stroke] || 'free';
             const normSex = sex && sex.includes('女') ? '女' : '男';
             
-            let matrixData = null;
+            let rankData = null;
             try {
-                const resp = await fetch(`/data_buckets/matrices/matrix_${sCode}_${dist}_${normSex}.json`);
-                if (resp.ok) matrixData = await resp.json();
+                const resp = await fetch(`/data_buckets/rankings/rank_${sCode}_${dist}_${normSex}.json`);
+                if (resp.ok) rankData = await resp.json();
             } catch(e) {}
 
-            if (!matrixData || !matrixData.years || matrixData.years.length === 0) {
+            const matrix = rankData ? rankData.matrix : null;
+            if (!matrix || Object.keys(matrix).length === 0) {
                 return `<div class="data-panel" style="text-align:center; padding:12px; color:#8E8E93; font-size:12px;">查無「${dist}m ${stroke}」之年度最佳數據</div>`;
             }
 
-            const allYears = matrixData.years;
-            const matrix = matrixData.matrix;
-            const allTimeBest = matrixData.all_time_best;
-
+            const currentYear = 2026;
+            const showYears = [];
+            for (let i = 0; i < 5; i++) { showYears.push((currentYear - i).toString()); }
             const groups = ["18以上", "高中", "國中", "國小高年級", "國小中年級", "國小低年級"];
+            const allTimeBest = matrix["All-Time"];
+
             let colorMap = {}, allNames = new Set();
-            allYears.forEach(y => {
+            ["All-Time", ...showYears].forEach(y => {
                 if (matrix[y]) {
-                    groups.forEach(g => { if (matrix[y][g]) allNames.add(matrix[y][g].n); });
+                    groups.forEach(g => { if (matrix[y][g] && matrix[y][g].n) allNames.add(matrix[y][g].n); });
                 }
             });
-            if (allTimeBest) {
-                groups.forEach(g => { if (allTimeBest[g]) allNames.add(allTimeBest[g].n); });
-            }
 
             Array.from(allNames).sort().forEach((n, i) => {
                 colorMap[n] = `hsl(${(i * (360 / Math.max(1, allNames.size)))}, 85%, 65%)`;
@@ -763,16 +762,7 @@
 
             let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">年度最佳矩陣</div><div style="overflow-x:auto;"><table class="matrix-table"><tr style="background:#2C2C2E;"><th>年度</th>${groups.map(g=>`<th>${g}</th>`).join('')}</tr>`;
             
-            if (allTimeBest) {
-                h += `<tr><td class="font-bold">All-Time</td>`;
-                groups.forEach(g => {
-                    const r = allTimeBest[g];
-                    h += r ? `<td><b style="color:${colorMap[r.n]}; text-shadow:1px 1px 1px #000;">${r.n}</b><br><small>${formatToXcode(r.sec)}</small></td>` : `<td>-</td>`;
-                });
-                h += `</tr>`;
-            }
-
-            allYears.forEach(y => {
+            ["All-Time", ...showYears].forEach(y => {
                 h += `<tr><td class="font-bold">${y}</td>`;
                 groups.forEach(g => {
                     const r = matrix[y] ? matrix[y][g] : null;
@@ -1303,6 +1293,7 @@
 
                     // 右側依序填入每位選手成績格
                     playerEntries.forEach(({ p, dData, pb }, pIdx) => {
+                        const pbId = `${distKey}_p${pIdx}`;
                         if (!pb) {
                             cellsHtml += `<td class="cmp-no-data-cell">-</td>`;
                             return;
@@ -1910,7 +1901,7 @@
                 const validFR = pScores.map(r => [r.年份, r.成績, r.賽事名稱, r.項目, r.備註]);
                 const minS = validFR.length > 0 ? Math.min(...validFR.map(v => timeToSec(v[1]))) : 0;
                 let h = `<div class="data-panel"><div style="color:#FFD933; font-weight:bold; margin-bottom:10px;">歷年紀錄</div>`;
-                fR.forEach(v => {
+                validFR.forEach(v => {
                     const s = timeToSec(v[1]);
                     const dqFlag = isDQ(v[4]);
                     const isBest = !dqFlag && s === minS;
