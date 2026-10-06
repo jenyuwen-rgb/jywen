@@ -446,7 +446,10 @@
                         footerDbStatus.style.color = '#8E8E93'; const dot = document.getElementById('footerDbDot'); if(dot) dot.style.backgroundColor = '#30D158';
                     }
                     loadLatestRaceInfo();
-                    doSearch(); 
+                    const initialInput = document.getElementById('searchInput');
+                    if (initialInput && initialInput.value.trim()) {
+                        doSearch(); 
+                    }
                     if (typeof checkAutoOpenUserGuide === 'function') {
                         checkAutoOpenUserGuide();
                     }
@@ -607,6 +610,15 @@
             }
         }
 
+        // ══════════════════════════════════════════════
+        // 多人比較模式全域狀態
+        // ══════════════════════════════════════════════
+        const CMP_COLORS = ['#0A84FF', '#FF453A', '#30D158', '#FF9F0A', '#BF5AF2', '#64D2FF'];
+        const CMP_CIRCLES = ['❶', '❷', '❸', '❹', '❺', '❻'];
+        var cmpChartState = {}; // 記錄各 distKey 當前模式 (age | date) 與圖表實例
+        var currentCompareNames = [];
+        var currentCompareOverrides = {};
+
         async function doSearch(forcedBirthYear, forcedSex) {
             if (typeof window.forceCloseAutocomplete === 'function') {
                 window.forceCloseAutocomplete();
@@ -642,10 +654,11 @@
             }
 
             // ── 各年齡組別跨組排行模式：偵測以 /RANK 或 /rank 結尾或單獨 /rank ──
+            const targetCardParam = new URLSearchParams(window.location.search).get('card');
             if (/^\s*\/\s*rank\s*$/i.test(rawInput)) {
                 saveHistory(rawInput);
                 sendTelemetry(rawInput);
-                await doRankAnalysis('', forcedBirthYear, forcedSex);
+                await doRankAnalysis('', forcedBirthYear, forcedSex, targetCardParam);
                 return;
             }
             const rankMatch = rawInput.match(/^(.+?)\s*\/\s*rank$/i);
@@ -654,7 +667,7 @@
                 if (rankSwimmerName) {
                     saveHistory(rawInput);
                     sendTelemetry(rawInput);
-                    await doRankAnalysis(rankSwimmerName, forcedBirthYear, forcedSex);
+                    await doRankAnalysis(rankSwimmerName, forcedBirthYear, forcedSex, targetCardParam);
                     return;
                 }
             }
@@ -846,12 +859,6 @@
         // ══════════════════════════════════════════════
         // 多人比較模式核心函數（項目基準，多人並排全新架構）
         // ══════════════════════════════════════════════
-        const CMP_COLORS = ['#0A84FF', '#FF453A', '#30D158', '#FF9F0A', '#BF5AF2', '#64D2FF'];
-        const CMP_CIRCLES = ['❶', '❷', '❸', '❹', '❺', '❻'];
-        let cmpChartState = {}; // 記錄各 distKey 當前模式 (age | date) 與圖表實例
-        let currentCompareNames = [];
-        let currentCompareOverrides = {};
-
         window.changeComparePlayerBirthYear = async function(playerIdx, newYear) {
             if (!currentCompareOverrides) currentCompareOverrides = {};
             currentCompareOverrides[playerIdx] = newYear;
@@ -2959,23 +2966,31 @@
         // ═════════════════════════════════════════════════════════════════════════
         // ── 模式三：各年齡組別跨組排行分析核心引擎 (Age Bracket Cross-Ranking Engine) ──
         // ═════════════════════════════════════════════════════════════════════════
-        let ageBracketRanksData = null;
+        let ageBracketRanksCache = {};
 
-        async function loadAgeBracketRanksData() {
-            if (ageBracketRanksData) return ageBracketRanksData;
+        async function loadAgeBracketRanksData(targetYear = 2026) {
+            const yr = parseInt(targetYear) || 2026;
+            if (ageBracketRanksCache[yr]) return ageBracketRanksCache[yr];
             try {
-                const resp = await fetch('/static/age_bracket_ranks.json');
+                const url = (yr === 2026) ? '/static/age_bracket_ranks.json' : `/static/age_bracket_ranks_${yr}.json`;
+                const resp = await fetch(url);
                 if (resp.ok) {
-                    ageBracketRanksData = await resp.json();
-                    return ageBracketRanksData;
+                    ageBracketRanksCache[yr] = await resp.json();
+                    return ageBracketRanksCache[yr];
                 }
             } catch(e) {
-                console.warn("載入 age_bracket_ranks.json 失敗:", e);
+                console.warn(`載入 age_bracket_ranks_${yr}.json 失敗:`, e);
             }
+            if (yr !== 2026 && ageBracketRanksCache[2026]) return ageBracketRanksCache[2026];
             return null;
         }
 
-        async function doRankAnalysis(swimmerName, forcedBirthYear, forcedSex, rankTargetCard) {
+        window.switchRankBaseYear = function(swimmerName, birthYear, sex, rankTargetCard, targetYear) {
+            window.currentRankBaseYear = parseInt(targetYear);
+            doRankAnalysis(swimmerName, birthYear, sex, rankTargetCard, targetYear);
+        };
+
+        async function doRankAnalysis(swimmerName, forcedBirthYear, forcedSex, rankTargetCard, forcedBaseYear) {
             if (!worker) return;
             const loader = document.getElementById('queryLoader');
             loader.style.display = 'flex'; setTimeout(() => loader.style.opacity = '1', 10);
@@ -3013,8 +3028,11 @@
                 sex = matchedRow ? ((matchedRow[1] === '女' || matchedRow[1] === '女生') ? '女' : '男') : availableSexes[0];
             }
 
+            const currentBaseYear = forcedBaseYear ? parseInt(forcedBaseYear) : (window.currentRankBaseYear || 2026);
+            window.currentRankBaseYear = currentBaseYear;
+
             // 2. 載入各年齡組排行數據庫
-            const rankData = await loadAgeBracketRanksData();
+            const rankData = await loadAgeBracketRanksData(currentBaseYear);
             if (!rankData || !rankData.data) {
                 await minWait;
                 loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 300);
@@ -3022,9 +3040,8 @@
                 return;
             }
 
-            const currentYear = rankData.base_year || 2026;
             const birthYearNum = parseInt(selectedBirthYear) || 2010;
-            const swimmerAge = currentYear - birthYearNum;
+            const swimmerAge = currentBaseYear - birthYearNum;
 
             // 3. 同步頂部工具列下拉選單 (出生年與性別)
             const birthSelect = document.getElementById('birthYearSelect');
@@ -3035,7 +3052,7 @@
                     birthSelect.classList.remove('hidden');
                     birthSelect.onchange = function() {
                         const curSex = document.getElementById('sexSelect') ? document.getElementById('sexSelect').value : sex;
-                        doRankAnalysis(swimmerName, this.value, curSex);
+                        doRankAnalysis(swimmerName, this.value, curSex, rankTargetCard, currentBaseYear);
                     };
                 }
             } else {
@@ -3050,7 +3067,7 @@
                     sexSelect.style.display = 'inline-block';
                     sexSelect.onchange = function() {
                         const curYear = document.getElementById('birthYearSelect') ? document.getElementById('birthYearSelect').value : selectedBirthYear;
-                        doRankAnalysis(swimmerName, curYear, this.value);
+                        doRankAnalysis(swimmerName, curYear, this.value, rankTargetCard, currentBaseYear);
                     };
                 }
             } else {
@@ -3104,7 +3121,7 @@
             banner.className = 'w-full mb-5 bg-[#1C1C1E] border border-[#38383A] rounded-xl p-4 shadow-lg';
             banner.innerHTML = `
                 <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-                    <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                         <div style="font-size:20px; font-weight:900; color:#FFF; display:flex; align-items:center; gap:8px;">
                             <span>${swimmerName}</span>
                             <span style="font-size:12px; color:#A1A1A6; background:rgba(255,255,255,0.08); padding:2px 8px; border-radius:6px; font-weight:600;">(${selectedBirthYear}年次)</span>
@@ -3114,8 +3131,18 @@
                             🏆 各年齡組別跨組排行 (/RANK)
                         </div>
                     </div>
-                    <div style="font-size:12px; color:#8E8E93;">
-                        基準年度：<b style="color:#FFF;">${currentYear} 年</b> (當前現役選手池)
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span style="font-size:12px; color:#8E8E93;">基準年度：</span>
+                        <div style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.4); border:0.5px solid rgba(255,255,255,0.15); border-radius:8px; padding:2px; gap:3px;">
+                            <button onclick="window.switchRankBaseYear('${swimmerName}', '${selectedBirthYear}', '${sex}', '${rankTargetCard || ''}', 2026)"
+                                    style="font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:6px; border:none; cursor:pointer; transition:all 0.15s ease; ${currentBaseYear === 2026 ? 'background:#0A84FF; color:#FFF; box-shadow:0 1px 4px rgba(10,132,255,0.4);' : 'background:transparent; color:#8E8E93;'}">
+                                2026 年 (當前現役)
+                            </button>
+                            <button onclick="window.switchRankBaseYear('${swimmerName}', '${selectedBirthYear}', '${sex}', '${rankTargetCard || ''}', 2027)"
+                                    style="font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:6px; border:none; cursor:pointer; transition:all 0.15s ease; ${currentBaseYear === 2027 ? 'background:#30D158; color:#000; box-shadow:0 1px 4px rgba(48,209,88,0.4);' : 'background:transparent; color:#8E8E93;'}">
+                                2027 年 (+1年預估)
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -3779,6 +3806,7 @@
                     const inputEl = document.getElementById('searchInput');
                     if (inputEl) {
                         inputEl.value = decodeURIComponent(q);
+                        doSearch();
                     }
                 }
             } catch(e) {}
