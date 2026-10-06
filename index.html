@@ -251,7 +251,7 @@
 
     <!-- 返回首頁與 PWA 標示 -->
     <div class="m-3 flex justify-end items-center">
-        <span class="text-xs text-gray-500">⚡ 256split 極速秒開架構 · PWA Ready</span>
+        <span class="text-xs text-gray-500">⚡ 極速秒開架構 · PWA Ready</span>
     </div>
 
     <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E]/80 backdrop-blur-md rounded-xl text-center border border-[#38383A] shadow-sm" style="display:none;">
@@ -356,66 +356,7 @@
 
     <div id="main"></div>
 
-    <script id="worker-script" type="text/javascript-worker">
-        let origin = '';
-        try {
-            if (self.location && self.location.origin && self.location.origin !== 'null') {
-                origin = self.location.origin;
-            }
-        } catch(e) {}
-
-        const isHttpOrigin = origin && (origin.startsWith('http://') || origin.startsWith('https://'));
-        try {
-            if (isHttpOrigin) {
-                importScripts(`${origin}/sql-wasm.js`);
-            } else {
-                importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
-            }
-        } catch(e) {
-            try {
-                importScripts('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js');
-            } catch(e2) {
-                console.error('sql-wasm.js 載入失敗:', e2);
-            }
-        }
-        let db = null;
-        self.onmessage = async function(e) {
-            const { type, data, parts, query, id } = e.data;
-            if (type === 'INIT' || type === 'INIT_PARTS') {
-                let SQL = null;
-                const isHttp = origin && (origin.startsWith('http://') || origin.startsWith('https://'));
-                try {
-                    SQL = await initSqlJs({ locateFile: f => isHttp ? `${origin}/${f}` : `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
-                } catch(err) {
-                    console.warn("初次載入 sql-wasm 失敗，嘗試 CDN 回退:", err);
-                    try {
-                        SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${f}` });
-                    } catch(err2) {
-                        console.error("CDN sql.js 載入亦失敗:", err2);
-                    }
-                }
-
-                if (type === 'INIT') {
-                    db = new SQL.Database(data);
-                } else {
-                    let totalSize = parts.reduce((acc, p) => acc + p.length, 0);
-                    const merged = new Uint8Array(totalSize);
-                    let offset = 0;
-                    for (const p of parts) {
-                        merged.set(p, offset);
-                        offset += p.length;
-                    }
-                    db = new SQL.Database(merged);
-                }
-                self.postMessage({ type: 'READY' });
-            } else if (type === 'QUERY') {
-                try {
-                    const res = db.exec(query);
-                    self.postMessage({ type: 'RESULT', id: id, res: res });
-                } catch (err) { self.postMessage({ type: 'ERROR', id: id, msg: err.message }); }
-            }
-        };
-    </script>
+    
 
     <script>
 
@@ -542,7 +483,7 @@
                         footerDbStatus.textContent = '雲端資料庫已就緒';
                         footerDbStatus.style.color = '#8E8E93'; const dot = document.getElementById('footerDbDot'); if(dot) dot.style.backgroundColor = '#30D158';
                     }
-                    loadLatestRaceInfo();
+                    loadLatestRaceInfo256();
                     doSearch(); 
                     if (typeof checkAutoOpenUserGuide === 'function') {
                         checkAutoOpenUserGuide();
@@ -551,7 +492,7 @@
                 else if (type === 'RESULT') { if(queryCallbacks[id]) queryCallbacks[id](res); }
             };
         }
-        initWorker();
+        startSystem();
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.port === '5001';
 
@@ -735,7 +676,7 @@
                 const ac = document.getElementById('autocomplete-list');
                 if (ac) { ac.classList.add('hidden'); ac.style.display = 'none'; ac.innerHTML = ''; }
             }
-            loadLatestRaceInfo();
+            loadLatestRaceInfo256();
             const rawInput = document.getElementById('searchInput').value.trim();
 
             // ── 賽事達標檢驗模式：偵測以 /STD 或 /std 結尾 ──
@@ -3528,7 +3469,7 @@
             const footerDbStatus = document.getElementById('footerDbStatus');
             const footerDbDot = document.getElementById('footerDbDot');
             if (footerDbStatus) {
-                footerDbStatus.textContent = '⚡ 256split 雲端秒開索引已就緒';
+                footerDbStatus.textContent = '⚡ 極速秒開架構已就緒';
                 footerDbStatus.style.color = '#8E8E93';
             }
             if (footerDbDot) {
