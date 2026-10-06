@@ -721,6 +721,116 @@
             </div>
         </section>
 
+        <!-- 區塊一附屬：免費儲存額度與容量水位監測哨兵 (Zero-Cost Storage Quota Sentinel) -->
+        <section class="tech-card p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-server gold-gradient-icon"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base font-bold text-zinc-100">免費儲存空間水位哨兵 (Zero-Cost Storage Quota Sentinel)</h3>
+                            <span class="text-[11px] font-mono px-2 py-0.5 rounded-full gold-gradient-badge">
+                                <span class="gold-gradient-text font-bold">100% 免費 · $0.00 /月</span>
+                            </span>
+                        </div>
+                        <p class="text-xs text-zinc-400">即時監測 GitHub、GCS 雲端儲存與 Vercel 邊緣部署配額 · 剩餘空間與 85% 預警安全水位</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-mono">
+                    <span id="quotaOverallBadge" class="badge-live text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1.5 font-bold">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>全域水位安全</span>
+                    </span>
+                    <button onclick="fetchStorageQuota()" class="px-2.5 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition flex items-center gap-1 border border-zinc-700">
+                        <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
+                        <span>刷新容量</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 三大服務容量進度卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono">
+                <!-- 1. GitHub 倉庫工作區 -->
+                <div class="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-2.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="flex items-center gap-1.5 text-zinc-300 font-bold">
+                            <i class="fa-brands fa-github text-zinc-400"></i> GitHub 倉庫實體
+                        </span>
+                        <span id="ghQuotaPct" class="text-emerald-400 font-bold">40.0%</span>
+                    </div>
+                    <!-- 進度條 -->
+                    <div class="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
+                        <div id="ghQuotaBar" class="bg-gradient-to-r from-emerald-500 to-amber-400 h-2 rounded-full transition-all duration-500" style="width: 40.0%"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-zinc-400 pt-1 border-t border-zinc-800/60">
+                        <span>已用：<strong id="ghUsedMb" class="text-zinc-200">399.6 MB</strong></span>
+                        <span>剩餘：<strong id="ghFreeMb" class="text-emerald-400 font-bold">600.4 MB</strong></span>
+                    </div>
+                    <div class="text-[10px] text-zinc-500 flex justify-between">
+                        <span>免費上限：1,000 MB</span>
+                        <span id="ghDbPartsInfo" class="text-zinc-400">DB分卷 298 MB</span>
+                    </div>
+                </div>
+
+                <!-- 2. Google Cloud Storage (GCS) -->
+                <div class="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-2.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="flex items-center gap-1.5 text-zinc-300 font-bold">
+                            <i class="fa-brands fa-google text-blue-400"></i> GCS 雲端儲存桶
+                        </span>
+                        <span id="gcsQuotaPct" class="text-emerald-400 font-bold">0.00%</span>
+                    </div>
+                    <!-- 進度條 -->
+                    <div class="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
+                        <div id="gcsQuotaBar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-2 rounded-full transition-all duration-500" style="width: 0.1%"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-zinc-400 pt-1 border-t border-zinc-800/60">
+                        <span>已用：<strong id="gcsUsedMb" class="text-zinc-200">0.00 MB</strong></span>
+                        <span>剩餘：<strong id="gcsFreeMb" class="text-emerald-400 font-bold">5,120 MB</strong></span>
+                    </div>
+                    <div class="text-[10px] text-zinc-500 flex justify-between">
+                        <span>GCP Always Free：5,120 MB</span>
+                        <span class="text-zinc-400">零快取公開唯讀</span>
+                    </div>
+                </div>
+
+                <!-- 3. Vercel 邊緣部署包 -->
+                <div class="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-2.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="flex items-center gap-1.5 text-zinc-300 font-bold">
+                            <i class="fa-solid fa-triangle-circle-square text-zinc-400"></i> Vercel 邊緣部署
+                        </span>
+                        <span id="verQuotaPct" class="text-emerald-400 font-bold">40.0%</span>
+                    </div>
+                    <!-- 進度條 -->
+                    <div class="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
+                        <div id="verQuotaBar" class="bg-gradient-to-r from-emerald-500 to-amber-400 h-2 rounded-full transition-all duration-500" style="width: 40.0%"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-zinc-400 pt-1 border-t border-zinc-800/60">
+                        <span>已用：<strong id="verUsedMb" class="text-zinc-200">399.6 MB</strong></span>
+                        <span>剩餘：<strong id="verFreeMb" class="text-emerald-400 font-bold">600.4 MB</strong></span>
+                    </div>
+                    <div class="text-[10px] text-zinc-500 flex justify-between">
+                        <span>Hobby 限額：1,000 MB</span>
+                        <span class="text-zinc-400">CDN 邊緣快取全球</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 配額安全與成本保障條款 -->
+            <div class="p-3 rounded-lg bg-zinc-950/60 border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-zinc-400 gap-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-amber-400"></i>
+                    <span><strong>永不超額承諾</strong>：當任一服務使用量突破 <span class="text-amber-300 font-bold">85% 水位線</span>，系統將自動中斷大檔寫入並觸發物理熔斷告警！</span>
+                </div>
+                <div class="text-[11px] text-zinc-500 shrink-0">
+                    最後測量時間：<span id="quotaMeasureTime" class="text-zinc-300">2026-10-06 22:56</span>
+                </div>
+            </div>
+        </section>
+
         <!-- 區塊二：地端整合平台 1:1 復刻下載控制面板 (已在資料庫以淺灰色呈現) -->
         <section class="tech-card p-5 space-y-4">
             <!-- 頂部單位資訊列 -->
@@ -1996,16 +2106,87 @@
             }
         }
 
+        async function fetchStorageQuota() {
+            const overallBadge = document.getElementById('quotaOverallBadge');
+            const measureTimeEl = document.getElementById('quotaMeasureTime');
+
+            const ghPct = document.getElementById('ghQuotaPct');
+            const ghBar = document.getElementById('ghQuotaBar');
+            const ghUsed = document.getElementById('ghUsedMb');
+            const ghFree = document.getElementById('ghFreeMb');
+            const ghInfo = document.getElementById('ghDbPartsInfo');
+
+            const gcsPct = document.getElementById('gcsQuotaPct');
+            const gcsBar = document.getElementById('gcsQuotaBar');
+            const gcsUsed = document.getElementById('gcsUsedMb');
+            const gcsFree = document.getElementById('gcsFreeMb');
+
+            const verPct = document.getElementById('verQuotaPct');
+            const verBar = document.getElementById('verQuotaBar');
+            const verUsed = document.getElementById('verUsedMb');
+            const verFree = document.getElementById('verFreeMb');
+
+            try {
+                const quotaUrl = IS_CLOUD_ENV
+                    ? `${GCS_BASE_URL}/storage_quota.json?t=${Date.now()}`
+                    : `/static/storage_quota.json?t=${Date.now()}`;
+                const res = await fetch(quotaUrl);
+                if (!res.ok) return;
+                const data = await res.json();
+
+                if (measureTimeEl && data.timestamp) measureTimeEl.textContent = data.timestamp;
+
+                const gh = data.services && data.services.github_repository;
+                if (gh) {
+                    if (ghPct) ghPct.textContent = `${gh.used_percentage}%`;
+                    if (ghBar) ghBar.style.width = `${Math.min(100, Math.max(1, gh.used_percentage))}%`;
+                    if (ghUsed) ghUsed.textContent = `${gh.used_mb} MB`;
+                    if (ghFree) ghFree.textContent = `${gh.free_remaining_mb} MB`;
+                    if (ghInfo && gh.breakdown) ghInfo.textContent = `DB分卷 ${gh.breakdown.sql_database_parts_mb} MB`;
+                }
+
+                const gcs = data.services && data.services.google_cloud_storage;
+                if (gcs) {
+                    if (gcsPct) gcsPct.textContent = `${gcs.used_percentage}%`;
+                    if (gcsBar) gcsBar.style.width = `${Math.min(100, Math.max(0.2, gcs.used_percentage))}%`;
+                    if (gcsUsed) gcsUsed.textContent = `${gcs.used_mb} MB`;
+                    if (gcsFree) gcsFree.textContent = `${gcs.free_remaining_mb} MB`;
+                }
+
+                const ver = data.services && data.services.vercel_edge_deployment;
+                if (ver) {
+                    if (verPct) verPct.textContent = `${ver.used_percentage}%`;
+                    if (verBar) verBar.style.width = `${Math.min(100, Math.max(1, ver.used_percentage))}%`;
+                    if (verUsed) verUsed.textContent = `${ver.used_mb} MB`;
+                    if (verFree) verFree.textContent = `${ver.free_remaining_mb} MB`;
+                }
+
+                if (overallBadge) {
+                    if (data.overall_status === 'ALL_HEALTHY') {
+                        overallBadge.className = 'badge-live text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1.5 font-bold';
+                        overallBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>全域水位安全</span>';
+                    } else {
+                        overallBadge.className = 'badge-pending text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1.5 font-bold';
+                        overallBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span><span class="gold-gradient-text">水位關注預警</span>';
+                    }
+                }
+            } catch (e) {
+                console.warn("無法取得儲存配額資料:", e);
+            }
+        }
+
         function refreshData() {
             initDashboard();
             loadCalendarData();
             fetchCrawlerLogs();
+            fetchStorageQuota();
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             initDashboard();
             loadCalendarData();
             fetchCrawlerLogs();
+            fetchStorageQuota();
         });
     </script>
 </body>
