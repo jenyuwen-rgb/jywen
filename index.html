@@ -571,7 +571,7 @@
             if (projectRankingMemoryCache[cacheKey]) return projectRankingMemoryCache[cacheKey];
 
             try {
-                const resp = await fetch(`/data_buckets/rankings/ranking_${cacheKey}.json`);
+                const resp = await fetch(`/data_buckets/rankings/rank_${cacheKey}.json`);
                 if (resp.ok) {
                     const rData = await resp.json();
                     projectRankingMemoryCache[cacheKey] = rData;
@@ -718,12 +718,25 @@
             const rankData = await fetchProjectRankingData(stroke, parseInt(dist), sex);
             if (!rankData) return [];
             
+            let rawList = [];
             if (isNational) {
-                return rankData.national_rankings || [];
+                rawList = rankData.national_top || rankData.national_rankings || [];
             } else {
                 const byKey = String(birth).replace(/\.0$/, '').trim();
-                return (rankData.age_rankings && rankData.age_rankings[byKey]) ? rankData.age_rankings[byKey] : [];
+                rawList = (rankData.birth_groups && rankData.birth_groups[byKey]) ? rankData.birth_groups[byKey] : 
+                          (rankData.age_rankings && rankData.age_rankings[byKey]) ? rankData.age_rankings[byKey] : [];
             }
+            return rawList.map(r => ({
+                name: r.name,
+                birthYear: r.birth || r.birthYear || '',
+                birth: r.birth || r.birthYear || '',
+                raw: r.raw || r.成績 || '',
+                sec: r.sec || timeToSec(r.raw || r.成績),
+                wa: r.wa || getWA(parseInt(dist), stroke, r.raw || r.成績, sex),
+                fullDate: r.date || r.fullDate || '',
+                date: r.date || r.fullDate || '',
+                meet: r.meet || r.賽事名稱 || ''
+            }));
         }
 
         async function renderMatrix(dist, stroke, sex) {

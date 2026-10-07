@@ -119,11 +119,6 @@
           "in_db": false
         },
         {
-          "value": "ctsa_115_winter",
-          "text": "115年全國冬季短水道游泳錦標賽 [待排程]",
-          "in_db": true
-        },
-        {
           "value": "ctsa_114_winter",
           "text": "114年全國冬季短水道分齡游泳錦標賽",
           "in_db": true
@@ -145,11 +140,6 @@
           "in_db": false
         },
         {
-          "value": "tpesa_115_autumn",
-          "text": "115年台北市基層對抗賽秋季賽 [待排程]",
-          "in_db": false
-        },
-        {
           "value": "tpesa_114_fall",
           "text": "114年台北市中正盃分齡游泳錦標賽",
           "in_db": false
@@ -164,11 +154,6 @@
           "value": "ntpc_115_spring",
           "text": "115年新北市春季分齡游泳錦標賽",
           "in_db": false
-        },
-        {
-          "value": "ntpc_115_mayor",
-          "text": "115年新北市市長盃游泳錦標賽 [待排程]",
-          "in_db": false
         }
       ]
     },
@@ -179,11 +164,6 @@
         {
           "value": "tyc_115_mayor",
           "text": "115年桃園市市長盃分齡游泳錦標賽",
-          "in_db": false
-        },
-        {
-          "value": "tyc_115_comm",
-          "text": "115年桃園市主委盃分齡游泳錦標賽 [待排程]",
           "in_db": false
         }
       ]
@@ -196,11 +176,6 @@
           "value": "hcc_115_spring",
           "text": "115年新竹市分齡游泳錦標賽",
           "in_db": false
-        },
-        {
-          "value": "hcc_115_mayor",
-          "text": "115年新竹市市長盃分齡錦標賽 [待排程]",
-          "in_db": false
         }
       ]
     },
@@ -212,11 +187,6 @@
           "value": "swim8_115_city",
           "text": "台中市議長盃游泳錦標賽",
           "in_db": true
-        },
-        {
-          "value": "swim8_115_comm",
-          "text": "115年台中市主委盃分齡錦標賽 [待排程]",
-          "in_db": false
         }
       ]
     },
@@ -228,11 +198,6 @@
           "value": "tainan_115_elem",
           "text": "台南市中小學游泳錦標賽",
           "in_db": true
-        },
-        {
-          "value": "tainan_115_mayor",
-          "text": "115年台南市市長盃分齡游泳錦標賽 [待排程]",
-          "in_db": false
         }
       ]
     },
@@ -244,11 +209,6 @@
           "value": "kcc_115_harbor",
           "text": "115年高雄市港都盃分齡游泳錦標賽",
           "in_db": false
-        },
-        {
-          "value": "kcc_115_comm",
-          "text": "115年高雄市主委盃游泳錦標賽 [待排程]",
-          "in_db": false
         }
       ]
     },
@@ -259,11 +219,6 @@
         {
           "value": "kcsat_115_sprint",
           "text": "115年高雄市短水道分齡對抗賽",
-          "in_db": false
-        },
-        {
-          "value": "kcsat_115_open",
-          "text": "115年高雄市公開分齡邀請賽 [待排程]",
           "in_db": false
         }
       ]
