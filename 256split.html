@@ -722,9 +722,10 @@
             if (isNational) {
                 rawList = rankData.national_top || rankData.national_rankings || [];
             } else {
-                const byKey = String(birth).replace(/\.0$/, '').trim();
-                rawList = (rankData.birth_groups && rankData.birth_groups[byKey]) ? rankData.birth_groups[byKey] : 
-                          (rankData.age_rankings && rankData.age_rankings[byKey]) ? rankData.age_rankings[byKey] : [];
+                const rawKey = String(birth || '').replace(/\.0$/, '').trim();
+                const adKey = String(toAD(rawKey));
+                const bg = rankData.birth_groups || rankData.age_rankings || {};
+                rawList = bg[adKey] || bg[rawKey] || [];
             }
             return rawList.map(r => ({
                 name: r.name,
