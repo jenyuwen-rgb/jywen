@@ -747,34 +747,29 @@
         }
 
         async function getRankData(dist, stroke, name, birth, sex, isNational) {
-            const pattern = `%${dist}公尺%${stroke}%`;
-            let filter = `項目 LIKE '${pattern}' AND 性別 = '${sex}' AND ${LC_FILTER}`;
-            if (isNational) filter += ` AND (年份 LIKE '2026%' OR 年份 LIKE '2025%')`; else filter += ` AND 出生年='${birth}'`;
-            const res = await remoteQuery(`SELECT 姓名, 成績, 年份, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE ${filter}`);
-            if (!res[0]) return [];
-            const pBs = {};
-            res[0].values.forEach(v => {
-                const m = v[5].match(/(\d+)公尺/);
-                if (!m || m[1] !== String(dist)) return;
-                if (isDQ(v[6])) return;
-
-                const pKey = isNational ? (v[4] ? `${v[0]}_${v[4]}` : v[0]) : v[0];
-                const sec = timeToSec(v[1]);
-                if (sec > 0 && (!pBs[pKey] || sec < pBs[pKey].sec)) {
-                    pBs[pKey] = { name: v[0], sec, raw: formatToXcode(sec), fullDate: v[2], meet: v[3], wa: getWA(dist, stroke, v[1], sex), birthYear: v[4] };
-                }
-            });
-            const sorted = Object.values(pBs).sort((a,b) => a.sec - b.sec);
-            let prevCs = null, prevRank = 0;
-            sorted.forEach((p, idx) => {
-                const cs = Math.round(p.sec * 100);
-                if (cs !== prevCs) {
-                    prevCs = cs;
-                    prevRank = idx + 1;
-                }
-                p.rank = prevRank;
-            });
-            return sorted;
+            const rankData = await fetchProjectRankingData(stroke, parseInt(dist), sex);
+            if (!rankData) return [];
+            
+            let rawList = [];
+            if (isNational) {
+                rawList = rankData.national_top || rankData.national_rankings || [];
+            } else {
+                const rawKey = String(birth || '').replace(/\.0$/, '').trim();
+                const adKey = String(toAD(rawKey));
+                const bg = rankData.birth_groups || rankData.age_rankings || {};
+                rawList = bg[adKey] || bg[rawKey] || [];
+            }
+            return rawList.map(r => ({
+                name: r.name,
+                birthYear: r.birth || r.birthYear || '',
+                birth: r.birth || r.birthYear || '',
+                raw: r.raw || r.成績 || '',
+                sec: r.sec || timeToSec(r.raw || r.成績),
+                wa: r.wa || getWA(parseInt(dist), stroke, r.raw || r.成績, sex),
+                fullDate: r.date || r.fullDate || '',
+                date: r.date || r.fullDate || '',
+                meet: r.meet || r.賽事名稱 || ''
+            }));
         }
 
         async function renderMatrix(dist, stroke, sex) {
