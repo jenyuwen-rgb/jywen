@@ -4957,12 +4957,104 @@
         <div id="footerDbVersionCode" style="font-family: monospace; color: #8E8E93; font-weight: 500; font-size: 13px;">
             🏷️ 資料庫版本流水號: <span id="verCodeSpan">載入中...</span>
         </div>
-        <div id="footerDbInfo" style="color: #8E8E93; font-size: 12px; font-weight: 500;">
-            📊 <span id="verRowsSpan">832,006 筆成績紀錄</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div id="footerDbInfo" style="color: #8E8E93; font-size: 12px; font-weight: 500;">
+                📊 <span id="verRowsSpan">832,006 筆成績紀錄</span>
+            </div>
+            <span style="color: #48484A;">|</span>
+            <button type="button" onclick="openPrivacyModal()" style="background: none; border: none; color: #A1A1A6; cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 4px; transition: color 0.2s; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#A1A1A6'">🛡️ 隱私權與資料聲明</button>
         </div>
     </footer>
 
+    <!-- ── Apple 極簡風：隱私權與資料來源聲明彈窗 (Privacy & Data Policy Modal) ── -->
+    <div id="privacyModalBackdrop" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); align-items: center; justify-content: center; padding: 16px; opacity: 0; transition: opacity 0.25s ease;" onclick="if(event.target===this) closePrivacyModal()">
+        <div style="background: #1C1C1E; border: 1px solid #38383A; border-radius: 20px; width: 100%; max-width: 680px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(0,0,0,0.8); transform: scale(0.96); transition: transform 0.25s ease; overflow: hidden; box-sizing: border-box;" id="privacyModalBox">
+            <!-- Modal Header -->
+            <div style="padding: 18px 24px; border-bottom: 1px solid #2C2C2E; display: flex; align-items: center; justify-content: space-between; background: rgba(28,28,30,0.9);">
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <div style="font-size: 16px; font-weight: 700; color: #F2F2F7; display: flex; align-items: center; gap: 8px;">
+                        <span>🛡️ 金水 ● 游泳成績查詢</span>
+                        <span style="font-size: 12px; color: #D4AF37; font-weight: 500; background: rgba(212,175,55,0.15); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.3);">池畔筆記</span>
+                    </div>
+                    <div style="font-size: 12px; color: #8E8E93;">隱私權政策與公開資料合法來源聲明</div>
+                </div>
+                <button type="button" onclick="closePrivacyModal()" style="background: rgba(255,255,255,0.08); border: none; color: #8E8E93; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.18)'; this.style.color='#FFF'" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#8E8E93'">✕</button>
+            </div>
+            
+            <!-- Modal Body (Scrollable) -->
+            <div style="padding: 22px 24px; overflow-y: auto; color: #D1D1D6; font-size: 13.5px; line-height: 1.7;">
+                <div style="margin-bottom: 16px; padding: 12px 14px; background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.2); border-radius: 10px; color: #E5E5EA;">
+                    <b>🏊‍♂️ 前言與初心：</b>本平台由一位泳者父親為全台泳者、教練及家長所建置之純淨非營利查詢系統。本服務<b>永久免費、免登入、無廣告</b>，純粹本於對台灣基層游泳運動之熱愛與推廣。
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size: 14px; font-weight: 600; color: #FFF; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <span>⚖️ 1. 資料來源與法律依據</span>
+                    </div>
+                    <p style="margin: 0; color: #A1A1A6; font-size: 13px;">
+                        本站收錄之所有選手出賽成績與賽事紀錄，全數彙整自中華民國游泳協會 (CTSA)、各縣市體育會游泳委員會及各級學校官方主辦單位<b>公開發布之競賽秩序冊、成績報告冊及官方成績系統</b>。依中華民國《個人資料保護法》第 19 條第 1 項第 7 款規定，本服務所處理之個人資料係<b>「取自於一般可得之來源」</b>，合法進行體育賽事歷史保存、分齡排名統計與成績分析，非營利利用。
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size: 14px; font-weight: 600; color: #FFF; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <span>🔒 2. 極致純淨承諾與零隱私蒐集</span>
+                    </div>
+                    <p style="margin: 0; color: #A1A1A6; font-size: 13px;">
+                        本服務堅持極簡純粹：<b>免註冊、免會員登入、無信用卡交易、無付費訂閱牆</b>。本站絕不蒐集訪客之個人身分證字號、真實地址、通訊錄或財務帳號，亦不進行任何跨網站商業廣告追蹤。
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size: 14px; font-weight: 600; color: #FFF; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <span>📊 3. 系統衍生統計指標說明</span>
+                    </div>
+                    <p style="margin: 0; color: #A1A1A6; font-size: 13px;">
+                        本站所呈現之「個人最佳成績 (PB)」、「分齡全國排名與 PR 值」、「年度最佳矩陣」、「得獎模擬 (/SIM)」及「參賽達標檢驗 (/STD)」，均為演算法依官方公開賽事成績進行數學統計推導，僅供選手自主配速、體能訓練與教練戰術參考。實際各項大賽參賽資格與名次，一律以主辦單位官方正式公告規程為準。
+                    </p>
+                </div>
+
+                <div>
+                    <div style="font-size: 14px; font-weight: 600; color: #FFF; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                        <span>✉️ 4. 數據勘誤與個人卡片隱藏申請</span>
+                    </div>
+                    <p style="margin: 0; color: #A1A1A6; font-size: 13px;">
+                        為維護選手權益，若官方原始紀錄有同名同姓年份衝突，或選手本人及其法定代理人基於個人意願提出資料更正或隱藏個人卡片需求，歡迎透過官方管道提出申請，我們將秉持最誠懇之態度即時協助校正。
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div style="padding: 14px 24px; border-top: 1px solid #2C2C2E; display: flex; justify-content: flex-end; background: rgba(28,28,30,0.9);">
+                <button type="button" onclick="closePrivacyModal()" style="background: #2C2C2E; border: 1px solid #3A3A3C; color: #FFF; padding: 7px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#3A3A3C'" onmouseout="this.style.background='#2C2C2E'">我知道了</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function openPrivacyModal() {
+            const backdrop = document.getElementById('privacyModalBackdrop');
+            const box = document.getElementById('privacyModalBox');
+            if (backdrop && box) {
+                backdrop.style.display = 'flex';
+                setTimeout(() => {
+                    backdrop.style.opacity = '1';
+                    box.style.transform = 'scale(1)';
+                }, 10);
+            }
+        }
+        function closePrivacyModal() {
+            const backdrop = document.getElementById('privacyModalBackdrop');
+            const box = document.getElementById('privacyModalBox');
+            if (backdrop && box) {
+                backdrop.style.opacity = '0';
+                box.style.transform = 'scale(0.96)';
+                setTimeout(() => {
+                    backdrop.style.display = 'none';
+                }, 250);
+            }
+        }
+
         async function updateFooterVersionInfo() {
             try {
                 const res = await fetch('/static/db_parts/version.json?t=' + Date.now());
