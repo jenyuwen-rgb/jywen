@@ -603,7 +603,7 @@
             if (projectRankingMemoryCache[cacheKey]) return projectRankingMemoryCache[cacheKey];
 
             try {
-                const resp = await fetch(`/data_buckets/rankings/rank_${cacheKey}.json`);
+                const resp = await fetch(encodeURI(`/data_buckets/rankings/rank_${cacheKey}.json`));
                 if (resp.ok) {
                     const rData = await resp.json();
                     projectRankingMemoryCache[cacheKey] = rData;
@@ -785,7 +785,7 @@
             
             let rankData = null;
             try {
-                const resp = await fetch(`/data_buckets/rankings/rank_${sCode}_${dist}_${normSex}.json`);
+                const resp = await fetch(encodeURI(`/data_buckets/rankings/rank_${sCode}_${dist}_${normSex}.json`));
                 if (resp.ok) rankData = await resp.json();
             } catch(e) {}
 
