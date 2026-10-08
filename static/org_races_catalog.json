@@ -146,39 +146,6 @@
         }
       ]
     },
-    "site_ntpc": {
-      "name": "新北市游泳委員會",
-      "url": "https://ntpc-sports.com/",
-      "races": [
-        {
-          "value": "ntpc_115_spring",
-          "text": "115年新北市春季分齡游泳錦標賽",
-          "in_db": false
-        }
-      ]
-    },
-    "site_tyc": {
-      "name": "桃園市游泳委員會",
-      "url": "https://sports.taoyuansport.org.tw/",
-      "races": [
-        {
-          "value": "tyc_115_mayor",
-          "text": "115年桃園市市長盃分齡游泳錦標賽",
-          "in_db": false
-        }
-      ]
-    },
-    "site_hcc": {
-      "name": "新竹市游泳委員會",
-      "url": "https://hcc-swim.org/",
-      "races": [
-        {
-          "value": "hcc_115_spring",
-          "text": "115年新竹市分齡游泳錦標賽",
-          "in_db": false
-        }
-      ]
-    },
     "site_a": {
       "name": "臺中市體育總會 SWIM8",
       "url": "https://swim8.kcsat.org/score_search",
