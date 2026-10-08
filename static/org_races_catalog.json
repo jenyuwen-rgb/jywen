@@ -94,39 +94,79 @@
       "url": "https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx",
       "races": [
         {
-          "value": "ctsa_115_presidential",
+          "value": "ctsa_166",
+          "text": "115年全國中區(1)游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_167",
+          "text": "115年全國南區(1)游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_168",
+          "text": "115年全國北區A(1)游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_169",
+          "text": "115年全國北區B(1)游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_170",
+          "text": "115年全國春季游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_171",
+          "text": "115年全國小學游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_172",
+          "text": "115年全國青年盃游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_173",
+          "text": "115年全國中正盃游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_174",
           "text": "115年全國總統盃暨美津濃游泳錦標賽",
           "in_db": true
         },
         {
-          "value": "ctsa_115_spring",
-          "text": "115年全國春季分齡游泳錦標賽",
+          "value": "ctsa_175",
+          "text": "115年全國北區A(2)游泳錦標賽",
           "in_db": true
         },
         {
-          "value": "ctsa_115_north_a2",
-          "text": "全國北區A(2)游泳錦標賽",
-          "in_db": true
-        },
-        {
-          "value": "ctsa_115_north_b1",
-          "text": "全國北區B(1)游泳錦標賽",
-          "in_db": true
-        },
-        {
-          "value": "ctsa_115_north_b2",
-          "text": "115年全國北區B游泳錦標賽(2) [未開賽]",
+          "value": "ctsa_176",
+          "text": "115年全國北區B(2)游泳錦標賽",
           "in_db": false
         },
         {
-          "value": "ctsa_114_winter",
-          "text": "114年全國冬季短水道分齡游泳錦標賽",
+          "value": "ctsa_177",
+          "text": "115年全國中區(2)游泳錦標賽",
           "in_db": true
         },
         {
-          "value": "ctsa_114_north_b2",
-          "text": "全國北區B(2)游泳錦標賽",
-          "in_db": true
+          "value": "ctsa_178",
+          "text": "115年全國南區(2)游泳錦標賽",
+          "in_db": false
+        },
+        {
+          "value": "ctsa_179",
+          "text": "115年全國冬季短水道游泳錦標賽 [未開賽]",
+          "in_db": false
+        },
+        {
+          "value": "ctsa_180",
+          "text": "115年中華泳協排名賽 [未開賽]",
+          "in_db": false
         }
       ]
     },
@@ -137,6 +177,11 @@
         {
           "value": "tpesa_115_youth",
           "text": "115年台北市青年盃游泳錦標賽",
+          "in_db": false
+        },
+        {
+          "value": "tpesa_115_autumn",
+          "text": "115年台北市基層對抗賽秋季賽 [待排程]",
           "in_db": false
         },
         {
@@ -154,6 +199,11 @@
           "value": "swim8_115_city",
           "text": "台中市議長盃游泳錦標賽",
           "in_db": true
+        },
+        {
+          "value": "swim8_115_comm",
+          "text": "115年台中市主委盃分齡錦標賽 [待排程]",
+          "in_db": false
         }
       ]
     },
@@ -162,8 +212,53 @@
       "url": "https://www.tainanswim.com.tw/history.php",
       "races": [
         {
-          "value": "tainan_115_elem",
-          "text": "台南市中小學游泳錦標賽",
+          "value": "tainan_62",
+          "text": "115年臺南市中小學游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "tainan_61",
+          "text": "115年臺南市主委盃游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "tainan_60",
+          "text": "115年全國E世代青少年游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "tainan_59",
+          "text": "114年臺南市市長盃短水道游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "tainan_58",
+          "text": "114年臺南市中小學游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "tainan_57",
+          "text": "114年臺南市委員盃游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "tainan_56",
+          "text": "114年全國運動會臺南市游泳代表隊選拔賽",
+          "in_db": true
+        },
+        {
+          "value": "tainan_55",
+          "text": "114年全國E世代青少年游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "tainan_54",
+          "text": "113年臺南市市長盃短水道游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "tainan_53",
+          "text": "113年臺南市中小學游泳錦標賽",
           "in_db": true
         }
       ]
@@ -176,6 +271,11 @@
           "value": "kcc_115_harbor",
           "text": "115年高雄市港都盃分齡游泳錦標賽",
           "in_db": false
+        },
+        {
+          "value": "kcc_115_comm",
+          "text": "115年高雄市主委盃游泳錦標賽 [待排程]",
+          "in_db": false
         }
       ]
     },
@@ -186,6 +286,11 @@
         {
           "value": "kcsat_115_sprint",
           "text": "115年高雄市短水道分齡對抗賽",
+          "in_db": false
+        },
+        {
+          "value": "kcsat_115_open",
+          "text": "115年高雄市公開分齡邀請賽 [待排程]",
           "in_db": false
         }
       ]
