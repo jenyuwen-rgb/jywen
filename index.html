@@ -759,17 +759,20 @@
                 const bg = rankData.birth_groups || rankData.age_rankings || {};
                 rawList = bg[adKey] || bg[rawKey] || [];
             }
-            return rawList.map(r => ({
-                name: r.name,
-                birthYear: r.birth || r.birthYear || '',
-                birth: r.birth || r.birthYear || '',
-                raw: r.raw || r.成績 || '',
-                sec: r.sec || timeToSec(r.raw || r.成績),
-                wa: r.wa || getWA(parseInt(dist), stroke, r.raw || r.成績, sex),
-                fullDate: r.date || r.fullDate || '',
-                date: r.date || r.fullDate || '',
-                meet: r.meet || r.賽事名稱 || ''
-            }));
+            return rawList.map(r => {
+                const s = r.sec || timeToSec(r.raw || r.成績);
+                return {
+                    name: r.name,
+                    birthYear: r.birth || r.birthYear || '',
+                    birth: r.birth || r.birthYear || '',
+                    raw: formatToXcode(s),
+                    sec: s,
+                    wa: r.wa || getWA(parseInt(dist), stroke, r.raw || r.成績, sex),
+                    fullDate: r.date || r.fullDate || '',
+                    date: r.date || r.fullDate || '',
+                    meet: r.meet || r.賽事名稱 || ''
+                };
+            });
         }
 
         async function renderMatrix(dist, stroke, sex) {
