@@ -2,3 +2,5 @@ User-agent: *
 Allow: /
 
 Sitemap: https://swimming-pwa.vercel.app/sitemap.xml
+Sitemap: https://swimming-pwa.vercel.app/sitemap_top.xml
+Sitemap: https://swimming-pwa.vercel.app/sitemap_all.xml
