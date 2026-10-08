@@ -253,9 +253,6 @@
         <span style="font-size: 16px; -webkit-text-fill-color: #D4AF37; color: #D4AF37; opacity: 0.85; transform: translateY(-1px);">●</span>
         <span>游泳成績查詢</span>
     </div>
-    <div style="text-align:center; font-size:13px; color:#8E8E93; font-weight:500; margin:-4px 0 10px 0; letter-spacing:0.5px;">
-        一位泳者父親的池畔筆記｜全台泳者永久免費查閱
-    </div>
     <div class="header-marquee-wrap">
         <div class="header-marquee-content">
             <span class="marquee-item">
@@ -527,10 +524,23 @@
                 if (!m || m[1] !== String(dist)) return;
                 if (isDQ(v[6])) return;
 
-                const pN = v[0], sec = timeToSec(v[1]);
-                if (sec > 0 && (!pBs[pN] || sec < pBs[pN].sec)) pBs[pN] = { name: pN, sec, raw: formatToXcode(sec), fullDate: v[2], meet: v[3], wa: getWA(dist, stroke, v[1], sex), birthYear: v[4] };
+                const pKey = isNational ? (v[4] ? `${v[0]}_${v[4]}` : v[0]) : v[0];
+                const sec = timeToSec(v[1]);
+                if (sec > 0 && (!pBs[pKey] || sec < pBs[pKey].sec)) {
+                    pBs[pKey] = { name: v[0], sec, raw: formatToXcode(sec), fullDate: v[2], meet: v[3], wa: getWA(dist, stroke, v[1], sex), birthYear: v[4] };
+                }
             });
-            return Object.values(pBs).sort((a,b) => a.sec - b.sec);
+            const sorted = Object.values(pBs).sort((a,b) => a.sec - b.sec);
+            let prevCs = null, prevRank = 0;
+            sorted.forEach((p, idx) => {
+                const cs = Math.round(p.sec * 100);
+                if (cs !== prevCs) {
+                    prevCs = cs;
+                    prevRank = idx + 1;
+                }
+                p.rank = prevRank;
+            });
+            return sorted;
         }
 
         async function renderMatrix(dist, stroke, sex) {
@@ -831,11 +841,13 @@
                     const pb = dData[0], id = `s${sIdx}d${dIdx}`;
                     const ageG = await getRankData(dist, stroke, input, pb.出生年, sex, false);
                     const natG = await getRankData(dist, stroke, input, null, sex, true);
-                    const ageIdx = ageG.findIndex(r => r.name === input), natIdx = natG.findIndex(r => r.name === input);
+                    const ageObj = ageG.find(r => r.name === input);
+                    const natObj = natG.find(r => r.name === input && (String(r.birthYear) === String(pb.出生年) || !r.birthYear || !pb.出生年)) || natG.find(r => r.name === input);
+                    const ageIdx = ageG.findIndex(r => r.name === input);
                     const prRaw = (ageG && ageG.length > 0 && ageIdx >= 0) ? (100 * (ageG.length - ageIdx) / ageG.length) : 0;
                     const pr = (!isNaN(prRaw) && isFinite(prRaw)) ? prRaw : 0;
-                    const ageRankStr = (ageIdx >= 0) ? `#${ageIdx+1}` : '-';
-                    const natRankStr = (natIdx >= 0) ? `#${natIdx+1}` : '-';
+                    const ageRankStr = ageObj ? `#${ageObj.rank || (ageIdx+1)}` : '-';
+                    const natRankStr = natObj ? `#${natObj.rank || (natG.findIndex(r => r.name === input)+1)}` : '-';
                     const row = document.createElement('div');
                     row.className = `race-row ${pr >= 95 ? 'row-gold' : ''}`;
                     row.innerHTML = `
@@ -1153,7 +1165,7 @@
                                         <div style="font-size:12.5px; color:#F4F4F5; line-height:1.5; font-weight:600;">
                                             「每一次劃水都不會白費。良性競爭不是為了擊敗對手，而是看見不斷突破的自己。」
                                         </div>
-                                        <div style="font-size:11px; color:#D4AF37; margin-top:3px; font-weight:500;">
+                                        <div style="font-size:11px; color:#8E8E93; margin-top:3px; font-weight:500;">
                                             ✦ 一位泳者父親的池畔筆記
                                         </div>
                                     </div>
@@ -1645,7 +1657,7 @@
                 let ageOpt = '<option value=""># 選擇同齡對手</option>', natOpt = '<option value=""># 選擇全國對手</option>';
                 ageS.slice(0,25).forEach(r => { if(r.name!==p1) ageOpt += `<option value="${r.name}" style="color:#0A84FF;">${r.name} (${r.raw})</option>`; });
                 natS.slice(0,25).forEach(r => { if(r.name!==p1) natOpt += `<option value="${r.name}" style="color:#FF3B30;">${r.name} (${r.raw})</option>`; });
-                c.innerHTML = `<div class="p-3" style="background:#000;"><div class="mb-8"><div class="font-bold mb-2">${dist}m 趨勢圖</div><select id="st-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#0A84FF]">${ageOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-t-${id}"></canvas></div></div><div><div class="font-bold mb-2">成長對比圖</div><select id="sa-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#FF3B30]">${natOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-a-${id}"></canvas></div></div><div class="inspirational-card" style="margin-top:16px; background:linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(28,28,30,0.85) 100%); border:0.5px solid rgba(212,175,55,0.35); border-radius:12px; padding:14px 16px; display:flex; align-items:flex-start; gap:12px; box-shadow:0 4px 16px rgba(0,0,0,0.4);"><span style="font-size:18px; line-height:1.2;">🏊‍♂️</span><div style="flex:1;"><div style="font-size:13.5px; color:#F4F4F5; line-height:1.6; font-weight:600; letter-spacing:0.3px;">「每一次劃水都不會白費。良性競爭不是為了擊敗對手，而是看見不斷突破的自己。」</div><div style="font-size:11.5px; color:#D4AF37; margin-top:5px; font-weight:500; opacity:0.9;">✦ 一位泳者父親的池畔筆記</div></div></div></div>`;
+                c.innerHTML = `<div class="p-3" style="background:#000;"><div class="mb-8"><div class="font-bold mb-2">${dist}m 趨勢圖</div><select id="st-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#0A84FF]">${ageOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-t-${id}"></canvas></div></div><div><div class="font-bold mb-2">成長對比圖</div><select id="sa-${id}" class="w-full bg-[#1C1C1E] border border-[#333] rounded p-2 mb-2 text-[#FF3B30]">${natOpt}</select><div style="height:250px; border:1px solid #222; padding:5px;"><canvas id="canvas-a-${id}"></canvas></div></div><div class="inspirational-card" style="margin-top:16px; background:linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(28,28,30,0.85) 100%); border:0.5px solid rgba(212,175,55,0.35); border-radius:12px; padding:14px 16px; display:flex; align-items:flex-start; gap:12px; box-shadow:0 4px 16px rgba(0,0,0,0.4);"><span style="font-size:18px; line-height:1.2;">🏊‍♂️</span><div style="flex:1;"><div style="font-size:13.5px; color:#F4F4F5; line-height:1.6; font-weight:600; letter-spacing:0.3px;">「每一次劃水都不會白費。良性競爭不是為了擊敗對手，而是看見不斷突破的自己。」</div><div style="font-size:11.5px; color:#8E8E93; margin-top:5px; font-weight:500; opacity:0.9;">✦ 一位泳者父親的池畔筆記</div></div></div></div>`;
                 const tt = { backgroundColor: 'rgba(28,28,30,0.95)', titleFont: {weight:'bold'}, padding:12, displayColors:false, titleColor: (ctx) => ctx.tooltip.dataPoints[0].dataset.borderColor, callbacks: { title: (its) => its[0].raw.date8, label: (it) => [`賽事: ${it.raw.meet}`, `成績: ${formatToXcode(it.raw.y)}`], labelTextColor: (it) => it.dataset.borderColor } };
                 const opt = (isT) => ({ responsive: true, maintainAspectRatio: false, scales: { x: { type: isT?'time':'linear', grid: { color:'#333' }, ticks: { color:'#FFF' } }, y: { ticks: { callback: v => formatToXcode(v), color:'#FFF' }, grid: { color:'#333' } } }, plugins: { legend: { display: false }, tooltip: tt } });
                 const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type: 'line', data: { datasets: [{ data: tD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: opt(true) });
@@ -4911,7 +4923,7 @@
             🏷️ 資料庫版本流水號: <span id="verCodeSpan">載入中...</span>
         </div>
         <div id="footerDbInfo" style="color: #8E8E93; font-size: 12px; font-weight: 500;">
-            📊 <span id="verRowsSpan">817,480 筆成績紀錄</span>
+            📊 <span id="verRowsSpan">832,006 筆成績紀錄</span>
         </div>
     </footer>
 
@@ -4922,7 +4934,7 @@
                 if (res.ok) {
                     const data = await res.json();
                     const verDisplay = data.version_display || data.version_code || (`Build #${data.version}`);
-                    const rowsStr = data.total_rows ? Number(data.total_rows).toLocaleString() : '817,480';
+                    const rowsStr = data.total_rows ? Number(data.total_rows).toLocaleString() : '832,006';
                     const verCodeSpan = document.getElementById('verCodeSpan');
                     const verRowsSpan = document.getElementById('verRowsSpan');
                     if (verCodeSpan) verCodeSpan.textContent = verDisplay;

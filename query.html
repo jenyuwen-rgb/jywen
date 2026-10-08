@@ -4456,7 +4456,7 @@
             🏷️ 資料庫版本流水號: <span id="verCodeSpan">載入中...</span>
         </div>
         <div id="footerDbInfo" style="color: #D1D1D6; font-size: 12px; font-weight: 500;">
-            📊 <span id="verRowsSpan">817,480 筆成績紀錄</span>
+            📊 <span id="verRowsSpan">832,006 筆成績紀錄</span>
         </div>
     </footer>
 
@@ -4467,7 +4467,7 @@
                 if (res.ok) {
                     const data = await res.json();
                     const verDisplay = data.version_display || data.version_code || (`Build #${data.version}`);
-                    const rowsStr = data.total_rows ? Number(data.total_rows).toLocaleString() : '817,480';
+                    const rowsStr = data.total_rows ? Number(data.total_rows).toLocaleString() : '832,006';
                     const verCodeSpan = document.getElementById('verCodeSpan');
                     const verRowsSpan = document.getElementById('verRowsSpan');
                     if (verCodeSpan) verCodeSpan.textContent = verDisplay;
