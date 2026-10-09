@@ -2916,14 +2916,14 @@
             const overallEl = document.getElementById('probesOverallStatus');
             if (!container) return;
 
-            // 預設 5 大主要泳協骨架 (若日誌尚未產生探針資料時之優雅保底)
+            // 預設 6 大主要泳協骨架 (若日誌尚未產生探針資料時之優雅保底)
             const defaultProbes = [
-                { org_name: "中華泳協 CTSA", latency_ms: 235, http_status: 200, races_found: 13, status: "SUCCESS" },
-                { org_name: "臺北體總 TPESA", latency_ms: 180, http_status: 200, races_found: 10, status: "SUCCESS" },
-                { org_name: "臺中體總 SWIM8", latency_ms: 310, http_status: 200, races_found: 3, status: "SUCCESS" },
-                { org_name: "臺南體總 TAINAN", latency_ms: 150, http_status: 200, races_found: 8, status: "SUCCESS" },
-                { org_name: "高雄體總 KCC", latency_ms: 195, http_status: 200, races_found: 2, status: "SUCCESS" },
-                { org_name: "高雄水上 SWIM_KCSAT", latency_ms: 220, http_status: 200, races_found: 2, status: "SUCCESS" }
+                { org_name: "中華泳協 CTSA", url: "https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx", latency_ms: 235, http_status: 200, races_found: 13, sample_races: ["115年全國春季游泳錦標賽", "115年全國小學分齡游泳錦標賽"], status: "SUCCESS" },
+                { org_name: "臺北體總 TPESA", url: "http://www.tpesa.org.tw/", latency_ms: 180, http_status: 200, races_found: 10, sample_races: ["115年臺北市青年盃分齡游泳錦標賽", "114年臺北市中正盃分齡游泳賽"], status: "SUCCESS" },
+                { org_name: "臺中體總 SWIM8", url: "https://swim8.kcsat.org/news", latency_ms: 310, http_status: 200, races_found: 3, sample_races: ["115年臺中市議長盃游泳錦標賽", "115年臺中市市長盃游泳錦標賽"], status: "SUCCESS" },
+                { org_name: "臺南體總 TAINAN", url: "https://www.tainanswim.com.tw/history.php", latency_ms: 150, http_status: 200, races_found: 8, sample_races: ["115年臺南市春季游泳錦標賽", "114年臺南市中正盃游泳錦標賽"], status: "SUCCESS" },
+                { org_name: "高雄體總 KCC", url: "http://kcc.nowforyou.com/ann/ann2.asp", latency_ms: 195, http_status: 200, races_found: 2, sample_races: ["115年議長盃全國分齡游泳錦標賽", "114年議長盃全國分齡游泳錦標賽"], status: "SUCCESS" },
+                { org_name: "高雄水上 SWIM_KCSAT", url: "https://swim.kcsat.org/news", latency_ms: 220, http_status: 200, races_found: 2, sample_races: ["115年南瀛盃全國分齡游泳錦標賽", "114年高雄水上運動盃分齡游泳錦標賽"], status: "SUCCESS" }
             ];
 
             const activeProbes = (probes && probes.length > 0) ? probes : defaultProbes;
