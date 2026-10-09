@@ -1371,10 +1371,10 @@
                         </div>
                     </div>
 
-                    <!-- 預覽容器 -->
-                    <div class="relative w-full rounded-xl overflow-hidden border border-[#3A3A3C] bg-zinc-950">
+                    <!-- 原生 Canvas 向量翻頁預覽容器 -->
+                    <div id="obPreviewWrapper" class="relative w-full rounded-xl overflow-hidden border border-[#3A3A3C] bg-zinc-950 flex flex-col items-center">
                         <!-- 空狀態提示 -->
-                        <div id="obPreviewEmpty" class="h-[480px] flex flex-col items-center justify-center text-center p-6 space-y-3">
+                        <div id="obPreviewEmpty" class="h-[480px] w-full flex flex-col items-center justify-center text-center p-6 space-y-3">
                             <div class="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-2xl text-zinc-600">
                                 📑
                             </div>
@@ -1384,8 +1384,24 @@
                             </div>
                         </div>
 
-                        <!-- 原生 PDF Iframe 檢視器 -->
-                        <iframe id="obPdfPreviewFrame" src="" class="hidden w-full h-[650px] border-0 bg-zinc-900"></iframe>
+                        <!-- 畫布導覽列 (有檔案時顯示) -->
+                        <div id="obCanvasToolbar" class="hidden w-full bg-[#2C2C2E] border-b border-white/10 px-4 py-2.5 flex items-center justify-between text-xs text-zinc-300">
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="changePreviewPage(-1)" class="px-2.5 py-1 rounded bg-[#3A3A3C] hover:bg-[#48484A] text-white font-bold transition">‹ 上一頁</button>
+                                <span class="font-mono">第 <span id="obCurrentPageNum" class="text-[#FFD60A] font-bold">1</span> / <span id="obTotalPageNum">1</span> 頁</span>
+                                <button type="button" onclick="changePreviewPage(1)" class="px-2.5 py-1 rounded bg-[#3A3A3C] hover:bg-[#48484A] text-white font-bold transition">下一頁 ›</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="adjustPreviewScale(-0.15)" class="px-2 py-1 rounded bg-[#3A3A3C] hover:bg-[#48484A] text-white font-mono">- 縮小</button>
+                                <span id="obScaleLabel" class="font-mono text-zinc-400">100%</span>
+                                <button type="button" onclick="adjustPreviewScale(0.15)" class="px-2 py-1 rounded bg-[#3A3A3C] hover:bg-[#48484A] text-white font-mono">+ 放大</button>
+                            </div>
+                        </div>
+
+                        <!-- 畫布滾動區域 -->
+                        <div id="obCanvasScrollBox" class="hidden w-full overflow-auto max-h-[750px] p-4 flex justify-center bg-zinc-900/60">
+                            <canvas id="obPreviewCanvas" class="shadow-2xl rounded max-w-full bg-white"></canvas>
+                        </div>
                     </div>
                 </div>
 
@@ -2993,7 +3009,13 @@
             });
         }
 
-        let originalBlobUrl = null;
+        let currentOriginalPdfBytes = null;
+        let currentMarkedPdfBytes = null;
+        let currentPdfDoc = null;
+        let currentPreviewPage = 1;
+        let currentPreviewScale = 1.0;
+        let isRenderingPage = false;
+        let pendingRenderPage = null;
         let markedBlobUrl = null;
         let currentPreviewMode = 'original';
         let hitRecords = [];
@@ -3008,53 +3030,102 @@
                 .replace(/'/g, '&#039;');
         }
 
-        function loadPdfBytesIntoPreview(bytes, name) {
-            if (originalBlobUrl) {
-                try { URL.revokeObjectURL(originalBlobUrl); } catch(e){}
-                originalBlobUrl = null;
+        async function renderCanvasPage(pageNum) {
+            if (!currentPdfDoc) return;
+            if (isRenderingPage) {
+                pendingRenderPage = pageNum;
+                return;
             }
-            if (markedBlobUrl) {
-                try { URL.revokeObjectURL(markedBlobUrl); } catch(e){}
-                markedBlobUrl = null;
-            }
-            hitRecords = [];
+            isRenderingPage = true;
+
+            const canvas = document.getElementById('obPreviewCanvas');
+            const pageNumEl = document.getElementById('obCurrentPageNum');
+            const totalPageEl = document.getElementById('obTotalPageNum');
+            const scaleLabel = document.getElementById('obScaleLabel');
+
+            if (pageNumEl) pageNumEl.innerText = pageNum;
+            if (totalPageEl) totalPageEl.innerText = currentPdfDoc.numPages;
+            if (scaleLabel) scaleLabel.innerText = `${Math.round(currentPreviewScale * 100)}%`;
 
             try {
-                const blob = new Blob([bytes], { type: 'application/pdf' });
-                originalBlobUrl = URL.createObjectURL(blob);
-                
-                const btnOrig = document.getElementById('btnPreviewOriginal');
-                const btnMarked = document.getElementById('btnPreviewMarked');
-                const btnDown = document.getElementById('btnDownloadMarked');
-                const hitBox = document.getElementById('obHitSummaryContainer');
+                const page = await currentPdfDoc.getPage(pageNum);
+                const viewport = page.getViewport({ scale: currentPreviewScale });
+                const ctx = canvas.getContext('2d');
 
-                if (btnOrig) btnOrig.disabled = false;
-                if (btnMarked) btnMarked.disabled = true;
-                if (btnDown) btnDown.classList.add('hidden');
-                if (hitBox) hitBox.classList.add('hidden');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
 
-                switchPreviewMode('original', 1);
-            } catch(err) {
-                console.error("載入原始 PDF 預覽失敗:", err);
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                await page.render(renderContext).promise;
+            } catch (err) {
+                console.error("渲染 Canvas 頁面失敗:", err);
+            } finally {
+                isRenderingPage = false;
+                if (pendingRenderPage !== null) {
+                    const next = pendingRenderPage;
+                    pendingRenderPage = null;
+                    renderCanvasPage(next);
+                }
             }
         }
 
-        function switchPreviewMode(mode, targetPage = 1) {
+        function changePreviewPage(delta) {
+            if (!currentPdfDoc) return;
+            const target = currentPreviewPage + delta;
+            if (target >= 1 && target <= currentPdfDoc.numPages) {
+                currentPreviewPage = target;
+                renderCanvasPage(currentPreviewPage);
+            }
+        }
+
+        function adjustPreviewScale(delta) {
+            let newScale = Math.round((currentPreviewScale + delta) * 100) / 100;
+            if (newScale < 0.5) newScale = 0.5;
+            if (newScale > 2.5) newScale = 2.5;
+            currentPreviewScale = newScale;
+            if (currentPdfDoc) {
+                renderCanvasPage(currentPreviewPage);
+            }
+        }
+
+        async function loadPdfBytesIntoPreview(bytes, name) {
+            currentOriginalPdfBytes = bytes;
+            currentMarkedPdfBytes = null;
+            hitRecords = [];
+
+            const btnOrig = document.getElementById('btnPreviewOriginal');
+            const btnMarked = document.getElementById('btnPreviewMarked');
+            const btnDown = document.getElementById('btnDownloadMarked');
+            const hitBox = document.getElementById('obHitSummaryContainer');
+
+            if (btnOrig) btnOrig.disabled = false;
+            if (btnMarked) btnMarked.disabled = true;
+            if (btnDown) btnDown.classList.add('hidden');
+            if (hitBox) hitBox.classList.add('hidden');
+
+            await switchPreviewMode('original', 1);
+        }
+
+        async function switchPreviewMode(mode, targetPage = 1) {
             currentPreviewMode = mode;
             const btnOrig = document.getElementById('btnPreviewOriginal');
             const btnMarked = document.getElementById('btnPreviewMarked');
             const badge = document.getElementById('obPreviewModeBadge');
-            const frame = document.getElementById('obPdfPreviewFrame');
             const empty = document.getElementById('obPreviewEmpty');
+            const toolbar = document.getElementById('obCanvasToolbar');
+            const scrollBox = document.getElementById('obCanvasScrollBox');
 
-            if (!frame || !empty) return;
+            const bytesToLoad = mode === 'original' ? currentOriginalPdfBytes : currentMarkedPdfBytes;
+            if (!bytesToLoad) return;
+
+            if (empty) empty.classList.add('hidden');
+            if (toolbar) toolbar.classList.remove('hidden');
+            if (scrollBox) scrollBox.classList.remove('hidden');
 
             if (mode === 'original') {
-                if (!originalBlobUrl) return;
-                empty.classList.add('hidden');
-                frame.classList.remove('hidden');
-                frame.src = originalBlobUrl + `#page=${targetPage}&toolbar=1&navpanes=0`;
-
                 if (btnOrig) btnOrig.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-white bg-[#3A3A3C] shadow-sm";
                 if (btnMarked) btnMarked.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white";
                 if (badge) {
@@ -3062,11 +3133,6 @@
                     badge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30";
                 }
             } else {
-                if (!markedBlobUrl) return;
-                empty.classList.add('hidden');
-                frame.classList.remove('hidden');
-                frame.src = markedBlobUrl + `#page=${targetPage}&toolbar=1&navpanes=0`;
-
                 if (btnOrig) btnOrig.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white";
                 if (btnMarked) btnMarked.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-white bg-gradient-to-r from-[#FF9500] to-[#FF2D55] shadow-sm";
                 if (badge) {
@@ -3074,10 +3140,22 @@
                     badge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
                 }
             }
+
+            try {
+                const loadingTask = pdfjsLib.getDocument({ data: bytesToLoad.slice(0) });
+                currentPdfDoc = await loadingTask.promise;
+                currentPreviewPage = Math.min(Math.max(1, targetPage), currentPdfDoc.numPages);
+                renderCanvasPage(currentPreviewPage);
+            } catch(e) {
+                console.error("載入預覽 PDF 畫布失敗:", e);
+            }
         }
 
         function jumpToPage(page) {
-            switchPreviewMode(currentPreviewMode || 'marked', page);
+            currentPreviewPage = page;
+            renderCanvasPage(currentPreviewPage);
+            const scrollBox = document.getElementById('obCanvasScrollBox');
+            if (scrollBox) scrollBox.scrollTop = 0;
         }
 
         function downloadMarkedPdf() {
@@ -3301,6 +3379,7 @@
                 titleEl.innerText = "💾 正在編譯已標記 PDF 檔案並更新預覽...";
                 barEl.style.width = "95%";
                 const modifiedPdfBytes = await pdfLibDoc.save();
+                currentMarkedPdfBytes = modifiedPdfBytes;
 
                 if (markedBlobUrl) {
                     try { URL.revokeObjectURL(markedBlobUrl); } catch(e){}

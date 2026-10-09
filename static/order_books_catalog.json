@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-09 20:55:00",
+  "updated_at": "2026-10-09 22:36:00",
   "orgs": [
     {
       "id": "site_d",
@@ -37,65 +37,132 @@
       {
         "meet_id": "ctsa_174",
         "meet_name": "115年全國總統盃暨美津濃游泳錦標賽 秩序冊",
-        "pdf_url": "static/docs/115_presidential_cup_manual.pdf"
+        "pdf_url": "static/docs/115_presidential_cup_manual.pdf",
+        "official_source_url": "https://swimming.tw/"
       },
       {
         "meet_id": "ctsa_171",
         "meet_name": "115年全國小學游泳錦標賽 秩序冊",
-        "pdf_url": "static/docs/115_primary_school_manual.pdf"
+        "pdf_url": "static/docs/115_primary_school_manual.pdf",
+        "official_source_url": "https://swimming.tw/"
       },
       {
         "meet_id": "ctsa_114_hs",
         "meet_name": "114年全國中等學校運動會游泳 秩序冊",
-        "pdf_url": "static/docs/114_high_school_games_manual.pdf"
+        "pdf_url": "static/docs/114_high_school_games_manual.pdf",
+        "official_source_url": "https://swimming.tw/"
       },
       {
         "meet_id": "ctsa_114_nat",
         "meet_name": "114年全國運動會游泳 秩序冊",
-        "pdf_url": "static/docs/114_national_games_manual.pdf"
+        "pdf_url": "static/docs/114_national_games_manual.pdf",
+        "official_source_url": "https://swimming.tw/"
       },
       {
         "meet_id": "ctsa_170",
         "meet_name": "115年全國春季分齡游泳錦標賽 秩序冊",
-        "pdf_url": "static/docs/115_classification_rules.pdf"
+        "pdf_url": "static/docs/115_classification_rules.pdf",
+        "official_source_url": "https://swimming.tw/"
       }
     ],
     "site_tpesa": [
       {
         "meet_id": "tpesa_115_youth",
         "meet_name": "115年臺北市青年盃分齡游泳錦標賽 秩序冊",
-        "pdf_url": "http://www.tpesa.org.tw/result/115年青年盃成績.pdf"
+        "pdf_url": "static/docs/tpesa/115_youth.pdf",
+        "official_source_url": "http://www.tpesa.org.tw/result/115年青年盃成績.pdf"
       },
       {
         "meet_id": "tpesa_114_fall",
         "meet_name": "114年臺北市中正盃分齡游泳賽 秩序冊",
-        "pdf_url": "http://www.tpesa.org.tw/result/114年中正盃成績.pdf"
+        "pdf_url": "static/docs/tpesa/114_fall.pdf",
+        "official_source_url": "http://www.tpesa.org.tw/result/114年中正盃成績.pdf"
       },
       {
         "meet_id": "tpesa_114_youth",
         "meet_name": "114年臺北市青年盃分齡游泳錦標賽 秩序冊",
-        "pdf_url": "http://www.tpesa.org.tw/result/114年青年盃成績.pdf"
+        "pdf_url": "static/docs/tpesa/114_youth.pdf",
+        "official_source_url": "http://www.tpesa.org.tw/result/114年青年盃成績.pdf"
       },
       {
         "meet_id": "tpesa_113_fall",
         "meet_name": "113年臺北市中正盃分齡游泳賽 秩序冊",
-        "pdf_url": "http://www.tpesa.org.tw/result/113年中正盃成績.pdf"
+        "pdf_url": "static/docs/tpesa/113_fall.pdf",
+        "official_source_url": "http://www.tpesa.org.tw/result/113年中正盃成績.pdf"
       }
     ],
-    "site_a": [],
-    "site_b": [
+    "site_a": [
       {
-        "meet_id": "tainan_62",
-        "meet_name": "115年臺南市中小學游泳錦標賽 秩序冊",
-        "pdf_url": "https://www.tainanswim.com.tw/manager/uploadfile/DL-260914-011386.pdf"
+        "meet_id": "swim8_speaker_115",
+        "meet_name": "115年臺中市議長盃游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/swim8/115_speaker.pdf",
+        "official_source_url": "https://swim8.kcsat.org/files/attachment/115年議長盃游泳錦標賽秩序冊.pdf"
       },
       {
-        "meet_id": "tainan_55",
-        "meet_name": "113年臺南市市長盃短水道分齡游泳錦標賽 秩序冊",
-        "pdf_url": "https://www.tainanswim.com.tw/manager/uploadfile/DL-250317-010105.pdf"
+        "meet_id": "swim8_city_115",
+        "meet_name": "115年臺中市第十六屆全市運動大會【游泳】秩序冊",
+        "pdf_url": "static/docs/swim8/115_city_games.pdf",
+        "official_source_url": "https://swim8.kcsat.org/files/attachment/02游泳_115版_merged.pdf"
       }
     ],
-    "site_c": [],
+    "site_b": [
+      {
+        "meet_id": "tainan_41",
+        "meet_name": "115年台南主委盃游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/tainan/tainan_41.pdf",
+        "official_source_url": "https://www.tainanswim.com.tw/manager/uploadfile/download-260818-011383.pdf"
+      },
+      {
+        "meet_id": "tainan_40",
+        "meet_name": "115年全國E世代青少年游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/tainan/tainan_40.pdf",
+        "official_source_url": "https://www.tainanswim.com.tw/manager/uploadfile/download-260617-011272.pdf"
+      },
+      {
+        "meet_id": "tainan_38",
+        "meet_name": "114年台南市中小學游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/tainan/tainan_38.pdf",
+        "official_source_url": "https://www.tainanswim.com.tw/manager/uploadfile/download-250924-010555.pdf"
+      },
+      {
+        "meet_id": "tainan_37",
+        "meet_name": "114年委員盃游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/tainan/tainan_37.pdf",
+        "official_source_url": "https://www.tainanswim.com.tw/manager/uploadfile/download-250906-010396.pdf"
+      },
+      {
+        "meet_id": "tainan_35",
+        "meet_name": "114年全國E世代青少年游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/tainan/tainan_35.pdf",
+        "official_source_url": "https://www.tainanswim.com.tw/manager/uploadfile/download-250327-010133.pdf"
+      },
+      {
+        "meet_id": "tainan_34",
+        "meet_name": "113年市長盃短水道游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/tainan/tainan_34.pdf",
+        "official_source_url": "https://www.tainanswim.com.tw/manager/uploadfile/download-241204-009974.pdf"
+      },
+      {
+        "meet_id": "tainan_33",
+        "meet_name": "113年台南市中小學游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/tainan/tainan_33.pdf",
+        "official_source_url": "https://www.tainanswim.com.tw/manager/uploadfile/download-241022-009470.pdf"
+      },
+      {
+        "meet_id": "tainan_32",
+        "meet_name": "113年委員盃賽事 秩序冊",
+        "pdf_url": "static/docs/tainan/tainan_32.pdf",
+        "official_source_url": "https://www.tainanswim.com.tw/manager/uploadfile/download-240729-009066.pdf"
+      }
+    ],
+    "site_c": [
+      {
+        "meet_id": "kcc_115_speaker",
+        "meet_name": "115年議長盃全國分齡游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/kcc/115_speaker.pdf",
+        "official_source_url": "http://kcc.nowforyou.com/mizunop2/doc/2026/115年議長盃全國分齡游泳錦標賽（秩序冊）.pdf"
+      }
+    ],
     "site_e": []
   }
 }
