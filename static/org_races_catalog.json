@@ -212,7 +212,7 @@
         {
           "value": "tpesa_112_youth",
           "text": "112年臺北市青年盃分齡游泳錦標賽",
-          "in_db": false
+          "in_db": true
         }
       ]
     },
