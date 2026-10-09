@@ -1,12 +1,12 @@
 {
-  "version": 1791583438,
-  "version_code": "v2026.10.09.2203-b1791583438",
+  "version": 1791583504,
+  "version_code": "v2026.10.09.2205-b1791583504",
   "total_buckets": 256,
-  "total_swimmers": 27186,
-  "total_records": 842842,
+  "total_swimmers": 27353,
+  "total_records": 846534,
   "latest_race": "台中市議長盃游泳錦標賽",
   "latest_date": "20261002",
-  "total_size_mb": 19.46,
-  "avg_bucket_size_kb": 77.85,
-  "generated_at": "2026-10-09 22:03:58"
+  "total_size_mb": 19.56,
+  "avg_bucket_size_kb": 78.24,
+  "generated_at": "2026-10-09 22:05:04"
 }

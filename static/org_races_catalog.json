@@ -197,7 +197,7 @@
         {
           "value": "tpesa_113_fall",
           "text": "113年臺北市中正盃分齡游泳賽",
-          "in_db": false
+          "in_db": true
         },
         {
           "value": "tpesa_113_youth",
