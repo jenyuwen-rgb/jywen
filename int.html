@@ -98,6 +98,110 @@
             color: #71717A;
         }
 
+        /* ─── HUD 抬頭顯示微型膠囊 ─── */
+        .hud-capsule {
+            background: rgba(18, 18, 20, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 0.5px solid rgba(63, 63, 70, 0.45);
+            border-radius: 12px;
+            padding: 10px 14px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hud-capsule:hover {
+            border-color: rgba(212, 175, 55, 0.5);
+            background: rgba(24, 24, 28, 0.95);
+            transform: translateY(-1px);
+        }
+
+        /* ─── Apple / Cyber Dark Segmented Control 頂級分頁導航 ─── */
+        .segmented-control-container {
+            background: rgba(18, 18, 20, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(63, 63, 70, 0.5);
+            border-radius: 14px;
+            padding: 5px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+
+        @media (max-width: 640px) {
+            .segmented-control-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .nav-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: #A1A1AA;
+            border-radius: 10px;
+            padding: 9px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            user-select: none;
+            outline: none;
+        }
+
+        .nav-tab-btn:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-tab-btn.active {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(243, 208, 120, 0.08) 100%) !important;
+            border: 1px solid rgba(243, 208, 120, 0.65) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 16px rgba(212, 175, 55, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            font-weight: 700 !important;
+        }
+
+        .nav-tab-btn.active .tab-icon {
+            background-image: linear-gradient(135deg, #FFFFFF 0%, #F3D078 50%, #D4AF37 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+
+        .nav-tab-btn .tab-badge {
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #A1A1AA;
+            font-family: monospace;
+        }
+
+        .nav-tab-btn.active .tab-badge {
+            background: rgba(212, 175, 55, 0.25);
+            color: #F3D078;
+            border: 0.5px solid rgba(243, 208, 120, 0.4);
+        }
+
+        /* ─── Tab 面板切換與流暢淡入動畫 ─── */
+        .tab-pane {
+            display: none;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.22s ease, transform 0.22s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         /* 表單下拉選單美化 */
         .tech-select {
             background: #0D0D0E;
@@ -164,7 +268,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 8px;
-            color: #9CA3AF !important; /* 淺灰色 text-gray-400 */
+            color: #9CA3AF !important;
             background: transparent;
             transition: all 0.15s ease;
             font-size: 13px;
@@ -295,13 +399,6 @@
         }
 
         /* ─── macOS / Cyber Dark 月曆精準樣式 (1:1 manage.html 規範) ─── */
-        :root {
-            --bg-card: #141416;
-            --primary: #d4af37;
-            --primary-light: #f3d078;
-            --text-gray: #a1a1aa;
-        }
-
         .mac-calendar-container {
             display: grid;
             grid-template-columns: 1.65fr 1fr;
@@ -654,7 +751,7 @@
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 pt-6 space-y-8">
+    <main class="max-w-5xl mx-auto px-4 pt-6 space-y-6">
 
         <!-- 頁面主題標題 -->
         <div class="text-center space-y-2">
@@ -662,779 +759,871 @@
                 賽事整合與雲端調度儀表板
             </h2>
             <p class="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto font-light">
-                監控 GitHub 雙版本流水號 · 即時巡檢全台泳協賽事狀態 · GCP 自動化採集調度核心
+                訪客即時雷達 · 6 大泳協採集探針 · 115 年賽事行事曆 · GCP 自動化排程調度中樞
             </p>
         </div>
 
-        <!-- 區塊一：GitHub 雙版本流水號卡片 -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Normal 資料庫卡片 -->
-            <div class="tech-card p-5 relative overflow-hidden group">
-                <div class="absolute -right-6 -bottom-6 text-zinc-800/30 text-8xl pointer-events-none font-mono">DB</div>
-                <div class="flex items-start justify-between">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                            <span class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">GitHub Normal 資料庫</span>
-                        </div>
-                        <div id="normalVersionCode" class="text-xl sm:text-2xl font-bold font-mono text-zinc-100">
-                            v2026.10.05.0115
-                        </div>
-                        <div class="text-xs text-zinc-500 font-mono mt-0.5">
-                            Build #<span id="normalBuildNo" class="text-zinc-400">1791134114</span>
-                        </div>
-                    </div>
-                    <span class="badge-live text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1">
-                        <i class="fa-brands fa-github text-xs"></i> 主庫同步
+        <!-- 頂部 HUD 關鍵指標抬頭顯示器 (Heads-Up Display 4 大膠囊) -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-2.5 font-mono">
+            <!-- HUD 1: 雙軌資料庫 -->
+            <div class="hud-capsule space-y-1 cursor-pointer" onclick="switchTab('cloud')">
+                <div class="flex items-center justify-between text-[11px] text-zinc-400">
+                    <span class="flex items-center gap-1.5 font-bold text-zinc-300">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 雙軌資料庫
                     </span>
+                    <span class="text-[10px] text-zinc-500">1:1 守恆</span>
                 </div>
-                <div class="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono">
-                    <span class="text-zinc-500">總成績筆數</span>
-                    <span id="normalTotalRows" class="text-emerald-400 font-bold">832,006 筆</span>
-                </div>
+                <div id="hudDbStatus" class="text-sm font-bold text-emerald-400 truncate">832,006 筆</div>
+                <div class="text-[10px] text-zinc-500 truncate">主庫 vs 256桶 對齊</div>
             </div>
 
-            <!-- 256split 資料庫卡片 (含完整預處理體檢門禁) -->
-            <div class="tech-card p-5 relative overflow-hidden group">
-                <div class="absolute -right-6 -bottom-6 text-zinc-800/30 text-8xl pointer-events-none font-mono">256</div>
-                <div class="flex items-start justify-between">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span id="splitIntegrityDot" class="w-2 h-2 rounded-full gold-gradient-dot"></span>
-                            <span class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">GitHub 256split 預處理</span>
-                        </div>
-                        <div id="splitVersionCode" class="text-xl sm:text-2xl font-bold font-mono gold-gradient-text">
-                            v2026.10.05.0115
-                        </div>
-                        <div class="text-xs text-zinc-500 font-mono mt-0.5">
-                            分塊索引：<span id="splitParts" class="text-zinc-300">256 桶完整切割</span>
-                        </div>
-                    </div>
-                    <span id="splitIntegrityBadge" class="badge-pending text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1 font-bold">
-                        <i class="fa-solid fa-circle-check text-xs gold-gradient-icon"></i>
-                        <span>預處理 100% 完工</span>
+            <!-- HUD 2: 雲端容量水位 -->
+            <div class="hud-capsule space-y-1 cursor-pointer" onclick="switchTab('radar')">
+                <div class="flex items-center justify-between text-[11px] text-zinc-400">
+                    <span class="flex items-center gap-1.5 font-bold text-zinc-300">
+                        <i class="fa-solid fa-shield-halved text-amber-400 text-xs"></i> 雲端容量水位
                     </span>
+                    <span class="text-[10px] text-emerald-400">$0.00/月</span>
                 </div>
-                <div class="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono">
-                    <span class="text-zinc-500">雙軌總筆數核對</span>
-                    <span id="splitMatchStatus" class="gold-gradient-text font-bold">832,006 筆 (1:1 吻合)</span>
+                <div id="hudQuotaStatus" class="text-sm font-bold text-zinc-100 truncate">水位 40.0% 安全</div>
+                <div class="text-[10px] text-zinc-500 truncate">GitHub / GCS / Vercel</div>
+            </div>
+
+            <!-- HUD 3: 全台即時熱搜 -->
+            <div class="hud-capsule space-y-1 cursor-pointer" onclick="switchTab('radar')">
+                <div class="flex items-center justify-between text-[11px] text-zinc-400">
+                    <span class="flex items-center gap-1.5 font-bold text-zinc-300">
+                        <i class="fa-solid fa-fire text-amber-400 text-xs"></i> 即時熱搜選手
+                    </span>
+                    <span class="text-[10px] text-amber-400/90 font-bold">Top 1</span>
                 </div>
+                <div id="hudHotStatus" class="text-sm font-bold gold-gradient-text truncate">🥇 鄭向恩 (94次)</div>
+                <div class="text-[10px] text-zinc-500 truncate">即時全台訪客查詢雷達</div>
+            </div>
+
+            <!-- HUD 4: 雲端自愈排程 -->
+            <div class="hud-capsule space-y-1 cursor-pointer" onclick="switchTab('cloud')">
+                <div class="flex items-center justify-between text-[11px] text-zinc-400">
+                    <span class="flex items-center gap-1.5 font-bold text-zinc-300">
+                        <i class="fa-solid fa-robot text-sky-400 text-xs"></i> GCP 雲端守護
+                    </span>
+                    <span class="text-[10px] text-emerald-400">健康</span>
+                </div>
+                <div id="hudGcpStatus" class="text-sm font-bold text-sky-300 truncate">每日 06:00 排程</div>
+                <div class="text-[10px] text-zinc-500 truncate">熔斷 (0/3) · 自愈就緒</div>
             </div>
         </section>
 
-        <!-- 區塊一附屬：免費儲存額度與容量水位監測哨兵 (Zero-Cost Storage Quota Sentinel) -->
-        <section class="tech-card p-5 space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-base">
-                        <i class="fa-solid fa-server gold-gradient-icon"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h3 class="text-base font-bold text-zinc-100">免費儲存空間水位哨兵 (Zero-Cost Storage Quota Sentinel)</h3>
-                            <span class="text-[11px] font-mono px-2 py-0.5 rounded-full gold-gradient-badge">
-                                <span class="gold-gradient-text font-bold">100% 免費 · $0.00 /月</span>
-                            </span>
+        <!-- Apple 原生風格 Segmented Control 4 大情境導航標籤 -->
+        <nav class="segmented-control-container">
+            <button id="tab-btn-radar" class="nav-tab-btn active" onclick="switchTab('radar')">
+                <i class="fa-solid fa-radar tab-icon text-sm"></i>
+                <span>訪客即時雷達</span>
+                <span class="tab-badge hidden sm:inline">LIVE</span>
+            </button>
+            <button id="tab-btn-probe" class="nav-tab-btn" onclick="switchTab('probe')">
+                <i class="fa-solid fa-magnifying-glass-chart tab-icon text-sm"></i>
+                <span>採集與探針</span>
+                <span class="tab-badge hidden sm:inline">PROBE</span>
+            </button>
+            <button id="tab-btn-calendar" class="nav-tab-btn" onclick="switchTab('calendar')">
+                <i class="fa-solid fa-calendar-days tab-icon text-sm"></i>
+                <span>賽事行事曆</span>
+                <span class="tab-badge hidden sm:inline">115年</span>
+            </button>
+            <button id="tab-btn-cloud" class="nav-tab-btn" onclick="switchTab('cloud')">
+                <i class="fa-solid fa-cloud-bolt tab-icon text-sm"></i>
+                <span>雲端架構與日誌</span>
+                <span class="tab-badge hidden sm:inline">GCP</span>
+            </button>
+        </nav>
+
+        <!-- ============================================================ -->
+        <!-- TAB PANE 1: 📊 訪客即時雷達與容量水位 (Live Swimmer Radar & Quota) -->
+        <!-- ============================================================ -->
+        <div id="pane-radar" class="tab-pane active space-y-6">
+
+            <!-- 訪客即時查詢雷達與熱搜選手看板 -->
+            <section class="tech-card p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-base">
+                            <i class="fa-solid fa-radar gold-gradient-icon"></i>
                         </div>
-                        <p class="text-xs text-zinc-400">即時監測 GitHub、GCS 雲端儲存與 Vercel 邊緣部署配額 · 剩餘空間與 85% 預警安全水位</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 text-xs font-mono">
-                    <span id="quotaOverallBadge" class="badge-live text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1.5 font-bold">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>全域水位安全</span>
-                    </span>
-                    <button onclick="fetchStorageQuota()" class="px-2.5 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition flex items-center gap-1 border border-zinc-700">
-                        <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
-                        <span>刷新容量</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- 三大服務容量進度卡片 -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono">
-                <!-- 1. GitHub 倉庫工作區 -->
-                <div class="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-2.5">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-1.5 text-zinc-300 font-bold">
-                            <i class="fa-brands fa-github text-zinc-400"></i> GitHub 倉庫實體
-                        </span>
-                        <span id="ghQuotaPct" class="text-emerald-400 font-bold">40.0%</span>
-                    </div>
-                    <!-- 進度條 -->
-                    <div class="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
-                        <div id="ghQuotaBar" class="bg-gradient-to-r from-emerald-500 to-amber-400 h-2 rounded-full transition-all duration-500" style="width: 40.0%"></div>
-                    </div>
-                    <div class="flex justify-between text-[11px] text-zinc-400 pt-1 border-t border-zinc-800/60">
-                        <span>已用：<strong id="ghUsedMb" class="text-zinc-200">399.6 MB</strong></span>
-                        <span>剩餘：<strong id="ghFreeMb" class="text-emerald-400 font-bold">600.4 MB</strong></span>
-                    </div>
-                    <div class="text-[10px] text-zinc-500 flex justify-between">
-                        <span>免費上限：1,000 MB</span>
-                        <span id="ghDbPartsInfo" class="text-zinc-400">DB分卷 298 MB</span>
-                    </div>
-                </div>
-
-                <!-- 2. Google Cloud Storage (GCS) -->
-                <div class="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-2.5">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-1.5 text-zinc-300 font-bold">
-                            <i class="fa-brands fa-google text-blue-400"></i> GCS 雲端儲存桶
-                        </span>
-                        <span id="gcsQuotaPct" class="text-emerald-400 font-bold">0.00%</span>
-                    </div>
-                    <!-- 進度條 -->
-                    <div class="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
-                        <div id="gcsQuotaBar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-2 rounded-full transition-all duration-500" style="width: 0.1%"></div>
-                    </div>
-                    <div class="flex justify-between text-[11px] text-zinc-400 pt-1 border-t border-zinc-800/60">
-                        <span>已用：<strong id="gcsUsedMb" class="text-zinc-200">0.00 MB</strong></span>
-                        <span>剩餘：<strong id="gcsFreeMb" class="text-emerald-400 font-bold">5,120 MB</strong></span>
-                    </div>
-                    <div class="text-[10px] text-zinc-500 flex justify-between">
-                        <span>GCP Always Free：5,120 MB</span>
-                        <span class="text-zinc-400">零快取公開唯讀</span>
-                    </div>
-                </div>
-
-                <!-- 3. Vercel 邊緣部署包 -->
-                <div class="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-2.5">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-1.5 text-zinc-300 font-bold">
-                            <i class="fa-solid fa-triangle-circle-square text-zinc-400"></i> Vercel 邊緣部署
-                        </span>
-                        <span id="verQuotaPct" class="text-emerald-400 font-bold">40.0%</span>
-                    </div>
-                    <!-- 進度條 -->
-                    <div class="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
-                        <div id="verQuotaBar" class="bg-gradient-to-r from-emerald-500 to-amber-400 h-2 rounded-full transition-all duration-500" style="width: 40.0%"></div>
-                    </div>
-                    <div class="flex justify-between text-[11px] text-zinc-400 pt-1 border-t border-zinc-800/60">
-                        <span>已用：<strong id="verUsedMb" class="text-zinc-200">399.6 MB</strong></span>
-                        <span>剩餘：<strong id="verFreeMb" class="text-emerald-400 font-bold">600.4 MB</strong></span>
-                    </div>
-                    <div class="text-[10px] text-zinc-500 flex justify-between">
-                        <span>Hobby 限額：1,000 MB</span>
-                        <span class="text-zinc-400">CDN 邊緣快取全球</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 配額安全與成本保障條款 -->
-            <div class="p-3 rounded-lg bg-zinc-950/60 border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-zinc-400 gap-2">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-shield-halved text-amber-400"></i>
-                    <span><strong>永不超額承諾</strong>：當任一服務使用量突破 <span class="text-amber-300 font-bold">85% 水位線</span>，系統將自動中斷大檔寫入並觸發物理熔斷告警！</span>
-                </div>
-                <div class="text-[11px] text-zinc-500 shrink-0">
-                    最後測量時間：<span id="quotaMeasureTime" class="text-zinc-300">2026-10-06 22:56</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- 區塊：訪客即時查詢雷達與熱搜選手看板 (Live Swimmer Query Radar & Hot Top 10) -->
-        <section class="tech-card p-5 space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-base">
-                        <i class="fa-solid fa-radar gold-gradient-icon"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h3 class="text-base font-bold text-zinc-100">訪客即時查詢雷達與熱搜選手看板 (Live Swimmer Query Radar)</h3>
-                            <span class="text-[11px] font-mono px-2 py-0.5 rounded-full gold-gradient-badge">
-                                <span class="gold-gradient-text font-bold">全台即時訪客動態</span>
-                            </span>
-                        </div>
-                        <p class="text-xs text-zinc-400">即時監測全台家長、教練與泳者在 swimming-pwa.vercel.app 查詢的選手名單與熱搜趨勢</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 text-xs font-mono flex-wrap">
-                    <a href="https://docs.google.com/spreadsheets/d/1TlEs7tPR-OxQQm6_jIRqiBOMEKZJKhKE5ZtVrpTSTZM/edit?usp=drivesdk" id="googleSheetLinkBtn" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 text-xs rounded-lg bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-400 transition flex items-center gap-1.5 border border-emerald-700/50">
-                        <i class="fa-solid fa-table"></i>
-                        <span>Google Sheets 全歷史</span>
-                    </a>
-                    <button onclick="fetchVisitorQueryLogs()" class="px-2.5 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition flex items-center gap-1 border border-zinc-700">
-                        <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
-                        <span>立即刷新</span>
-                    </button>
-                    <label class="flex items-center gap-1.5 text-zinc-400 text-xs cursor-pointer select-none">
-                        <input type="checkbox" id="autoRefreshLogsToggle" checked onchange="toggleAutoRefreshLogs(this.checked)" class="rounded bg-zinc-900 border-zinc-700 text-amber-500 focus:ring-0">
-                        <span>10秒自動更新</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- 熱搜 Top 10 選手膠囊列 -->
-            <div class="space-y-2">
-                <div class="flex items-center justify-between text-xs font-mono">
-                    <span class="text-zinc-400 flex items-center gap-1.5 font-bold">
-                        <i class="fa-solid fa-fire text-amber-400"></i> 熱搜選手排行 (Top Queried Swimmers)
-                    </span>
-                    <span id="hotSwimmersCountInfo" class="text-zinc-500 text-[11px]">累計統計中...</span>
-                </div>
-                <div id="hotSwimmersContainer" class="flex flex-wrap gap-2 pt-1">
-                    <span class="text-xs text-zinc-500">正在計算熱搜榜單...</span>
-                </div>
-            </div>
-
-            <!-- 即時搜尋日誌串流表 -->
-            <div class="space-y-2 pt-2">
-                <div class="flex items-center justify-between text-xs font-mono">
-                    <span class="text-zinc-400 flex items-center gap-1.5 font-bold">
-                        <i class="fa-solid fa-stream text-sky-400"></i> 最新訪客查詢串流 (Live Query Stream)
-                    </span>
-                    <span id="logTotalCountLabel" class="text-zinc-500 text-[11px]">載入中...</span>
-                </div>
-                <div class="overflow-x-auto rounded-xl border border-zinc-800/80 bg-zinc-950/60 max-h-[360px] overflow-y-auto">
-                    <table class="w-full text-left text-xs font-mono">
-                        <thead class="bg-zinc-900/90 text-zinc-400 border-b border-zinc-800 sticky top-0 backdrop-blur-md">
-                            <tr>
-                                <th class="p-2.5">時間</th>
-                                <th class="p-2.5">查詢選手 / 關鍵字</th>
-                                <th class="p-2.5">查詢模式</th>
-                                <th class="p-2.5">來源地區</th>
-                                <th class="p-2.5">訪客 IP</th>
-                                <th class="p-2.5 text-right">快捷操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="visitorLogsTableBody" class="divide-y divide-zinc-800/40 text-zinc-300">
-                            <tr>
-                                <td colspan="6" class="text-center py-6 text-zinc-500">正在讀取即時訪客查詢資料...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- 區塊二：地端整合平台 1:1 復刻下載控制面板 (已在資料庫以淺灰色呈現) -->
-        <section class="tech-card p-5 space-y-4">
-            <!-- 頂部單位資訊列 -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl">🏊</span>
-                    <div>
-                        <div class="flex items-baseline gap-2.5 flex-wrap">
-                            <h3 id="unified-org-title" class="text-lg font-bold gold-gradient-text tracking-wide">中華泳協 CTSA</h3>
-                            <a id="unified-org-url" href="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" target="_blank" rel="noopener noreferrer" class="text-xs text-zinc-500 hover:text-zinc-300 transition truncate max-w-xs font-mono">https://ctsa.utk.com.tw/CTSA/pub...</a>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-bold text-zinc-100">訪客即時查詢雷達與熱搜選手看板 (Live Swimmer Query Radar)</h3>
+                                <span class="text-[11px] font-mono px-2 py-0.5 rounded-full gold-gradient-badge">
+                                    <span class="gold-gradient-text font-bold">全台即時訪客動態</span>
+                                </span>
+                            </div>
+                            <p class="text-xs text-zinc-400">即時監測全台家長、教練與泳者在 swimming-pwa.vercel.app 查詢的選手名單與熱搜趨勢</p>
                         </div>
                     </div>
-                </div>
-                <div class="flex items-center gap-2 self-start sm:self-auto">
-                    <span class="text-xs px-2.5 py-1 rounded-full badge-pending font-bold flex items-center gap-1">
-                        <i class="fa-solid fa-bolt-lightning gold-gradient-icon"></i>
-                        <span>官方賽事即時連動</span>
-                    </span>
-                </div>
-            </div>
-
-            <!-- 控制面板：步驟 1、步驟 2、下載按鈕 -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
-                <!-- 第一層：選擇主辦單位 (由北到南排序) -->
-                <div class="md:col-span-4 space-y-1.5">
-                    <label class="text-xs text-zinc-400 font-semibold flex items-center gap-1">
-                        <span>📍 步驟 1：選擇主辦單位（由北到南排序）</span>
-                    </label>
-                    <select id="unifiedOrgSelect" class="tech-select w-full h-[42px] text-xs sm:text-sm font-semibold" onchange="handleUnifiedOrgChange()">
-                        <option value="site_d" data-url="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" data-name="中華泳協 CTSA" selected>🇹🇼 中華民國游泳協會 (CTSA) [全國首位]</option>
-                        <option value="site_tpesa" data-url="https://www.tpesa.org.tw/" data-name="臺北體總 TPESA">🏛️ 臺北市體育總會游泳協會 (TPESA) [北部]</option>
-                        <option value="site_a" data-url="https://swim8.kcsat.org/score_search" data-name="臺中市游泳委員會">☀️ 臺中市體育總會游泳委員會 (SWIM8) [中部]</option>
-                        <option value="site_b" data-url="https://www.tainanswim.com.tw/history.php" data-name="臺南市游泳委員會">🏛️ 臺南市體育總會游泳委員會 (TAINAN) [南部]</option>
-                        <option value="site_c" data-url="http://kcc.nowforyou.com/register/gameeventqry.asp" data-name="高雄市游泳委員會">⚓ 高雄市體育總會游泳委員會 (KCC) [南部]</option>
-                        <option value="site_e" data-url="https://swim.kcsat.org/score_search" data-name="高雄水上">🏊‍♂️ 高雄水上 (SWIM_KCSAT) [南部]</option>
-                    </select>
-                </div>
-
-                <!-- 第二層：自訂高科技下拉選單 (淺灰字體突破瀏覽器原生限制) -->
-                <div class="md:col-span-6 space-y-1.5">
-                    <div class="flex items-center justify-between">
-                        <label class="text-xs text-zinc-400 font-semibold flex items-center gap-1">
-                            <span>🏆 步驟 2：選擇要下載的賽事清單</span>
+                    <div class="flex items-center gap-2 text-xs font-mono flex-wrap">
+                        <a href="https://docs.google.com/spreadsheets/d/1TlEs7tPR-OxQQm6_jIRqiBOMEKZJKhKE5ZtVrpTSTZM/edit?usp=drivesdk" id="googleSheetLinkBtn" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 text-xs rounded-lg bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-400 transition flex items-center gap-1.5 border border-emerald-700/50">
+                            <i class="fa-solid fa-table"></i>
+                            <span>Google Sheets 全歷史</span>
+                        </a>
+                        <button onclick="fetchVisitorQueryLogs()" class="px-2.5 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition flex items-center gap-1 border border-zinc-700">
+                            <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
+                            <span>立即刷新</span>
+                        </button>
+                        <label class="flex items-center gap-1.5 text-zinc-400 text-xs cursor-pointer select-none">
+                            <input type="checkbox" id="autoRefreshLogsToggle" checked onchange="toggleAutoRefreshLogs(this.checked)" class="rounded bg-zinc-900 border-zinc-700 text-amber-500 focus:ring-0">
+                            <span>10秒自動更新</span>
                         </label>
-                        <span class="text-[11px] font-mono text-zinc-500">
-                            已入庫：<strong class="text-gray-400">淺灰色</strong> · 未入庫：<strong class="gold-gradient-text font-bold">高亮</strong>
+                    </div>
+                </div>
+
+                <!-- 熱搜 Top 10 選手膠囊列 -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between text-xs font-mono">
+                        <span class="text-zinc-400 flex items-center gap-1.5 font-bold">
+                            <i class="fa-solid fa-fire text-amber-400"></i> 熱搜選手排行 (Top Queried Swimmers)
                         </span>
+                        <span id="hotSwimmersCountInfo" class="text-zinc-500 text-[11px]">累計統計中...</span>
                     </div>
-
-                    <div class="custom-dropdown-wrap">
-                        <div id="customRaceSelectBtn" class="custom-dropdown-btn" onclick="toggleRaceDropdown()">
-                            <span id="selectedRaceText" class="truncate text-zinc-400">-- 選擇要下載的賽事 --</span>
-                            <i class="fa-solid fa-chevron-down text-xs text-zinc-500 ml-2"></i>
-                        </div>
-                        <div id="customRaceDropdownMenu" class="custom-dropdown-menu hidden">
-                            <!-- 動態注入自訂選單項目 -->
-                        </div>
+                    <div id="hotSwimmersContainer" class="flex flex-wrap gap-2 pt-1">
+                        <span class="text-xs text-zinc-500">正在計算熱搜榜單...</span>
                     </div>
                 </div>
 
-                <!-- 第三層：下載賽事按鈕 -->
-                <div class="md:col-span-2">
-                    <button id="unifiedDownloadBtn" class="btn-download-action w-full h-[42px] text-xs sm:text-sm flex items-center justify-center gap-1.5" onclick="startUnifiedRaceUpdate()" disabled>
-                        <i class="fa-solid fa-cloud-arrow-down text-xs"></i>
-                        <span>下載賽事</span>
-                    </button>
+                <!-- 即時搜尋日誌串流表 -->
+                <div class="space-y-2 pt-2">
+                    <div class="flex items-center justify-between text-xs font-mono">
+                        <span class="text-zinc-400 flex items-center gap-1.5 font-bold">
+                            <i class="fa-solid fa-stream text-sky-400"></i> 最新訪客查詢串流 (Live Query Stream)
+                        </span>
+                        <span id="logTotalCountLabel" class="text-zinc-500 text-[11px]">載入中...</span>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-zinc-800/80 bg-zinc-950/60 max-h-[360px] overflow-y-auto">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-zinc-900/90 text-zinc-400 border-b border-zinc-800 sticky top-0 backdrop-blur-md">
+                                <tr>
+                                    <th class="p-2.5">時間</th>
+                                    <th class="p-2.5">查詢選手 / 關鍵字</th>
+                                    <th class="p-2.5">查詢模式</th>
+                                    <th class="p-2.5">來源地區</th>
+                                    <th class="p-2.5">訪客 IP</th>
+                                    <th class="p-2.5 text-right">快捷操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="visitorLogsTableBody" class="divide-y divide-zinc-800/40 text-zinc-300">
+                                <tr>
+                                    <td colspan="6" class="text-center py-6 text-zinc-500">正在讀取即時訪客查詢資料...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- 即時狀態回饋提示 -->
-            <div id="raceStatusNotice" class="text-xs font-mono text-zinc-400 p-2.5 rounded-lg bg-zinc-950/60 border border-zinc-800/80 flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <span id="raceNoticeDot" class="w-2 h-2 rounded-full bg-zinc-600"></span>
-                    <span id="raceNoticeText">請點擊上方步驟 2 展開賽事選單檢視入庫狀態</span>
-                </div>
-                <span id="gcpNoticeBadge" class="text-[11px] text-zinc-500 font-mono">GCP Task Ready</span>
-            </div>
-        </section>
-
-        <!-- 區塊三：Normal 資料庫雙向連動探針 (日期 8 碼 ＋ 賽事名稱連動，顯示前 5 筆) -->
-        <section class="tech-card p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                    <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
-                        <i class="fa-solid fa-database gold-gradient-icon"></i>
-                        <span>Normal 資料庫時間與賽事雙向探針</span>
-                    </h3>
-                    <p class="text-xs text-zinc-400">輸入 8 碼日期自動連動賽事名稱，或選擇賽事反查日期，即時呈現前 <strong class="gold-gradient-text font-bold">5</strong> 筆成績</p>
-                </div>
-                <div class="text-xs font-mono text-zinc-500">
-                    可查賽事日：<span id="dateTotalCount" class="text-zinc-300 font-bold">625</span> 天 · 賽事庫：<span id="meetTotalCount" class="text-zinc-300 font-bold">87</span> 場
-                </div>
-            </div>
-
-            <!-- 雙輸入控制列：日期 8 碼 ＋ 賽事名稱連動下拉 -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
-                <!-- 左側：日期 8 碼輸入框與下拉提示 -->
-                <div class="md:col-span-5 search-input-wrap">
-                    <label class="text-xs text-zinc-400 font-semibold mb-1 block">📅 日期 8 碼探針</label>
-                    <div class="relative">
-                        <i class="fa-solid fa-calendar-days absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm"></i>
-                        <input 
-                            type="text" 
-                            id="dateProbeInput" 
-                            placeholder="輸入日期（如 20251207 或 202609）..." 
-                            class="tech-input w-full pl-10 pr-16 py-2.5 rounded-xl text-xs sm:text-sm"
-                            autocomplete="off"
-                            oninput="onDateInput(this.value)"
-                            onfocus="onDateInput(this.value)"
-                        >
-                        <button 
-                            id="clearDateBtn" 
-                            onclick="clearDateProbe()" 
-                            class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 hover:text-zinc-300 px-2 py-1"
-                        >
-                            清除
+            <!-- 免費儲存空間水位哨兵 (Zero-Cost Storage Quota Sentinel) -->
+            <section class="tech-card p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-base">
+                            <i class="fa-solid fa-server gold-gradient-icon"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-bold text-zinc-100">免費儲存空間水位哨兵 (Zero-Cost Storage Quota Sentinel)</h3>
+                                <span class="text-[11px] font-mono px-2 py-0.5 rounded-full gold-gradient-badge">
+                                    <span class="gold-gradient-text font-bold">100% 免費 · $0.00 /月</span>
+                                </span>
+                            </div>
+                            <p class="text-xs text-zinc-400">即時監測 GitHub、GCS 雲端儲存與 Vercel 邊緣部署配額 · 剩餘空間與 85% 預警安全水位</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-mono">
+                        <span id="quotaOverallBadge" class="badge-live text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1.5 font-bold">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>全域水位安全</span>
+                        </span>
+                        <button onclick="fetchStorageQuota()" class="px-2.5 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition flex items-center gap-1 border border-zinc-700">
+                            <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
+                            <span>刷新容量</span>
                         </button>
                     </div>
-                    <!-- 日期候選下拉 -->
-                    <div id="suggestDropdown" class="suggest-dropdown hidden"></div>
                 </div>
 
-                <!-- 右側：連動的賽事名稱下拉選單 -->
-                <div class="md:col-span-7 space-y-1">
-                    <div class="flex items-center justify-between">
+                <!-- 三大服務容量進度卡片 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono">
+                    <!-- 1. GitHub 倉庫工作區 -->
+                    <div class="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-2.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="flex items-center gap-1.5 text-zinc-300 font-bold">
+                                <i class="fa-brands fa-github text-zinc-400"></i> GitHub 倉庫實體
+                            </span>
+                            <span id="ghQuotaPct" class="text-emerald-400 font-bold">40.0%</span>
+                        </div>
+                        <div class="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
+                            <div id="ghQuotaBar" class="bg-gradient-to-r from-emerald-500 to-amber-400 h-2 rounded-full transition-all duration-500" style="width: 40.0%"></div>
+                        </div>
+                        <div class="flex justify-between text-[11px] text-zinc-400 pt-1 border-t border-zinc-800/60">
+                            <span>已用：<strong id="ghUsedMb" class="text-zinc-200">399.6 MB</strong></span>
+                            <span>剩餘：<strong id="ghFreeMb" class="text-emerald-400 font-bold">600.4 MB</strong></span>
+                        </div>
+                        <div class="text-[10px] text-zinc-500 flex justify-between">
+                            <span>免費上限：1,000 MB</span>
+                            <span id="ghDbPartsInfo" class="text-zinc-400">DB分卷 298 MB</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Google Cloud Storage (GCS) -->
+                    <div class="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-2.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="flex items-center gap-1.5 text-zinc-300 font-bold">
+                                <i class="fa-brands fa-google text-blue-400"></i> GCS 雲端儲存桶
+                            </span>
+                            <span id="gcsQuotaPct" class="text-emerald-400 font-bold">0.00%</span>
+                        </div>
+                        <div class="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
+                            <div id="gcsQuotaBar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-2 rounded-full transition-all duration-500" style="width: 0.1%"></div>
+                        </div>
+                        <div class="flex justify-between text-[11px] text-zinc-400 pt-1 border-t border-zinc-800/60">
+                            <span>已用：<strong id="gcsUsedMb" class="text-zinc-200">0.00 MB</strong></span>
+                            <span>剩餘：<strong id="gcsFreeMb" class="text-emerald-400 font-bold">5,120 MB</strong></span>
+                        </div>
+                        <div class="text-[10px] text-zinc-500 flex justify-between">
+                            <span>GCP Always Free：5,120 MB</span>
+                            <span class="text-zinc-400">零快取公開唯讀</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. Vercel 邊緣部署包 -->
+                    <div class="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-2.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="flex items-center gap-1.5 text-zinc-300 font-bold">
+                                <i class="fa-solid fa-triangle-circle-square text-zinc-400"></i> Vercel 邊緣部署
+                            </span>
+                            <span id="verQuotaPct" class="text-emerald-400 font-bold">40.0%</span>
+                        </div>
+                        <div class="w-full bg-zinc-950 rounded-full h-2 overflow-hidden border border-zinc-800">
+                            <div id="verQuotaBar" class="bg-gradient-to-r from-emerald-500 to-amber-400 h-2 rounded-full transition-all duration-500" style="width: 40.0%"></div>
+                        </div>
+                        <div class="flex justify-between text-[11px] text-zinc-400 pt-1 border-t border-zinc-800/60">
+                            <span>已用：<strong id="verUsedMb" class="text-zinc-200">399.6 MB</strong></span>
+                            <span>剩餘：<strong id="verFreeMb" class="text-emerald-400 font-bold">600.4 MB</strong></span>
+                        </div>
+                        <div class="text-[10px] text-zinc-500 flex justify-between">
+                            <span>Hobby 限額：1,000 MB</span>
+                            <span class="text-zinc-400">CDN 邊緣快取全球</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 配額安全與成本保障條款 -->
+                <div class="p-3 rounded-lg bg-zinc-950/60 border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-zinc-400 gap-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-amber-400"></i>
+                        <span><strong>永不超額承諾</strong>：當任一服務使用量突破 <span class="text-amber-300 font-bold">85% 水位線</span>，系統將自動中斷大檔寫入並觸發物理熔斷告警！</span>
+                    </div>
+                    <div class="text-[11px] text-zinc-500 shrink-0">
+                        最後測量時間：<span id="quotaMeasureTime" class="text-zinc-300">2026-10-06 22:56</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB PANE 2: 🔍 採集與探針 (Harvester & Data Probe) -->
+        <!-- ============================================================ -->
+        <div id="pane-probe" class="tab-pane space-y-6">
+
+            <!-- 官方賽事即時連動下載控制面板 -->
+            <section class="tech-card p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🏊</span>
+                        <div>
+                            <div class="flex items-baseline gap-2.5 flex-wrap">
+                                <h3 id="unified-org-title" class="text-lg font-bold gold-gradient-text tracking-wide">中華泳協 CTSA</h3>
+                                <a id="unified-org-url" href="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" target="_blank" rel="noopener noreferrer" class="text-xs text-zinc-500 hover:text-zinc-300 transition truncate max-w-xs font-mono">https://ctsa.utk.com.tw/CTSA/pub...</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 self-start sm:self-auto">
+                        <span class="text-xs px-2.5 py-1 rounded-full badge-pending font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-bolt-lightning gold-gradient-icon"></i>
+                            <span>官方賽事即時連動</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 控制面板：步驟 1、步驟 2、下載按鈕 -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
+                    <!-- 第一層：選擇主辦單位 (由北到南排序) -->
+                    <div class="md:col-span-4 space-y-1.5">
                         <label class="text-xs text-zinc-400 font-semibold flex items-center gap-1">
-                            <span>🏆 當日連動賽事名稱</span>
+                            <span>📍 步驟 1：選擇主辦單位（由北到南排序）</span>
                         </label>
-                        <span id="linkedMeetHint" class="text-[11px] font-mono gold-gradient-text font-bold">可選賽事：全量</span>
+                        <select id="unifiedOrgSelect" class="tech-select w-full h-[42px] text-xs sm:text-sm font-semibold" onchange="handleUnifiedOrgChange()">
+                            <option value="site_d" data-url="https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx" data-name="中華泳協 CTSA" selected>🇹🇼 中華民國游泳協會 (CTSA) [全國首位]</option>
+                            <option value="site_tpesa" data-url="https://www.tpesa.org.tw/" data-name="臺北體總 TPESA">🏛️ 臺北市體育總會游泳協會 (TPESA) [北部]</option>
+                            <option value="site_a" data-url="https://swim8.kcsat.org/score_search" data-name="臺中市游泳委員會">☀️ 臺中市體育總會游泳委員會 (SWIM8) [中部]</option>
+                            <option value="site_b" data-url="https://www.tainanswim.com.tw/history.php" data-name="臺南市游泳委員會">🏛️ 臺南市體育總會游泳委員會 (TAINAN) [南部]</option>
+                            <option value="site_c" data-url="http://kcc.nowforyou.com/register/gameeventqry.asp" data-name="高雄市游泳委員會">⚓ 高雄市體育總會游泳委員會 (KCC) [南部]</option>
+                            <option value="site_e" data-url="https://swim.kcsat.org/score_search" data-name="高雄水上">🏊‍♂️ 高雄水上 (SWIM_KCSAT) [南部]</option>
+                        </select>
                     </div>
-                    <select id="linkedMeetSelect" class="tech-select w-full h-[42px] text-xs sm:text-sm" onchange="onLinkedMeetChange()">
-                        <option value="">-- 請先選取日期或由此選擇賽事 --</option>
-                    </select>
-                </div>
-            </div>
 
-            <!-- 前 5 筆明細展示區 (大仁哥指定：只顯示 5 筆) -->
-            <div id="sampleResultsContainer" class="space-y-3 pt-2">
-                <div class="flex items-center justify-between text-xs text-zinc-400 font-mono">
-                    <span id="currentDateLabel">當前檢視：請於上方輸入日期或選擇賽事</span>
-                    <span id="sampleCountLabel" class="gold-gradient-text font-bold">顯示筆數：前 5 筆</span>
-                </div>
-
-                <!-- 數據表格 (前 5 筆) -->
-                <div class="overflow-x-auto rounded-xl border border-zinc-800/80">
-                    <table class="w-full text-left text-xs font-mono">
-                        <thead class="bg-zinc-900/90 text-zinc-400 uppercase border-b border-zinc-800">
-                            <tr>
-                                <th class="py-2.5 px-3">日期</th>
-                                <th class="py-2.5 px-3">名次</th>
-                                <th class="py-2.5 px-3">姓名 (出生年)</th>
-                                <th class="py-2.5 px-3">代表單位</th>
-                                <th class="py-2.5 px-3">參賽項目</th>
-                                <th class="py-2.5 px-3">成績</th>
-                                <th class="py-2.5 px-3">賽事名稱</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sampleTableBody" class="divide-y divide-zinc-800/60 bg-zinc-950/40 text-zinc-300">
-                            <tr>
-                                <td colspan="7" class="py-6 text-center text-zinc-500">
-                                    請在上方面板輸入如「20251207」或「202609」檢視前 5 筆資料
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- 區塊四：游泳行事曆與雲端定時排程狀態 (macOS 頂級原生風格 1:1 實裝) -->
-        <section class="space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div class="flex items-center gap-2.5">
-                    <span class="text-xl">📅</span>
-                    <h2 class="text-base font-bold text-zinc-100 flex items-center gap-2">
-                        <span>游泳行事曆</span>
-                        <span id="calendar-total-badge" class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full gold-gradient-badge"><span class="gold-gradient-text font-bold">載入中...</span></span>
-                    </h2>
-                </div>
-                <div class="flex items-center gap-3 text-xs font-mono text-zinc-400">
-                    <span class="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-lg">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        <span>GCP 排程：每天 06:00 (Asia/Taipei)</span>
-                    </span>
-                    <span id="calendarDataSourceBadge" class="text-zinc-500">資料源：/static/calendar.json</span>
-                </div>
-            </div>
-
-            <!-- macOS 原生月曆容器 (左側 42 格網格 + 右側當日賽事卡片) -->
-            <div id="mac-calendar-view" class="mac-calendar-container">
-                <!-- 左側：macOS 月曆卡片 -->
-                <div class="mac-calendar-card">
-                    <!-- 月份導覽列 -->
-                    <div class="mac-month-header">
-                        <button class="mac-month-nav-btn" onclick="prevMacMonth()" title="上個月">‹</button>
-                        <div class="mac-month-title">
-                            <span id="mac-month-label">2026年10月</span>
-                            <button class="mac-today-btn" onclick="jumpMacToday()">今天</button>
+                    <!-- 第二層：自訂高科技下拉選單 -->
+                    <div class="md:col-span-6 space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs text-zinc-400 font-semibold flex items-center gap-1">
+                                <span>🏆 步驟 2：選擇要下載的賽事清單</span>
+                            </label>
+                            <span class="text-[11px] font-mono text-zinc-500">
+                                已入庫：<strong class="text-gray-400">淺灰色</strong> · 未入庫：<strong class="gold-gradient-text font-bold">高亮</strong>
+                            </span>
                         </div>
-                        <button class="mac-month-nav-btn" onclick="nextMacMonth()" title="下個月">›</button>
+
+                        <div class="custom-dropdown-wrap">
+                            <div id="customRaceSelectBtn" class="custom-dropdown-btn" onclick="toggleRaceDropdown()">
+                                <span id="selectedRaceText" class="truncate text-zinc-400">-- 選擇要下載的賽事 --</span>
+                                <i class="fa-solid fa-chevron-down text-xs text-zinc-500 ml-2"></i>
+                            </div>
+                            <div id="customRaceDropdownMenu" class="custom-dropdown-menu hidden">
+                                <!-- 動態注入自訂選單項目 -->
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- 星期標頭 (日 一 二 三 四 五 六) -->
-                    <div class="mac-weekdays-row">
-                        <div>日</div>
-                        <div>一</div>
-                        <div>二</div>
-                        <div>三</div>
-                        <div>四</div>
-                        <div>五</div>
-                        <div>六</div>
-                    </div>
-
-                    <!-- 42 格日期網格 -->
-                    <div id="mac-days-grid" class="mac-days-grid">
-                        <!-- 由 JS 動態生成 -->
+                    <!-- 第三層：下載賽事按鈕 -->
+                    <div class="md:col-span-2">
+                        <button id="unifiedDownloadBtn" class="btn-download-action w-full h-[42px] text-xs sm:text-sm flex items-center justify-center gap-1.5" onclick="startUnifiedRaceUpdate()" disabled>
+                            <i class="fa-solid fa-cloud-arrow-down text-xs"></i>
+                            <span>下載賽事</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- 右側：當日賽事詳情卡片 -->
-                <div class="mac-calendar-sidebar">
-                    <div class="mac-detail-card" id="mac-detail-card">
-                        <div class="mac-detail-header">
-                            <h3 id="mac-detail-date-title" class="mac-detail-date-title">當日賽事日程</h3>
-                            <span id="mac-detail-count-badge" class="mac-event-badge">0 場賽事</span>
+                <!-- 即時狀態回饋提示 -->
+                <div id="raceStatusNotice" class="text-xs font-mono text-zinc-400 p-2.5 rounded-lg bg-zinc-950/60 border border-zinc-800/80 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span id="raceNoticeDot" class="w-2 h-2 rounded-full bg-zinc-600"></span>
+                        <span id="raceNoticeText">請點擊上方步驟 2 展開賽事選單檢視入庫狀態</span>
+                    </div>
+                    <span id="gcpNoticeBadge" class="text-[11px] text-zinc-500 font-mono">GCP Task Ready</span>
+                </div>
+            </section>
+
+            <!-- Normal 資料庫雙向連動探針 -->
+            <section class="tech-card p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
+                            <i class="fa-solid fa-database gold-gradient-icon"></i>
+                            <span>Normal 資料庫時間與賽事雙向探針</span>
+                        </h3>
+                        <p class="text-xs text-zinc-400">輸入 8 碼日期自動連動賽事名稱，或選擇賽事反查日期，即時呈現前 <strong class="gold-gradient-text font-bold">5</strong> 筆成績</p>
+                    </div>
+                    <div class="text-xs font-mono text-zinc-500">
+                        可查賽事日：<span id="dateTotalCount" class="text-zinc-300 font-bold">625</span> 天 · 賽事庫：<span id="meetTotalCount" class="text-zinc-300 font-bold">87</span> 場
+                    </div>
+                </div>
+
+                <!-- 雙輸入控制列 -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
+                    <!-- 左側：日期 8 碼輸入框 -->
+                    <div class="md:col-span-5 search-input-wrap">
+                        <label class="text-xs text-zinc-400 font-semibold mb-1 block">📅 日期 8 碼探針</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-calendar-days absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm"></i>
+                            <input 
+                                type="text" 
+                                id="dateProbeInput" 
+                                placeholder="輸入日期（如 20251207 或 202609）..." 
+                                class="tech-input w-full pl-10 pr-16 py-2.5 rounded-xl text-xs sm:text-sm"
+                                autocomplete="off"
+                                oninput="onDateInput(this.value)"
+                                onfocus="onDateInput(this.value)"
+                            >
+                            <button 
+                                id="clearDateBtn" 
+                                onclick="clearDateProbe()" 
+                                class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 hover:text-zinc-300 px-2 py-1"
+                            >
+                                清除
+                            </button>
                         </div>
-                        <div id="mac-events-list" class="mac-events-list">
-                            <div class="mac-empty-state">
-                                正在讀取賽事行事曆資料...
+                        <div id="suggestDropdown" class="suggest-dropdown hidden"></div>
+                    </div>
+
+                    <!-- 右側：連動賽事名稱下拉 -->
+                    <div class="md:col-span-7 space-y-1">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs text-zinc-400 font-semibold flex items-center gap-1">
+                                <span>🏆 當日連動賽事名稱</span>
+                            </label>
+                            <span id="linkedMeetHint" class="text-[11px] font-mono gold-gradient-text font-bold">可選賽事：全量</span>
+                        </div>
+                        <select id="linkedMeetSelect" class="tech-select w-full h-[42px] text-xs sm:text-sm" onchange="onLinkedMeetChange()">
+                            <option value="">-- 請先選取日期或由此選擇賽事 --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 前 5 筆明細展示區 -->
+                <div id="sampleResultsContainer" class="space-y-3 pt-2">
+                    <div class="flex items-center justify-between text-xs text-zinc-400 font-mono">
+                        <span id="currentDateLabel">當前檢視：請於上方輸入日期或選擇賽事</span>
+                        <span id="sampleCountLabel" class="gold-gradient-text font-bold">顯示筆數：前 5 筆</span>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-zinc-800/80">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-zinc-900/90 text-zinc-400 uppercase border-b border-zinc-800">
+                                <tr>
+                                    <th class="py-2.5 px-3">日期</th>
+                                    <th class="py-2.5 px-3">名次</th>
+                                    <th class="py-2.5 px-3">姓名 (出生年)</th>
+                                    <th class="py-2.5 px-3">代表單位</th>
+                                    <th class="py-2.5 px-3">參賽項目</th>
+                                    <th class="py-2.5 px-3">成績</th>
+                                    <th class="py-2.5 px-3">賽事名稱</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sampleTableBody" class="divide-y divide-zinc-800/60 bg-zinc-950/40 text-zinc-300">
+                                <tr>
+                                    <td colspan="7" class="py-6 text-center text-zinc-500">
+                                        請在上方面板輸入如「20251207」或「202609」檢視前 5 筆資料
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB PANE 3: 📅 賽事行事曆 (Official Swimming Calendar) -->
+        <!-- ============================================================ -->
+        <div id="pane-calendar" class="tab-pane space-y-6">
+
+            <section class="space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xl">📅</span>
+                        <h2 class="text-base font-bold text-zinc-100 flex items-center gap-2">
+                            <span>游泳行事曆</span>
+                            <span id="calendar-total-badge" class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full gold-gradient-badge"><span class="gold-gradient-text font-bold">載入中...</span></span>
+                        </h2>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs font-mono text-zinc-400">
+                        <span class="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-lg">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span>GCP 排程：每天 06:00 (Asia/Taipei)</span>
+                        </span>
+                        <span id="calendarDataSourceBadge" class="text-zinc-500">資料源：/static/calendar.json</span>
+                    </div>
+                </div>
+
+                <!-- macOS 原生月曆容器 (左側 42 格網格 + 右側當日賽事卡片) -->
+                <div id="mac-calendar-view" class="mac-calendar-container">
+                    <!-- 左側：macOS 月曆卡片 -->
+                    <div class="mac-calendar-card">
+                        <!-- 月份導覽列 -->
+                        <div class="mac-month-header">
+                            <button class="mac-month-nav-btn" onclick="prevMacMonth()" title="上個月">‹</button>
+                            <div class="mac-month-title">
+                                <span id="mac-month-label">2026年10月</span>
+                                <button class="mac-today-btn" onclick="jumpMacToday()">今天</button>
+                            </div>
+                            <button class="mac-month-nav-btn" onclick="nextMacMonth()" title="下個月">›</button>
+                        </div>
+
+                        <!-- 星期標頭 -->
+                        <div class="mac-weekdays-row">
+                            <div>日</div>
+                            <div>一</div>
+                            <div>二</div>
+                            <div>三</div>
+                            <div>四</div>
+                            <div>五</div>
+                            <div>六</div>
+                        </div>
+
+                        <!-- 42 格日期網格 -->
+                        <div id="mac-days-grid" class="mac-days-grid">
+                            <!-- 由 JS 動態生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 右側：當日賽事詳情卡片 -->
+                    <div class="mac-calendar-sidebar">
+                        <div class="mac-detail-card" id="mac-detail-card">
+                            <div class="mac-detail-header">
+                                <h3 id="mac-detail-date-title" class="mac-detail-date-title">當日賽事日程</h3>
+                                <span id="mac-detail-count-badge" class="mac-event-badge">0 場賽事</span>
+                            </div>
+                            <div id="mac-events-list" class="mac-events-list">
+                                <div class="mac-empty-state">
+                                    正在讀取賽事行事曆資料...
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
 
-        <!-- 區塊五：GCP 雲端託管任務與自動化排程清單 (大仁哥指定：任務逐一列表與執行頻率) -->
-        <section class="tech-card p-6 space-y-5">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-lg">
-                        <i class="fa-solid fa-cloud-arrow-down gold-gradient-icon"></i>
+        <!-- ============================================================ -->
+        <!-- TAB PANE 4: ⚙️ 雲端架構與日誌 (Cloud Architecture & Audit Logs) -->
+        <!-- ============================================================ -->
+        <div id="pane-cloud" class="tab-pane space-y-6">
+
+            <!-- GitHub 雙版本流水號卡片 -->
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Normal 資料庫卡片 -->
+                <div class="tech-card p-5 relative overflow-hidden group">
+                    <div class="absolute -right-6 -bottom-6 text-zinc-800/30 text-8xl pointer-events-none font-mono">DB</div>
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                <span class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">GitHub Normal 資料庫</span>
+                            </div>
+                            <div id="normalVersionCode" class="text-xl sm:text-2xl font-bold font-mono text-zinc-100">
+                                v2026.10.05.0115
+                            </div>
+                            <div class="text-xs text-zinc-500 font-mono mt-0.5">
+                                Build #<span id="normalBuildNo" class="text-zinc-400">1791134114</span>
+                            </div>
+                        </div>
+                        <span class="badge-live text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1">
+                            <i class="fa-brands fa-github text-xs"></i> 主庫同步
+                        </span>
                     </div>
+                    <div class="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono">
+                        <span class="text-zinc-500">總成績筆數</span>
+                        <span id="normalTotalRows" class="text-emerald-400 font-bold">832,006 筆</span>
+                    </div>
+                </div>
+
+                <!-- 256split 資料庫卡片 -->
+                <div class="tech-card p-5 relative overflow-hidden group">
+                    <div class="absolute -right-6 -bottom-6 text-zinc-800/30 text-8xl pointer-events-none font-mono">256</div>
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span id="splitIntegrityDot" class="w-2 h-2 rounded-full gold-gradient-dot"></span>
+                                <span class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">GitHub 256split 預處理</span>
+                            </div>
+                            <div id="splitVersionCode" class="text-xl sm:text-2xl font-bold font-mono gold-gradient-text">
+                                v2026.10.05.0115
+                            </div>
+                            <div class="text-xs text-zinc-500 font-mono mt-0.5">
+                                分塊索引：<span id="splitParts" class="text-zinc-300">256 桶完整切割</span>
+                            </div>
+                        </div>
+                        <span id="splitIntegrityBadge" class="badge-pending text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1 font-bold">
+                            <i class="fa-solid fa-circle-check text-xs gold-gradient-icon"></i>
+                            <span>預處理 100% 完工</span>
+                        </span>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono">
+                        <span class="text-zinc-500">雙軌總筆數核對</span>
+                        <span id="splitMatchStatus" class="gold-gradient-text font-bold">832,006 筆 (1:1 吻合)</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GCP 雲端託管任務與自動化排程清單 -->
+            <section class="tech-card p-6 space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-cloud-arrow-down gold-gradient-icon"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base sm:text-lg font-bold text-zinc-100 flex items-center gap-2">
+                                <span>GCP 雲端託管任務與自動化排程清單</span>
+                                <span class="text-[11px] font-mono px-2 py-0.5 rounded-full gold-gradient-badge">
+                                    <span class="gold-gradient-text font-bold">4 項核心雲端任務</span>
+                                </span>
+                            </h3>
+                            <p class="text-xs text-zinc-400">大仁哥指示建檔 · 逐一記錄 GCP 託管之自動化爬蟲、自愈引擎、邊緣分發與執行頻率</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-mono">
+                        <span class="px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>機房：asia-east1 (台灣)</span>
+                        </span>
+                        <span class="px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400">
+                            維護成本：NT$ 0 /月
+                        </span>
+                    </div>
+                </div>
+
+                <!-- GCP 雲端架構配置摘要卡片 -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+                    <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                        <div class="text-zinc-500 text-[11px]">GCP 專案名稱</div>
+                        <div class="text-zinc-200 font-bold mt-1 text-xs truncate" title="ctsa-swimming-project">ctsa-swimming-project</div>
+                        <div class="text-[10px] text-zinc-500 mt-0.5">ID: 287296629155</div>
+                    </div>
+                    <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                        <div class="text-zinc-500 text-[11px]">每日自動排程</div>
+                        <div class="gold-gradient-text font-bold mt-1 text-xs">每天 06:00:00</div>
+                        <div class="text-[10px] text-zinc-500 mt-0.5">Cron: 0 6 * * * (台北時間)</div>
+                    </div>
+                    <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                        <div class="text-zinc-500 text-[11px]">算力調度引擎</div>
+                        <div class="text-emerald-400 font-bold mt-1 text-xs">Cloud Run Job</div>
+                        <div class="text-[10px] text-zinc-500 mt-0.5">容器按需秒級啟動</div>
+                    </div>
+                    <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                        <div class="text-zinc-500 text-[11px]">雲端儲存貯體</div>
+                        <div class="text-zinc-200 font-bold mt-1 text-xs truncate" title="gs://ctsa-swim-cloud-287296629155">ctsa-swim-cloud</div>
+                        <div class="text-[10px] text-zinc-500 mt-0.5">GCS Bucket (零快取)</div>
+                    </div>
+                </div>
+
+                <!-- 任務逐一列表 (4 大任務卡片) -->
+                <div class="space-y-3">
+                    <!-- 任務 1 -->
+                    <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs flex items-center justify-center font-bold">1</span>
+                                <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                                    <span>每日全台賽事與行事曆自動爬蟲採集</span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">核心定時任務</span>
+                                </h4>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs font-mono">
+                                <span class="px-2 py-0.5 rounded bg-zinc-800 text-amber-300 font-bold flex items-center gap-1">
+                                    <i class="fa-regular fa-clock text-[10px]"></i>
+                                    <span>執行頻率：每天清晨 06:00:00 (Asia/Taipei)</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
+                            <div>
+                                <span class="text-zinc-500">調度鬧鐘：</span>
+                                <span class="text-zinc-300">Cloud Scheduler (swim-daily-0600-schedule)</span>
+                            </div>
+                            <div>
+                                <span class="text-zinc-500">執行單元：</span>
+                                <span class="text-zinc-300">Cloud Run Job (swim-daily-crawler)</span>
+                            </div>
+                            <div>
+                                <span class="text-zinc-500">同步目標：</span>
+                                <span class="text-zinc-300">GCS Bucket (3 個核心 JSON)</span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-zinc-300 space-y-1 pl-1">
+                            <div class="flex items-start gap-2">
+                                <span class="text-amber-400">▸</span>
+                                <span><strong>CTSA 中華泳協官方全國賽事即時採集</strong>：發起 HTTP 連線至官方賽事系統 (<code class="text-zinc-400">game_data.aspx</code>)，解析 <code class="text-zinc-400">DD_Activity_ID</code> 下拉清單，精準抓取 115 年全國春季、小學、青年盃、中正盃、總統盃等 13 大官方賽事。</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-amber-400">▸</span>
+                                <span><strong>臺南市泳協歷屆賽事即時爬取</strong>：採集臺南市體育總會 (<code class="text-zinc-400">tainanswim.com.tw/history.php</code>) 歷屆賽事編號與名稱。</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-amber-400">▸</span>
+                                <span><strong>全台 6 大就緒泳協賽事目錄彙整同步</strong>：維護 CTSA(全國)、TPESA(台北)、SWIM8(台中)、TAINAN(台南)、KCC(高雄)、SWIM_KCSAT(高雄水上) 完整結構，杜絕各縣市 0 場空缺。</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-amber-400">▸</span>
+                                <span><strong>115 年度 96 場官方行事曆維護</strong>：完整保障 96 場官方核定排程，動態產出標準月曆 JSON (<code class="text-zinc-400">calendar.json</code>)。</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 任務 2 -->
+                    <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 font-mono text-xs flex items-center justify-center font-bold">2</span>
+                                <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                                    <span>AI 異常偵測與自動自愈修復引擎 (Cloud Self-Healer)</span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">智能守護</span>
+                                </h4>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs font-mono">
+                                <span class="px-2 py-0.5 rounded bg-zinc-800 text-blue-300 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-microchip text-[10px]"></i>
+                                    <span>執行頻率：事件觸發（遇官網改版或異常時秒級喚醒）</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
+                            <div>
+                                <span class="text-zinc-500">自愈大腦：</span>
+                                <span class="text-zinc-300">Gemini LLM (智慧 HTML 診斷)</span>
+                            </div>
+                            <div>
+                                <span class="text-zinc-500">熔斷限制：</span>
+                                <span class="text-emerald-400">最多重試 3 次 (MAX_RETRY_LIMIT=3)</span>
+                            </div>
+                            <div>
+                                <span class="text-zinc-500">保護機制：</span>
+                                <span class="text-zinc-300">超額立即物理熔斷 + 現場 Snapshot 封存</span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-zinc-300 space-y-1 pl-1">
+                            <div class="flex items-start gap-2">
+                                <span class="text-blue-400">▸</span>
+                                <span><strong>官網版面突變自愈</strong>：若泳協官網更改 HTML 標籤或選擇器導致爬取為空，自動傳送最新 HTML 片段至 Gemini 進行智慧分析並重生規則。</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-blue-400">▸</span>
+                                <span><strong>3 次硬性物理熔斷</strong>：為防止無窮重試消耗 API 配額，設定 3 次上限，超過即停止並留下完整錯誤堆疊。</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 任務 3 -->
+                    <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 font-mono text-xs flex items-center justify-center font-bold">3</span>
+                                <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                                    <span>多端無伺服器靜態資源分發 (Serverless Edge Distribution)</span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">邊緣分發</span>
+                                </h4>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs font-mono">
+                                <span class="px-2 py-0.5 rounded bg-zinc-800 text-purple-300 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-infinity text-[10px]"></i>
+                                    <span>執行頻率：7×24 小時常駐高可用存取</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
+                            <div>
+                                <span class="text-zinc-500">儲存服務：</span>
+                                <span class="text-zinc-300">Google Cloud Storage (GCS)</span>
+                            </div>
+                            <div>
+                                <span class="text-zinc-500">快取原則：</span>
+                                <span class="text-amber-400">Cache-Control: no-cache (零快取即時更新)</span>
+                            </div>
+                            <div>
+                                <span class="text-zinc-500">存取協議：</span>
+                                <span class="text-zinc-300">HTTPS CORS 公開唯讀 REST</span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-zinc-300 space-y-1 pl-1">
+                            <div class="flex items-start gap-2">
+                                <span class="text-purple-400">▸</span>
+                                <span><strong>純靜態無伺服器架構 (方案 B)</strong>：爬蟲跑完直接將 JSON 檔案推入 GCS，前端 Vercel PWA 透過瀏覽器直接向 GCS 抓取，免除雲端常駐虛擬機（VM）或資料庫連線維護開銷。</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-purple-400">▸</span>
+                                <span><strong>零延遲與零快取</strong>：透過 HTTP Header <code class="text-zinc-400">no-cache, no-store</code> 確保全台選手家長與教練點開網頁永遠看到第一手最新賽事。</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 任務 4 -->
+                    <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 font-mono text-xs flex items-center justify-center font-bold">4</span>
+                                <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                                    <span>雲端結構化審計與健康日誌監控 (Cloud Logging & Audit)</span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">審計監控</span>
+                                </h4>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs font-mono">
+                                <span class="px-2 py-0.5 rounded bg-zinc-800 text-amber-300 font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-list-check text-[10px]"></i>
+                                    <span>執行頻率：每次爬蟲作業啟動/完工時同步記錄</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
+                            <div>
+                                <span class="text-zinc-500">日誌平台：</span>
+                                <span class="text-zinc-300">Google Cloud Logging 原生結構化格式</span>
+                            </div>
+                            <div>
+                                <span class="text-zinc-500">前端同步：</span>
+                                <span class="text-zinc-300">GCS crawler_error_logs.json</span>
+                            </div>
+                            <div>
+                                <span class="text-zinc-500">監控指標：</span>
+                                <span class="text-emerald-400">HEALTHY / FAILED 與執行秒數</span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-zinc-300 space-y-1 pl-1">
+                            <div class="flex items-start gap-2">
+                                <span class="text-amber-400">▸</span>
+                                <span><strong>透明可視化稽核</strong>：將每次採集之賽事筆數、各協會狀態、耗時毫秒數發布至 GCS，供本頁下方「GCP 爬蟲執行與自愈修復日誌」終端機窗口即時讀取呈現。</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GCP 雲端爬蟲錯誤與自愈修復日誌檢視中心 -->
+            <section class="tech-card p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                        <h3 class="text-base sm:text-lg font-bold text-zinc-100 flex items-center gap-2">
-                            <span>GCP 雲端託管任務與自動化排程清單</span>
-                            <span class="text-[11px] font-mono px-2 py-0.5 rounded-full gold-gradient-badge">
-                                <span class="gold-gradient-text font-bold">4 項核心雲端任務</span>
-                            </span>
+                        <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation gold-gradient-icon"></i>
+                            <span>GCP 爬蟲執行與自愈修復日誌 (Error Logs)</span>
                         </h3>
-                        <p class="text-xs text-zinc-400">大仁哥指示建檔 · 逐一記錄 GCP 託管之自動化爬蟲、自愈引擎、邊緣分發與執行頻率</p>
+                        <p class="text-xs text-zinc-400">監控每日 06:00 爬蟲狀態、格式異常警告、AI 自我修復軌跡與熔斷保護機制</p>
                     </div>
-                </div>
-                <div class="flex items-center gap-2 text-xs font-mono">
-                    <span class="px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-300 flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>機房：asia-east1 (台灣)</span>
-                    </span>
-                    <span class="px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400">
-                        維護成本：NT$ 0 /月
-                    </span>
-                </div>
-            </div>
-
-            <!-- GCP 雲端架構配置摘要卡片 -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <div class="text-zinc-500 text-[11px]">GCP 專案名稱</div>
-                    <div class="text-zinc-200 font-bold mt-1 text-xs truncate" title="ctsa-swimming-project">ctsa-swimming-project</div>
-                    <div class="text-[10px] text-zinc-500 mt-0.5">ID: 287296629155</div>
-                </div>
-                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <div class="text-zinc-500 text-[11px]">每日自動排程</div>
-                    <div class="gold-gradient-text font-bold mt-1 text-xs">每天 06:00:00</div>
-                    <div class="text-[10px] text-zinc-500 mt-0.5">Cron: 0 6 * * * (台北時間)</div>
-                </div>
-                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <div class="text-zinc-500 text-[11px]">算力調度引擎</div>
-                    <div class="text-emerald-400 font-bold mt-1 text-xs">Cloud Run Job</div>
-                    <div class="text-[10px] text-zinc-500 mt-0.5">容器按需秒級啟動</div>
-                </div>
-                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <div class="text-zinc-500 text-[11px]">雲端儲存貯體</div>
-                    <div class="text-zinc-200 font-bold mt-1 text-xs truncate" title="gs://ctsa-swim-cloud-287296629155">ctsa-swim-cloud</div>
-                    <div class="text-[10px] text-zinc-500 mt-0.5">GCS Bucket (零快取)</div>
-                </div>
-            </div>
-
-            <!-- 任務逐一列表 (4 大任務卡片) -->
-            <div class="space-y-3">
-                <!-- 任務 1：每日全台賽事與行事曆自動採集 -->
-                <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs flex items-center justify-center font-bold">1</span>
-                            <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
-                                <span>每日全台賽事與行事曆自動爬蟲採集</span>
-                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">核心定時任務</span>
-                            </h4>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs font-mono">
-                            <span class="px-2 py-0.5 rounded bg-zinc-800 text-amber-300 font-bold flex items-center gap-1">
-                                <i class="fa-regular fa-clock text-[10px]"></i>
-                                <span>執行頻率：每天清晨 06:00:00 (Asia/Taipei)</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
-                        <div>
-                            <span class="text-zinc-500">調度鬧鐘：</span>
-                            <span class="text-zinc-300">Cloud Scheduler (swim-daily-0600-schedule)</span>
-                        </div>
-                        <div>
-                            <span class="text-zinc-500">執行單元：</span>
-                            <span class="text-zinc-300">Cloud Run Job (swim-daily-crawler)</span>
-                        </div>
-                        <div>
-                            <span class="text-zinc-500">同步目標：</span>
-                            <span class="text-zinc-300">GCS Bucket (3 個核心 JSON)</span>
-                        </div>
-                    </div>
-                    <div class="text-xs text-zinc-300 space-y-1 pl-1">
-                        <div class="flex items-start gap-2">
-                            <span class="text-amber-400">▸</span>
-                            <span><strong>CTSA 中華泳協官方全國賽事即時採集</strong>：發起 HTTP 連線至官方賽事系統 (<code class="text-zinc-400">game_data.aspx</code>)，解析 <code class="text-zinc-400">DD_Activity_ID</code> 下拉清單，精準抓取 115 年全國春季、小學、青年盃、中正盃、總統盃等 13 大官方賽事。</span>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-amber-400">▸</span>
-                            <span><strong>臺南市泳協歷屆賽事即時爬取</strong>：採集臺南市體育總會 (<code class="text-zinc-400">tainanswim.com.tw/history.php</code>) 歷屆賽事編號與名稱。</span>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-amber-400">▸</span>
-                            <span><strong>全台 6 大就緒泳協賽事目錄彙整同步</strong>：維護 CTSA(全國)、TPESA(台北)、SWIM8(台中)、TAINAN(台南)、KCC(高雄)、SWIM_KCSAT(高雄水上) 完整結構，杜絕各縣市 0 場空缺。</span>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-amber-400">▸</span>
-                            <span><strong>115 年度 96 場官方行事曆維護</strong>：完整保障 96 場官方核定排程，動態產出標準月曆 JSON (<code class="text-zinc-400">calendar.json</code>)。</span>
-                        </div>
+                    <div class="flex items-center gap-2 text-xs font-mono">
+                        <span id="logStatusBadge" class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span>系統健康</span>
+                        </span>
+                        <button onclick="fetchCrawlerLogs()" class="px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 transition flex items-center gap-1 text-[11px]">
+                            <i class="fa-solid fa-arrows-rotate text-[10px]"></i> 重新整理
+                        </button>
                     </div>
                 </div>
 
-                <!-- 任務 2：AI 異常偵測與自動自愈修復引擎 -->
-                <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-6 h-6 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 font-mono text-xs flex items-center justify-center font-bold">2</span>
-                            <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
-                                <span>AI 異常偵測與自動自愈修復引擎 (Cloud Self-Healer)</span>
-                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">智能守護</span>
-                            </h4>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs font-mono">
-                            <span class="px-2 py-0.5 rounded bg-zinc-800 text-blue-300 font-bold flex items-center gap-1">
-                                <i class="fa-solid fa-microchip text-[10px]"></i>
-                                <span>執行頻率：事件觸發（遇官網改版或異常時秒級喚醒）</span>
-                            </span>
-                        </div>
+                <!-- 日誌統計摘要欄 -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+                    <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                        <div class="text-zinc-500 text-[11px]">最後執行時間</div>
+                        <div id="logLastRunTime" class="text-zinc-200 font-bold mt-1 text-sm">2026-10-05 21:14</div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
-                        <div>
-                            <span class="text-zinc-500">自愈大腦：</span>
-                            <span class="text-zinc-300">Gemini LLM (智慧 HTML 診斷)</span>
-                        </div>
-                        <div>
-                            <span class="text-zinc-500">熔斷限制：</span>
-                            <span class="text-emerald-400">最多重試 3 次 (MAX_RETRY_LIMIT=3)</span>
-                        </div>
-                        <div>
-                            <span class="text-zinc-500">保護機制：</span>
-                            <span class="text-zinc-300">超額立即物理熔斷 + 現場 Snapshot 封存</span>
-                        </div>
+                    <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                        <div class="text-zinc-500 text-[11px]">自愈熔斷器</div>
+                        <div id="logCircuitBreaker" class="text-emerald-400 font-bold mt-1 text-sm">正常 (0/3)</div>
                     </div>
-                    <div class="text-xs text-zinc-300 space-y-1 pl-1">
-                        <div class="flex items-start gap-2">
-                            <span class="text-blue-400">▸</span>
-                            <span><strong>官網版面突變自愈</strong>：若泳協官網更改 HTML 標籤或選擇器導致爬取為空，自動傳送最新 HTML 片段至 Gemini 進行智慧分析並重生規則。</span>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-blue-400">▸</span>
-                            <span><strong>3 次硬性物理熔斷</strong>：為防止無窮重試消耗 API 配額，設定 3 次上限，超過即停止並留下完整錯誤堆疊。</span>
-                        </div>
+                    <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                        <div class="text-zinc-500 text-[11px]">異常記錄筆數</div>
+                        <div id="logErrorCount" class="text-zinc-200 font-bold mt-1 text-sm">0 筆</div>
+                    </div>
+                    <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
+                        <div class="text-zinc-500 text-[11px]">雲端儲存路徑</div>
+                        <div class="text-zinc-400 font-mono mt-1 text-[11px] truncate" title="GitHub: /static/crawler_error_logs.json">GitHub 永久存檔</div>
                     </div>
                 </div>
 
-                <!-- 任務 3：多端無伺服器唯讀分發 (GCS Edge Distribution) -->
-                <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-6 h-6 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 font-mono text-xs flex items-center justify-center font-bold">3</span>
-                            <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
-                                <span>多端無伺服器靜態資源分發 (Serverless Edge Distribution)</span>
-                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">邊緣分發</span>
-                            </h4>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs font-mono">
-                            <span class="px-2 py-0.5 rounded bg-zinc-800 text-purple-300 font-bold flex items-center gap-1">
-                                <i class="fa-solid fa-infinity text-[10px]"></i>
-                                <span>執行頻率：7×24 小時常駐高可用存取</span>
-                            </span>
-                        </div>
+                <!-- 實體日誌控制台終端窗口 -->
+                <div class="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 font-mono text-xs overflow-hidden">
+                    <div class="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800/80 text-[11px] text-zinc-500">
+                        <span>CONSOLE OUTPUT (固定同步至 GitHub 倉庫)</span>
+                        <span id="logUpdateTimestamp">LIVE STREAM</span>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
-                        <div>
-                            <span class="text-zinc-500">儲存服務：</span>
-                            <span class="text-zinc-300">Google Cloud Storage (GCS)</span>
+                    <div id="errorLogConsole" class="space-y-1.5 max-h-56 overflow-y-auto text-zinc-300 pr-2">
+                        <div class="text-emerald-400/90 flex items-start gap-2">
+                            <span class="text-zinc-600">[21:14:00]</span>
+                            <span>[INFO] GCP 雲端管理系統就緒，Cloud Scheduler 鬧鐘鎖定每日 06:00 (Asia/Taipei)。</span>
                         </div>
-                        <div>
-                            <span class="text-zinc-500">快取原則：</span>
-                            <span class="text-amber-400">Cache-Control: no-cache (零快取即時更新)</span>
-                        </div>
-                        <div>
-                            <span class="text-zinc-500">存取協議：</span>
-                            <span class="text-zinc-300">HTTPS CORS 公開唯讀 REST</span>
-                        </div>
-                    </div>
-                    <div class="text-xs text-zinc-300 space-y-1 pl-1">
-                        <div class="flex items-start gap-2">
-                            <span class="text-purple-400">▸</span>
-                            <span><strong>純靜態無伺服器架構 (方案 B)</strong>：爬蟲跑完直接將 JSON 檔案推入 GCS，前端 Vercel PWA 透過瀏覽器直接向 GCS 抓取，免除雲端常駐虛擬機（VM）或資料庫連線維護開銷。</span>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <span class="text-purple-400">▸</span>
-                            <span><strong>零延遲與零快取</strong>：透過 HTTP Header <code class="text-zinc-400">no-cache, no-store</code> 確保全台選手家長與教練點開網頁永遠看到第一手最新賽事。</span>
+                        <div class="text-zinc-400 flex items-start gap-2">
+                            <span class="text-zinc-600">[21:14:00]</span>
+                            <span>[MONITOR] 3-Attempt Circuit Breaker 已掛載，若遇官方格式異常自動啟動 AI 自我修復。</span>
                         </div>
                     </div>
                 </div>
-
-                <!-- 任務 4：雲端結構化審計與健康日誌監控 (Cloud Audit & Logging) -->
-                <div class="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-6 h-6 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 font-mono text-xs flex items-center justify-center font-bold">4</span>
-                            <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
-                                <span>雲端結構化審計與健康日誌監控 (Cloud Logging & Audit)</span>
-                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">審計監控</span>
-                            </h4>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs font-mono">
-                            <span class="px-2 py-0.5 rounded bg-zinc-800 text-amber-300 font-bold flex items-center gap-1">
-                                <i class="fa-solid fa-list-check text-[10px]"></i>
-                                <span>執行頻率：每次爬蟲作業啟動/完工時同步記錄</span>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono bg-zinc-950/60 p-3 rounded-lg border border-zinc-800/80">
-                        <div>
-                            <span class="text-zinc-500">日誌平台：</span>
-                            <span class="text-zinc-300">Google Cloud Logging 原生結構化格式</span>
-                        </div>
-                        <div>
-                            <span class="text-zinc-500">前端同步：</span>
-                            <span class="text-zinc-300">GCS crawler_error_logs.json</span>
-                        </div>
-                        <div>
-                            <span class="text-zinc-500">監控指標：</span>
-                            <span class="text-emerald-400">HEALTHY / FAILED 與執行秒數</span>
-                        </div>
-                    </div>
-                    <div class="text-xs text-zinc-300 space-y-1 pl-1">
-                        <div class="flex items-start gap-2">
-                            <span class="text-amber-400">▸</span>
-                            <span><strong>透明可視化稽核</strong>：將每次採集之賽事筆數、各協會狀態、耗時毫秒數發布至 GCS，供本頁下方「GCP 爬蟲執行與自愈修復日誌」終端機窗口即時讀取呈現。</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 區塊六：GCP 雲端爬蟲錯誤與自愈修復日誌檢視中心 (大仁哥專屬排查面板) -->
-        <section class="tech-card p-6 space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                    <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation gold-gradient-icon"></i>
-                        <span>GCP 爬蟲執行與自愈修復日誌 (Error Logs)</span>
-                    </h3>
-                    <p class="text-xs text-zinc-400">監控每日 06:00 爬蟲狀態、格式異常警告、AI 自我修復軌跡與熔斷保護機制</p>
-                </div>
-                <div class="flex items-center gap-2 text-xs font-mono">
-                    <span id="logStatusBadge" class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        <span>系統健康</span>
-                    </span>
-                    <button onclick="fetchCrawlerLogs()" class="px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 transition flex items-center gap-1 text-[11px]">
-                        <i class="fa-solid fa-arrows-rotate text-[10px]"></i> 重新整理
-                    </button>
-                </div>
-            </div>
-
-            <!-- 日誌統計摘要欄 -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <div class="text-zinc-500 text-[11px]">最後執行時間</div>
-                    <div id="logLastRunTime" class="text-zinc-200 font-bold mt-1 text-sm">2026-10-05 21:14</div>
-                </div>
-                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <div class="text-zinc-500 text-[11px]">自愈熔斷器</div>
-                    <div id="logCircuitBreaker" class="text-emerald-400 font-bold mt-1 text-sm">正常 (0/3)</div>
-                </div>
-                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <div class="text-zinc-500 text-[11px]">異常記錄筆數</div>
-                    <div id="logErrorCount" class="text-zinc-200 font-bold mt-1 text-sm">0 筆</div>
-                </div>
-                <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                    <div class="text-zinc-500 text-[11px]">雲端儲存路徑</div>
-                    <div class="text-zinc-400 font-mono mt-1 text-[11px] truncate" title="GitHub: /static/crawler_error_logs.json">GitHub 永久存檔</div>
-                </div>
-            </div>
-
-            <!-- 實體日誌控制台終端窗口 -->
-            <div class="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 font-mono text-xs overflow-hidden">
-                <div class="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800/80 text-[11px] text-zinc-500">
-                    <span>CONSOLE OUTPUT (固定同步至 GitHub 倉庫)</span>
-                    <span id="logUpdateTimestamp">LIVE STREAM</span>
-                </div>
-                <div id="errorLogConsole" class="space-y-1.5 max-h-56 overflow-y-auto text-zinc-300 pr-2">
-                    <div class="text-emerald-400/90 flex items-start gap-2">
-                        <span class="text-zinc-600">[21:14:00]</span>
-                        <span>[INFO] GCP 雲端管理系統就緒，Cloud Scheduler 鬧鐘鎖定每日 06:00 (Asia/Taipei)。</span>
-                    </div>
-                    <div class="text-zinc-400 flex items-start gap-2">
-                        <span class="text-zinc-600">[21:14:00]</span>
-                        <span>[MONITOR] 3-Attempt Circuit Breaker 已掛載，若遇官方格式異常自動啟動 AI 自我修復。</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+            </section>
+        </div>
 
     </main>
 
@@ -1453,8 +1642,6 @@
 
     <script>
         // ☁️ 智慧環境感知資料端點：
-        // 雲端 (swimming-pwa.vercel.app) -> 讀取 GCP 專屬雲端儲存貯體 (GCS Bucket)
-        // 地端 (localhost / 127.0.0.1) -> 100% 讀取原本的本地檔案 (/static/...)，完全不影響地端測試資料！
         const IS_CLOUD_ENV = window.location.hostname.includes('vercel.app');
         const GCS_BASE_URL = 'https://storage.googleapis.com/ctsa-swim-cloud-287296629155';
 
@@ -1462,6 +1649,56 @@
         let catalogData = null;
         let currentSelectedRace = null;
         let currentDateValue = '20251207';
+        let currentActiveTab = 'radar';
+
+        // ------------------ Apple 原生 Segmented Control Tab 切換核心 ------------------
+        function switchTab(tabId) {
+            currentActiveTab = tabId;
+            
+            // 1. 更新所有 Tab 按鈕選取態
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.getElementById('tab-btn-' + tabId);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // 2. 切換各個 Tab 面板
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            const activePane = document.getElementById('pane-' + tabId);
+            if (activePane) {
+                activePane.classList.add('active');
+            }
+
+            // 3. 針對月曆進行重繪以保障網格精準渲染
+            if (tabId === 'calendar') {
+                setTimeout(() => {
+                    renderMacCalendar();
+                }, 50);
+            }
+
+            // 4. 記錄使用者選取偏好與更新 URL hash
+            try {
+                localStorage.setItem('int_active_tab', tabId);
+                history.replaceState(null, '', '#' + tabId);
+            } catch(e) {}
+        }
+
+        // 初始化分頁狀態
+        function initActiveTab() {
+            let targetTab = 'radar';
+            const hash = window.location.hash.replace('#', '').trim();
+            if (['radar', 'probe', 'calendar', 'cloud'].includes(hash)) {
+                targetTab = hash;
+            } else {
+                const saved = localStorage.getItem('int_active_tab');
+                if (saved && ['radar', 'probe', 'calendar', 'cloud'].includes(saved)) {
+                    targetTab = saved;
+                }
+            }
+            switchTab(targetTab);
+        }
 
         // 初始化加載
         async function initDashboard() {
@@ -1475,6 +1712,9 @@
                     document.getElementById('normalBuildNo').innerText = ver.version || '1791134114';
                     normalRows = ver.total_rows || 832006;
                     document.getElementById('normalTotalRows').innerText = normalRows.toLocaleString() + ' 筆';
+                    
+                    const hudDb = document.getElementById('hudDbStatus');
+                    if (hudDb) hudDb.innerText = `${normalRows.toLocaleString()} 筆 (1:1)`;
                 }
 
                 // 1.5 讀取 256split manifest.json 進行實質預處理完整度檢驗
@@ -1550,6 +1790,7 @@
             const hotContainer = document.getElementById('hotSwimmersContainer');
             const totalLabel = document.getElementById('logTotalCountLabel');
             const hotInfo = document.getElementById('hotSwimmersCountInfo');
+            const hudHot = document.getElementById('hudHotStatus');
             if (!tableBody) return;
 
             try {
@@ -1576,6 +1817,9 @@
                 // 1. 渲染熱搜 Top 10 膠囊
                 if (hot.length > 0) {
                     if (hotInfo) hotInfo.innerText = `涵蓋前 ${hot.length} 位熱搜選手`;
+                    if (hudHot && hot[0]) {
+                        hudHot.innerText = `🥇 ${hot[0].name} (${hot[0].count}次)`;
+                    }
                     let hotHtml = '';
                     hot.forEach((item, idx) => {
                         let rankBadge = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `#${idx+1}`));
@@ -1705,7 +1949,6 @@
                 return;
             }
 
-            // 核心：自訂 HTML 項目，強制呈現淺灰色 (#9CA3AF)
             let html = '';
             races.forEach(r => {
                 const inDb = r.in_db;
@@ -1826,14 +2069,10 @@
             document.getElementById('suggestDropdown').classList.add('hidden');
             document.getElementById('clearDateBtn').classList.remove('hidden');
 
-            // 雙向連動：更新賽事下拉選單為「該日期舉辦之所有賽事」
             updateLinkedMeetsDropdown(dateStr);
-
-            // 渲染前 5 筆明細
             renderFilteredSamples();
         }
 
-        // 更新賽事名稱連動下拉選單
         function updateLinkedMeetsDropdown(dateStr) {
             const selectEl = document.getElementById('linkedMeetSelect');
             const hintEl = document.getElementById('linkedMeetHint');
@@ -1863,12 +2102,10 @@
             }
         }
 
-        // 賽事名稱下拉改變
         function onLinkedMeetChange() {
             const selectEl = document.getElementById('linkedMeetSelect');
             const selectedMeet = selectEl.value;
 
-            // 若使用者先選了賽事名稱，反向推導日期候選
             if (selectedMeet && dashboardData.meet_to_dates && dashboardData.meet_to_dates[selectedMeet]) {
                 const dates = dashboardData.meet_to_dates[selectedMeet];
                 if (dates.length > 0 && !dates.includes(currentDateValue)) {
@@ -1880,7 +2117,6 @@
             renderFilteredSamples();
         }
 
-        // 渲染符合篩選條件的「前 5 筆」明細 (大仁哥指定：選了時間與賽事後去撈資料庫，只呈現 5 筆)
         async function renderFilteredSamples() {
             const dateStr = currentDateValue;
             const selectedMeet = document.getElementById('linkedMeetSelect').value;
@@ -1888,7 +2124,6 @@
 
             document.getElementById('currentDateLabel').innerHTML = `當前檢視：<span class="gold-gradient-text font-bold">${dateStr}</span> ${selectedMeet ? '· ' + selectedMeet : ''}`;
 
-            // 1. 若在地端且伺服器可用，直接對資料庫發起 SQL 即時查詢
             if (!IS_CLOUD_ENV) {
                 try {
                     let whereClauses = [];
@@ -1924,13 +2159,11 @@
                 }
             }
 
-            // 2. 雲端或地端備援：從完整包含各賽事 5 筆真實成績的 date_meet_samples 撈取
             let samples = [];
             if (dashboardData && dashboardData.date_meet_samples && dashboardData.date_meet_samples[dateStr]) {
                 if (selectedMeet && dashboardData.date_meet_samples[dateStr][selectedMeet]) {
                     samples = dashboardData.date_meet_samples[dateStr][selectedMeet].slice(0, 5);
                 } else if (!selectedMeet) {
-                    // 若未指定賽事，合併當日所有賽事取前 5 筆
                     const allMeetsOnDate = Object.values(dashboardData.date_meet_samples[dateStr]);
                     samples = allMeetsOnDate.flat().slice(0, 5);
                 }
@@ -1982,7 +2215,6 @@
             document.getElementById('clearDateBtn').classList.add('hidden');
         }
 
-        // 全域點擊關閉下拉選單
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-input-wrap')) {
                 document.getElementById('suggestDropdown').classList.add('hidden');
@@ -2289,6 +2521,7 @@
             const breakerEl = document.getElementById('logCircuitBreaker');
             const errorCountEl = document.getElementById('logErrorCount');
             const updateTs = document.getElementById('logUpdateTimestamp');
+            const hudGcp = document.getElementById('hudGcpStatus');
 
             if (updateTs) updateTs.textContent = new Date().toLocaleTimeString('zh-TW');
 
@@ -2302,6 +2535,11 @@
                 if (lastTimeEl) lastTimeEl.textContent = data.last_crawl_time || '尚未執行';
                 if (breakerEl) breakerEl.textContent = data.circuit_breaker || '正常 (0/3)';
                 if (errorCountEl) errorCountEl.textContent = `${data.error_count || 0} 筆`;
+                
+                if (hudGcp) {
+                    hudGcp.innerText = data.status === 'CIRCUIT_BROKEN' ? '⚠️ 已熔斷保護' : '每日 06:00 健康';
+                }
+
                 if (statusBadge) {
                     if (data.status === 'CIRCUIT_BROKEN') {
                         statusBadge.className = 'px-2.5 py-1 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 font-semibold flex items-center gap-1.5';
@@ -2334,6 +2572,7 @@
         async function fetchStorageQuota() {
             const overallBadge = document.getElementById('quotaOverallBadge');
             const measureTimeEl = document.getElementById('quotaMeasureTime');
+            const hudQuota = document.getElementById('hudQuotaStatus');
 
             const ghPct = document.getElementById('ghQuotaPct');
             const ghBar = document.getElementById('ghQuotaBar');
@@ -2368,6 +2607,7 @@
                     if (ghUsed) ghUsed.textContent = `${gh.used_mb} MB`;
                     if (ghFree) ghFree.textContent = `${gh.free_remaining_mb} MB`;
                     if (ghInfo && gh.breakdown) ghInfo.textContent = `DB分卷 ${gh.breakdown.sql_database_parts_mb} MB`;
+                    if (hudQuota) hudQuota.innerText = `水位 ${gh.used_percentage}% 安全`;
                 }
 
                 const gcs = data.services && data.services.google_cloud_storage;
@@ -2408,6 +2648,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            initActiveTab();
             initDashboard();
             loadCalendarData();
             fetchCrawlerLogs();
