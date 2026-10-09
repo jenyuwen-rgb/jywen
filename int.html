@@ -1334,6 +1334,61 @@
                     <div id="obStatusDetails" class="text-xs text-zinc-400 font-mono">準備就緒</div>
                 </div>
 
+                <!-- 步驟 4: 雙模式即時預覽與命中導覽 (Preview & Hit Navigator) -->
+                <div class="mt-8 pt-6 border-t border-[#2C2C2E] space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg">👁️</span>
+                            <h4 class="text-sm font-bold text-white tracking-wide">秩序冊即時預覽檢視器</h4>
+                            <span id="obPreviewModeBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">尚未載入</span>
+                        </div>
+                        
+                        <!-- 模式切換按鈕群 -->
+                        <div class="flex items-center gap-1.5 bg-[#2C2C2E] p-1 rounded-xl border border-white/5">
+                            <button type="button" id="btnPreviewOriginal" onclick="switchPreviewMode('original')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white" disabled>
+                                📄 原始版本 (未標記)
+                            </button>
+                            <button type="button" id="btnPreviewMarked" onclick="switchPreviewMode('marked')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white" disabled>
+                                ✨ 已標記版本
+                            </button>
+                            <button type="button" id="btnDownloadMarked" onclick="downloadMarkedPdf()" class="px-3 py-1.5 rounded-lg text-xs font-bold transition text-[#FFD60A] bg-amber-500/10 hover:bg-amber-500/20 border border-[#FFD60A]/30 hidden">
+                                ⬇️ 下載已標記 PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 命中選手摘要與快速跳頁導覽列 (標記完成後顯示) -->
+                    <div id="obHitSummaryContainer" class="hidden bg-[#2C2C2E] p-4 rounded-xl border border-white/5 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-[#FFD60A] flex items-center gap-1.5">
+                                <span>🎯 命中選手統計與快速導覽</span>
+                                <span id="obHitTotalBadge" class="font-mono text-zinc-300 text-[11px]">共命中 0 處姓名</span>
+                            </span>
+                            <span class="text-[11px] text-zinc-400">點擊標籤可直接在下方跳轉至該頁</span>
+                        </div>
+                        <div id="obHitChipsList" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1">
+                            <!-- JS 動態生成命中標籤 -->
+                        </div>
+                    </div>
+
+                    <!-- 預覽容器 -->
+                    <div class="relative w-full rounded-xl overflow-hidden border border-[#3A3A3C] bg-zinc-950">
+                        <!-- 空狀態提示 -->
+                        <div id="obPreviewEmpty" class="h-[480px] flex flex-col items-center justify-center text-center p-6 space-y-3">
+                            <div class="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-2xl text-zinc-600">
+                                📑
+                            </div>
+                            <div>
+                                <h5 class="text-sm font-bold text-zinc-300">尚未選擇或載入秩序冊</h5>
+                                <p class="text-xs text-zinc-500 mt-1 max-w-sm">請於上方「步驟 1」選擇主辦單位與賽事秩序冊，或點擊「📂 自備檔案」上傳本機 PDF，系統將立即在此為您展開原始秩序冊，支援於標記前完整翻閱核對！</p>
+                            </div>
+                        </div>
+
+                        <!-- 原生 PDF Iframe 檢視器 -->
+                        <iframe id="obPdfPreviewFrame" src="" class="hidden w-full h-[650px] border-0 bg-zinc-900"></iframe>
+                    </div>
+                </div>
+
             </section>
         </div>
 
@@ -2937,6 +2992,141 @@
             });
         }
 
+        let originalBlobUrl = null;
+        let markedBlobUrl = null;
+        let currentPreviewMode = 'original';
+        let hitRecords = [];
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function loadPdfBytesIntoPreview(bytes, name) {
+            if (originalBlobUrl) {
+                try { URL.revokeObjectURL(originalBlobUrl); } catch(e){}
+                originalBlobUrl = null;
+            }
+            if (markedBlobUrl) {
+                try { URL.revokeObjectURL(markedBlobUrl); } catch(e){}
+                markedBlobUrl = null;
+            }
+            hitRecords = [];
+
+            try {
+                const blob = new Blob([bytes], { type: 'application/pdf' });
+                originalBlobUrl = URL.createObjectURL(blob);
+                
+                const btnOrig = document.getElementById('btnPreviewOriginal');
+                const btnMarked = document.getElementById('btnPreviewMarked');
+                const btnDown = document.getElementById('btnDownloadMarked');
+                const hitBox = document.getElementById('obHitSummaryContainer');
+
+                if (btnOrig) btnOrig.disabled = false;
+                if (btnMarked) btnMarked.disabled = true;
+                if (btnDown) btnDown.classList.add('hidden');
+                if (hitBox) hitBox.classList.add('hidden');
+
+                switchPreviewMode('original', 1);
+            } catch(err) {
+                console.error("載入原始 PDF 預覽失敗:", err);
+            }
+        }
+
+        function switchPreviewMode(mode, targetPage = 1) {
+            currentPreviewMode = mode;
+            const btnOrig = document.getElementById('btnPreviewOriginal');
+            const btnMarked = document.getElementById('btnPreviewMarked');
+            const badge = document.getElementById('obPreviewModeBadge');
+            const frame = document.getElementById('obPdfPreviewFrame');
+            const empty = document.getElementById('obPreviewEmpty');
+
+            if (!frame || !empty) return;
+
+            if (mode === 'original') {
+                if (!originalBlobUrl) return;
+                empty.classList.add('hidden');
+                frame.classList.remove('hidden');
+                frame.src = originalBlobUrl + `#page=${targetPage}&toolbar=1&navpanes=0`;
+
+                if (btnOrig) btnOrig.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-white bg-[#3A3A3C] shadow-sm";
+                if (btnMarked) btnMarked.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white";
+                if (badge) {
+                    badge.innerText = "📄 原始官方版本 (未標記)";
+                    badge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30";
+                }
+            } else {
+                if (!markedBlobUrl) return;
+                empty.classList.add('hidden');
+                frame.classList.remove('hidden');
+                frame.src = markedBlobUrl + `#page=${targetPage}&toolbar=1&navpanes=0`;
+
+                if (btnOrig) btnOrig.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white";
+                if (btnMarked) btnMarked.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-white bg-gradient-to-r from-[#FF9500] to-[#FF2D55] shadow-sm";
+                if (badge) {
+                    badge.innerText = "✨ 已高亮標記版本";
+                    badge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+                }
+            }
+        }
+
+        function jumpToPage(page) {
+            switchPreviewMode(currentPreviewMode || 'marked', page);
+        }
+
+        function downloadMarkedPdf() {
+            if (!markedBlobUrl) return;
+            const a = document.createElement('a');
+            a.href = markedBlobUrl;
+            a.download = `${selectedPdfName || '賽事秩序冊'}_已標記.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function renderHitSummary(records) {
+            const container = document.getElementById('obHitSummaryContainer');
+            const badge = document.getElementById('obHitTotalBadge');
+            const chipsList = document.getElementById('obHitChipsList');
+            if (!container || !badge || !chipsList) return;
+
+            if (!records || records.length === 0) {
+                container.classList.remove('hidden');
+                badge.innerText = "未在目前秩序冊中搜尋到指定名單選手";
+                chipsList.innerHTML = '<span class="text-xs text-zinc-500 py-1">未命中任何選手，請確認秩序冊項目或名單姓名是否正確。</span>';
+                return;
+            }
+
+            container.classList.remove('hidden');
+            const uniqueNames = new Set(records.map(r => r.name)).size;
+            const pageSet = new Set(records.map(r => r.page));
+            badge.innerText = `共命中 ${records.length} 處 (含 ${uniqueNames} 位選手，分佈於 ${pageSet.size} 個頁面)`;
+
+            const sorted = [...records].sort((a, b) => a.page - b.page);
+            chipsList.innerHTML = sorted.map(r => {
+                let badgeColor = "bg-amber-500/20 text-amber-300 border-amber-500/30";
+                let icon = "🟡";
+                if (r.category === 'photo') {
+                    badgeColor = "bg-pink-500/20 text-pink-300 border-pink-500/30";
+                    icon = "💗";
+                } else if (r.category === 'special') {
+                    badgeColor = "bg-lime-500/20 text-lime-300 border-lime-500/30";
+                    icon = "🟢";
+                }
+                return `
+                    <button type="button" onclick="jumpToPage(${r.page})" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-medium border ${badgeColor} hover:brightness-125 transition cursor-pointer" title="點擊跳轉至第 ${r.page} 頁">
+                        <span>P.${r.page}</span>
+                        <span>${icon} ${escapeHtml(r.name)}</span>
+                    </button>
+                `;
+            }).join("");
+        }
+
         async function handleObMeetChange() {
             const meetSelect = document.getElementById('obMeetSelect');
             const pdfUrl = meetSelect.value;
@@ -2958,6 +3148,7 @@
                     const mb = (selectedPdfBytes.byteLength / 1024 / 1024).toFixed(2);
                     info.firstElementChild.innerText = `已就緒：${selectedPdfName}`;
                     sizeInfo.innerText = `${mb} MB (已載入記憶體)`;
+                    loadPdfBytesIntoPreview(selectedPdfBytes, selectedPdfName);
                 } else {
                     info.firstElementChild.innerText = `⚠️ 線上下載失敗 (HTTP ${resp.status})，請嘗試自備上傳。`;
                     sizeInfo.innerText = "";
@@ -2982,6 +3173,7 @@
                     const mb = (file.size / 1024 / 1024).toFixed(2);
                     info.firstElementChild.innerText = `自備檔案已載入：${file.name}`;
                     sizeInfo.innerText = `${mb} MB`;
+                    loadPdfBytesIntoPreview(selectedPdfBytes, selectedPdfName);
                 };
                 reader.readAsArrayBuffer(file);
             }
@@ -3028,6 +3220,7 @@
                 const rgbSpecial = PDFLib.rgb(0.8, 1.0, 0.0);
 
                 let totalHighlights = 0;
+                hitRecords = [];
 
                 for (let pageNum = 1; pageNum <= numPages; pageNum++) {
                     const page = await pdfDoc.getPage(pageNum);
@@ -3042,17 +3235,35 @@
 
                         // 檢查各類選手
                         let matchedColor = null;
+                        let matchedCategory = null;
+                        let matchedName = null;
+
                         for (let n of specialArr) {
-                            if (str.includes(n)) { matchedColor = rgbSpecial; break; }
+                            if (str.includes(n)) { 
+                                matchedColor = rgbSpecial; 
+                                matchedCategory = 'special';
+                                matchedName = n;
+                                break; 
+                            }
                         }
                         if (!matchedColor) {
                             for (let n of photoArr) {
-                                if (str.includes(n)) { matchedColor = rgbPhoto; break; }
+                                if (str.includes(n)) { 
+                                    matchedColor = rgbPhoto; 
+                                    matchedCategory = 'photo';
+                                    matchedName = n;
+                                    break; 
+                                }
                             }
                         }
                         if (!matchedColor) {
                             for (let n of buddaArr) {
-                                if (str.includes(n)) { matchedColor = rgbBudda; break; }
+                                if (str.includes(n)) { 
+                                    matchedColor = rgbBudda; 
+                                    matchedCategory = 'budda';
+                                    matchedName = n;
+                                    break; 
+                                }
                             }
                         }
 
@@ -3072,6 +3283,11 @@
                                 opacity: 0.38
                             });
                             totalHighlights++;
+                            hitRecords.push({
+                                name: matchedName,
+                                category: matchedCategory,
+                                page: pageNum
+                            });
                         }
                     });
 
@@ -3081,23 +3297,34 @@
                 }
 
                 // 3. 匯出已標記 PDF
-                titleEl.innerText = "💾 正在編譯已標記 PDF 檔案並觸發下載...";
+                titleEl.innerText = "💾 正在編譯已標記 PDF 檔案並更新預覽...";
                 barEl.style.width = "95%";
                 const modifiedPdfBytes = await pdfLibDoc.save();
 
+                if (markedBlobUrl) {
+                    try { URL.revokeObjectURL(markedBlobUrl); } catch(e){}
+                }
                 const blob = new Blob([modifiedPdfBytes], { type: "application/pdf" });
-                const downloadUrl = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = downloadUrl;
-                a.download = `${selectedPdfName}_已標記.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(downloadUrl);
+                markedBlobUrl = URL.createObjectURL(blob);
+
+                // 啟用已標記按鈕與下載按鈕
+                const btnMarked = document.getElementById('btnPreviewMarked');
+                const btnDown = document.getElementById('btnDownloadMarked');
+                if (btnMarked) btnMarked.disabled = false;
+                if (btnDown) btnDown.classList.remove('hidden');
+
+                // 渲染命中選手摘要清單
+                renderHitSummary(hitRecords);
+
+                // 自動切換至已標記預覽
+                switchPreviewMode('marked', 1);
+
+                // 自動觸發下載
+                downloadMarkedPdf();
 
                 barEl.style.width = "100%";
                 titleEl.innerText = `🎉 標記完成！共標記 ${totalHighlights} 處姓名！`;
-                detailsEl.innerText = `已自動下載：${selectedPdfName}_已標記.pdf (總頁數: ${numPages} 頁)`;
+                detailsEl.innerText = `已載入下方「✨ 已標記版本」預覽，並自動下載：${selectedPdfName}_已標記.pdf (總頁數: ${numPages} 頁)`;
                 btn.disabled = false;
                 btn.style.opacity = '1';
 

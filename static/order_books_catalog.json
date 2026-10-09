@@ -52,27 +52,27 @@
       {
         "meet_id": "ctsa_174",
         "meet_name": "115年全國總統盃暨美津濃游泳錦標賽 秩序冊",
-        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/ctsa_174.pdf"
-      },
-      {
-        "meet_id": "ctsa_170",
-        "meet_name": "115年全國春季分齡游泳錦標賽 秩序冊",
-        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/ctsa_170.pdf"
+        "pdf_url": "static/docs/115_presidential_cup_manual.pdf"
       },
       {
         "meet_id": "ctsa_171",
         "meet_name": "115年全國小學游泳錦標賽 秩序冊",
-        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/ctsa_171.pdf"
+        "pdf_url": "static/docs/115_primary_school_manual.pdf"
       },
       {
-        "meet_id": "ctsa_172",
-        "meet_name": "115年全國青年盃游泳錦標賽 秩序冊",
-        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/ctsa_172.pdf"
+        "meet_id": "ctsa_114_hs",
+        "meet_name": "114年全國中等學校運動會游泳 秩序冊",
+        "pdf_url": "static/docs/114_high_school_games_manual.pdf"
       },
       {
-        "meet_id": "ctsa_173",
-        "meet_name": "115年全國中正盃游泳錦標賽 秩序冊",
-        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/ctsa_173.pdf"
+        "meet_id": "ctsa_114_nat",
+        "meet_name": "114年全國運動會游泳 秩序冊",
+        "pdf_url": "static/docs/114_national_games_manual.pdf"
+      },
+      {
+        "meet_id": "ctsa_170",
+        "meet_name": "115年全國春季分齡游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/115_classification_rules.pdf"
       }
     ],
     "site_tpesa": [
