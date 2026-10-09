@@ -1,10 +1,11 @@
 {
-  "last_crawl_time": "2026-10-09 06:00:15",
+  "date": "2026-10-09",
+  "crawl_time": "2026-10-09 06:00:15",
   "status": "HEALTHY",
   "circuit_breaker": "正常 (0/3)",
-  "retention_policy": "30-Day Rolling Audit Vault",
+  "duration_seconds": 18.42,
+  "total_active_races": 36,
   "pending_meets_monitored": 12,
-  "total_active_races": 38,
   "database_actions": [],
   "network_probes": [
     {
@@ -82,21 +83,6 @@
       "sample_races": [
         "115年議長盃全國分齡游泳錦標賽",
         "114年議長盃全國分齡游泳錦標賽"
-      ],
-      "status": "SUCCESS",
-      "debug_snapshot": null
-    },
-    {
-      "org_id": "site_e",
-      "org_name": "高雄水上 SWIM_KCSAT",
-      "url": "https://swim.kcsat.org/news",
-      "http_status": 200,
-      "latency_ms": 220,
-      "response_bytes": 38900,
-      "races_found": 2,
-      "sample_races": [
-        "115年南瀛盃全國分齡游泳錦標賽",
-        "114年高雄水上運動盃分齡游泳錦標賽"
       ],
       "status": "SUCCESS",
       "debug_snapshot": null
@@ -239,52 +225,5 @@
   ],
   "error_count": 0,
   "recent_errors": [],
-  "debug_snapshots": [],
-  "history": [
-    {
-      "date": "2026-10-09",
-      "crawl_time": "2026-10-09 06:00:15",
-      "status": "HEALTHY",
-      "circuit_breaker": "正常 (0/3)",
-      "total_races": 36,
-      "error_count": 0,
-      "log_file": "crawler_logs/crawler_log_2026-10-09.json"
-    },
-    {
-      "date": "2026-10-08",
-      "crawl_time": "2026-10-08 06:00:18",
-      "status": "HEALTHY",
-      "circuit_breaker": "正常 (0/3)",
-      "total_races": 36,
-      "error_count": 0,
-      "log_file": "crawler_logs/crawler_log_2026-10-08.json"
-    },
-    {
-      "date": "2026-10-07",
-      "crawl_time": "2026-10-07 06:00:14",
-      "status": "HEALTHY",
-      "circuit_breaker": "正常 (0/3)",
-      "total_races": 35,
-      "error_count": 0,
-      "log_file": "crawler_logs/crawler_log_2026-10-07.json"
-    },
-    {
-      "date": "2026-10-06",
-      "crawl_time": "2026-10-06 06:00:21",
-      "status": "HEALTHY",
-      "circuit_breaker": "正常 (0/3)",
-      "total_races": 35,
-      "error_count": 0,
-      "log_file": "crawler_logs/crawler_log_2026-10-06.json"
-    },
-    {
-      "date": "2026-10-05",
-      "crawl_time": "2026-10-05 06:00:12",
-      "status": "HEALTHY",
-      "circuit_breaker": "正常 (0/3)",
-      "total_races": 35,
-      "error_count": 0,
-      "log_file": "crawler_logs/crawler_log_2026-10-05.json"
-    }
-  ]
+  "debug_snapshots": []
 }
