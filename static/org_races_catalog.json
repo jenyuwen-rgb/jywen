@@ -94,31 +94,6 @@
       "url": "https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx",
       "races": [
         {
-          "value": "ctsa_174",
-          "text": "115年全國總統盃暨美津濃游泳錦標賽",
-          "in_db": true
-        },
-        {
-          "value": "ctsa_170",
-          "text": "115年全國春季分齡游泳錦標賽",
-          "in_db": true
-        },
-        {
-          "value": "ctsa_171",
-          "text": "115年全國小學游泳錦標賽",
-          "in_db": true
-        },
-        {
-          "value": "ctsa_172",
-          "text": "115年全國青年盃游泳錦標賽",
-          "in_db": true
-        },
-        {
-          "value": "ctsa_173",
-          "text": "115年全國中正盃游泳錦標賽",
-          "in_db": true
-        },
-        {
           "value": "ctsa_166",
           "text": "115年全國中區(1)游泳錦標賽",
           "in_db": true
@@ -139,6 +114,31 @@
           "in_db": true
         },
         {
+          "value": "ctsa_170",
+          "text": "115年全國春季游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_171",
+          "text": "115年全國小學游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_172",
+          "text": "115年全國青年盃游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_173",
+          "text": "115年全國中正盃游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_174",
+          "text": "115年全國總統盃暨美津濃游泳錦標賽",
+          "in_db": true
+        },
+        {
           "value": "ctsa_175",
           "text": "115年全國北區A(2)游泳錦標賽",
           "in_db": true
@@ -146,7 +146,7 @@
         {
           "value": "ctsa_176",
           "text": "115年全國北區B(2)游泳錦標賽",
-          "in_db": true
+          "in_db": false
         },
         {
           "value": "ctsa_177",
@@ -156,7 +156,17 @@
         {
           "value": "ctsa_178",
           "text": "115年全國南區(2)游泳錦標賽",
-          "in_db": true
+          "in_db": false
+        },
+        {
+          "value": "ctsa_179",
+          "text": "115年全國冬季短水道游泳錦標賽 [未開賽]",
+          "in_db": false
+        },
+        {
+          "value": "ctsa_180",
+          "text": "115年中華泳協排名賽 [未開賽]",
+          "in_db": false
         }
       ]
     },
@@ -172,7 +182,7 @@
         {
           "value": "tpesa_115_youth",
           "text": "115年臺北市青年盃分齡游泳錦標賽",
-          "in_db": false
+          "in_db": true
         },
         {
           "value": "tpesa_114_fall",
