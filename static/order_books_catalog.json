@@ -82,23 +82,7 @@
         "pdf_url": "http://www.tpesa.org.tw/result/113年中正盃成績.pdf"
       }
     ],
-    "site_a": [
-      {
-        "meet_id": "swim8_27",
-        "meet_name": "115年臺中市議長盃游泳錦標賽 秩序冊",
-        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/swim8_27.pdf"
-      },
-      {
-        "meet_id": "swim8_26",
-        "meet_name": "115年臺中市市長盃游泳錦標賽 秩序冊",
-        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/swim8_26.pdf"
-      },
-      {
-        "meet_id": "swim8_24",
-        "meet_name": "臺中市114年市長盃水上運動競賽(游泳項目) 秩序冊",
-        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/swim8_24.pdf"
-      }
-    ],
+    "site_a": [],
     "site_b": [
       {
         "meet_id": "tainan_62",
@@ -111,24 +95,7 @@
         "pdf_url": "https://www.tainanswim.com.tw/manager/uploadfile/DL-250317-010105.pdf"
       }
     ],
-    "site_c": [
-      {
-        "meet_id": "kcc_1155",
-        "meet_name": "115年議長盃全國分齡游泳錦標賽 秩序冊",
-        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/kcc_1155.pdf"
-      },
-      {
-        "meet_id": "kcc_1145",
-        "meet_name": "114年議長盃全國分齡游泳錦標賽 秩序冊",
-        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/kcc_1145.pdf"
-      }
-    ],
-    "site_e": [
-      {
-        "meet_id": "kcsat_27",
-        "meet_name": "2026全國青少年游泳錦標賽 秩序冊",
-        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/kcsat_27.pdf"
-      }
-    ]
+    "site_c": [],
+    "site_e": []
   }
 }
