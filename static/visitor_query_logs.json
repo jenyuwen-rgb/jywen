@@ -1,0 +1,980 @@
+{
+  "status": "success",
+  "updated_at": "2026-10-09 19:18:01",
+  "total_logs": 133,
+  "hot_swimmers": [
+    {
+      "name": "鄭向恩",
+      "count": 94
+    },
+    {
+      "name": "王冠閎",
+      "count": 10
+    },
+    {
+      "name": "陳宥先",
+      "count": 6
+    },
+    {
+      "name": "李秉諺",
+      "count": 4
+    },
+    {
+      "name": "何康婗",
+      "count": 4
+    },
+    {
+      "name": "温心妤",
+      "count": 4
+    },
+    {
+      "name": "陳宥橋",
+      "count": 4
+    },
+    {
+      "name": "王希憲",
+      "count": 1
+    },
+    {
+      "name": "温少宇",
+      "count": 1
+    },
+    {
+      "name": "陳品言",
+      "count": 1
+    }
+  ],
+  "logs": [
+    {
+      "time": "2026/10/9 下午4:40:02",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "王冠閎",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 下午4:39:09",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "王冠閎",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 下午2:48:18",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "王冠閎",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:21:17",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:20:22",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:17:41",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:17:13",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:16:46",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:13:38",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:13:32",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:13:11",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:13:01",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:12:29",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:11:58",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:11:18",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:11:14",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:04:21",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:03:52",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:03:22",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:02:53",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:02:24",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/9 上午1:02:22",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:44:03",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:43:34",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:43:05",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:42:36",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:42:07",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:42:03",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:37:58",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:37:30",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:36:59",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:36:30",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:36:01",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:35:57",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:30:02",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:29:33",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:29:04",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:28:35",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:28:06",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:28:03",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:26:25",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:26:19",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:26:12",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:26:06",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:25:59",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:25:56",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:13:32",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:13:24",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:13:16",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:13:08",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:13:00",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 下午9:01:10",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/8 上午12:01:08",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "陳宥先",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午11:01:29",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午11:01:17",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午11:01:08",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午11:00:58",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午11:00:46",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午10:55:03",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午10:54:52",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午10:54:32",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午10:54:20",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午10:54:08",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午10:53:45",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午10:53:35",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午10:53:25",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午10:53:14",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/7 下午10:53:02",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:40:04",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:39:53",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:39:43",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:39:32",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:39:21",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:13:45",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:13:36",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:13:26",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:13:16",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:13:06",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:05:19",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:05:09",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:05:00",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:04:50",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午11:04:39",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午10:39:33",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "陳宥先",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午10:24:48",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午10:24:35",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午10:17:59",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午10:17:46",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午10:04:33",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午10:04:20",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午10:01:07",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午10:00:54",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午9:58:04",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午9:57:50",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午9:35:50",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "陳宥先",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午8:09:27",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午7:58:35",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午7:52:15",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午7:47:13",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "陳宥先",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午7:45:35",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/6 下午7:33:14",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "鄭向恩",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 下午10:34:48",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "陳宥先",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 下午8:14:49",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "王冠閎",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 下午8:09:40",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "王冠閎",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 下午7:45:40",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "王冠閎",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午1:18:30",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "李秉諺",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午1:18:24",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "何康婗",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午1:18:19",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "温心妤",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午1:18:13",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "陳宥橋",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午1:18:08",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "王冠閎",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午1:08:28",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "李秉諺",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午1:08:22",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "何康婗",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午1:08:17",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "温心妤",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午1:08:12",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "陳宥橋",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午1:08:06",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "王冠閎",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午12:53:46",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "李秉諺",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午12:53:40",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "何康婗",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午12:53:35",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "温心妤",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午12:53:29",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "陳宥橋",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午12:53:24",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "王冠閎",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午12:49:14",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "李秉諺",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午12:49:09",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "何康婗",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午12:49:03",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "温心妤",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午12:48:58",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "陳宥橋",
+      "page": "/"
+    },
+    {
+      "time": "2026/10/5 上午12:48:52",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Kaohsiung",
+      "swimmer": "王冠閎",
+      "page": "/"
+    },
+    {
+      "time": "2026-09-01 22:12:00",
+      "ip": "36.236.*.100",
+      "location": "台灣 Tainan",
+      "swimmer": "王希憲",
+      "page": "/"
+    },
+    {
+      "time": "2026-08-16 23:25:18",
+      "ip": "153.172.x.243",
+      "location": "JP Nagoya",
+      "swimmer": "温少宇",
+      "page": "/"
+    },
+    {
+      "time": "2026-08-16 21:25",
+      "ip": "140.112.x.x",
+      "location": "台灣 台北市",
+      "swimmer": "陳品言",
+      "page": "query.html"
+    },
+    {
+      "time": "2026-08-16 21:20",
+      "ip": "218.164.x.x",
+      "location": "台灣 高雄市",
+      "swimmer": "方鈺學",
+      "page": "query.html"
+    },
+    {
+      "time": "2026-08-16 21:15",
+      "ip": "114.34.x.x",
+      "location": "台灣 台中市",
+      "swimmer": "黃翊",
+      "page": "query.html"
+    },
+    {
+      "time": "2026-08-16 21:10",
+      "ip": "42.73.x.x",
+      "location": "台灣 新竹市",
+      "swimmer": "陳禹希",
+      "page": "query.html"
+    },
+    {
+      "time": "2026-08-16 21:05",
+      "ip": "111.240.x.x",
+      "location": "台灣 新北市",
+      "swimmer": "李姵萱",
+      "page": "query.html"
+    },
+    {
+      "time": "2026-08-16 21:00",
+      "ip": "220.135.x.x",
+      "location": "台灣 台北市",
+      "swimmer": "陳宥先",
+      "page": "query.html"
+    }
+  ]
+}

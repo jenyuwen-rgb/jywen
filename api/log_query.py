@@ -52,11 +52,45 @@ class handler(BaseHTTPRequestHandler):
         page = query_params.get('page', ['/'])[0].strip() or raw_query.get('page', ['/'])[0].strip()
         
         if action == 'pull':
+            logs = []
+            try:
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                json_path = os.path.join(base_dir, "static", "visitor_query_logs.json")
+                if os.path.exists(json_path):
+                    with open(json_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        logs = data.get("logs", [])
+            except Exception:
+                logs = []
+
+            if GLOBAL_LOG_QUEUE:
+                for item in reversed(GLOBAL_LOG_QUEUE):
+                    if not any(e.get("time") == item.get("time") and e.get("swimmer") == item.get("swimmer") for e in logs):
+                        logs.insert(0, item)
+
+            swimmer_counts = {}
+            for entry in logs:
+                s = entry.get("swimmer", "").strip()
+                if s and s != "[頁面造訪]":
+                    names = [n.strip() for n in s.replace('；', ';').split(';') if n.strip()]
+                    for n in names:
+                        clean_name = n.split('/')[0].strip()
+                        if clean_name:
+                            swimmer_counts[clean_name] = swimmer_counts.get(clean_name, 0) + 1
+
+            sorted_hot = sorted(swimmer_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+            hot_swimmers = [{"name": name, "count": count} for name, count in sorted_hot]
+
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self._send_cors_headers()
             self.end_headers()
-            self.wfile.write(json.dumps({"status": "success", "logs": GLOBAL_LOG_QUEUE}, ensure_ascii=False).encode('utf-8'))
+            self.wfile.write(json.dumps({
+                "status": "success",
+                "total_logs": len(logs),
+                "hot_swimmers": hot_swimmers,
+                "logs": logs[:100]
+            }, ensure_ascii=False).encode('utf-8'))
             return
 
         # 只要不是 pull，無條件執行連線記錄 Process Log！

@@ -832,6 +832,82 @@
             </div>
         </section>
 
+        <!-- 區塊：訪客即時查詢雷達與熱搜選手看板 (Live Swimmer Query Radar & Hot Top 10) -->
+        <section class="tech-card p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-radar gold-gradient-icon"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base font-bold text-zinc-100">訪客即時查詢雷達與熱搜選手看板 (Live Swimmer Query Radar)</h3>
+                            <span class="text-[11px] font-mono px-2 py-0.5 rounded-full gold-gradient-badge">
+                                <span class="gold-gradient-text font-bold">全台即時訪客動態</span>
+                            </span>
+                        </div>
+                        <p class="text-xs text-zinc-400">即時監測全台家長、教練與泳者在 swimming-pwa.vercel.app 查詢的選手名單與熱搜趨勢</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-mono flex-wrap">
+                    <a href="https://docs.google.com/spreadsheets/d/1TlEs7tPR-OxQQm6_jIRqiBOMEKZJKhKE5ZtVrpTSTZM/edit?usp=drivesdk" id="googleSheetLinkBtn" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 text-xs rounded-lg bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-400 transition flex items-center gap-1.5 border border-emerald-700/50">
+                        <i class="fa-solid fa-table"></i>
+                        <span>Google Sheets 全歷史</span>
+                    </a>
+                    <button onclick="fetchVisitorQueryLogs()" class="px-2.5 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition flex items-center gap-1 border border-zinc-700">
+                        <i class="fa-solid fa-arrows-rotate text-[10px]"></i>
+                        <span>立即刷新</span>
+                    </button>
+                    <label class="flex items-center gap-1.5 text-zinc-400 text-xs cursor-pointer select-none">
+                        <input type="checkbox" id="autoRefreshLogsToggle" checked onchange="toggleAutoRefreshLogs(this.checked)" class="rounded bg-zinc-900 border-zinc-700 text-amber-500 focus:ring-0">
+                        <span>10秒自動更新</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 熱搜 Top 10 選手膠囊列 -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between text-xs font-mono">
+                    <span class="text-zinc-400 flex items-center gap-1.5 font-bold">
+                        <i class="fa-solid fa-fire text-amber-400"></i> 熱搜選手排行 (Top Queried Swimmers)
+                    </span>
+                    <span id="hotSwimmersCountInfo" class="text-zinc-500 text-[11px]">累計統計中...</span>
+                </div>
+                <div id="hotSwimmersContainer" class="flex flex-wrap gap-2 pt-1">
+                    <span class="text-xs text-zinc-500">正在計算熱搜榜單...</span>
+                </div>
+            </div>
+
+            <!-- 即時搜尋日誌串流表 -->
+            <div class="space-y-2 pt-2">
+                <div class="flex items-center justify-between text-xs font-mono">
+                    <span class="text-zinc-400 flex items-center gap-1.5 font-bold">
+                        <i class="fa-solid fa-stream text-sky-400"></i> 最新訪客查詢串流 (Live Query Stream)
+                    </span>
+                    <span id="logTotalCountLabel" class="text-zinc-500 text-[11px]">載入中...</span>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-zinc-800/80 bg-zinc-950/60 max-h-[360px] overflow-y-auto">
+                    <table class="w-full text-left text-xs font-mono">
+                        <thead class="bg-zinc-900/90 text-zinc-400 border-b border-zinc-800 sticky top-0 backdrop-blur-md">
+                            <tr>
+                                <th class="p-2.5">時間</th>
+                                <th class="p-2.5">查詢選手 / 關鍵字</th>
+                                <th class="p-2.5">查詢模式</th>
+                                <th class="p-2.5">來源地區</th>
+                                <th class="p-2.5">訪客 IP</th>
+                                <th class="p-2.5 text-right">快捷操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="visitorLogsTableBody" class="divide-y divide-zinc-800/40 text-zinc-300">
+                            <tr>
+                                <td colspan="6" class="text-center py-6 text-zinc-500">正在讀取即時訪客查詢資料...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- 區塊二：地端整合平台 1:1 復刻下載控制面板 (已在資料庫以淺灰色呈現) -->
         <section class="tech-card p-5 space-y-4">
             <!-- 頂部單位資訊列 -->
@@ -1457,8 +1533,127 @@
                     catalogData = await catRes.json();
                     handleUnifiedOrgChange();
                 }
+
+                // 4. 讀取即時訪客查詢與熱搜選手日誌
+                await fetchVisitorQueryLogs();
+                toggleAutoRefreshLogs(true);
             } catch (err) {
                 console.error("載入儀表板失敗:", err);
+            }
+        }
+
+        // ------------------ 訪客即時查詢雷達核心邏輯 ------------------
+        let autoRefreshLogsTimer = null;
+
+        async function fetchVisitorQueryLogs() {
+            const tableBody = document.getElementById('visitorLogsTableBody');
+            const hotContainer = document.getElementById('hotSwimmersContainer');
+            const totalLabel = document.getElementById('logTotalCountLabel');
+            const hotInfo = document.getElementById('hotSwimmersCountInfo');
+            if (!tableBody) return;
+
+            try {
+                let data = null;
+                try {
+                    const res = await fetch('/api/log_query?action=pull&t=' + Date.now());
+                    if (res.ok) {
+                        data = await res.json();
+                    }
+                } catch(e) {}
+
+                if (!data || !data.logs || data.logs.length === 0) {
+                    const fallbackRes = await fetch('/static/visitor_query_logs.json?t=' + Date.now());
+                    if (fallbackRes.ok) {
+                        data = await fallbackRes.json();
+                    }
+                }
+
+                if (!data || !data.logs) return;
+
+                const logs = data.logs || [];
+                const hot = data.hot_swimmers || [];
+
+                // 1. 渲染熱搜 Top 10 膠囊
+                if (hot.length > 0) {
+                    if (hotInfo) hotInfo.innerText = `涵蓋前 ${hot.length} 位熱搜選手`;
+                    let hotHtml = '';
+                    hot.forEach((item, idx) => {
+                        let rankBadge = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `#${idx+1}`));
+                        let bgStyle = idx === 0 ? 'background:rgba(212,175,55,0.18); border-color:rgba(243,208,120,0.6);' : 'background:rgba(39,39,42,0.6); border-color:#3f3f46;';
+                        hotHtml += `
+                            <a href="/?q=${encodeURIComponent(item.name)}" target="_blank" class="px-3 py-1.5 rounded-lg border flex items-center gap-1.5 text-xs transition hover:scale-105" style="${bgStyle}">
+                                <span>${rankBadge}</span>
+                                <span class="font-bold text-zinc-100">${item.name}</span>
+                                <span class="text-[10px] text-amber-400/90 font-mono bg-amber-500/10 px-1.5 py-0.5 rounded">${item.count}次</span>
+                            </a>
+                        `;
+                    });
+                    if (hotContainer) hotContainer.innerHTML = hotHtml;
+                } else if (hotContainer) {
+                    hotContainer.innerHTML = '<span class="text-xs text-zinc-500">尚無熱搜統計</span>';
+                }
+
+                // 2. 渲染串流日誌表格
+                if (totalLabel) totalLabel.innerText = `最新 ${logs.length} 筆即時紀錄`;
+                if (logs.length > 0) {
+                    let rowsHtml = '';
+                    logs.forEach((logItem) => {
+                        let swimmer = logItem.swimmer || '';
+                        let cleanSwimmer = swimmer.replace('[頁面造訪]', '').trim();
+                        if (!cleanSwimmer) return;
+
+                        let modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/30">🏊 個人PB</span>';
+                        if (cleanSwimmer.includes(';') || cleanSwimmer.includes('；')) {
+                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/30">⚔️ 多人PK</span>';
+                        } else if (cleanSwimmer.toUpperCase().includes('/SIM')) {
+                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30">🏆 得獎模擬</span>';
+                        } else if (cleanSwimmer.toUpperCase().includes('/STD')) {
+                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">🎯 達標檢定</span>';
+                        } else if (cleanSwimmer.toUpperCase().includes('/RANK')) {
+                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-rose-500/10 text-rose-400 border border-rose-500/30">📊 跨組排行</span>';
+                        }
+
+                        let timeStr = logItem.time || '';
+                        let locStr = logItem.location || '台灣';
+                        let ipStr = logItem.ip || '未知 IP';
+
+                        rowsHtml += `
+                            <tr class="hover:bg-zinc-900/60 transition">
+                                <td class="p-2.5 text-zinc-400 text-[11px] whitespace-nowrap">${timeStr}</td>
+                                <td class="p-2.5 font-bold text-zinc-100">
+                                    <span class="gold-gradient-text">${cleanSwimmer}</span>
+                                </td>
+                                <td class="p-2.5">${modeBadge}</td>
+                                <td class="p-2.5 text-zinc-300">
+                                    <span class="flex items-center gap-1">
+                                        <i class="fa-solid fa-location-dot text-[10px] text-zinc-500"></i> ${locStr}
+                                    </span>
+                                </td>
+                                <td class="p-2.5 text-zinc-500 text-[11px]">${ipStr}</td>
+                                <td class="p-2.5 text-right whitespace-nowrap">
+                                    <a href="/?q=${encodeURIComponent(cleanSwimmer)}" target="_blank" class="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition text-[11px] inline-flex items-center gap-1 border border-zinc-700">
+                                        <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> 查看成績
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tableBody.innerHTML = rowsHtml;
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-zinc-500">目前尚無搜尋紀錄</td></tr>';
+                }
+            } catch(err) {
+                console.warn("無法取得訪客查詢日誌:", err);
+            }
+        }
+
+        function toggleAutoRefreshLogs(enable) {
+            if (autoRefreshLogsTimer) {
+                clearInterval(autoRefreshLogsTimer);
+                autoRefreshLogsTimer = null;
+            }
+            if (enable) {
+                autoRefreshLogsTimer = setInterval(fetchVisitorQueryLogs, 10000);
             }
         }
 
