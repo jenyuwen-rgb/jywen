@@ -2927,6 +2927,7 @@
             ];
 
             const activeProbes = (probes && probes.length > 0) ? probes : defaultProbes;
+            window.activeProbesList = activeProbes;
             let successCount = 0;
 
             container.innerHTML = activeProbes.map((pb, idx) => {
@@ -2939,7 +2940,7 @@
                 const countText = `${pb.races_found !== undefined ? pb.races_found : '-'} 場`;
 
                 return `
-                    <div class="p-2.5 rounded-lg bg-zinc-900/60 border ${statusBorder} transition cursor-pointer" onclick='onProbeCardClick(${JSON.stringify(pb)})' title="點擊檢視探針細節與重現碼">
+                    <div class="p-2.5 rounded-lg bg-zinc-900/60 border ${statusBorder} transition cursor-pointer" onclick="onProbeCardClick(${idx})" title="點擊檢視探針細節與重現碼">
                         <div class="flex items-center justify-between">
                             <span class="text-zinc-300 font-bold truncate text-[11px]">${pb.org_name}</span>
                             <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span>
@@ -3002,7 +3003,7 @@
                 return;
             }
 
-            filteredLogs.forEach(l => {
+            filteredLogs.forEach((l, lIdx) => {
                 const timeStr = l.timestamp ? (l.timestamp.includes(' ') ? l.timestamp.split(' ')[1] : l.timestamp) : '';
                 const colorClass = l.level === 'ERROR' ? 'text-rose-400' : (l.level === 'WARN' ? 'text-amber-400' : 'text-emerald-400/90');
                 
@@ -3012,9 +3013,9 @@
 
                 let actionHtml = '';
                 if (hasSnapshot) {
-                    actionHtml = `<button onclick='openDebugReplayModal(${JSON.stringify(l.probe_details.debug_snapshot)})' class="ml-auto px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-[10px] transition shrink-0 flex items-center gap-1">🚨 還原現場</button>`;
+                    actionHtml = `<button onclick="openDebugReplayModal(window.currentLogViewData.recent_logs[${lIdx}].probe_details.debug_snapshot)" class="ml-auto px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-[10px] transition shrink-0 flex items-center gap-1">🚨 還原現場</button>`;
                 } else if (hasProbe) {
-                    actionHtml = `<button onclick='onProbeCardClick(${JSON.stringify(l.probe_details)})' class="ml-auto px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 hover:text-white text-[10px] transition shrink-0">探針詳情</button>`;
+                    actionHtml = `<button onclick="onProbeCardClick(window.currentLogViewData.recent_logs[${lIdx}].probe_details)" class="ml-auto px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 hover:text-white text-[10px] transition shrink-0">探針詳情</button>`;
                 }
 
                 const row = document.createElement('div');
@@ -3029,21 +3030,23 @@
             });
         }
 
-        function onProbeCardClick(probe) {
+        function onProbeCardClick(probeOrIdx) {
+            let probe = typeof probeOrIdx === 'number' ? (window.activeProbesList && window.activeProbesList[probeOrIdx]) : probeOrIdx;
             if (!probe) return;
+            const targetUrl = probe.url || 'https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx';
             if (probe.debug_snapshot) {
                 openDebugReplayModal(probe.debug_snapshot);
             } else {
                 // 自動組裝正常狀態的連線資訊供重現檢驗
                 const normalSnapshot = {
                     org_name: probe.org_name,
-                    url: probe.url,
+                    url: targetUrl,
                     http_status: probe.http_status || 200,
                     latency_ms: probe.latency_ms || 180,
                     error_type: "ProbeStatusOnline",
                     error_message: `正常在線響應 · 檢出賽事 ${probe.races_found || 0} 場：${(probe.sample_races || []).join('、')}`,
-                    curl_command: `curl -s -L -X GET '${probe.url}' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'`,
-                    replay_python_code: `# 快速連線測試腳本 - ${probe.org_name}\nimport requests\nresp = requests.get('${probe.url}', timeout=20, verify=False)\nprint('HTTP 狀態:', resp.status_code, '長度:', len(resp.text))`,
+                    curl_command: `curl -s -L -X GET '${targetUrl}' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'`,
+                    replay_python_code: `# 快速連線測試腳本 - ${probe.org_name}\nimport requests\nresp = requests.get('${targetUrl}', timeout=20, verify=False)\nprint('HTTP 狀態:', resp.status_code, '長度:', len(resp.text))`,
                     html_snippet: `<!-- 正常響應 HTML 前段 -->\n${(probe.sample_races || []).map(r => `<!-- 賽事: ${r} -->`).join('\n')}`
                 };
                 openDebugReplayModal(normalSnapshot);
