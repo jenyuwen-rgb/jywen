@@ -6,6 +6,13 @@
     <title>賽事整合與雲端調度儀表板 · 金水 Swimming PWA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        }
+    </script>
     <style>
         :root {
             --primary: #D4AF37;
@@ -123,12 +130,12 @@
             border-radius: 14px;
             padding: 5px;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 6px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
             .segmented-control-container {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -814,7 +821,7 @@
             </div>
         </section>
 
-        <!-- Apple 原生風格 Segmented Control 4 大情境導航標籤 -->
+        <!-- Apple 原生風格 Segmented Control 5 大情境導航標籤 -->
         <nav class="segmented-control-container">
             <button id="tab-btn-radar" class="nav-tab-btn active" onclick="switchTab('radar')">
                 <i class="fa-solid fa-radar tab-icon text-sm"></i>
@@ -825,6 +832,11 @@
                 <i class="fa-solid fa-magnifying-glass-chart tab-icon text-sm"></i>
                 <span>採集與探針</span>
                 <span class="tab-badge hidden sm:inline">PROBE</span>
+            </button>
+            <button id="tab-btn-orderbook" class="nav-tab-btn" onclick="switchTab('orderbook')">
+                <i class="fa-solid fa-highlighter tab-icon text-sm"></i>
+                <span>秩序冊標註</span>
+                <span class="tab-badge hidden sm:inline">PDF</span>
             </button>
             <button id="tab-btn-calendar" class="nav-tab-btn" onclick="switchTab('calendar')">
                 <i class="fa-solid fa-calendar-days tab-icon text-sm"></i>
@@ -1196,6 +1208,132 @@
                         </table>
                     </div>
                 </div>
+            </section>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB PANE: 📸 秩序冊高亮標記獨立工具 (Order Book Highlighting Studio) -->
+        <!-- ============================================================ -->
+        <div id="pane-orderbook" class="tab-pane space-y-6">
+            <section class="max-w-4xl mx-auto bg-[#1C1C1E] border border-white/15 rounded-[20px] p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.8)] text-white">
+                
+                <!-- 標題欄 -->
+                <div class="flex items-center justify-between pb-4 mb-6 border-b border-[#2C2C2E]">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">📸</span>
+                        <div>
+                            <h3 class="text-xl font-bold text-white tracking-wide">秩序冊高亮標記獨立工具</h3>
+                            <p class="text-xs text-zinc-400 mt-0.5">線上無伺服器向量標註引擎 · 支援三大名冊自訂、永久儲存與一鍵已標記 PDF 匯出</p>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/10 text-[#FFD60A] border border-[#FFD60A]/30">
+                        ONLINE STUDIO
+                    </span>
+                </div>
+
+                <!-- 步驟 1: 選擇秩序冊 (由北到南主辦單位 ➔ 賽事秩序冊) -->
+                <div class="mb-6 bg-[#2C2C2E] p-5 rounded-xl border border-white/5 space-y-4">
+                    <label class="block font-bold text-sm text-[#FFD60A] flex items-center justify-between">
+                        <span>1. 選擇秩序冊 PDF 檔案 (全台泳協由北到南連動選單)</span>
+                        <span id="orderBookStatusBadge" class="text-xs text-zinc-400 font-normal">讀取雲端秩序冊中...</span>
+                    </label>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- 步驟 1-1: 選擇主辦單位 (由北到南排序) -->
+                        <div>
+                            <label class="block text-xs text-zinc-400 mb-1.5 font-medium">步驟 1：選擇主辦單位（由北到南排序）</label>
+                            <select id="obOrgSelect" onchange="handleObOrgChange()" class="w-full bg-[#1C1C1E] border border-[#3A3A3C] text-white p-2.5 rounded-lg text-sm outline-none focus:border-[#FFD60A] transition">
+                                <option value="">-- 請選擇主辦單位 --</option>
+                            </select>
+                        </div>
+
+                        <!-- 步驟 1-2: 選擇對應賽事秩序冊 -->
+                        <div>
+                            <label class="block text-xs text-zinc-400 mb-1.5 font-medium">步驟 2：選擇賽事秩序冊</label>
+                            <select id="obMeetSelect" onchange="handleObMeetChange()" class="w-full bg-[#1C1C1E] border border-[#3A3A3C] text-white p-2.5 rounded-lg text-sm outline-none focus:border-[#FFD60A] transition">
+                                <option value="">-- 請先選擇主辦單位 --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 支援自備本機檔案備用方案 -->
+                    <div class="pt-2 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input type="text" id="obCustomUrlInput" placeholder="或直接貼上 PDF 網址，亦可選擇本機 PDF" class="flex-1 bg-[#1C1C1E] border border-[#3A3A3C] text-white px-3 py-2 rounded-lg text-xs outline-none focus:border-[#FFD60A]">
+                        <input type="file" id="obLocalFileInput" accept=".pdf" class="hidden" onchange="handleObLocalFile(this)">
+                        <button type="button" onclick="document.getElementById('obLocalFileInput').click()" class="bg-[#3A3A3C] hover:bg-[#48484A] text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                            <span>📂 自備檔案</span>
+                        </button>
+                    </div>
+
+                    <div id="obSelectedPdfInfo" class="text-xs text-zinc-400 flex items-center justify-between">
+                        <span>預設自動載入所選賽事之官方最新秩序冊。標記完成後將自動儲存為 [賽事名稱]_已標記.pdf。</span>
+                        <span id="obPdfSizeInfo" class="font-mono text-zinc-300"></span>
+                    </div>
+                </div>
+
+                <!-- 步驟 2: 編輯高亮選手名單與類別 -->
+                <div class="mb-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-sm text-[#FFD60A]">2. 編輯高亮選手名單與類別 (支援自訂並永久儲存)</label>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="resetDefaultNames()" class="text-xs text-zinc-400 hover:text-white px-2.5 py-1 rounded bg-zinc-800 border border-zinc-700 transition">
+                                ↺ 還原預設
+                            </button>
+                            <button type="button" onclick="savePdfConfigUI()" class="bg-[#30D158] hover:opacity-90 text-black px-3.5 py-1 rounded-md text-xs font-bold transition flex items-center gap-1 shadow">
+                                <span>💾 儲存名單設定</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 🟡 步達選手 (螢光黃標記) -->
+                    <div class="bg-[#2C2C2E] p-3.5 rounded-xl border border-white/5 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-sm text-[#FFD60A] flex items-center gap-1.5">
+                                <span>🟡 步達選手 (螢光黃標記)</span>
+                            </span>
+                            <span id="buddaCount" class="text-xs text-zinc-400 font-mono">0 人</span>
+                        </div>
+                        <textarea id="buddaListInput" rows="3" oninput="updateCounts()" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-[#1C1C1E] border border-[#3A3A3C] text-white p-2.5 rounded-lg text-xs font-sans outline-none focus:border-[#FFD60A] transition leading-relaxed"></textarea>
+                    </div>
+
+                    <!-- 💗 拍照選手 (粉紅色標記) -->
+                    <div class="bg-[#2C2C2E] p-3.5 rounded-xl border border-white/5 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-sm text-[#FF2D55] flex items-center gap-1.5">
+                                <span>💗 拍照選手 (粉紅色標記)</span>
+                            </span>
+                            <span id="photoCount" class="text-xs text-zinc-400 font-mono">0 人</span>
+                        </div>
+                        <textarea id="photoListInput" rows="3" oninput="updateCounts()" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-[#1C1C1E] border border-[#3A3A3C] text-white p-2.5 rounded-lg text-xs font-sans outline-none focus:border-[#FF2D55] transition leading-relaxed"></textarea>
+                    </div>
+
+                    <!-- 🟢 特殊選手 (螢光綠標記) -->
+                    <div class="bg-[#2C2C2E] p-3.5 rounded-xl border border-white/5 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-sm text-[#30D158] flex items-center gap-1.5">
+                                <span>🟢 特殊選手 (螢光綠標記)</span>
+                            </span>
+                            <span id="specialCount" class="text-xs text-zinc-400 font-mono">0 人</span>
+                        </div>
+                        <textarea id="specialListInput" rows="2" oninput="updateCounts()" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-[#1C1C1E] border border-[#3A3A3C] text-white p-2.5 rounded-lg text-xs font-sans outline-none focus:border-[#30D158] transition leading-relaxed"></textarea>
+                    </div>
+                </div>
+
+                <!-- 步驟 3: 執行按鈕與狀態 -->
+                <button type="button" id="btnProcessPdf" onclick="startOrderBookHighlightProcess()" class="w-full bg-gradient-to-r from-[#FF9500] to-[#FF2D55] hover:opacity-95 text-white py-3.5 px-6 rounded-xl text-base font-bold transition shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>⚡ 開始標記秩序冊 (產出 _已標記.pdf)</span>
+                </button>
+
+                <!-- 進度條與狀態反饋 -->
+                <div id="obProcessStatusBox" class="hidden mt-4 bg-[#2C2C2E] p-4 rounded-xl border border-white/5 text-center space-y-2">
+                    <div id="obStatusTitle" class="font-bold text-sm text-[#FFD60A]">正在初始化 PDF.js 與向量繪圖引擎...</div>
+                    <div class="w-full bg-zinc-900 rounded-full h-2 overflow-hidden border border-zinc-700">
+                        <div id="obProgressBar" class="bg-gradient-to-r from-amber-400 to-rose-500 h-full w-0 transition-all duration-150"></div>
+                    </div>
+                    <div id="obStatusDetails" class="text-xs text-zinc-400 font-mono">準備就緒</div>
+                </div>
+
             </section>
         </div>
 
@@ -2640,11 +2778,344 @@
             }
         }
 
+        // ============================================================
+        // 📸 秩序冊高亮標記獨立工具 核心邏輯 (純前端 PDF.js + PDF-lib 向量標註)
+        // ============================================================
+        let orderBooksCatalog = null;
+        let selectedPdfBytes = null;
+        let selectedPdfName = "秩序冊.pdf";
+
+        const DEFAULT_HIGHLIGHT_CONFIG = {
+            colors: {
+                budda: [1.0, 1.0, 0.0],
+                photo: [1.0, 0.4, 0.7],
+                special: [0.8, 1.0, 0.0]
+            },
+            lists: {
+                budda: [
+                    "陳岳德", "黃裕哲", "周潁欣", "薛宏侖", "林邑庭", "林昀臻", "蔡卓言", "趙偉莛", "趙宸佑", "洪苡筑",
+                    "方莘硯", "葉宇昕", "林芳伃", "洪靚橙", "莊翊暄", "蔡羽甯", "謝欣蓉", "方雨棠", "洪渝姍", "李姵萱",
+                    "洪宥善", "范至辰", "莊羿言", "陳宥先", "王星博", "范至廷", "莊孟瀚", "李昀澈", "陳明詮", "葉佶展",
+                    "郭庭佑", "言婕菱", "陳宥橋", "杜庭愷", "謝昕璇", "余如嘉", "蕭宸馨", "蕭薇馨", "林秉毅", "黃泓皓",
+                    "石芷瑜", "蕭妍安", "周潁旻", "黃榟妘", "林玥希", "張詠淇", "李佳齊", "何予騰", "蘇唯愷", "吳宇晏",
+                    "黃子郁", "張景翔", "陳禹希", "郭宥均", "李佳謙", "吳俐緹", "張禕宸", "郭采薇", "吳昕宸", "林坤曜",
+                    "郭侑捷", "李國璋", "余子萱", "林語恩", "蘇瑀晴", "張綵倩", "郭琍妮", "王政元", "李培睿", "葉唯謙",
+                    "劉恩寯", "賴辰諺", "陳奕勳", "黃品熙", "謝可軒", "宋牧真", "郭琍娜", "陳禹安", "許義辰", "沈裕棠",
+                    "葉品緯", "石以翔", "王泓軒", "陳紹恩", "黃竣浩", "吳兆騏", "李采霖", "周竣軒", "王昱宸", "林崇益",
+                    "劉羽晴", "王星雅", "林品蒝"
+                ],
+                photo: [
+                    "許仟妮", "林郭鍇", "符楷昱", "莊力銘", "黃康景", "鄒東哲", "沈彥菲", "劉芯瑀", "蘇紫涵", "吳語婕",
+                    "蔡本芮", "陳子倩", "邱奕芯", "陳婧泳", "林靖芳", "林芯妍", "童詩涵", "王靖萱", "劉子川", "蕭佩宸",
+                    "陳瑀希", "林歆諾", "林侑靚", "薛人豪", "何康婗", "陳品言", "李秉宸", "劉紀言", "吳祐嘉", "吳榮程",
+                    "法奧妮.祿璞崚岸", "吳溢洋", "侯妤蓁", "王冠閎", "張慧珍", "許亞鈴", "王希憲", "王子儀", "林孜潔",
+                    "林孜澄", "吳芷誼", "温楚庭"
+                ],
+                special: [
+                    "温心妤", "温少宇", "Ariel", "Oreo"
+                ]
+            }
+        };
+
+        function parseNameList(rawText) {
+            if (!rawText) return [];
+            return rawText.split(/[\n,，\s、]+/).map(s => s.trim()).filter(Boolean);
+        }
+
+        function formatNameList(listArr) {
+            if (!listArr || !Array.isArray(listArr)) return "";
+            return listArr.join(", ");
+        }
+
+        function updateCounts() {
+            const bList = parseNameList(document.getElementById('buddaListInput').value);
+            const pList = parseNameList(document.getElementById('photoListInput').value);
+            const sList = parseNameList(document.getElementById('specialListInput').value);
+            document.getElementById('buddaCount').innerText = `${bList.length} 人`;
+            document.getElementById('photoCount').innerText = `${pList.length} 人`;
+            document.getElementById('specialCount').innerText = `${sList.length} 人`;
+        }
+
+        function loadPdfConfigUI() {
+            try {
+                let saved = localStorage.getItem('swimming_pdf_highlight_config');
+                let cfg = saved ? JSON.parse(saved) : DEFAULT_HIGHLIGHT_CONFIG;
+                const lists = cfg.lists || DEFAULT_HIGHLIGHT_CONFIG.lists;
+
+                document.getElementById('buddaListInput').value = formatNameList(lists.budda);
+                document.getElementById('photoListInput').value = formatNameList(lists.photo);
+                document.getElementById('specialListInput').value = formatNameList(lists.special);
+                updateCounts();
+            } catch(e) {
+                console.warn("載入高亮名單失敗，使用預設值:", e);
+                resetDefaultNames();
+            }
+        }
+
+        function savePdfConfigUI() {
+            const buddaArr = parseNameList(document.getElementById('buddaListInput').value);
+            const photoArr = parseNameList(document.getElementById('photoListInput').value);
+            const specialArr = parseNameList(document.getElementById('specialListInput').value);
+
+            const cfg = {
+                colors: DEFAULT_HIGHLIGHT_CONFIG.colors,
+                lists: {
+                    budda: buddaArr,
+                    photo: photoArr,
+                    special: specialArr
+                }
+            };
+            localStorage.setItem('swimming_pdf_highlight_config', JSON.stringify(cfg));
+            updateCounts();
+            alert(`✅ 名單已成功儲存於本機！\n🟡 步達選手: ${buddaArr.length} 人\n💗 拍照選手: ${photoArr.length} 人\n🟢 特殊選手: ${specialArr.length} 人`);
+        }
+
+        function resetDefaultNames() {
+            document.getElementById('buddaListInput').value = formatNameList(DEFAULT_HIGHLIGHT_CONFIG.lists.budda);
+            document.getElementById('photoListInput').value = formatNameList(DEFAULT_HIGHLIGHT_CONFIG.lists.photo);
+            document.getElementById('specialListInput').value = formatNameList(DEFAULT_HIGHLIGHT_CONFIG.lists.special);
+            updateCounts();
+        }
+
+        async function loadOrderBooksCatalog() {
+            const badge = document.getElementById('orderBookStatusBadge');
+            const orgSelect = document.getElementById('obOrgSelect');
+            try {
+                const res = await fetch('static/order_books_catalog.json?v=' + Date.now());
+                if (res.ok) {
+                    orderBooksCatalog = await res.json();
+                } else {
+                    orderBooksCatalog = {
+                        orgs: [
+                            { id: "site_d", name: "中華民國游泳協會 (CTSA)", region: "全國" },
+                            { id: "site_tpesa", name: "臺北市體育總會游泳協會 (TPESA)", region: "北部" },
+                            { id: "site_a", name: "臺中市體育總會游泳委員會 (SWIM8)", region: "中部" },
+                            { id: "site_b", name: "臺南市體育總會游泳委員會", region: "南部" },
+                            { id: "site_c", name: "高雄市體育總會游泳委員會 (KCC)", region: "南部" }
+                        ],
+                        order_books: {}
+                    };
+                }
+
+                orgSelect.innerHTML = '<option value="">-- 請選擇主辦單位 (由北到南排序) --</option>';
+                (orderBooksCatalog.orgs || []).forEach(org => {
+                    const opt = document.createElement('option');
+                    opt.value = org.id;
+                    opt.textContent = `[${org.region}] ${org.name}`;
+                    orgSelect.appendChild(opt);
+                });
+
+                if (badge) badge.innerText = "已連線雲端秩序冊型錄";
+            } catch(e) {
+                console.warn("讀取 order_books_catalog 失敗:", e);
+                if (badge) badge.innerText = "雲端型錄快取離線模式";
+            }
+        }
+
+        function handleObOrgChange() {
+            const orgSelect = document.getElementById('obOrgSelect');
+            const meetSelect = document.getElementById('obMeetSelect');
+            const orgId = orgSelect.value;
+            meetSelect.innerHTML = '<option value="">-- 請選擇賽事秩序冊 --</option>';
+
+            if (!orgId || !orderBooksCatalog) return;
+            const books = (orderBooksCatalog.order_books || {})[orgId] || [];
+            if (books.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.textContent = "尚無公告秩序冊 (可自備上傳)";
+                meetSelect.appendChild(opt);
+                return;
+            }
+
+            books.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.pdf_url;
+                opt.textContent = b.meet_name;
+                opt.setAttribute('data-name', b.meet_name);
+                meetSelect.appendChild(opt);
+            });
+        }
+
+        async function handleObMeetChange() {
+            const meetSelect = document.getElementById('obMeetSelect');
+            const pdfUrl = meetSelect.value;
+            const info = document.getElementById('obSelectedPdfInfo');
+            const sizeInfo = document.getElementById('obPdfSizeInfo');
+            if (!pdfUrl) return;
+
+            const selectedOpt = meetSelect.options[meetSelect.selectedIndex];
+            selectedPdfName = selectedOpt.getAttribute('data-name') || "賽事秩序冊";
+            document.getElementById('obCustomUrlInput').value = pdfUrl;
+
+            info.firstElementChild.innerText = `已選擇：${selectedPdfName}，正在下載 PDF 向量資料...`;
+            sizeInfo.innerText = "下載中...";
+
+            try {
+                const resp = await fetch(pdfUrl);
+                if (resp.ok) {
+                    selectedPdfBytes = await resp.arrayBuffer();
+                    const mb = (selectedPdfBytes.byteLength / 1024 / 1024).toFixed(2);
+                    info.firstElementChild.innerText = `已就緒：${selectedPdfName}`;
+                    sizeInfo.innerText = `${mb} MB (已載入記憶體)`;
+                } else {
+                    info.firstElementChild.innerText = `⚠️ 線上下載失敗 (HTTP ${resp.status})，請嘗試自備上傳。`;
+                    sizeInfo.innerText = "";
+                }
+            } catch(e) {
+                info.firstElementChild.innerText = `⚠️ 跨域或網路限制，請點擊「📂 自備檔案」上傳本機 PDF。`;
+                sizeInfo.innerText = "";
+            }
+        }
+
+        function handleObLocalFile(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                selectedPdfName = file.name.replace(/\.pdf$/i, "");
+                const info = document.getElementById('obSelectedPdfInfo');
+                const sizeInfo = document.getElementById('obPdfSizeInfo');
+
+                document.getElementById('obCustomUrlInput').value = file.name;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedPdfBytes = e.target.result;
+                    const mb = (file.size / 1024 / 1024).toFixed(2);
+                    info.firstElementChild.innerText = `自備檔案已載入：${file.name}`;
+                    sizeInfo.innerText = `${mb} MB`;
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        async function startOrderBookHighlightProcess() {
+            if (!selectedPdfBytes) {
+                alert("請先選擇主辦單位與賽事秩序冊，或點擊「自備檔案」上傳 PDF！");
+                return;
+            }
+
+            const buddaArr = parseNameList(document.getElementById('buddaListInput').value);
+            const photoArr = parseNameList(document.getElementById('photoListInput').value);
+            const specialArr = parseNameList(document.getElementById('specialListInput').value);
+
+            if (buddaArr.length === 0 && photoArr.length === 0 && specialArr.length === 0) {
+                alert("請至少輸入一位欲高亮標記的選手姓名！");
+                return;
+            }
+
+            const statusBox = document.getElementById('obProcessStatusBox');
+            const titleEl = document.getElementById('obStatusTitle');
+            const barEl = document.getElementById('obProgressBar');
+            const detailsEl = document.getElementById('obStatusDetails');
+            const btn = document.getElementById('btnProcessPdf');
+
+            statusBox.classList.remove('hidden');
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            titleEl.innerText = "⚡ 正在解構 PDF.js 向量文字頁面...";
+            barEl.style.width = "10%";
+            detailsEl.innerText = "正在分析頁面與文字座標...";
+
+            try {
+                // 1. 初始化 PDF.js 讀取
+                const loadingTask = pdfjsLib.getDocument({ data: selectedPdfBytes.slice(0) });
+                const pdfDoc = await loadingTask.promise;
+                const numPages = pdfDoc.numPages;
+
+                // 2. 初始化 PDF-lib 寫入
+                const pdfLibDoc = await PDFLib.PDFDocument.load(selectedPdfBytes);
+                const rgbBudda = PDFLib.rgb(1.0, 1.0, 0.0);
+                const rgbPhoto = PDFLib.rgb(1.0, 0.4, 0.7);
+                const rgbSpecial = PDFLib.rgb(0.8, 1.0, 0.0);
+
+                let totalHighlights = 0;
+
+                for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                    const page = await pdfDoc.getPage(pageNum);
+                    const textContent = await page.getTextContent();
+                    const pdfLibPage = pdfLibDoc.getPage(pageNum - 1);
+                    const { width: pWidth, height: pHeight } = pdfLibPage.getSize();
+                    const viewport = page.getViewport({ scale: 1.0 });
+
+                    textContent.items.forEach(item => {
+                        const str = (item.str || "").replace(/\s+/g, "");
+                        if (!str) return;
+
+                        // 檢查各類選手
+                        let matchedColor = null;
+                        for (let n of specialArr) {
+                            if (str.includes(n)) { matchedColor = rgbSpecial; break; }
+                        }
+                        if (!matchedColor) {
+                            for (let n of photoArr) {
+                                if (str.includes(n)) { matchedColor = rgbPhoto; break; }
+                            }
+                        }
+                        if (!matchedColor) {
+                            for (let n of buddaArr) {
+                                if (str.includes(n)) { matchedColor = rgbBudda; break; }
+                            }
+                        }
+
+                        if (matchedColor) {
+                            const tx = item.transform;
+                            const x = tx[4];
+                            const y = tx[5];
+                            const w = item.width || 40;
+                            const h = item.height || 12;
+
+                            pdfLibPage.drawRectangle({
+                                x: x - 2,
+                                y: y - 2,
+                                width: w + 4,
+                                height: h + 4,
+                                color: matchedColor,
+                                opacity: 0.38
+                            });
+                            totalHighlights++;
+                        }
+                    });
+
+                    const pct = 10 + Math.floor((pageNum / numPages) * 80);
+                    barEl.style.width = `${pct}%`;
+                    detailsEl.innerText = `正在標註第 ${pageNum}/${numPages} 頁... 已標記 ${totalHighlights} 處姓名`;
+                }
+
+                // 3. 匯出已標記 PDF
+                titleEl.innerText = "💾 正在編譯已標記 PDF 檔案並觸發下載...";
+                barEl.style.width = "95%";
+                const modifiedPdfBytes = await pdfLibDoc.save();
+
+                const blob = new Blob([modifiedPdfBytes], { type: "application/pdf" });
+                const downloadUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `${selectedPdfName}_已標記.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(downloadUrl);
+
+                barEl.style.width = "100%";
+                titleEl.innerText = `🎉 標記完成！共標記 ${totalHighlights} 處姓名！`;
+                detailsEl.innerText = `已自動下載：${selectedPdfName}_已標記.pdf (總頁數: ${numPages} 頁)`;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+
+            } catch (err) {
+                console.error("PDF 標記錯誤:", err);
+                titleEl.innerText = "❌ 標記過程發生錯誤";
+                detailsEl.innerText = err.message;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        }
+
         function refreshData() {
             initDashboard();
             loadCalendarData();
             fetchCrawlerLogs();
             fetchStorageQuota();
+            loadOrderBooksCatalog();
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -2653,6 +3124,8 @@
             loadCalendarData();
             fetchCrawlerLogs();
             fetchStorageQuota();
+            loadPdfConfigUI();
+            loadOrderBooksCatalog();
         });
     </script>
 </body>

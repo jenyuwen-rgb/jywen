@@ -1,0 +1,149 @@
+{
+  "updated_at": "2026-10-09 20:55:00",
+  "orgs": [
+    {
+      "id": "site_d",
+      "name": "中華民國游泳協會 (CTSA)",
+      "region": "全國"
+    },
+    {
+      "id": "site_tpesa",
+      "name": "臺北市體育總會游泳協會 (TPESA)",
+      "region": "北部"
+    },
+    {
+      "id": "site_ntpc",
+      "name": "新北市體育總會游泳委員會",
+      "region": "北部"
+    },
+    {
+      "id": "site_tyc",
+      "name": "桃園市體育會游泳委員會",
+      "region": "北部"
+    },
+    {
+      "id": "site_hcc",
+      "name": "新竹市體育會游泳委員會",
+      "region": "北部"
+    },
+    {
+      "id": "site_a",
+      "name": "臺中市體育總會游泳委員會 (SWIM8)",
+      "region": "中部"
+    },
+    {
+      "id": "site_b",
+      "name": "臺南市體育總會游泳委員會",
+      "region": "南部"
+    },
+    {
+      "id": "site_c",
+      "name": "高雄市體育總會游泳委員會 (KCC)",
+      "region": "南部"
+    },
+    {
+      "id": "site_e",
+      "name": "高雄水上運動推廣協會 (SWIM_KCSAT)",
+      "region": "南部"
+    }
+  ],
+  "order_books": {
+    "site_d": [
+      {
+        "meet_id": "ctsa_174",
+        "meet_name": "115年全國總統盃暨美津濃游泳錦標賽 秩序冊",
+        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/ctsa_174.pdf"
+      },
+      {
+        "meet_id": "ctsa_170",
+        "meet_name": "115年全國春季分齡游泳錦標賽 秩序冊",
+        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/ctsa_170.pdf"
+      },
+      {
+        "meet_id": "ctsa_171",
+        "meet_name": "115年全國小學游泳錦標賽 秩序冊",
+        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/ctsa_171.pdf"
+      },
+      {
+        "meet_id": "ctsa_172",
+        "meet_name": "115年全國青年盃游泳錦標賽 秩序冊",
+        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/ctsa_172.pdf"
+      },
+      {
+        "meet_id": "ctsa_173",
+        "meet_name": "115年全國中正盃游泳錦標賽 秩序冊",
+        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/ctsa_173.pdf"
+      }
+    ],
+    "site_tpesa": [
+      {
+        "meet_id": "tpesa_115_youth",
+        "meet_name": "115年臺北市青年盃分齡游泳錦標賽 秩序冊",
+        "pdf_url": "http://www.tpesa.org.tw/result/115年青年盃成績.pdf"
+      },
+      {
+        "meet_id": "tpesa_114_fall",
+        "meet_name": "114年臺北市中正盃分齡游泳賽 秩序冊",
+        "pdf_url": "http://www.tpesa.org.tw/result/114年中正盃成績.pdf"
+      },
+      {
+        "meet_id": "tpesa_114_youth",
+        "meet_name": "114年臺北市青年盃分齡游泳錦標賽 秩序冊",
+        "pdf_url": "http://www.tpesa.org.tw/result/114年青年盃成績.pdf"
+      },
+      {
+        "meet_id": "tpesa_113_fall",
+        "meet_name": "113年臺北市中正盃分齡游泳賽 秩序冊",
+        "pdf_url": "http://www.tpesa.org.tw/result/113年中正盃成績.pdf"
+      }
+    ],
+    "site_a": [
+      {
+        "meet_id": "swim8_27",
+        "meet_name": "115年臺中市議長盃游泳錦標賽 秩序冊",
+        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/swim8_27.pdf"
+      },
+      {
+        "meet_id": "swim8_26",
+        "meet_name": "115年臺中市市長盃游泳錦標賽 秩序冊",
+        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/swim8_26.pdf"
+      },
+      {
+        "meet_id": "swim8_24",
+        "meet_name": "臺中市114年市長盃水上運動競賽(游泳項目) 秩序冊",
+        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/swim8_24.pdf"
+      }
+    ],
+    "site_b": [
+      {
+        "meet_id": "tainan_62",
+        "meet_name": "115年臺南市中小學游泳錦標賽 秩序冊",
+        "pdf_url": "https://www.tainanswim.com.tw/manager/uploadfile/DL-260914-011386.pdf"
+      },
+      {
+        "meet_id": "tainan_55",
+        "meet_name": "113年臺南市市長盃短水道分齡游泳錦標賽 秩序冊",
+        "pdf_url": "https://www.tainanswim.com.tw/manager/uploadfile/DL-250317-010105.pdf"
+      }
+    ],
+    "site_c": [
+      {
+        "meet_id": "kcc_1155",
+        "meet_name": "115年議長盃全國分齡游泳錦標賽 秩序冊",
+        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/kcc_1155.pdf"
+      },
+      {
+        "meet_id": "kcc_1145",
+        "meet_name": "114年議長盃全國分齡游泳錦標賽 秩序冊",
+        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/kcc_1145.pdf"
+      }
+    ],
+    "site_e": [
+      {
+        "meet_id": "kcsat_27",
+        "meet_name": "2026全國青少年游泳錦標賽 秩序冊",
+        "pdf_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/order_books/kcsat_27.pdf"
+      }
+    ]
+  }
+}
