@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-09 22:36:00",
+  "updated_at": "2026-10-09 23:40:00",
   "orgs": [
     {
       "id": "site_d",
@@ -35,16 +35,136 @@
   "order_books": {
     "site_d": [
       {
+        "meet_id": "ctsa_175",
+        "meet_name": "115年全國北區A(2)游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "175",
+        "pdf_url": "static/docs/ctsa/175_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=175",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=175",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=175",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=175",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=175"
+      },
+      {
+        "meet_id": "ctsa_176",
+        "meet_name": "115年全國北區B(2)游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "176",
+        "pdf_url": "static/docs/ctsa/176_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=176",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=176",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=176",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=176",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=176"
+      },
+      {
+        "meet_id": "ctsa_177",
+        "meet_name": "115年全國中區(2)游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "177",
+        "pdf_url": "static/docs/ctsa/177_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=177",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=177",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=177",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=177",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=177"
+      },
+      {
         "meet_id": "ctsa_174",
-        "meet_name": "115年全國總統盃暨美津濃游泳錦標賽 秩序冊",
-        "pdf_url": "static/docs/115_presidential_cup_manual.pdf",
-        "official_source_url": "https://swimming.tw/"
+        "meet_name": "115年全國總統盃暨美津濃游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "174",
+        "pdf_url": "static/docs/ctsa/174_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=174",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=174",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=174",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=174",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=174"
+      },
+      {
+        "meet_id": "ctsa_173",
+        "meet_name": "115年全國中正盃游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "173",
+        "pdf_url": "static/docs/ctsa/173_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=173",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=173",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=173",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=173",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=173"
+      },
+      {
+        "meet_id": "ctsa_172",
+        "meet_name": "115年全國青年盃游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "172",
+        "pdf_url": "static/docs/ctsa/172_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=172",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=172",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=172",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=172",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=172"
       },
       {
         "meet_id": "ctsa_171",
-        "meet_name": "115年全國小學游泳錦標賽 秩序冊",
-        "pdf_url": "static/docs/115_primary_school_manual.pdf",
-        "official_source_url": "https://swimming.tw/"
+        "meet_name": "115年全國小學游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "171",
+        "pdf_url": "static/docs/ctsa/171_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=171",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=171",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=171",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=171",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=171"
+      },
+      {
+        "meet_id": "ctsa_170",
+        "meet_name": "115年全國春季分齡游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "170",
+        "pdf_url": "static/docs/ctsa/170_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=170",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=170",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=170",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=170",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=170"
+      },
+      {
+        "meet_id": "ctsa_169",
+        "meet_name": "115年全國北區B(1)游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "169",
+        "pdf_url": "static/docs/ctsa/169_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=169",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=169",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=169",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=169",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=169"
+      },
+      {
+        "meet_id": "ctsa_168",
+        "meet_name": "115年全國北區A(1)游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "168",
+        "pdf_url": "static/docs/ctsa/168_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=168",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=168",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=168",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=168",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=168"
+      },
+      {
+        "meet_id": "ctsa_167",
+        "meet_name": "115年全國南區(1)游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "167",
+        "pdf_url": "static/docs/ctsa/167_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=167",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=167",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=167",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=167",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=167"
+      },
+      {
+        "meet_id": "ctsa_166",
+        "meet_name": "115年全國中區(1)游泳錦標賽 秩序冊 (分項編配表)",
+        "activity_id": "166",
+        "pdf_url": "static/docs/ctsa/166_manual.pdf",
+        "official_source_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=166",
+        "official_rbook_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_5_Date.aspx?id=0B&Activity_ID=166",
+        "official_roster_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_CTSA_1.aspx?id=0B&Activity_ID=166",
+        "official_schedule_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_Schedule.aspx?id=0B&Activity_ID=166",
+        "official_stats_url": "https://ctsa.utk.com.tw/CTSA/public/rbook/RBook_8.aspx?id=0B&Activity_ID=166"
       },
       {
         "meet_id": "ctsa_114_hs",
@@ -56,12 +176,6 @@
         "meet_id": "ctsa_114_nat",
         "meet_name": "114年全國運動會游泳 秩序冊",
         "pdf_url": "static/docs/114_national_games_manual.pdf",
-        "official_source_url": "https://swimming.tw/"
-      },
-      {
-        "meet_id": "ctsa_170",
-        "meet_name": "115年全國春季分齡游泳錦標賽 秩序冊",
-        "pdf_url": "static/docs/115_classification_rules.pdf",
         "official_source_url": "https://swimming.tw/"
       }
     ],
@@ -163,6 +277,19 @@
         "official_source_url": "http://kcc.nowforyou.com/mizunop2/doc/2026/115年議長盃全國分齡游泳錦標賽（秩序冊）.pdf"
       }
     ],
-    "site_e": []
+    "site_e": [
+      {
+        "meet_id": "kcsat_115_nanying",
+        "meet_name": "115年南瀛盃全國分齡游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/kcsat/115_nanying.pdf",
+        "official_source_url": "https://swim.kcsat.org/news"
+      },
+      {
+        "meet_id": "kcsat_114_kcsat_cup",
+        "meet_name": "114年高水盃全國分齡游泳錦標賽 秩序冊",
+        "pdf_url": "static/docs/kcsat/114_kcsat_cup.pdf",
+        "official_source_url": "https://swim.kcsat.org/news"
+      }
+    ]
   }
 }

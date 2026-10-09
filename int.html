@@ -1265,6 +1265,9 @@
                         </button>
                     </div>
 
+                    <!-- 官方即時動態系統快捷操作列 -->
+                    <div id="obOfficialLinksContainer" class="hidden flex flex-wrap items-center gap-2 pt-2 border-t border-white/10"></div>
+
                     <div id="obSelectedPdfInfo" class="text-xs text-zinc-400 flex items-center justify-between">
                         <span>預設自動載入所選賽事之官方最新秩序冊。標記完成後將自動儲存為 [賽事名稱]_已標記.pdf。</span>
                         <span id="obPdfSizeInfo" class="font-mono text-zinc-300"></span>
@@ -2117,15 +2120,15 @@
                             <tr class="hover:bg-zinc-900/60 transition">
                                 <td class="p-2.5 text-zinc-400 text-[11px] whitespace-nowrap">${timeStr}</td>
                                 <td class="p-2.5 font-bold text-zinc-100">
-                                    <span class="gold-gradient-text">${cleanSwimmer}</span>
+                                    <span class="gold-gradient-text">${escapeHtml(cleanSwimmer)}</span>
                                 </td>
                                 <td class="p-2.5">${modeBadge}</td>
                                 <td class="p-2.5 text-zinc-300">
                                     <span class="flex items-center gap-1">
-                                        <i class="fa-solid fa-location-dot text-[10px] text-zinc-500"></i> ${locStr}
+                                        <i class="fa-solid fa-location-dot text-[10px] text-zinc-500"></i> ${escapeHtml(locStr)}
                                     </span>
                                 </td>
-                                <td class="p-2.5 text-zinc-500 text-[11px]">${ipStr}</td>
+                                <td class="p-2.5 text-zinc-500 text-[11px]">${escapeHtml(ipStr)}</td>
                                 <td class="p-2.5 text-right whitespace-nowrap">
                                     <a href="/?q=${encodeURIComponent(cleanSwimmer)}" target="_blank" class="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition text-[11px] inline-flex items-center gap-1 border border-zinc-700">
                                         <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> 查看成績
@@ -3336,9 +3339,14 @@
 
             books.forEach(b => {
                 const opt = document.createElement('option');
-                opt.value = b.pdf_url;
+                opt.value = b.pdf_url || '';
                 opt.textContent = b.meet_name;
                 opt.setAttribute('data-name', b.meet_name);
+                if (b.official_rbook_url) opt.setAttribute('data-rbook', b.official_rbook_url);
+                if (b.official_roster_url) opt.setAttribute('data-roster', b.official_roster_url);
+                if (b.official_schedule_url) opt.setAttribute('data-schedule', b.official_schedule_url);
+                if (b.official_stats_url) opt.setAttribute('data-stats', b.official_stats_url);
+                if (b.official_source_url) opt.setAttribute('data-source', b.official_source_url);
                 meetSelect.appendChild(opt);
             });
         }
@@ -3545,11 +3553,54 @@
             const pdfUrl = meetSelect.value;
             const info = document.getElementById('obSelectedPdfInfo');
             const sizeInfo = document.getElementById('obPdfSizeInfo');
-            if (!pdfUrl) return;
+            const linksContainer = document.getElementById('obOfficialLinksContainer');
+            if (!meetSelect.selectedIndex || meetSelect.selectedIndex < 0) return;
 
             const selectedOpt = meetSelect.options[meetSelect.selectedIndex];
             selectedPdfName = selectedOpt.getAttribute('data-name') || "賽事秩序冊";
-            document.getElementById('obCustomUrlInput').value = pdfUrl;
+            document.getElementById('obCustomUrlInput').value = pdfUrl || '';
+
+            const rbookUrl = selectedOpt.getAttribute('data-rbook');
+            const rosterUrl = selectedOpt.getAttribute('data-roster');
+            const scheduleUrl = selectedOpt.getAttribute('data-schedule');
+            const statsUrl = selectedOpt.getAttribute('data-stats');
+            const sourceUrl = selectedOpt.getAttribute('data-source');
+
+            // 動態渲染官方真實系統快捷按鈕
+            if (linksContainer) {
+                let linksHtml = '';
+                if (rbookUrl) {
+                    linksHtml += `<a href="${rbookUrl}" target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold hover:brightness-125 transition flex items-center gap-1.5 shadow-sm">🏊 官方分項編配表 (分道秩序冊) ↗</a>`;
+                }
+                if (rosterUrl) {
+                    linksHtml += `<a href="${rosterUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold hover:brightness-125 transition flex items-center gap-1 shadow-sm">👥 官方選手名冊 ↗</a>`;
+                }
+                if (scheduleUrl) {
+                    linksHtml += `<a href="${scheduleUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-bold hover:brightness-125 transition flex items-center gap-1 shadow-sm">⏱️ 官方賽程表 ↗</a>`;
+                }
+                if (statsUrl) {
+                    linksHtml += `<a href="${statsUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-bold hover:brightness-125 transition flex items-center gap-1 shadow-sm">📊 人數統計表 ↗</a>`;
+                }
+                if (!rbookUrl && sourceUrl && sourceUrl !== 'https://swimming.tw/') {
+                    linksHtml += `<a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-zinc-800 text-zinc-300 border border-zinc-700 rounded-lg text-xs font-bold hover:text-white transition flex items-center gap-1">🌐 官方公佈來源 ↗</a>`;
+                }
+
+                if (linksHtml) {
+                    linksContainer.innerHTML = `<span class="text-xs text-zinc-400 font-medium">官方即時動態系統：</span>` + linksHtml;
+                    linksContainer.classList.remove('hidden');
+                } else {
+                    linksContainer.innerHTML = '';
+                    linksContainer.classList.add('hidden');
+                }
+            }
+
+            if (!pdfUrl) {
+                if (rbookUrl) {
+                    info.firstElementChild.innerText = `已就緒：${selectedPdfName}！請點擊上方按鈕直接在官方動態系統查看分道秩序冊，或自備上傳 PDF 進行螢光標記。`;
+                }
+                sizeInfo.innerText = "";
+                return;
+            }
 
             info.firstElementChild.innerText = `已選擇：${selectedPdfName}，正在下載 PDF 向量資料...`;
             sizeInfo.innerText = "下載中...";
@@ -3563,11 +3614,19 @@
                     sizeInfo.innerText = `${mb} MB (已載入記憶體)`;
                     loadPdfBytesIntoPreview(selectedPdfBytes, selectedPdfName);
                 } else {
-                    info.firstElementChild.innerText = `⚠️ 線上下載失敗 (HTTP ${resp.status})，請嘗試自備上傳。`;
+                    if (rbookUrl) {
+                        info.firstElementChild.innerText = `已就緒：${selectedPdfName}！官方原生動態系統請點擊上方按鈕查看，或點擊「📂 自備檔案」上傳本機 PDF 進行螢光標記。`;
+                    } else {
+                        info.firstElementChild.innerText = `⚠️ 線上下載失敗 (HTTP ${resp.status})，請嘗試自備上傳。`;
+                    }
                     sizeInfo.innerText = "";
                 }
             } catch(e) {
-                info.firstElementChild.innerText = `⚠️ 跨域或網路限制，請點擊「📂 自備檔案」上傳本機 PDF。`;
+                if (rbookUrl) {
+                    info.firstElementChild.innerText = `已就緒：${selectedPdfName}！官方原生動態系統請點擊上方按鈕查看，或點擊「📂 自備檔案」上傳本機 PDF 進行螢光標記。`;
+                } else {
+                    info.firstElementChild.innerText = `⚠️ 跨域或網路限制，請點擊「📂 自備檔案」上傳本機 PDF。`;
+                }
                 sizeInfo.innerText = "";
             }
         }
