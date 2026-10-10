@@ -158,6 +158,25 @@ class handler(BaseHTTPRequestHandler):
                     if not any(e.get("time") == item.get("time") and e.get("swimmer") == item.get("swimmer") for e in logs):
                         logs.insert(0, item)
 
+            # 確保按時間由新到舊排序
+            def get_sort_key(entry):
+                t_str = entry.get("time", "")
+                try:
+                    # 替換中文時間
+                    is_pm = "下午" in t_str or "PM" in t_str
+                    clean = t_str.replace("下午", " ").replace("上午", " ").replace("PM", " ").replace("AM", " ").replace("-", "/").strip()
+                    parts = clean.split()
+                    date_parts = [int(p) for p in parts[0].split("/")]
+                    time_parts = [int(p) for p in parts[1].split(":")] if len(parts) > 1 else [0, 0, 0]
+                    h = time_parts[0]
+                    if is_pm and h < 12: h += 12
+                    elif not is_pm and h == 12: h = 0
+                    return (date_parts[0], date_parts[1], date_parts[2], h, time_parts[1] if len(time_parts)>1 else 0, time_parts[2] if len(time_parts)>2 else 0)
+                except Exception:
+                    return (0, 0, 0, 0, 0, 0)
+
+            logs.sort(key=get_sort_key, reverse=True)
+
             swimmer_counts = {}
             for entry in logs:
                 s = entry.get("swimmer", "").strip()
