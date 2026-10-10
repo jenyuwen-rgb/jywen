@@ -849,7 +849,7 @@
                 賽事整合與雲端調度儀表板
             </h2>
             <p class="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto font-light">
-                訪客即時雷達 · 全台 9 大泳協採集探針 · 115 年賽事行事曆 · GCP 自動化排程調度中樞
+                訪客即時雷達 · 6 大泳協採集探針 · 115 年賽事行事曆 · GCP 自動化排程調度中樞
             </p>
         </div>
 
@@ -1557,7 +1557,7 @@
                             <div class="flex items-center gap-2.5">
                                 <span class="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs flex items-center justify-center font-bold">1</span>
                                 <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
-                                    <span>每日全台賽事與行事曆自動爬蟲採集</span>
+                                    <span>全台各級泳協賽事監控與成績採集中樞</span>
                                     <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">核心定時任務</span>
                                 </h4>
                             </div>
@@ -1585,19 +1585,19 @@
                         <div class="text-xs text-zinc-300 space-y-1 pl-1">
                             <div class="flex items-start gap-2">
                                 <span class="text-amber-400">▸</span>
-                                <span><strong>CTSA 中華泳協官方全國賽事即時採集</strong>：發起 HTTP 連線至官方賽事系統 (<code class="text-zinc-400">game_data.aspx</code>)，解析 <code class="text-zinc-400">DD_Activity_ID</code> 下拉清單，精準抓取 115 年全國春季、小學、青年盃、中正盃、總統盃、冬季錦標賽等 15 大官方賽事。</span>
+                                <span><strong>CTSA 中華泳協官方全國賽事即時監控與採集</strong>：每日連線官方系統 (<code class="text-zinc-400">game_data.aspx</code>) 監控 115 年度最新賽事發布狀態，遇新賽事完賽自動增量解析成績與選手名冊入庫。</span>
                             </div>
                             <div class="flex items-start gap-2">
                                 <span class="text-amber-400">▸</span>
-                                <span><strong>臺南市泳協歷屆賽事即時爬取</strong>：採集臺南市體育總會 (<code class="text-zinc-400">tainanswim.com.tw/history.php</code>) 歷屆賽事編號與名稱。</span>
+                                <span><strong>6 大就緒泳協與委員會歷屆賽事目錄對齊</strong>：維護 CTSA(全國)、TPESA(台北)、SWIM8(台中)、TAINAN(台南)、KCC(高雄)、SWIM_KCSAT(高雄水上) 共 6 大協會之歷屆賽事目錄與成績爬取支援。</span>
                             </div>
                             <div class="flex items-start gap-2">
                                 <span class="text-amber-400">▸</span>
-                                <span><strong>全台 9 大泳協賽事目錄彙整同步</strong>：維護 CTSA(全國)、TPESA(台北)、SWIM8(台中)、TAINAN(台南)、KCC(高雄)、SWIM_KCSAT(高雄水上) 及 NTPC(新北)、TYC(桃園)、HCC(新竹) 完整架構，杜絕各縣市 0 場空缺。</span>
+                                <span><strong>115 年度官方賽事實體行事曆維護</strong>：維護官方核定之 115 年 96 場賽程時間表 (<code class="text-zinc-400">calendar.json</code>)，提供月曆即時檢索。</span>
                             </div>
                             <div class="flex items-start gap-2">
                                 <span class="text-amber-400">▸</span>
-                                <span><strong>115 年度 96 場官方行事曆維護</strong>：完整保障 96 場官方核定排程，動態產出標準月曆 JSON (<code class="text-zinc-400">calendar.json</code>)。</span>
+                                <span><strong>雲端自愈與自動熔斷保護</strong>：遇官方網站改版或連線逾時，觸發 Gemini 智慧診斷與 3 次硬性物理熔斷，確保系統零當機。</span>
                             </div>
                         </div>
                     </div>
