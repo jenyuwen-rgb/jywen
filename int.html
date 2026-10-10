@@ -2675,10 +2675,10 @@
 
             if (!dashboardData || !dashboardData.all_dates) return;
 
-            const matches = dashboardData.all_dates.filter(d => d.includes(input)).slice(0, 15);
+            const matches = dashboardData.all_dates.filter(d => d.startsWith(input) || d.includes(input));
 
             if (matches.length > 0) {
-                dropdown.innerHTML = matches.map(d => {
+                dropdown.innerHTML = matches.slice(0, 15).map(d => {
                     const linked = (dashboardData.date_to_meets && dashboardData.date_to_meets[d]) || [];
                     const meetCount = linked.length;
                     return `
@@ -2693,6 +2693,11 @@
                 dropdown.innerHTML = `<div class="p-3 text-xs text-zinc-500 text-center">無相符的賽事日期</div>`;
                 dropdown.classList.remove('hidden');
             }
+
+            // 即時動態連動右側賽事下拉選單與下方成績預覽
+            currentDateValue = input;
+            updateLinkedMeetsDropdown(input, matches);
+            renderFilteredSamples();
         }
 
         function selectDate(dateStr) {
@@ -2705,19 +2710,40 @@
             renderFilteredSamples();
         }
 
-        function updateLinkedMeetsDropdown(dateStr) {
+        function updateLinkedMeetsDropdown(queryStr, matchedDates) {
             const selectEl = document.getElementById('linkedMeetSelect');
             const hintEl = document.getElementById('linkedMeetHint');
 
             if (!dashboardData) return;
 
-            const linkedMeets = (dashboardData.date_to_meets && dashboardData.date_to_meets[dateStr]) || [];
-            
+            let targetDates = matchedDates;
+            if (!targetDates) {
+                if (queryStr) {
+                    targetDates = (dashboardData.all_dates || []).filter(d => d.startsWith(queryStr) || d.includes(queryStr));
+                } else {
+                    targetDates = [];
+                }
+            }
+
+            const meetSet = new Set();
+            targetDates.forEach(d => {
+                const meets = (dashboardData.date_to_meets && dashboardData.date_to_meets[d]) || [];
+                meets.forEach(m => meetSet.add(m));
+            });
+            const linkedMeets = Array.from(meetSet);
+
             if (linkedMeets.length > 0) {
-                hintEl.innerText = `該日共有 ${linkedMeets.length} 場賽事`;
-                hintEl.className = 'text-[11px] font-mono text-emerald-400';
+                if (queryStr.length === 4) {
+                    hintEl.innerText = `${queryStr} 年共 ${linkedMeets.length} 場賽事 (${targetDates.length} 個比賽日)`;
+                } else if (queryStr.length === 8) {
+                    hintEl.innerText = `該日共有 ${linkedMeets.length} 場賽事`;
+                } else {
+                    hintEl.innerText = `相符賽事：${linkedMeets.length} 場 (${targetDates.length} 個比賽日)`;
+                }
+                hintEl.className = 'text-[11px] font-mono text-emerald-400 font-bold';
                 
-                let html = `<option value="">-- 當日全部賽事 (${linkedMeets.length} 場) --</option>`;
+                const labelPrefix = queryStr.length === 4 ? `${queryStr} 年度全部賽事` : (queryStr.length === 8 ? '當日全部賽事' : '相符全部賽事');
+                let html = `<option value="">-- ${labelPrefix} (${linkedMeets.length} 場) --</option>`;
                 linkedMeets.forEach(m => {
                     html += `<option value="${m}">${m}</option>`;
                 });
@@ -2727,7 +2753,7 @@
                 hintEl.className = 'text-[11px] font-mono text-zinc-500';
                 
                 let html = `<option value="">-- 全部賽事 --</option>`;
-                (dashboardData.all_meet_names || []).slice(0, 30).forEach(m => {
+                (dashboardData.all_meet_names || []).slice(0, 50).forEach(m => {
                     html += `<option value="${m}">${m}</option>`;
                 });
                 selectEl.innerHTML = html;
@@ -2751,18 +2777,25 @@
 
         async function renderFilteredSamples() {
             const dateStr = currentDateValue;
-            const selectedMeet = document.getElementById('linkedMeetSelect').value;
+            const selectEl = document.getElementById('linkedMeetSelect');
+            const selectedMeet = selectEl ? selectEl.value : '';
             const tbody = document.getElementById('sampleTableBody');
 
-            document.getElementById('currentDateLabel').innerHTML = `當前檢視：<span class="gold-gradient-text font-bold">${dateStr}</span> ${selectedMeet ? '· ' + selectedMeet : ''}`;
+            document.getElementById('currentDateLabel').innerHTML = `當前檢視：<span class="gold-gradient-text font-bold">${dateStr || '全部'}</span> ${selectedMeet ? '· ' + selectedMeet : ''}`;
 
             if (!IS_CLOUD_ENV) {
                 try {
                     let whereClauses = [];
-                    if (dateStr) whereClauses.push(`年份 = '${dateStr}'`);
+                    if (dateStr) {
+                        if (dateStr.length === 8) {
+                            whereClauses.push(`年份 = '${dateStr}'`);
+                        } else {
+                            whereClauses.push(`年份 LIKE '${dateStr}%'`);
+                        }
+                    }
                     if (selectedMeet) whereClauses.push(`賽事名稱 = '${selectedMeet.replace(/'/g, "''")}'`);
                     const whereSql = whereClauses.length > 0 ? 'WHERE ' + whereClauses.join(' AND ') : '';
-                    const sql = `SELECT 年份, 名次, 姓名, 出生年, 單位, 項目, 成績, 賽事名稱 FROM swimming_scores ${whereSql} ORDER BY CAST(名次 AS INTEGER) ASC LIMIT 5`;
+                    const sql = `SELECT 年份, 名次, 姓名, 出生年, 單位, 項目, 成績, 賽事名稱 FROM swimming_scores ${whereSql} ORDER BY 年份 DESC, CAST(名次 AS INTEGER) ASC LIMIT 5`;
 
                     const resp = await fetch('/api/local_query', {
                         method: 'POST',
@@ -2792,22 +2825,25 @@
             }
 
             let samples = [];
-            if (dashboardData && dashboardData.date_meet_samples && dashboardData.date_meet_samples[dateStr]) {
-                if (selectedMeet && dashboardData.date_meet_samples[dateStr][selectedMeet]) {
-                    samples = dashboardData.date_meet_samples[dateStr][selectedMeet].slice(0, 5);
-                } else if (!selectedMeet) {
-                    const allMeetsOnDate = Object.values(dashboardData.date_meet_samples[dateStr]);
-                    samples = allMeetsOnDate.flat().slice(0, 5);
+            if (dashboardData) {
+                const matchedDates = (dashboardData.all_dates || []).filter(d => dateStr ? (d.startsWith(dateStr) || d.includes(dateStr)) : true);
+                for (const d of matchedDates) {
+                    if (dashboardData.date_meet_samples && dashboardData.date_meet_samples[d]) {
+                        if (selectedMeet && dashboardData.date_meet_samples[d][selectedMeet]) {
+                            samples.push(...dashboardData.date_meet_samples[d][selectedMeet]);
+                        } else if (!selectedMeet) {
+                            Object.values(dashboardData.date_meet_samples[d]).forEach(arr => samples.push(...arr));
+                        }
+                    } else if (dashboardData.date_samples && dashboardData.date_samples[d]) {
+                        let list = dashboardData.date_samples[d];
+                        if (selectedMeet) list = list.filter(r => r.meet === selectedMeet || r.meet.includes(selectedMeet));
+                        samples.push(...list);
+                    }
+                    if (samples.length >= 5) break;
                 }
             }
 
-            if (samples.length === 0 && dashboardData && dashboardData.date_samples && dashboardData.date_samples[dateStr]) {
-                let fallback = dashboardData.date_samples[dateStr];
-                if (selectedMeet) fallback = fallback.filter(r => r.meet === selectedMeet || r.meet.includes(selectedMeet));
-                samples = fallback.slice(0, 5);
-            }
-
-            renderRowsToTable(samples, dateStr, selectedMeet);
+            renderRowsToTable(samples.slice(0, 5), dateStr, selectedMeet);
         }
 
         function renderRowsToTable(samples, dateStr, selectedMeet) {
@@ -2842,9 +2878,12 @@
         }
 
         function clearDateProbe() {
+            currentDateValue = '';
             document.getElementById('dateProbeInput').value = '';
             document.getElementById('suggestDropdown').classList.add('hidden');
             document.getElementById('clearDateBtn').classList.add('hidden');
+            updateLinkedMeetsDropdown('');
+            renderFilteredSamples();
         }
 
         document.addEventListener('click', (e) => {
