@@ -1,7 +1,7 @@
 {
   "status": "success",
-  "updated_at": "2026-10-10 14:50:24",
-  "total_logs": 133,
+  "updated_at": "2026-10-10 19:36:00",
+  "total_logs": 140,
   "hot_swimmers": [
     {
       "name": "鄭向恩",
@@ -45,6 +45,76 @@
     }
   ],
   "logs": [
+    {
+      "time": "2026/10/10 下午7:35:12",
+      "ip": "114.34.*.89",
+      "location": "Taiwan Taipei",
+      "swimmer": "王冠閎",
+      "page": "/",
+      "mode": "PB",
+      "device": "Mac (macOS)",
+      "channel": "一般瀏覽器"
+    },
+    {
+      "time": "2026/10/10 下午7:32:45",
+      "ip": "114.34.*.89",
+      "location": "Taiwan Taipei",
+      "swimmer": "莊沐倫",
+      "page": "/",
+      "mode": "PB",
+      "device": "Mac (macOS)",
+      "channel": "一般瀏覽器"
+    },
+    {
+      "time": "2026/10/10 下午7:28:10",
+      "ip": "114.34.*.89",
+      "location": "Taiwan Taipei",
+      "swimmer": "林姵彣",
+      "page": "/",
+      "mode": "PB",
+      "device": "Mac (macOS)",
+      "channel": "一般瀏覽器"
+    },
+    {
+      "time": "2026/10/10 下午7:15:30",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "王冠閎;莊沐倫",
+      "page": "/",
+      "mode": "PK",
+      "device": "iPhone (iOS)",
+      "channel": "PWA 獨立 App"
+    },
+    {
+      "time": "2026/10/10 下午6:50:22",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "鄭向恩",
+      "page": "/",
+      "mode": "PB",
+      "device": "iPhone (iOS)",
+      "channel": "PWA 獨立 App"
+    },
+    {
+      "time": "2026/10/10 下午5:40:18",
+      "ip": "111.240.*.62",
+      "location": "Taiwan New Taipei",
+      "swimmer": "何康婗",
+      "page": "/",
+      "mode": "PB",
+      "device": "Android",
+      "channel": "一般瀏覽器"
+    },
+    {
+      "time": "2026/10/10 下午5:12:05",
+      "ip": "111.240.*.62",
+      "location": "Taiwan New Taipei",
+      "swimmer": "李秉諺",
+      "page": "/",
+      "mode": "PB",
+      "device": "Android",
+      "channel": "一般瀏覽器"
+    },
     {
       "time": "2026/10/9 下午4:40:02",
       "ip": "36.236.*.148",

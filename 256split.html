@@ -847,12 +847,48 @@
                 console.warn("Direct Sheet log fail:", err);
             }
 
-            // ❷ 雙通道 B：同步發送至 Vercel Serverless /api/log_query (Telegram 推播與 JSONBlob 備份)
+            // ❷ 雙通道 B：同步發送至 Vercel Serverless /api/log_query (Telegram 推播與備份)
             fetch('/api/log_query', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ swimmer: swimmerName, page: pageStr })
             }).catch(err => console.warn("Vercel Telemetry log skipped:", err));
+
+            // ❸ 跨分頁即時廣播通道 (BroadcastChannel & LocalStorage)
+            try {
+                const isPk = swimmerName.includes(';') || swimmerName.includes('；');
+                const isSim = swimmerName.includes('/SIM') || swimmerName.includes('得獎模擬');
+                const isStd = swimmerName.includes('/STD') || swimmerName.includes('達標');
+                const isRank = swimmerName.includes('/RANK') || swimmerName.includes('排行');
+                const modeStr = isPk ? 'PK' : (isSim ? 'SIM' : (isStd ? 'STD' : (isRank ? 'RANK' : 'PB')));
+                
+                let devStr = '一般瀏覽器';
+                if (navigator.userAgent.includes('iPhone')) devStr = 'iPhone (iOS)';
+                else if (navigator.userAgent.includes('iPad')) devStr = 'iPad (iPadOS)';
+                else if (navigator.userAgent.includes('Macintosh')) devStr = 'Mac (macOS)';
+                else if (navigator.userAgent.includes('Android')) devStr = 'Android';
+                else if (navigator.userAgent.includes('Windows')) devStr = 'Windows PC';
+
+                const chStr = window.matchMedia('(display-mode: standalone)').matches ? 'PWA 獨立 App' : '一般瀏覽器';
+
+                const localEntry = {
+                    time: nowStr,
+                    ip: '即時查詢',
+                    location: '台灣',
+                    swimmer: swimmerName,
+                    page: pageStr,
+                    mode: modeStr,
+                    device: devStr,
+                    channel: chStr
+                };
+
+                const bc = new BroadcastChannel('swimming_pwa_query_channel');
+                bc.postMessage(localEntry);
+
+                let localLogs = JSON.parse(localStorage.getItem('swimming_pwa_live_queries') || '[]');
+                localLogs.unshift(localEntry);
+                localStorage.setItem('swimming_pwa_live_queries', JSON.stringify(localLogs.slice(0, 50)));
+            } catch(e) {}
         }
 
         // ☁️ 將查詢紀錄自動寫入大仁哥的 Google 雲端空間檔案 (包含使用者地點與詳細成績)

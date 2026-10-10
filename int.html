@@ -2267,12 +2267,18 @@
                 const logTime = logDate.getTime();
                 
                 if (currentRadarFilter === 'today') {
-                    // 若今日筆數較少，匹配最近一天
-                    return logTime >= todayStart || log.time.includes(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`) || log.time.includes(`${now.getFullYear()}-10-09`) || log.time.includes('10/9') || log.time.includes('10/10');
+                    const isSameDay = logDate.getFullYear() === now.getFullYear() && 
+                                      logDate.getMonth() === now.getMonth() && 
+                                      logDate.getDate() === now.getDate();
+                    const dateStrMatch = log.time && (
+                        log.time.includes(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`) ||
+                        log.time.includes(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`)
+                    );
+                    return isSameDay || dateStrMatch;
                 } else if (currentRadarFilter === 'week') {
-                    return logTime >= weekStart || true;
+                    return logTime >= weekStart;
                 } else if (currentRadarFilter === 'month') {
-                    return logTime >= monthStart || true;
+                    return logTime >= monthStart;
                 }
                 return true;
             });
@@ -2528,20 +2534,47 @@
                 } catch(e) {}
 
                 if (!data || !data.logs || data.logs.length === 0) {
-                    const fallbackRes = await fetch('/static/visitor_query_logs.json?t=' + Date.now());
+                    const fallbackUrl = IS_CLOUD_ENV
+                        ? `${GCS_BASE_URL}/visitor_query_logs.json?t=${Date.now()}`
+                        : `/static/visitor_query_logs.json?t=${Date.now()}`;
+                    const fallbackRes = await fetch(fallbackUrl);
                     if (fallbackRes.ok) {
                         data = await fallbackRes.json();
                     }
                 }
 
-                if (!data || !data.logs) return;
+                if (data && data.logs) {
+                    allVisitorLogs = data.logs || [];
+                }
 
-                allVisitorLogs = data.logs || [];
+                // 注入本機即時查詢 (localStorage)
+                try {
+                    const localQueries = JSON.parse(localStorage.getItem('swimming_pwa_live_queries') || '[]');
+                    if (localQueries.length > 0) {
+                        localQueries.forEach(lq => {
+                            if (!allVisitorLogs.some(e => e.time === lq.time && e.swimmer === lq.swimmer)) {
+                                allVisitorLogs.unshift(lq);
+                            }
+                        });
+                    }
+                } catch(e) {}
+
                 applyRadarAnalyticsFilter();
             } catch(err) {
                 console.warn("無法取得訪客查詢日誌:", err);
             }
         }
+
+        // 監聽跨分頁即時廣播通道 (秒級推播)
+        try {
+            const queryChannel = new BroadcastChannel('swimming_pwa_query_channel');
+            queryChannel.onmessage = (event) => {
+                if (event.data && event.data.swimmer) {
+                    allVisitorLogs.unshift(event.data);
+                    applyRadarAnalyticsFilter();
+                }
+            };
+        } catch(e) {}
 
         function toggleAutoRefreshLogs(enable) {
             if (autoRefreshLogsTimer) {
@@ -2549,7 +2582,7 @@
                 autoRefreshLogsTimer = null;
             }
             if (enable) {
-                autoRefreshLogsTimer = setInterval(fetchVisitorQueryLogs, 10000);
+                autoRefreshLogsTimer = setInterval(fetchVisitorQueryLogs, 5000);
             }
         }
 
