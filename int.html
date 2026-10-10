@@ -1743,15 +1743,18 @@
 
             <!-- GCP 雲端爬蟲錯誤與自愈修復日誌檢視中心 -->
             <section class="tech-card p-6 space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
                     <div>
                         <h3 class="text-base font-bold text-zinc-200 flex items-center gap-2">
                             <i class="fa-solid fa-triangle-exclamation gold-gradient-icon"></i>
-                            <span>GCP 爬蟲執行與自愈修復日誌 (Error Logs)</span>
+                            <span>GCP 爬蟲執行與每日黑盒子自愈日誌 (Crawler Audit Logs)</span>
                         </h3>
-                        <p class="text-xs text-zinc-400">監控每日 06:00 爬蟲狀態、格式異常警告、AI 自我修復軌跡與熔斷保護機制</p>
+                        <p class="text-xs text-zinc-400">監控每日 06:00 爬蟲狀態、7 大協會連線延遲、格式異常現場 Snapshot 與 30 天滾動追溯</p>
                     </div>
                     <div class="flex items-center gap-2 text-xs font-mono">
+                        <select id="crawlerHistorySelect" onchange="onCrawlerHistoryChange(this.value)" class="tech-select text-xs font-mono py-1.5 px-3 rounded-lg border-zinc-700 bg-zinc-900 text-zinc-200">
+                            <option value="">載入歷史日期中...</option>
+                        </select>
                         <span id="logStatusBadge" class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                             <span>系統健康</span>
@@ -1766,36 +1769,51 @@
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
                     <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
                         <div class="text-zinc-500 text-[11px]">最後執行時間</div>
-                        <div id="logLastRunTime" class="text-zinc-200 font-bold mt-1 text-sm">2026-10-05 21:14</div>
+                        <div id="logLastRunTime" class="text-zinc-200 font-bold mt-1 text-sm">--</div>
                     </div>
                     <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
                         <div class="text-zinc-500 text-[11px]">自愈熔斷器</div>
                         <div id="logCircuitBreaker" class="text-emerald-400 font-bold mt-1 text-sm">正常 (0/3)</div>
                     </div>
                     <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                        <div class="text-zinc-500 text-[11px]">異常記錄筆數</div>
+                        <div class="text-zinc-500 text-[11px]">異常診斷記錄</div>
                         <div id="logErrorCount" class="text-zinc-200 font-bold mt-1 text-sm">0 筆</div>
                     </div>
                     <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                        <div class="text-zinc-500 text-[11px]">雲端儲存路徑</div>
-                        <div class="text-zinc-400 font-mono mt-1 text-[11px] truncate" title="GitHub: /static/crawler_error_logs.json">GitHub 永久存檔</div>
+                        <div class="text-zinc-500 text-[11px]">全台監控賽事總數</div>
+                        <div id="logTotalActiveRaces" class="text-amber-300 font-bold mt-1 text-sm">-- 場</div>
                     </div>
+                </div>
+
+                <!-- 7 大就緒泳協實體探針微觀指標雷達 -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between text-xs text-zinc-400 font-semibold">
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-tower-broadcast text-amber-400"></i>
+                            <span>全台 7 大泳協官方伺服器即時探針指標 (Network Probes Radar)</span>
+                        </span>
+                        <span class="text-[11px] font-mono text-zinc-500">毫秒延遲 · 封包酬載 · 檢出賽事</span>
+                    </div>
+                    <div id="probesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                        <!-- 動態注入各泳協探針卡片 -->
+                    </div>
+                </div>
+
+                <!-- 黑盒子現場還原與異常診斷區 -->
+                <div id="blackboxSection" class="space-y-2">
+                    <!-- 動態注入錯誤 Snapshot 或健康提示 -->
                 </div>
 
                 <!-- 實體日誌控制台終端窗口 -->
                 <div class="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 font-mono text-xs overflow-hidden">
                     <div class="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800/80 text-[11px] text-zinc-500">
-                        <span>CONSOLE OUTPUT (固定同步至 GitHub 倉庫)</span>
+                        <span>CONSOLE OUTPUT (30-Day Audit Stream)</span>
                         <span id="logUpdateTimestamp">LIVE STREAM</span>
                     </div>
                     <div id="errorLogConsole" class="space-y-1.5 max-h-56 overflow-y-auto text-zinc-300 pr-2">
                         <div class="text-emerald-400/90 flex items-start gap-2">
-                            <span class="text-zinc-600">[21:14:00]</span>
-                            <span>[INFO] GCP 雲端管理系統就緒，Cloud Scheduler 鬧鐘鎖定每日 06:00 (Asia/Taipei)。</span>
-                        </div>
-                        <div class="text-zinc-400 flex items-start gap-2">
-                            <span class="text-zinc-600">[21:14:00]</span>
-                            <span>[MONITOR] 3-Attempt Circuit Breaker 已掛載，若遇官方格式異常自動啟動 AI 自我修復。</span>
+                            <span class="text-zinc-600">[--:--:--]</span>
+                            <span>[INFO] GCP 雲端日誌載入中...</span>
                         </div>
                     </div>
                 </div>
@@ -3197,46 +3215,182 @@
             if (updateTs) updateTs.textContent = new Date().toLocaleTimeString('zh-TW');
 
             try {
+        let globalCrawlerLogs = null;
+
+        async function fetchCrawlerLogs() {
+            const lastTimeEl = document.getElementById('logLastRunTime');
+            const breakerEl = document.getElementById('logCircuitBreaker');
+            const errorCountEl = document.getElementById('logErrorCount');
+            const totalRacesEl = document.getElementById('logTotalActiveRaces');
+            const statusBadge = document.getElementById('logStatusBadge');
+            const hudGcp = document.getElementById('hudGcpStatus');
+            const historySelect = document.getElementById('crawlerHistorySelect');
+
+            try {
                 const logsUrl = IS_CLOUD_ENV 
                     ? `${GCS_BASE_URL}/crawler_error_logs.json?t=${Date.now()}`
                     : `/static/crawler_error_logs.json?t=${Date.now()}`;
                 const res = await fetch(logsUrl);
                 if (!res.ok) return;
                 const data = await res.json();
-                if (lastTimeEl) lastTimeEl.textContent = data.last_crawl_time || '尚未執行';
-                if (breakerEl) breakerEl.textContent = data.circuit_breaker || '正常 (0/3)';
-                if (errorCountEl) errorCountEl.textContent = `${data.error_count || 0} 筆`;
-                
-                if (hudGcp) {
-                    hudGcp.innerText = data.status === 'CIRCUIT_BROKEN' ? '⚠️ 已熔斷保護' : '每日 06:00 健康';
+                globalCrawlerLogs = data;
+
+                // 渲染 30 天歷史存檔下拉選單
+                if (historySelect && data.history && data.history.length > 0) {
+                    historySelect.innerHTML = data.history.map((h, idx) => {
+                        const isLatest = idx === 0 ? ' (最新)' : '';
+                        const errText = h.error_count > 0 ? ` [⚠️ ${h.error_count} 異常]` : ' [HEALTHY]';
+                        return `<option value="${h.date}">${h.date}${isLatest} · ${h.total_races || 77}場賽事${errText}</option>`;
+                    }).join('');
                 }
 
-                if (statusBadge) {
-                    if (data.status === 'CIRCUIT_BROKEN') {
-                        statusBadge.className = 'px-2.5 py-1 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 font-semibold flex items-center gap-1.5';
-                        statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span><span>已熔斷 (中斷保護)</span>';
-                    } else if (data.status === 'WAITING_FIRST_RUN') {
-                        statusBadge.className = 'px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold flex items-center gap-1.5';
-                        statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>等待首次執行</span>';
-                    } else {
-                        statusBadge.className = 'px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold flex items-center gap-1.5';
-                        statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>系統健康</span>';
-                    }
-                }
-                if (consoleEl && data.recent_logs && data.recent_logs.length > 0) {
-                    const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-                    consoleEl.textContent = '';
-                    data.recent_logs.forEach(l => {
-                        const timeStr = l.timestamp ? (l.timestamp.includes(' ') ? l.timestamp.split(' ')[1] : l.timestamp) : '';
-                        const colorClass = l.level === 'ERROR' ? 'text-rose-400' : (l.level === 'WARN' ? 'text-amber-400' : 'text-emerald-400/90');
-                        const row = document.createElement('div');
-                        row.className = `${colorClass} flex items-start gap-2`;
-                        row.innerHTML = `<span class="text-zinc-600">[${esc(timeStr)}]</span><span>[${esc(l.component || l.level)}] ${esc(l.message)}</span>`;
-                        consoleEl.appendChild(row);
-                    });
-                }
+                renderCrawlerLogData(data);
             } catch(e) {
                 console.warn("無法取得爬蟲日誌:", e);
+            }
+        }
+
+        async function onCrawlerHistoryChange(selectedDate) {
+            if (!selectedDate) return;
+            try {
+                const dailyUrl = IS_CLOUD_ENV
+                    ? `${GCS_BASE_URL}/crawler_logs/crawler_log_${selectedDate}.json?t=${Date.now()}`
+                    : `/static/crawler_logs/crawler_log_${selectedDate}.json?t=${Date.now()}`;
+                const res = await fetch(dailyUrl);
+                if (res.ok) {
+                    const dailyData = await res.json();
+                    renderCrawlerLogData(dailyData);
+                    return;
+                }
+            } catch (e) {
+                console.warn("無法讀取歷史獨立日誌:", e);
+            }
+            if (globalCrawlerLogs) {
+                renderCrawlerLogData(globalCrawlerLogs);
+            }
+        }
+
+        function renderCrawlerLogData(data) {
+            const lastTimeEl = document.getElementById('logLastRunTime');
+            const breakerEl = document.getElementById('logCircuitBreaker');
+            const errorCountEl = document.getElementById('logErrorCount');
+            const totalRacesEl = document.getElementById('logTotalActiveRaces');
+            const statusBadge = document.getElementById('logStatusBadge');
+            const hudGcp = document.getElementById('hudGcpStatus');
+            const consoleEl = document.getElementById('errorLogConsole');
+            const probesGrid = document.getElementById('probesGrid');
+            const blackboxSection = document.getElementById('blackboxSection');
+            const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+            if (lastTimeEl) lastTimeEl.textContent = data.last_crawl_time || data.crawl_time || '尚未執行';
+            if (breakerEl) breakerEl.textContent = data.circuit_breaker || '正常 (0/3)';
+            if (errorCountEl) errorCountEl.textContent = `${data.error_count || 0} 筆`;
+            if (totalRacesEl) totalRacesEl.textContent = `${data.total_active_races || 0} 場`;
+            
+            if (hudGcp) {
+                hudGcp.innerText = data.status === 'CIRCUIT_BROKEN' ? '⚠️ 已熔斷保護' : '每日 06:00 健康';
+            }
+
+            if (statusBadge) {
+                if (data.status === 'CIRCUIT_BROKEN') {
+                    statusBadge.className = 'px-2.5 py-1 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 font-semibold flex items-center gap-1.5';
+                    statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span><span>已熔斷 (中斷保護)</span>';
+                } else if (data.status === 'WAITING_FIRST_RUN') {
+                    statusBadge.className = 'px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold flex items-center gap-1.5';
+                    statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>等待首次執行</span>';
+                } else {
+                    statusBadge.className = 'px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold flex items-center gap-1.5';
+                    statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>系統健康</span>';
+                }
+            }
+
+            // 渲染 7 大泳協實體探針卡片
+            if (probesGrid && data.network_probes && data.network_probes.length > 0) {
+                probesGrid.innerHTML = data.network_probes.map(pb => {
+                    const isOk = pb.status === 'SUCCESS' || pb.http_status === 200;
+                    const statusColor = isOk ? 'text-emerald-400' : 'text-rose-400';
+                    const badgeBg = isOk ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400';
+                    const latency = pb.latency_ms || 0;
+                    const latencyColor = latency < 300 ? 'text-emerald-400' : (latency < 800 ? 'text-amber-400' : 'text-rose-400');
+                    const kb = pb.response_bytes ? Math.round(pb.response_bytes / 1024) : 0;
+                    const samples = (pb.sample_races || []).slice(0, 2).map(r => `<span class="truncate block text-[10px] text-zinc-400">• ${esc(r)}</span>`).join('');
+
+                    return `
+                        <div class="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-2 hover:border-zinc-700 transition">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-xs text-zinc-100">${esc(pb.org_name)}</span>
+                                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono border ${badgeBg}">HTTP ${pb.http_status || 200}</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-1 text-[11px] font-mono">
+                                <div>
+                                    <span class="text-zinc-500 text-[10px] block">延遲</span>
+                                    <span class="${latencyColor} font-bold">${latency}ms</span>
+                                </div>
+                                <div>
+                                    <span class="text-zinc-500 text-[10px] block">封包</span>
+                                    <span class="text-zinc-300 font-bold">${kb}KB</span>
+                                </div>
+                                <div>
+                                    <span class="text-zinc-500 text-[10px] block">檢出賽事</span>
+                                    <span class="text-amber-300 font-bold">${pb.races_found || 0}場</span>
+                                </div>
+                            </div>
+                            ${samples ? `<div class="pt-1 border-t border-zinc-800/60">${samples}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 渲染黑盒子現場還原區
+            if (blackboxSection) {
+                const snapshots = data.debug_snapshots || data.recent_errors || [];
+                if (snapshots.length > 0) {
+                    blackboxSection.innerHTML = `
+                        <div class="p-4 rounded-xl bg-rose-950/30 border border-rose-900/50 space-y-3">
+                            <div class="flex items-center gap-2 text-rose-400 text-xs font-bold">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <span>黑盒子現場還原：偵測到 ${snapshots.length} 項採集異常 Snapshot</span>
+                            </div>
+                            ${snapshots.map((s, idx) => `
+                                <details class="rounded-lg bg-black/40 border border-rose-900/30 p-3 text-xs font-mono">
+                                    <summary class="cursor-pointer text-rose-300 font-bold flex items-center justify-between">
+                                        <span>#${idx+1} 【${esc(s.target_org || s.event_name || '未知賽事')}】 ${esc(s.error_type || '解析異常')} (HTTP ${s.http_status || 500})</span>
+                                        <span class="text-[10px] text-zinc-500">點擊展開現場 Raw Data</span>
+                                    </summary>
+                                    <div class="mt-2.5 pt-2 border-t border-zinc-800 space-y-2 text-[11px]">
+                                        <div><span class="text-zinc-500">請求網址：</span><a href="${esc(s.url)}" target="_blank" class="text-sky-400 underline">${esc(s.url)}</a></div>
+                                        <div><span class="text-zinc-500">錯誤訊息：</span><span class="text-rose-400">${esc(s.error_message)}</span></div>
+                                        ${s.stack_trace ? `<div><span class="text-zinc-500">Stack Trace：</span><pre class="p-2 bg-zinc-950 rounded text-[10px] text-zinc-400 overflow-x-auto">${esc(s.stack_trace)}</pre></div>` : ''}
+                                        ${s.raw_html_sample ? `<div><span class="text-zinc-500">現場 Response 前 500 字元：</span><pre class="p-2 bg-zinc-950 rounded text-[10px] text-amber-200/80 overflow-x-auto">${esc(s.raw_html_sample)}</pre></div>` : ''}
+                                    </div>
+                                </details>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    blackboxSection.innerHTML = `
+                        <div class="p-3.5 rounded-xl bg-zinc-900/40 border border-zinc-800/80 flex items-center justify-between text-xs font-mono">
+                            <span class="text-emerald-400 flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>黑盒子自愈健康門禁：7 大主辦單位伺服器連線正常，0 筆解析異常或格式破損</span>
+                            </span>
+                            <span class="text-zinc-500 text-[11px]">30-Day Zero-Loss Vault</span>
+                        </div>
+                    `;
+                }
+            }
+
+            // 渲染終端機 Console 日誌
+            if (consoleEl && data.recent_logs && data.recent_logs.length > 0) {
+                consoleEl.textContent = '';
+                data.recent_logs.forEach(l => {
+                    const timeStr = l.timestamp ? (l.timestamp.includes(' ') ? l.timestamp.split(' ')[1] : l.timestamp) : '';
+                    const colorClass = l.level === 'ERROR' ? 'text-rose-400 font-bold' : (l.level === 'WARN' ? 'text-amber-400' : 'text-emerald-400/90');
+                    const row = document.createElement('div');
+                    row.className = `${colorClass} flex items-start gap-2`;
+                    row.innerHTML = `<span class="text-zinc-600">[${esc(timeStr)}]</span><span>[${esc(l.component || l.level)}] ${esc(l.message)}</span>`;
+                    consoleEl.appendChild(row);
+                });
             }
         }
 
