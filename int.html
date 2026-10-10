@@ -3331,12 +3331,33 @@
                     }
                 }
 
-                const catUrl = IS_CLOUD_ENV 
-                    ? `${GCS_BASE_URL}/org_races_catalog.json?t=${Date.now()}`
-                    : `/static/org_races_catalog.json?t=${Date.now()}`;
-                const catRes = await fetch(catUrl);
-                if (catRes.ok) {
-                    catalogData = await catRes.json();
+                let loadedCatalog = null;
+                try {
+                    const gcsUrl = `${GCS_BASE_URL}/org_races_catalog.json?t=${Date.now()}`;
+                    const resGcs = await fetch(gcsUrl);
+                    if (resGcs.ok) loadedCatalog = await resGcs.json();
+                } catch(e) {}
+                
+                try {
+                    const localUrl = `/static/org_races_catalog.json?t=${Date.now()}`;
+                    const resLoc = await fetch(localUrl);
+                    if (resLoc.ok) {
+                        const localCat = await resLoc.json();
+                        if (!loadedCatalog) {
+                            loadedCatalog = localCat;
+                        } else {
+                            if (!loadedCatalog.site_catalog) loadedCatalog.site_catalog = {};
+                            for (const k in (localCat.site_catalog || {})) {
+                                if (!loadedCatalog.site_catalog[k] || !loadedCatalog.site_catalog[k].races || loadedCatalog.site_catalog[k].races.length === 0) {
+                                    loadedCatalog.site_catalog[k] = localCat.site_catalog[k];
+                                }
+                            }
+                        }
+                    }
+                } catch(e) {}
+                
+                if (loadedCatalog) {
+                    catalogData = loadedCatalog;
                     handleUnifiedOrgChange();
                 }
 
