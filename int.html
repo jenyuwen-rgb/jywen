@@ -2005,8 +2005,14 @@
                     console.warn("無法取得 256split manifest.json:", mfErr);
                 }
 
-                // 2. 讀取賽事與日期探針種子資料
-                const seedRes = await fetch('/static/int_dashboard_seed.json');
+                // 2. 讀取賽事與日期探針種子資料 (優先從 GCS 雲端讀取最新發布種子，若無則降級本地)
+                const seedUrl = IS_CLOUD_ENV 
+                    ? `${GCS_BASE_URL}/int_dashboard_seed.json?t=${Date.now()}`
+                    : `/static/int_dashboard_seed.json?t=${Date.now()}`;
+                let seedRes = await fetch(seedUrl);
+                if (!seedRes.ok && IS_CLOUD_ENV) {
+                    seedRes = await fetch(`/static/int_dashboard_seed.json?t=${Date.now()}`);
+                }
                 if (seedRes.ok) {
                     dashboardData = await seedRes.json();
                     document.getElementById('dateTotalCount').innerText = dashboardData.all_dates.length;
