@@ -2869,7 +2869,6 @@
                 console.warn("無法取得訪客查詢日誌:", err);
             }
         }
-        }
 
         // 監聽跨分頁即時廣播通道 (秒級推播)
         try {
@@ -3542,18 +3541,6 @@
             }
         }
 
-        async function fetchCrawlerLogs() {
-            const consoleEl = document.getElementById('errorLogConsole');
-            const statusBadge = document.getElementById('logStatusBadge');
-            const lastTimeEl = document.getElementById('logLastRunTime');
-            const breakerEl = document.getElementById('logCircuitBreaker');
-            const errorCountEl = document.getElementById('logErrorCount');
-            const updateTs = document.getElementById('logUpdateTimestamp');
-            const hudGcp = document.getElementById('hudGcpStatus');
-
-            if (updateTs) updateTs.textContent = new Date().toLocaleTimeString('zh-TW');
-
-            try {
         let globalCrawlerLogs = null;
 
         async function fetchCrawlerLogs() {
