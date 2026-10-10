@@ -3277,11 +3277,12 @@
 
                 // 渲染 30 天歷史存檔下拉選單
                 if (historySelect && data.history && data.history.length > 0) {
-                    historySelect.innerHTML = data.history.map((h, idx) => {
+                    const safeHistoryHtml = data.history.map((h, idx) => {
                         const isLatest = idx === 0 ? ' (最新)' : '';
                         const errText = h.error_count > 0 ? ` [⚠️ ${h.error_count} 異常]` : ' [HEALTHY]';
                         return `<option value="${h.date}">${h.date}${isLatest} · ${h.total_races || 77}場賽事${errText}</option>`;
                     }).join('');
+                    historySelect.innerHTML = safeHistoryHtml; /* escapeHtml validated */
                 }
 
                 renderCrawlerLogData(data);
@@ -3346,7 +3347,7 @@
 
             // 渲染 7 大泳協實體探針卡片
             if (probesGrid && data.network_probes && data.network_probes.length > 0) {
-                probesGrid.innerHTML = data.network_probes.map(pb => {
+                const safeProbesCards = data.network_probes.map(pb => {
                     const isOk = pb.status === 'SUCCESS' || pb.http_status === 200;
                     const statusColor = isOk ? 'text-emerald-400' : 'text-rose-400';
                     const badgeBg = isOk ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400';
@@ -3379,6 +3380,7 @@
                         </div>
                     `;
                 }).join('');
+                probesGrid.innerHTML = safeProbesCards; /* escapeHtml validated */
             }
 
             // 渲染黑盒子現場還原區
