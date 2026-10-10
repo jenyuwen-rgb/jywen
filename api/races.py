@@ -134,14 +134,27 @@ def fetch_site_tpesa_races():
 def fetch_site_ntpc_races():
     """新北市體育總會游泳委員會 (NTPC)"""
     return [
+        {"text": "新北市115年小學運動會【游泳】(SPNET)", "value": "https://sports.spnet.tw/stutea115/qryprocess.php?mCat=%E6%B8%B8%E6%B3%B3"},
+        {"text": "新北市115年中等學校運動會【游泳】(SPNET)", "value": "https://sports.spnet.tw/cenm115/qryprocess.php?mCat=%E6%B8%B8%E6%B3%B3"},
+        {"text": "新北市115年度基層運動選手訓練站游泳區域性對抗賽 (SPNET)", "value": "https://www.spnet.tw/cmswim115/showplan.php"},
+        {"text": "新北市115學年度小學游泳對抗賽 (SPNET)", "value": "https://www.spnet.tw/ceswim115/showplan.php"},
+        {"text": "新北市114年小學運動會【游泳】(SPNET)", "value": "https://sports.spnet.tw/stutea114/qryprocess.php?mCat=%E6%B8%B8%E6%B3%B3"},
+        {"text": "新北市114年中等學校運動會【游泳】(SPNET)", "value": "https://sports.spnet.tw/cenm114/qryprocess.php?mCat=%E6%B8%B8%E6%B3%B3"},
+        {"text": "新北市114年度基層運動選手訓練站游泳區域性對抗賽 (SPNET)", "value": "https://www.spnet.tw/cmswim114/showplan.php"},
+        {"text": "新北市114學年度小學游泳對抗賽 (SPNET)", "value": "https://www.spnet.tw/ceswim114/showplan.php"},
+        {"text": "新北市113年小學運動會【游泳】(SPNET)", "value": "https://sports.spnet.tw/stutea113/qryprocess.php?mCat=%E6%B8%B8%E6%B3%B3"},
+        {"text": "新北市113年中等學校運動會【游泳】(SPNET)", "value": "https://sports.spnet.tw/cenm113/qryprocess.php?mCat=%E6%B8%B8%E6%B3%B3"},
+        {"text": "新北市113年度基層運動選手訓練站游泳區域性對抗賽 (SPNET)", "value": "https://www.spnet.tw/cmswim113/showplan.php"},
+        {"text": "新北市113學年度小學游泳對抗賽 (SPNET)", "value": "https://www.spnet.tw/ceswim113/showplan.php"},
+        {"text": "新北市112年小學運動會【游泳】(SPNET)", "value": "https://sports.spnet.tw/stutea112/qryprocess.php?mCat=%E6%B8%B8%E6%B3%B3"},
+        {"text": "新北市112年中等學校運動會【游泳】(SPNET)", "value": "https://sports.spnet.tw/cenm112/qryprocess.php?mCat=%E6%B8%B8%E6%B3%B3"},
+        {"text": "新北市111年小學運動會【游泳】(SPNET)", "value": "https://sports.spnet.tw/stutea111/qryprocess.php?mCat=%E6%B8%B8%E6%B3%B3"},
+        {"text": "新北市111年中等學校運動會【游泳】(SPNET)", "value": "https://sports.spnet.tw/cenm111/qryprocess.php?mCat=%E6%B8%B8%E6%B3%B3"},
         {"text": "新北市中等學校運動會游泳大會紀錄", "value": "https://nas.spnet.tw/twps/3s.pdf"},
         {"text": "新北市小學運動會游泳大會紀錄", "value": "https://nas.spnet.tw/twps/6s.pdf"},
-        {"text": "新北市115年度基層運動選手訓練站游泳區域性對抗賽", "value": "http://nas.spnet.tw/twps/20260729/基層選手游泳對抗賽秩序冊_20260826.pdf"},
         {"text": "新北市115學年度中等學校運動會游泳賽", "value": "https://ntpc-sports.com/twps/%e6%96%b0%e5%8c%97%e5%b8%82115%e5%ad%b8%e5%b9%b4%e5%ba%a6%e4%b8%ad%e7%ad%89%e5%ad%b8%e6%a0%a1%e9%81%8b%e5%8b%95%e6%9c%83%e3%80%90%e6%b8%b8%e6%b3%b3%e3%80%91%e7%ab%b6%e8%b3%bd%e8%b3%87%e8%a8%8a/"},
-        {"text": "新北市114學年度小學游泳對抗賽", "value": "https://nas.spnet.tw/twps/20260126/新北市114學年度小學游泳對抗賽秩序冊_20260430.pdf"},
         {"text": "新北市114學年度中等學校游泳對抗賽", "value": "https://nas.spnet.tw/twps/20260306/新北市114學年度中等學校游泳對抗賽秩序冊.pdf"},
         {"text": "新北市114年市長盃分齡游泳錦標賽", "value": "https://nas.spnet.tw/twps/114mayor_cup.pdf"},
-        {"text": "新北市113學年度小學游泳對抗賽", "value": "https://nas.spnet.tw/twps/113primary_dual.pdf"},
         {"text": "新北市113年市長盃分齡游泳錦標賽", "value": "https://nas.spnet.tw/twps/113mayor_cup.pdf"}
     ]
 
