@@ -129,14 +129,29 @@ class handler(BaseHTTPRequestHandler):
         if action == 'pull':
             logs = []
             try:
-                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                json_path = os.path.join(base_dir, "static", "visitor_query_logs.json")
-                if os.path.exists(json_path):
-                    with open(json_path, "r", encoding="utf-8") as f:
-                        data = json.load(f)
+                # 1. 優先嘗試從 GCS 雲端日誌讀取最新資料
+                gcs_url = "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/visitor_query_logs.json"
+                req = urllib.request.Request(gcs_url, headers={'User-Agent': 'Mozilla/5.0'})
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+                with urllib.request.urlopen(req, timeout=3, context=ctx) as response:
+                    if response.status == 200:
+                        data = json.loads(response.read().decode('utf-8'))
                         logs = data.get("logs", [])
             except Exception:
-                logs = []
+                pass
+
+            if not logs:
+                try:
+                    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                    json_path = os.path.join(base_dir, "static", "visitor_query_logs.json")
+                    if os.path.exists(json_path):
+                        with open(json_path, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                            logs = data.get("logs", [])
+                except Exception:
+                    logs = []
 
             if GLOBAL_LOG_QUEUE:
                 for item in reversed(GLOBAL_LOG_QUEUE):
