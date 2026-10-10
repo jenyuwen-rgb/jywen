@@ -2525,44 +2525,51 @@
 
         async function fetchVisitorQueryLogs() {
             try {
-                let data = null;
+                let logs = [];
+                // 1. 先抓取最新全量結構化日誌 (GCS 或本地靜態檔)
                 try {
-                    const res = await fetch('/api/log_query?action=pull&t=' + Date.now());
+                    const primaryUrl = IS_CLOUD_ENV
+                        ? `${GCS_BASE_URL}/visitor_query_logs.json?t=${Date.now()}`
+                        : `/static/visitor_query_logs.json?t=${Date.now()}`;
+                    const res = await fetch(primaryUrl);
                     if (res.ok) {
-                        data = await res.json();
+                        const data = await res.json();
+                        logs = data.logs || [];
                     }
                 } catch(e) {}
 
-                if (!data || !data.logs || data.logs.length === 0) {
-                    const fallbackUrl = IS_CLOUD_ENV
-                        ? `${GCS_BASE_URL}/visitor_query_logs.json?t=${Date.now()}`
-                        : `/static/visitor_query_logs.json?t=${Date.now()}`;
-                    const fallbackRes = await fetch(fallbackUrl);
-                    if (fallbackRes.ok) {
-                        data = await fallbackRes.json();
-                    }
-                }
-
-                if (data && data.logs) {
-                    allVisitorLogs = data.logs || [];
-                }
-
-                // 注入本機即時查詢 (localStorage)
+                // 2. 嘗試抓取 Vercel Serverless 即時動態佇列
                 try {
-                    const localQueries = JSON.parse(localStorage.getItem('swimming_pwa_live_queries') || '[]');
-                    if (localQueries.length > 0) {
-                        localQueries.forEach(lq => {
-                            if (!allVisitorLogs.some(e => e.time === lq.time && e.swimmer === lq.swimmer)) {
-                                allVisitorLogs.unshift(lq);
+                    const apiRes = await fetch('/api/log_query?action=pull&t=' + Date.now());
+                    if (apiRes.ok) {
+                        const apiData = await apiRes.json();
+                        const liveQueue = apiData.logs || [];
+                        liveQueue.forEach(item => {
+                            if (!logs.some(e => e.time === item.time && e.swimmer === item.swimmer)) {
+                                logs.unshift(item);
                             }
                         });
                     }
                 } catch(e) {}
 
+                // 3. 注入本機即時查詢 (localStorage)
+                try {
+                    const localQueries = JSON.parse(localStorage.getItem('swimming_pwa_live_queries') || '[]');
+                    if (localQueries.length > 0) {
+                        localQueries.forEach(lq => {
+                            if (!logs.some(e => e.time === lq.time && e.swimmer === lq.swimmer)) {
+                                logs.unshift(lq);
+                            }
+                        });
+                    }
+                } catch(e) {}
+
+                allVisitorLogs = logs;
                 applyRadarAnalyticsFilter();
             } catch(err) {
                 console.warn("無法取得訪客查詢日誌:", err);
             }
+        }
         }
 
         // 監聽跨分頁即時廣播通道 (秒級推播)
