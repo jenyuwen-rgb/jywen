@@ -1,6 +1,13 @@
 launchpad.html
 wealth.html
 car.html
+manage.html
+view_db.html
+system_messages.html
+az_relocation_presentation.html
+static/tunnel_url.txt
+static/tsmc_az_housing_map.jpg
+static/az_study_icon.png
 static/wealth_icon.png
 static/car_icon.png
 static/swim_results_template.db

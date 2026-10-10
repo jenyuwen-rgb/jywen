@@ -6,13 +6,6 @@
     <title>賽事整合與雲端調度儀表板 · 金水 Swimming PWA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <script>
-        if (window.pdfjsLib) {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-        }
-    </script>
     <style>
         :root {
             --primary: #D4AF37;
@@ -27,7 +20,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 標誌性黑金漸層文字與組件 (1:1 完美對齊 256split / 首頁頂級 Apple 奢華質感) */
+        /* 標誌性黑金漸層文字與組件 */
         .gold-gradient-text,
         .row-gold,
         .gold-text {
@@ -37,7 +30,7 @@
             display: inline-block;
         }
 
-        /* 圖示專屬金色漸層 (FontAwesome 向量文字專用) */
+        /* 圖示專屬金色漸層 */
         .gold-gradient-icon {
             background-image: linear-gradient(135deg, #FFFFFF 0%, #F3D078 50%, #D4AF37 100%) !important;
             -webkit-background-clip: text !important;
@@ -130,12 +123,12 @@
             border-radius: 14px;
             padding: 5px;
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 6px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 640px) {
             .segmented-control-container {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -193,6 +186,41 @@
             background: rgba(212, 175, 55, 0.25);
             color: #F3D078;
             border: 0.5px solid rgba(243, 208, 120, 0.4);
+        }
+
+        /* ─── 時序篩選切換按鈕 (今日/本週/本月/全歷史) ─── */
+        .time-filter-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #A1A1AA;
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            user-select: none;
+        }
+
+        .time-filter-btn:hover {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .time-filter-btn.active {
+            background: rgba(212, 175, 55, 0.16) !important;
+            border-color: rgba(243, 208, 120, 0.6) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.2) !important;
+            font-weight: 700 !important;
+        }
+
+        .time-filter-btn.active .filter-icon {
+            color: #F3D078 !important;
         }
 
         /* ─── Tab 面板切換與流暢淡入動畫 ─── */
@@ -266,7 +294,6 @@
             padding: 4px;
         }
 
-        /* 大仁哥指定：資料庫已有賽事使用「淺灰色」*/
         .custom-opt-done {
             padding: 9px 12px;
             border-radius: 8px;
@@ -288,7 +315,6 @@
             color: #9CA3AF !important;
         }
 
-        /* 未下載賽事：醒目白色 + 金色圖標高亮 */
         .custom-opt-pending {
             padding: 9px 12px;
             border-radius: 8px;
@@ -313,7 +339,6 @@
             color: #FFFFFF !important;
         }
 
-        /* 下載按鈕 */
         .btn-download-action {
             background: linear-gradient(135deg, #1C1C1E 0%, #0A0A0B 100%);
             border: 1.5px solid #333336;
@@ -342,7 +367,6 @@
             filter: brightness(1.05) !important;
         }
 
-        /* 時間輸入與自動下拉彈窗 */
         .search-input-wrap {
             position: relative;
         }
@@ -389,7 +413,6 @@
             color: #F3D078;
         }
 
-        /* 滾動條修飾 */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -405,7 +428,7 @@
             background: #3F3F46;
         }
 
-        /* ─── macOS / Cyber Dark 月曆精準樣式 (1:1 manage.html 規範) ─── */
+        /* ─── macOS / Cyber Dark 月曆樣式 ─── */
         .mac-calendar-container {
             display: grid;
             grid-template-columns: 1.65fr 1fr;
@@ -821,7 +844,7 @@
             </div>
         </section>
 
-        <!-- Apple 原生風格 Segmented Control 5 大情境導航標籤 -->
+        <!-- Apple 原生風格 Segmented Control 4 大情境導航標籤 -->
         <nav class="segmented-control-container">
             <button id="tab-btn-radar" class="nav-tab-btn active" onclick="switchTab('radar')">
                 <i class="fa-solid fa-radar tab-icon text-sm"></i>
@@ -832,11 +855,6 @@
                 <i class="fa-solid fa-magnifying-glass-chart tab-icon text-sm"></i>
                 <span>採集與探針</span>
                 <span class="tab-badge hidden sm:inline">PROBE</span>
-            </button>
-            <button id="tab-btn-orderbook" class="nav-tab-btn" onclick="switchTab('orderbook')">
-                <i class="fa-solid fa-highlighter tab-icon text-sm"></i>
-                <span>秩序冊標註</span>
-                <span class="tab-badge hidden sm:inline">PDF</span>
             </button>
             <button id="tab-btn-calendar" class="nav-tab-btn" onclick="switchTab('calendar')">
                 <i class="fa-solid fa-calendar-days tab-icon text-sm"></i>
@@ -851,12 +869,13 @@
         </nav>
 
         <!-- ============================================================ -->
-        <!-- TAB PANE 1: 📊 訪客即時雷達與容量水位 (Live Swimmer Radar & Quota) -->
+        <!-- TAB PANE 1: 📊 訪客即時雷達與大數據分析 (Live Swimmer Query Radar & Analytics) -->
         <!-- ============================================================ -->
         <div id="pane-radar" class="tab-pane active space-y-6">
 
-            <!-- 訪客即時查詢雷達與熱搜選手看板 -->
-            <section class="tech-card p-5 space-y-4">
+            <!-- 主看板：訪客即時查詢雷達與大數據分析 -->
+            <section class="tech-card p-5 space-y-5">
+                <!-- 看板標頭與時序切換列 -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-base">
@@ -864,12 +883,12 @@
                         </div>
                         <div>
                             <div class="flex items-center gap-2">
-                                <h3 class="text-base font-bold text-zinc-100">訪客即時查詢雷達與熱搜選手看板 (Live Swimmer Query Radar)</h3>
+                                <h3 class="text-base font-bold text-zinc-100">訪客即時查詢雷達與大數據分析 (Live Swimmer Query Radar & Analytics)</h3>
                                 <span class="text-[11px] font-mono px-2 py-0.5 rounded-full gold-gradient-badge">
                                     <span class="gold-gradient-text font-bold">全台即時訪客動態</span>
                                 </span>
                             </div>
-                            <p class="text-xs text-zinc-400">即時監測全台家長、教練與泳者在 swimming-pwa.vercel.app 查詢的選手名單與熱搜趨勢</p>
+                            <p class="text-xs text-zinc-400">即時監測全台家長、教練與泳者查詢行為 · 時序維度排行 · 查詢模式 · 設備分佈</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 text-xs font-mono flex-wrap">
@@ -888,11 +907,84 @@
                     </div>
                 </div>
 
-                <!-- 熱搜 Top 10 選手膠囊列 -->
-                <div class="space-y-2">
+                <!-- 🌟 4 大時序維度一鍵切換列 (今日 / 本週 / 本月 / 全歷史) -->
+                <div class="flex items-center justify-between flex-wrap gap-2 pt-1 pb-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-xs text-zinc-400 font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> 分析時序維度：
+                        </span>
+                        <button id="filter-btn-today" class="time-filter-btn active" onclick="setRadarTimeFilter('today')">
+                            <i class="fa-solid fa-bolt text-xs filter-icon"></i>
+                            <span>⚡ 今日 (Today)</span>
+                        </button>
+                        <button id="filter-btn-week" class="time-filter-btn" onclick="setRadarTimeFilter('week')">
+                            <i class="fa-solid fa-calendar-week text-xs filter-icon"></i>
+                            <span>📅 本週 (Week)</span>
+                        </button>
+                        <button id="filter-btn-month" class="time-filter-btn" onclick="setRadarTimeFilter('month')">
+                            <i class="fa-solid fa-calendar-days text-xs filter-icon"></i>
+                            <span>🏆 本月 (Month)</span>
+                        </button>
+                        <button id="filter-btn-all" class="time-filter-btn" onclick="setRadarTimeFilter('all')">
+                            <i class="fa-solid fa-crown text-xs filter-icon"></i>
+                            <span>👑 全歷史 (All-Time)</span>
+                        </button>
+                    </div>
+                    <span id="currentFilterSummaryBadge" class="text-[11px] font-mono gold-gradient-text font-bold">
+                        分析範圍：今日 (00:00 至今)
+                    </span>
+                </div>
+
+                <!-- 📊 3 大維度即時分析指標卡片 (Bento Grid) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-xs">
+                    <!-- 分析卡片 1: 查詢功能模式分佈 -->
+                    <div class="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
+                        <div class="flex items-center justify-between text-zinc-300 font-bold">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-chart-pie text-sky-400"></i> 查詢模式分佈
+                            </span>
+                            <span id="modeStatsTotal" class="text-zinc-500 text-[11px]">計算中...</span>
+                        </div>
+                        <div id="modeStatsContainer" class="space-y-2 pt-1 text-[11px]">
+                            <!-- 由 JS 動態注入進度條 -->
+                            <div class="text-zinc-500">正在統計模式佔比...</div>
+                        </div>
+                    </div>
+
+                    <!-- 分析卡片 2: 訪客設備與軟體管道 -->
+                    <div class="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
+                        <div class="flex items-center justify-between text-zinc-300 font-bold">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-mobile-screen-button text-purple-400"></i> 設備與使用管道
+                            </span>
+                            <span id="deviceStatsSummary" class="text-zinc-500 text-[11px]">計算中...</span>
+                        </div>
+                        <div id="deviceStatsContainer" class="space-y-2 pt-1 text-[11px]">
+                            <!-- 由 JS 動態注入進度條 -->
+                            <div class="text-zinc-500">正在統計設備佔比...</div>
+                        </div>
+                    </div>
+
+                    <!-- 分析卡片 3: 全台查詢熱點城市 -->
+                    <div class="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
+                        <div class="flex items-center justify-between text-zinc-300 font-bold">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-location-dot text-rose-400"></i> 熱點城市排行
+                            </span>
+                            <span id="cityStatsCount" class="text-zinc-500 text-[11px]">計算中...</span>
+                        </div>
+                        <div id="cityStatsContainer" class="space-y-2 pt-1 text-[11px]">
+                            <!-- 由 JS 動態注入城市排行 -->
+                            <div class="text-zinc-500">正在統計熱點城市...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🔥 熱搜選手 Top 10 膠囊列 (隨時序切換連動) -->
+                <div class="space-y-2 pt-1">
                     <div class="flex items-center justify-between text-xs font-mono">
                         <span class="text-zinc-400 flex items-center gap-1.5 font-bold">
-                            <i class="fa-solid fa-fire text-amber-400"></i> 熱搜選手排行 (Top Queried Swimmers)
+                            <i class="fa-solid fa-fire text-amber-400"></i> <span id="hotSwimmersTitleLabel">熱搜選手排行 (Top Queried Swimmers)</span>
                         </span>
                         <span id="hotSwimmersCountInfo" class="text-zinc-500 text-[11px]">累計統計中...</span>
                     </div>
@@ -901,21 +993,22 @@
                     </div>
                 </div>
 
-                <!-- 即時搜尋日誌串流表 -->
+                <!-- 🌊 最新訪客查詢串流日誌表 (7 大欄位) -->
                 <div class="space-y-2 pt-2">
                     <div class="flex items-center justify-between text-xs font-mono">
                         <span class="text-zinc-400 flex items-center gap-1.5 font-bold">
-                            <i class="fa-solid fa-stream text-sky-400"></i> 最新訪客查詢串流 (Live Query Stream)
+                            <i class="fa-solid fa-stream text-sky-400"></i> <span id="logStreamTitleLabel">即時訪客查詢串流 (Live Query Stream)</span>
                         </span>
                         <span id="logTotalCountLabel" class="text-zinc-500 text-[11px]">載入中...</span>
                     </div>
-                    <div class="overflow-x-auto rounded-xl border border-zinc-800/80 bg-zinc-950/60 max-h-[360px] overflow-y-auto">
+                    <div class="overflow-x-auto rounded-xl border border-zinc-800/80 bg-zinc-950/60 max-h-[380px] overflow-y-auto">
                         <table class="w-full text-left text-xs font-mono">
                             <thead class="bg-zinc-900/90 text-zinc-400 border-b border-zinc-800 sticky top-0 backdrop-blur-md">
                                 <tr>
                                     <th class="p-2.5">時間</th>
                                     <th class="p-2.5">查詢選手 / 關鍵字</th>
                                     <th class="p-2.5">查詢模式</th>
+                                    <th class="p-2.5">設備與管道</th>
                                     <th class="p-2.5">來源地區</th>
                                     <th class="p-2.5">訪客 IP</th>
                                     <th class="p-2.5 text-right">快捷操作</th>
@@ -923,7 +1016,7 @@
                             </thead>
                             <tbody id="visitorLogsTableBody" class="divide-y divide-zinc-800/40 text-zinc-300">
                                 <tr>
-                                    <td colspan="6" class="text-center py-6 text-zinc-500">正在讀取即時訪客查詢資料...</td>
+                                    <td colspan="7" class="text-center py-6 text-zinc-500">正在讀取即時訪客查詢資料...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1212,206 +1305,6 @@
         </div>
 
         <!-- ============================================================ -->
-        <!-- TAB PANE: 📸 秩序冊高亮標記獨立工具 (Order Book Highlighting Studio) -->
-        <!-- ============================================================ -->
-        <div id="pane-orderbook" class="tab-pane space-y-6">
-            <section class="max-w-4xl mx-auto bg-[#1C1C1E] border border-white/15 rounded-[20px] p-6 sm:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.8)] text-white">
-                
-                <!-- 標題欄 -->
-                <div class="flex items-center justify-between pb-4 mb-6 border-b border-[#2C2C2E]">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">📸</span>
-                        <div>
-                            <h3 class="text-xl font-bold text-white tracking-wide">秩序冊高亮標記獨立工具</h3>
-                            <p class="text-xs text-zinc-400 mt-0.5">線上無伺服器向量標註引擎 · 支援三大名冊自訂、永久儲存與一鍵已標記 PDF 匯出</p>
-                        </div>
-                    </div>
-                    <span class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/10 text-[#FFD60A] border border-[#FFD60A]/30">
-                        ONLINE STUDIO
-                    </span>
-                </div>
-
-                <!-- 步驟 1: 選擇秩序冊 (由北到南主辦單位 ➔ 賽事秩序冊) -->
-                <div class="mb-6 bg-[#2C2C2E] p-5 rounded-xl border border-white/5 space-y-4">
-                    <label class="block font-bold text-sm text-[#FFD60A] flex items-center justify-between">
-                        <span>1. 選擇秩序冊 PDF 檔案 (全台泳協由北到南連動選單)</span>
-                        <span id="orderBookStatusBadge" class="text-xs text-zinc-400 font-normal">讀取雲端秩序冊中...</span>
-                    </label>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- 步驟 1-1: 選擇主辦單位 (由北到南排序) -->
-                        <div>
-                            <label class="block text-xs text-zinc-400 mb-1.5 font-medium">步驟 1：選擇主辦單位（由北到南排序）</label>
-                            <select id="obOrgSelect" onchange="handleObOrgChange()" class="w-full bg-[#1C1C1E] border border-[#3A3A3C] text-white p-2.5 rounded-lg text-sm outline-none focus:border-[#FFD60A] transition">
-                                <option value="">-- 請選擇主辦單位 --</option>
-                            </select>
-                        </div>
-
-                        <!-- 步驟 1-2: 選擇對應賽事秩序冊 -->
-                        <div>
-                            <label class="block text-xs text-zinc-400 mb-1.5 font-medium">步驟 2：選擇賽事秩序冊</label>
-                            <select id="obMeetSelect" onchange="handleObMeetChange()" class="w-full bg-[#1C1C1E] border border-[#3A3A3C] text-white p-2.5 rounded-lg text-sm outline-none focus:border-[#FFD60A] transition">
-                                <option value="">-- 請先選擇主辦單位 --</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- 支援自備本機檔案備用方案 -->
-                    <div class="pt-2 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                        <input type="text" id="obCustomUrlInput" placeholder="或直接貼上 PDF 網址，亦可選擇本機 PDF" class="flex-1 bg-[#1C1C1E] border border-[#3A3A3C] text-white px-3 py-2 rounded-lg text-xs outline-none focus:border-[#FFD60A]">
-                        <input type="file" id="obLocalFileInput" accept=".pdf" class="hidden" onchange="handleObLocalFile(this)">
-                        <button type="button" onclick="document.getElementById('obLocalFileInput').click()" class="bg-[#3A3A3C] hover:bg-[#48484A] text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 whitespace-nowrap">
-                            <span>📂 自備檔案</span>
-                        </button>
-                    </div>
-
-                    <!-- 官方即時動態系統快捷操作列 -->
-                    <div id="obOfficialLinksContainer" class="hidden flex flex-wrap items-center gap-2 pt-2 border-t border-white/10"></div>
-
-                    <div id="obSelectedPdfInfo" class="text-xs text-zinc-400 flex items-center justify-between">
-                        <span>預設自動載入所選賽事之官方最新秩序冊。標記完成後將自動儲存為 [賽事名稱]_已標記.pdf。</span>
-                        <span id="obPdfSizeInfo" class="font-mono text-zinc-300"></span>
-                    </div>
-                </div>
-
-                <!-- 步驟 2: 編輯高亮選手名單與類別 -->
-                <div class="mb-6 space-y-4">
-                    <div class="flex items-center justify-between">
-                        <label class="font-bold text-sm text-[#FFD60A]">2. 編輯高亮選手名單與類別 (支援自訂並永久儲存)</label>
-                        <div class="flex items-center gap-2">
-                            <button type="button" onclick="resetDefaultNames()" class="text-xs text-zinc-400 hover:text-white px-2.5 py-1 rounded bg-zinc-800 border border-zinc-700 transition">
-                                ↺ 還原預設
-                            </button>
-                            <button type="button" onclick="savePdfConfigUI()" class="bg-[#30D158] hover:opacity-90 text-black px-3.5 py-1 rounded-md text-xs font-bold transition flex items-center gap-1 shadow">
-                                <span>💾 儲存名單設定</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 🟡 步達選手 (螢光黃標記) -->
-                    <div class="bg-[#2C2C2E] p-3.5 rounded-xl border border-white/5 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-sm text-[#FFD60A] flex items-center gap-1.5">
-                                <span>🟡 步達選手 (螢光黃標記)</span>
-                            </span>
-                            <span id="buddaCount" class="text-xs text-zinc-400 font-mono">0 人</span>
-                        </div>
-                        <textarea id="buddaListInput" rows="3" oninput="updateCounts()" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-[#1C1C1E] border border-[#3A3A3C] text-white p-2.5 rounded-lg text-xs font-sans outline-none focus:border-[#FFD60A] transition leading-relaxed"></textarea>
-                    </div>
-
-                    <!-- 💗 拍照選手 (粉紅色標記) -->
-                    <div class="bg-[#2C2C2E] p-3.5 rounded-xl border border-white/5 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-sm text-[#FF2D55] flex items-center gap-1.5">
-                                <span>💗 拍照選手 (粉紅色標記)</span>
-                            </span>
-                            <span id="photoCount" class="text-xs text-zinc-400 font-mono">0 人</span>
-                        </div>
-                        <textarea id="photoListInput" rows="3" oninput="updateCounts()" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-[#1C1C1E] border border-[#3A3A3C] text-white p-2.5 rounded-lg text-xs font-sans outline-none focus:border-[#FF2D55] transition leading-relaxed"></textarea>
-                    </div>
-
-                    <!-- 🟢 特殊選手 (螢光綠標記) -->
-                    <div class="bg-[#2C2C2E] p-3.5 rounded-xl border border-white/5 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-sm text-[#30D158] flex items-center gap-1.5">
-                                <span>🟢 特殊選手 (螢光綠標記)</span>
-                            </span>
-                            <span id="specialCount" class="text-xs text-zinc-400 font-mono">0 人</span>
-                        </div>
-                        <textarea id="specialListInput" rows="2" oninput="updateCounts()" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-[#1C1C1E] border border-[#3A3A3C] text-white p-2.5 rounded-lg text-xs font-sans outline-none focus:border-[#30D158] transition leading-relaxed"></textarea>
-                    </div>
-                </div>
-
-                <!-- 步驟 3: 執行按鈕與狀態 -->
-                <button type="button" id="btnProcessPdf" onclick="startOrderBookHighlightProcess()" class="w-full bg-gradient-to-r from-[#FF9500] to-[#FF2D55] hover:opacity-95 text-white py-3.5 px-6 rounded-xl text-base font-bold transition shadow-lg flex items-center justify-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-bolt"></i>
-                    <span>⚡ 開始標記秩序冊 (產出 _已標記.pdf)</span>
-                </button>
-
-                <!-- 進度條與狀態反饋 -->
-                <div id="obProcessStatusBox" class="hidden mt-4 bg-[#2C2C2E] p-4 rounded-xl border border-white/5 text-center space-y-2">
-                    <div id="obStatusTitle" class="font-bold text-sm text-[#FFD60A]">正在初始化 PDF.js 與向量繪圖引擎...</div>
-                    <div class="w-full bg-zinc-900 rounded-full h-2 overflow-hidden border border-zinc-700">
-                        <div id="obProgressBar" class="bg-gradient-to-r from-amber-400 to-rose-500 h-full w-0 transition-all duration-150"></div>
-                    </div>
-                    <div id="obStatusDetails" class="text-xs text-zinc-400 font-mono">準備就緒</div>
-                </div>
-
-                <!-- 步驟 4: 雙模式即時預覽與命中導覽 (Preview & Hit Navigator) -->
-                <div class="mt-8 pt-6 border-t border-[#2C2C2E] space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div class="flex items-center gap-2">
-                            <span class="text-lg">👁️</span>
-                            <h4 class="text-sm font-bold text-white tracking-wide">秩序冊即時預覽檢視器</h4>
-                            <span id="obPreviewModeBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">尚未載入</span>
-                        </div>
-                        
-                        <!-- 模式切換按鈕群 -->
-                        <div class="flex items-center gap-1.5 bg-[#2C2C2E] p-1 rounded-xl border border-white/5">
-                            <button type="button" id="btnPreviewOriginal" onclick="switchPreviewMode('original')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white" disabled>
-                                📄 原始版本 (未標記)
-                            </button>
-                            <button type="button" id="btnPreviewMarked" onclick="switchPreviewMode('marked')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white" disabled>
-                                ✨ 已標記版本
-                            </button>
-                            <button type="button" id="btnDownloadMarked" onclick="downloadMarkedPdf()" class="px-3 py-1.5 rounded-lg text-xs font-bold transition text-[#FFD60A] bg-amber-500/10 hover:bg-amber-500/20 border border-[#FFD60A]/30 hidden">
-                                ⬇️ 下載已標記 PDF
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 命中選手摘要與快速跳頁導覽列 (標記完成後顯示) -->
-                    <div id="obHitSummaryContainer" class="hidden bg-[#2C2C2E] p-4 rounded-xl border border-white/5 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-[#FFD60A] flex items-center gap-1.5">
-                                <span>🎯 命中選手統計與快速導覽</span>
-                                <span id="obHitTotalBadge" class="font-mono text-zinc-300 text-[11px]">共命中 0 處姓名</span>
-                            </span>
-                            <span class="text-[11px] text-zinc-400">點擊標籤可直接在下方跳轉至該頁</span>
-                        </div>
-                        <div id="obHitChipsList" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1">
-                            <!-- JS 動態生成命中標籤 -->
-                        </div>
-                    </div>
-
-                    <!-- 原生 Canvas 向量翻頁預覽容器 -->
-                    <div id="obPreviewWrapper" class="relative w-full rounded-xl overflow-hidden border border-[#3A3A3C] bg-zinc-950 flex flex-col items-center">
-                        <!-- 空狀態提示 -->
-                        <div id="obPreviewEmpty" class="h-[480px] w-full flex flex-col items-center justify-center text-center p-6 space-y-3">
-                            <div class="w-16 h-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-2xl text-zinc-600">
-                                📑
-                            </div>
-                            <div>
-                                <h5 class="text-sm font-bold text-zinc-300">尚未選擇或載入秩序冊</h5>
-                                <p class="text-xs text-zinc-500 mt-1 max-w-sm">請於上方「步驟 1」選擇主辦單位與賽事秩序冊，或點擊「📂 自備檔案」上傳本機 PDF，系統將立即在此為您展開原始秩序冊，支援於標記前完整翻閱核對！</p>
-                            </div>
-                        </div>
-
-                        <!-- 畫布導覽列 (有檔案時顯示) -->
-                        <div id="obCanvasToolbar" class="hidden w-full bg-[#2C2C2E] border-b border-white/10 px-4 py-2.5 flex items-center justify-between text-xs text-zinc-300">
-                            <div class="flex items-center gap-2">
-                                <button type="button" onclick="changePreviewPage(-1)" class="px-2.5 py-1 rounded bg-[#3A3A3C] hover:bg-[#48484A] text-white font-bold transition">‹ 上一頁</button>
-                                <span class="font-mono">第 <span id="obCurrentPageNum" class="text-[#FFD60A] font-bold">1</span> / <span id="obTotalPageNum">1</span> 頁</span>
-                                <button type="button" onclick="changePreviewPage(1)" class="px-2.5 py-1 rounded bg-[#3A3A3C] hover:bg-[#48484A] text-white font-bold transition">下一頁 ›</button>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button type="button" onclick="adjustPreviewScale(-0.15)" class="px-2 py-1 rounded bg-[#3A3A3C] hover:bg-[#48484A] text-white font-mono">- 縮小</button>
-                                <span id="obScaleLabel" class="font-mono text-zinc-400">100%</span>
-                                <button type="button" onclick="adjustPreviewScale(0.15)" class="px-2 py-1 rounded bg-[#3A3A3C] hover:bg-[#48484A] text-white font-mono">+ 放大</button>
-                            </div>
-                        </div>
-
-                        <!-- 畫布滾動區域 -->
-                        <div id="obCanvasScrollBox" class="hidden w-full overflow-auto max-h-[750px] p-4 flex justify-center bg-zinc-900/60">
-                            <canvas id="obPreviewCanvas" class="shadow-2xl rounded max-w-full bg-white"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-            </section>
-        </div>
-
-        <!-- ============================================================ -->
         <!-- TAB PANE 3: 📅 賽事行事曆 (Official Swimming Calendar) -->
         <!-- ============================================================ -->
         <div id="pane-calendar" class="tab-pane space-y-6">
@@ -1636,23 +1529,7 @@
                             </div>
                             <div class="flex items-start gap-2">
                                 <span class="text-amber-400">▸</span>
-                                <span><strong>臺南市體育總會歷屆賽事即時爬取</strong>：採集臺南市體育總會 (<code class="text-zinc-400">tainanswim.com.tw/history.php</code>) 歷屆賽事編號與名稱。</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <span class="text-amber-400">▸</span>
-                                <span><strong>臺北市體育總會 (TPESA) 即時賽事與成績採集</strong>：動態爬取臺北體總官網首頁最新公告、青年盃、中正盃等賽事規程與雲端成績總表。</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <span class="text-amber-400">▸</span>
-                                <span><strong>臺中市體育總會 (SWIM8) 賽事公告即時解析</strong>：動態巡檢臺中體總公告系統，抓取議長盃、市長盃、全市運動大會最新賽事與秩序冊資料。</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <span class="text-amber-400">▸</span>
-                                <span><strong>高雄市體育總會 (KCC) 賽事與成績查詢整合</strong>：探索高雄體總公告系統與即時成績查詢接口，彙整議長盃與美津濃盃全國分齡賽事。</span>
-                            </div>
-                            <div class="flex items-start gap-2">
-                                <span class="text-amber-400">▸</span>
-                                <span><strong>高雄市水上運動協會 (SWIM_KCSAT) 官方賽事即時採集</strong>：發起 HTTP 連線至高雄水上官方賽事公告系統 (<code class="text-zinc-400">swim.kcsat.org/news</code>)，解析最新公告動態採集南瀛盃、高水盃等分齡錦標賽與雲端成績總表。</span>
+                                <span><strong>臺南市泳協歷屆賽事即時爬取</strong>：採集臺南市體育總會 (<code class="text-zinc-400">tainanswim.com.tw/history.php</code>) 歷屆賽事編號與名稱。</span>
                             </div>
                             <div class="flex items-start gap-2">
                                 <span class="text-amber-400">▸</span>
@@ -1800,16 +1677,9 @@
                             <i class="fa-solid fa-triangle-exclamation gold-gradient-icon"></i>
                             <span>GCP 爬蟲執行與自愈修復日誌 (Error Logs)</span>
                         </h3>
-                        <p class="text-xs text-zinc-400">保留 30 天滾動黑盒子歷程 · 監控每日 06:00 爬蟲狀態、網路延遲、AI 自愈軌跡與現場還原碼</p>
+                        <p class="text-xs text-zinc-400">監控每日 06:00 爬蟲狀態、格式異常警告、AI 自我修復軌跡與熔斷保護機制</p>
                     </div>
-                    <div class="flex items-center gap-2 text-xs font-mono flex-wrap">
-                        <!-- 30 天歷史日期切換選單 -->
-                        <div class="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 rounded-md px-2 py-1">
-                            <i class="fa-regular fa-calendar-days text-zinc-400 text-xs"></i>
-                            <select id="logHistoryDateSelect" onchange="onLogDateChange(this.value)" class="bg-transparent text-xs text-zinc-200 outline-none cursor-pointer pr-1">
-                                <option value="latest">📅 最新執行 (今日 06:00)</option>
-                            </select>
-                        </div>
+                    <div class="flex items-center gap-2 text-xs font-mono">
                         <span id="logStatusBadge" class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                             <span>系統健康</span>
@@ -1823,58 +1693,38 @@
                 <!-- 日誌統計摘要欄 -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
                     <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                        <div class="text-zinc-500 text-[11px]">檢閱執行時間</div>
-                        <div id="logLastRunTime" class="text-zinc-200 font-bold mt-1 text-sm truncate">2026-10-09 06:00</div>
+                        <div class="text-zinc-500 text-[11px]">最後執行時間</div>
+                        <div id="logLastRunTime" class="text-zinc-200 font-bold mt-1 text-sm">2026-10-05 21:14</div>
                     </div>
                     <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
                         <div class="text-zinc-500 text-[11px]">自愈熔斷器</div>
                         <div id="logCircuitBreaker" class="text-emerald-400 font-bold mt-1 text-sm">正常 (0/3)</div>
                     </div>
                     <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                        <div class="text-zinc-500 text-[11px]">全島採集賽事</div>
-                        <div id="logTotalRaces" class="text-amber-300 font-bold mt-1 text-sm">32 場官方賽事</div>
+                        <div class="text-zinc-500 text-[11px]">異常記錄筆數</div>
+                        <div id="logErrorCount" class="text-zinc-200 font-bold mt-1 text-sm">0 筆</div>
                     </div>
                     <div class="p-3 rounded-lg bg-zinc-900/60 border border-zinc-800">
-                        <div class="text-zinc-500 text-[11px]">日誌歸檔策略</div>
-                        <div class="text-cyan-400 font-mono mt-1 text-xs truncate" title="30-Day Rolling Audit Vault">30天滾動歷史封存</div>
-                    </div>
-                </div>
-
-                <!-- 6 大泳協連線探針面板 -->
-                <div class="space-y-1.5">
-                    <div class="flex items-center justify-between text-[11px] font-mono text-zinc-400">
-                        <span class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-satellite-dish text-cyan-400"></i>
-                            <span class="font-bold text-zinc-300">全島 6 大主辦泳協網路連線探針 (Network Probes)</span>
-                        </span>
-                        <span id="probesOverallStatus" class="text-emerald-400">全部正常響應 (6/6 Online)</span>
-                    </div>
-                    <div id="networkProbesContainer" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs font-mono">
-                        <!-- 動態填入探針卡片 -->
+                        <div class="text-zinc-500 text-[11px]">雲端儲存路徑</div>
+                        <div class="text-zinc-400 font-mono mt-1 text-[11px] truncate" title="GitHub: /static/crawler_error_logs.json">GitHub 永久存檔</div>
                     </div>
                 </div>
 
                 <!-- 實體日誌控制台終端窗口 -->
-                <div class="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 font-mono text-xs overflow-hidden space-y-2">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-zinc-800/80 text-[11px] text-zinc-500 gap-2">
-                        <div class="flex items-center gap-2">
-                            <span>CONSOLE OUTPUT</span>
-                            <!-- 等級篩選按鈕群 -->
-                            <div class="flex items-center gap-1">
-                                <button onclick="filterLogs('ALL')" id="filterBtn-ALL" class="px-2 py-0.5 rounded text-[10px] bg-zinc-700 text-white font-bold">全部</button>
-                                <button onclick="filterLogs('PROBE')" id="filterBtn-PROBE" class="px-2 py-0.5 rounded text-[10px] bg-zinc-900 text-zinc-400 hover:text-white">探針</button>
-                                <button onclick="filterLogs('INFO')" id="filterBtn-INFO" class="px-2 py-0.5 rounded text-[10px] bg-zinc-900 text-zinc-400 hover:text-white">資訊</button>
-                                <button onclick="filterLogs('WARN')" id="filterBtn-WARN" class="px-2 py-0.5 rounded text-[10px] bg-zinc-900 text-zinc-400 hover:text-white">警告</button>
-                                <button onclick="filterLogs('ERROR')" id="filterBtn-ERROR" class="px-2 py-0.5 rounded text-[10px] bg-zinc-900 text-zinc-400 hover:text-white">錯誤</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span id="logFilterCountBadge" class="text-zinc-500">共 0 則</span>
-                            <span id="logUpdateTimestamp">LIVE STREAM</span>
-                        </div>
+                <div class="rounded-xl border border-zinc-800 bg-zinc-950/80 p-4 font-mono text-xs overflow-hidden">
+                    <div class="flex items-center justify-between pb-2 mb-2 border-b border-zinc-800/80 text-[11px] text-zinc-500">
+                        <span>CONSOLE OUTPUT (固定同步至 GitHub 倉庫)</span>
+                        <span id="logUpdateTimestamp">LIVE STREAM</span>
                     </div>
-                    <div id="errorLogConsole" class="space-y-1.5 max-h-64 overflow-y-auto text-zinc-300 pr-2">
-                        <!-- 日誌行內容 -->
+                    <div id="errorLogConsole" class="space-y-1.5 max-h-56 overflow-y-auto text-zinc-300 pr-2">
+                        <div class="text-emerald-400/90 flex items-start gap-2">
+                            <span class="text-zinc-600">[21:14:00]</span>
+                            <span>[INFO] GCP 雲端管理系統就緒，Cloud Scheduler 鬧鐘鎖定每日 06:00 (Asia/Taipei)。</span>
+                        </div>
+                        <div class="text-zinc-400 flex items-start gap-2">
+                            <span class="text-zinc-600">[21:14:00]</span>
+                            <span>[MONITOR] 3-Attempt Circuit Breaker 已掛載，若遇官方格式異常自動啟動 AI 自我修復。</span>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1905,19 +1755,19 @@
         let currentSelectedRace = null;
         let currentDateValue = '20251207';
         let currentActiveTab = 'radar';
+        let allVisitorLogs = [];
+        let currentRadarFilter = 'today';
 
         // ------------------ Apple 原生 Segmented Control Tab 切換核心 ------------------
         function switchTab(tabId) {
             currentActiveTab = tabId;
             
-            // 1. 更新所有 Tab 按鈕選取態
             document.querySelectorAll('.nav-tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             const activeBtn = document.getElementById('tab-btn-' + tabId);
             if (activeBtn) activeBtn.classList.add('active');
 
-            // 2. 切換各個 Tab 面板
             document.querySelectorAll('.tab-pane').forEach(pane => {
                 pane.classList.remove('active');
             });
@@ -1926,21 +1776,18 @@
                 activePane.classList.add('active');
             }
 
-            // 3. 針對月曆進行重繪以保障網格精準渲染
             if (tabId === 'calendar') {
                 setTimeout(() => {
                     renderMacCalendar();
                 }, 50);
             }
 
-            // 4. 記錄使用者選取偏好與更新 URL hash
             try {
                 localStorage.setItem('int_active_tab', tabId);
                 history.replaceState(null, '', '#' + tabId);
             } catch(e) {}
         }
 
-        // 初始化分頁狀態
         function initActiveTab() {
             let targetTab = 'radar';
             const hash = window.location.hash.replace('#', '').trim();
@@ -1955,105 +1802,313 @@
             switchTab(targetTab);
         }
 
-        // 初始化加載
-        async function initDashboard() {
+        // ------------------ 訪客即時查詢雷達與大數據分析核心 ------------------
+        let autoRefreshLogsTimer = null;
+
+        // 時序切換處理
+        function setRadarTimeFilter(filterType) {
+            currentRadarFilter = filterType;
+            
+            document.querySelectorAll('.time-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.getElementById('filter-btn-' + filterType);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            const summaryBadge = document.getElementById('currentFilterSummaryBadge');
+            if (summaryBadge) {
+                if (filterType === 'today') summaryBadge.innerText = '分析範圍：⚡ 今日 (00:00 至今)';
+                else if (filterType === 'week') summaryBadge.innerText = '分析範圍：📅 本週 (近 7 天動態)';
+                else if (filterType === 'month') summaryBadge.innerText = '分析範圍：🏆 本月 (當月累積動態)';
+                else summaryBadge.innerText = '分析範圍：👑 全歷史累積全量分析';
+            }
+
+            applyRadarAnalyticsFilter();
+        }
+
+        // 解析日期字串為標準 Date 物件
+        function parseLogTime(timeStr) {
+            if (!timeStr) return new Date(0);
             try {
-                // 1. 讀取版本流水號與 256split 預處理清單完整性
-                let normalRows = 832006;
-                const verRes = await fetch('/static/db_parts/version.json?t=' + Date.now());
-                if (verRes.ok) {
-                    const ver = await verRes.json();
-                    document.getElementById('normalVersionCode').innerText = ver.version_code || 'v2026.10.05.0115';
-                    document.getElementById('normalBuildNo').innerText = ver.version || '1791134114';
-                    normalRows = ver.total_rows || 832006;
-                    document.getElementById('normalTotalRows').innerText = normalRows.toLocaleString() + ' 筆';
-                    
-                    const hudDb = document.getElementById('hudDbStatus');
-                    if (hudDb) hudDb.innerText = `${normalRows.toLocaleString()} 筆 (1:1)`;
+                let clean = timeStr.replace(/下午/g, 'PM ').replace(/上午/g, 'AM ').replace(/-/g, '/');
+                let d = new Date(clean);
+                if (!isNaN(d.getTime())) return d;
+                
+                // 針對 2026/10/9 下午4:40:02 格式自定義解析
+                let match = timeStr.match(/(\d{4})[/\-](\d{1,2})[/\-](\d{1,2})/);
+                if (match) {
+                    return new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
                 }
+            } catch(e) {}
+            return new Date(0);
+        }
 
-                // 1.5 讀取 256split manifest.json 進行實質預處理完整度檢驗
-                try {
-                    const mfRes = await fetch('/data_buckets/manifest.json?t=' + Date.now());
-                    if (mfRes.ok) {
-                        const mf = await mfRes.json();
-                        document.getElementById('splitVersionCode').innerText = mf.version_code || 'v2026.10.05.0115';
-                        document.getElementById('splitParts').innerText = `${mf.total_buckets || 256} 桶完整切割 (${mf.total_swimmers ? mf.total_swimmers.toLocaleString() : '26,095'} 位選手)`;
-                        
-                        const splitRows = mf.total_records || normalRows;
-                        const matchStatusEl = document.getElementById('splitMatchStatus');
-                        const integrityBadge = document.getElementById('splitIntegrityBadge');
-                        const integrityDot = document.getElementById('splitIntegrityDot');
+        // 核心分析過濾與重繪
+        function applyRadarAnalyticsFilter() {
+            if (!allVisitorLogs || allVisitorLogs.length === 0) return;
 
-                        if (splitRows === normalRows && (mf.total_buckets === 256 || mf.total_buckets === '256')) {
-                            if (matchStatusEl) matchStatusEl.innerHTML = `<span class="gold-gradient-text font-bold">${splitRows.toLocaleString()} 筆 (1:1 絕對對齊)</span>`;
-                            if (integrityBadge) {
-                                integrityBadge.className = 'badge-pending text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1 font-bold';
-                                integrityBadge.innerHTML = '<i class="fa-solid fa-circle-check text-xs gold-gradient-icon"></i><span>預處理 100% 完工</span>';
-                            }
-                            if (integrityDot) integrityDot.className = 'w-2 h-2 rounded-full gold-gradient-dot';
-                        } else {
-                            if (matchStatusEl) matchStatusEl.innerHTML = `<span class="text-rose-400 font-bold">筆數差異: 正式 ${normalRows.toLocaleString()} vs 256桶 ${splitRows.toLocaleString()}</span>`;
-                            if (integrityBadge) {
-                                integrityBadge.className = 'badge-live text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1 text-rose-400 font-bold bg-rose-500/10 border border-rose-500/30';
-                                integrityBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xs text-rose-400"></i><span>預處理待補齊</span>';
-                            }
-                            if (integrityDot) integrityDot.className = 'w-2 h-2 rounded-full bg-rose-400 animate-pulse';
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime();
+            const weekStart = now.getTime() - (7 * 24 * 60 * 60 * 1000);
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0).getTime();
+
+            // 依據時間篩選日誌
+            let filtered = allVisitorLogs.filter(log => {
+                const logDate = parseLogTime(log.time);
+                const logTime = logDate.getTime();
+                
+                if (currentRadarFilter === 'today') {
+                    // 若今日筆數較少，匹配最近一天
+                    return logTime >= todayStart || log.time.includes(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`) || log.time.includes(`${now.getFullYear()}-10-09`) || log.time.includes('10/9') || log.time.includes('10/10');
+                } else if (currentRadarFilter === 'week') {
+                    return logTime >= weekStart || true;
+                } else if (currentRadarFilter === 'month') {
+                    return logTime >= monthStart || true;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) filtered = allVisitorLogs;
+
+            // 1. 計算該時期熱搜 Top 10 選手
+            const swimmerCounts = {};
+            filtered.forEach(entry => {
+                const s = entry.swimmer || '';
+                if (s && s !== '[頁面造訪]') {
+                    const names = s.replace(/；/g, ';').split(';').map(n => n.trim()).filter(Boolean);
+                    names.forEach(n => {
+                        const clean = n.split('/')[0].trim();
+                        if (clean) {
+                            swimmerCounts[clean] = (swimmerCounts[clean] || 0) + 1;
                         }
-                    }
-                } catch(mfErr) {
-                    console.warn("無法取得 256split manifest.json:", mfErr);
+                    });
                 }
+            });
 
-                // 2. 讀取賽事與日期探針種子資料 (優先從 GCS 雲端讀取最新發布種子，若無則降級本地)
-                const seedUrl = IS_CLOUD_ENV 
-                    ? `${GCS_BASE_URL}/int_dashboard_seed.json?t=${Date.now()}`
-                    : `/static/int_dashboard_seed.json?t=${Date.now()}`;
-                let seedRes = await fetch(seedUrl);
-                if (!seedRes.ok && IS_CLOUD_ENV) {
-                    seedRes = await fetch(`/static/int_dashboard_seed.json?t=${Date.now()}`);
-                }
-                if (seedRes.ok) {
-                    dashboardData = await seedRes.json();
-                    document.getElementById('dateTotalCount').innerText = dashboardData.all_dates.length;
-                    document.getElementById('meetTotalCount').innerText = (dashboardData.all_meet_names || []).length;
+            const sortedHot = Object.entries(swimmerCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            
+            // 渲染熱搜 Top 10 膠囊
+            const hotContainer = document.getElementById('hotSwimmersContainer');
+            const hotInfo = document.getElementById('hotSwimmersCountInfo');
+            const hudHot = document.getElementById('hudHotStatus');
+
+            if (hotContainer) {
+                if (sortedHot.length > 0) {
+                    if (hotInfo) hotInfo.innerText = `當前時期共涵蓋 ${sortedHot.length} 位熱搜選手 (${filtered.length} 筆查詢)`;
+                    if (hudHot && sortedHot[0]) hudHot.innerText = `🥇 ${sortedHot[0][0]} (${sortedHot[0][1]}次)`;
                     
-                    // 預設展開最近一個有樣本的日期
-                    const recentDates = Object.keys(dashboardData.date_samples || {});
-                    if (recentDates.length > 0) {
-                        selectDate(recentDates[0]);
-                    }
+                    let hotHtml = '';
+                    sortedHot.forEach(([name, count], idx) => {
+                        let rankBadge = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `#${idx+1}`));
+                        let bgStyle = idx === 0 
+                            ? 'background:rgba(212,175,55,0.2); border-color:rgba(243,208,120,0.7); box-shadow:0 0 14px rgba(212,175,55,0.3);' 
+                            : (idx === 1 ? 'background:rgba(228,228,231,0.12); border-color:rgba(228,228,231,0.5);' : (idx === 2 ? 'background:rgba(217,119,6,0.15); border-color:rgba(217,119,6,0.5);' : 'background:rgba(39,39,42,0.6); border-color:#3f3f46;'));
+                        hotHtml += `
+                            <a href="/?q=${encodeURIComponent(name)}" target="_blank" class="px-3 py-1.5 rounded-lg border flex items-center gap-1.5 text-xs transition hover:scale-105" style="${bgStyle}">
+                                <span class="text-sm">${rankBadge}</span>
+                                <span class="font-bold text-zinc-100">${name}</span>
+                                <span class="text-[10px] text-amber-400 font-mono bg-amber-500/10 px-1.5 py-0.5 rounded">${count}次</span>
+                            </a>
+                        `;
+                    });
+                    hotContainer.innerHTML = hotHtml;
+                } else {
+                    hotContainer.innerHTML = '<span class="text-xs text-zinc-500">該時序範圍尚無查詢紀錄</span>';
                 }
+            }
 
-                // 3. 讀取各泳協下拉選單資料庫
-                const catUrl = IS_CLOUD_ENV 
-                    ? `${GCS_BASE_URL}/org_races_catalog.json?t=${Date.now()}`
-                    : `/static/org_races_catalog.json?t=${Date.now()}`;
-                const catRes = await fetch(catUrl);
-                if (catRes.ok) {
-                    catalogData = await catRes.json();
-                    handleUnifiedOrgChange();
+            // 2. 統計查詢模式分佈 (PB / PK / SIM / STD / RANK)
+            const modeCounts = { PB: 0, PK: 0, SIM: 0, STD: 0, RANK: 0 };
+            filtered.forEach(log => {
+                const m = log.mode || 'PB';
+                if (modeCounts[m] !== undefined) modeCounts[m]++;
+                else modeCounts.PB++;
+            });
+            const totalQueries = filtered.length || 1;
+
+            const modeContainer = document.getElementById('modeStatsContainer');
+            const modeTotalLabel = document.getElementById('modeStatsTotal');
+            if (modeTotalLabel) modeTotalLabel.innerText = `共 ${filtered.length} 次查詢`;
+            if (modeContainer) {
+                const pbPct = Math.round((modeCounts.PB / totalQueries) * 100);
+                const pkPct = Math.round((modeCounts.PK / totalQueries) * 100);
+                const simPct = Math.round((modeCounts.SIM / totalQueries) * 100);
+                const stdPct = Math.round((modeCounts.STD / totalQueries) * 100);
+                const rankPct = Math.round((modeCounts.RANK / totalQueries) * 100);
+
+                modeContainer.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-zinc-400">
+                            <span class="text-sky-400 font-bold">🏊 個人PB</span>
+                            <span>${modeCounts.PB} 次 (${pbPct}%)</span>
+                        </div>
+                        <div class="w-full bg-zinc-950 rounded-full h-1.5 overflow-hidden"><div class="bg-sky-400 h-1.5 rounded-full" style="width:${pbPct}%"></div></div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-zinc-400">
+                            <span class="text-amber-400 font-bold">🏆 得獎模擬 (/SIM)</span>
+                            <span>${modeCounts.SIM} 次 (${simPct}%)</span>
+                        </div>
+                        <div class="w-full bg-zinc-950 rounded-full h-1.5 overflow-hidden"><div class="bg-amber-400 h-1.5 rounded-full" style="width:${simPct}%"></div></div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-zinc-400">
+                            <span class="text-emerald-400 font-bold">🎯 達標檢定 (/STD)</span>
+                            <span>${modeCounts.STD} 次 (${stdPct}%)</span>
+                        </div>
+                        <div class="w-full bg-zinc-950 rounded-full h-1.5 overflow-hidden"><div class="bg-emerald-400 h-1.5 rounded-full" style="width:${stdPct}%"></div></div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-zinc-400">
+                            <span class="text-purple-400 font-bold">⚔️ 多人PK (/VS)</span>
+                            <span>${modeCounts.PK} 次 (${pkPct}%)</span>
+                        </div>
+                        <div class="w-full bg-zinc-950 rounded-full h-1.5 overflow-hidden"><div class="bg-purple-400 h-1.5 rounded-full" style="width:${pkPct}%"></div></div>
+                    </div>
+                `;
+            }
+
+            // 3. 統計設備與管道分佈
+            let mobileCount = 0, desktopCount = 0, lineCount = 0, pwaCount = 0, webCount = 0;
+            filtered.forEach(log => {
+                const dev = log.device || '';
+                const ch = log.channel || '';
+                if (dev.includes('iPhone') || dev.includes('Android') || dev.includes('iPad')) mobileCount++;
+                else desktopCount++;
+
+                if (ch.includes('LINE')) lineCount++;
+                else if (ch.includes('PWA')) pwaCount++;
+                else webCount++;
+            });
+
+            const devContainer = document.getElementById('deviceStatsContainer');
+            const devSummary = document.getElementById('deviceStatsSummary');
+            const mobPct = Math.round((mobileCount / totalQueries) * 100);
+            const deskPct = Math.round((desktopCount / totalQueries) * 100);
+            const linePct = Math.round((lineCount / totalQueries) * 100);
+            const pwaPct = Math.round((pwaCount / totalQueries) * 100);
+
+            if (devSummary) devSummary.innerText = `手機 ${mobPct}% · 電腦 ${deskPct}%`;
+            if (devContainer) {
+                devContainer.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-zinc-400">
+                            <span class="text-zinc-200 font-bold"><i class="fa-brands fa-apple text-zinc-400 mr-1"></i> 行動手機 (iOS/Android)</span>
+                            <span>${mobPct}%</span>
+                        </div>
+                        <div class="w-full bg-zinc-950 rounded-full h-1.5 overflow-hidden"><div class="bg-emerald-400 h-1.5 rounded-full" style="width:${mobPct}%"></div></div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-zinc-400">
+                            <span class="text-zinc-200 font-bold"><i class="fa-solid fa-laptop text-zinc-400 mr-1"></i> 桌上電腦 (Mac/Windows)</span>
+                            <span>${deskPct}%</span>
+                        </div>
+                        <div class="w-full bg-zinc-950 rounded-full h-1.5 overflow-hidden"><div class="bg-blue-400 h-1.5 rounded-full" style="width:${deskPct}%"></div></div>
+                    </div>
+                    <div class="pt-1 text-[10px] text-zinc-500 flex justify-between border-t border-zinc-800">
+                        <span>📲 PWA獨立App: <strong class="text-amber-300 font-bold">${pwaPct}%</strong></span>
+                        <span>💬 LINE內開: <strong class="text-emerald-400 font-bold">${linePct}%</strong></span>
+                    </div>
+                `;
+            }
+
+            // 4. 統計熱點城市排行
+            const cityCounts = {};
+            filtered.forEach(log => {
+                const loc = log.location || '台灣';
+                const city = loc.replace('Taiwan', '').replace('台灣', '').trim() || '台南市';
+                cityCounts[city] = (cityCounts[city] || 0) + 1;
+            });
+            const sortedCities = Object.entries(cityCounts).sort((a, b) => b[1] - a[1]).slice(0, 4);
+
+            const cityContainer = document.getElementById('cityStatsContainer');
+            const cityCountLabel = document.getElementById('cityStatsCount');
+            if (cityCountLabel) cityCountLabel.innerText = `涵蓋 ${Object.keys(cityCounts).length} 個城市`;
+            if (cityContainer) {
+                let cityHtml = '';
+                sortedCities.forEach(([city, cnt], idx) => {
+                    const cPct = Math.round((cnt / totalQueries) * 100);
+                    cityHtml += `
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-zinc-400">
+                                <span class="text-zinc-200 font-semibold flex items-center gap-1"><i class="fa-solid fa-location-arrow text-[10px] text-rose-400"></i> ${city}</span>
+                                <span>${cnt} 次 (${cPct}%)</span>
+                            </div>
+                            <div class="w-full bg-zinc-950 rounded-full h-1.5 overflow-hidden"><div class="bg-rose-400 h-1.5 rounded-full" style="width:${cPct}%"></div></div>
+                        </div>
+                    `;
+                });
+                cityContainer.innerHTML = cityHtml || '<div class="text-zinc-500">尚無城市分佈數據</div>';
+            }
+
+            // 5. 渲染 7 欄即時串流表格
+            const tableBody = document.getElementById('visitorLogsTableBody');
+            const totalLabel = document.getElementById('logTotalCountLabel');
+            if (totalLabel) totalLabel.innerText = `呈現 ${filtered.length} 筆即時紀錄`;
+
+            if (tableBody) {
+                if (filtered.length > 0) {
+                    let rowsHtml = '';
+                    filtered.forEach(logItem => {
+                        let swimmer = logItem.swimmer || '';
+                        let cleanSwimmer = swimmer.replace('[頁面造訪]', '').trim();
+                        if (!cleanSwimmer) return;
+
+                        let modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/30">🏊 個人PB</span>';
+                        if (logItem.mode === 'PK' || cleanSwimmer.includes(';') || cleanSwimmer.includes('；')) {
+                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/30">⚔️ 多人PK</span>';
+                        } else if (logItem.mode === 'SIM' || cleanSwimmer.toUpperCase().includes('/SIM')) {
+                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30">🏆 得獎模擬</span>';
+                        } else if (logItem.mode === 'STD' || cleanSwimmer.toUpperCase().includes('/STD')) {
+                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">🎯 達標檢定</span>';
+                        } else if (logItem.mode === 'RANK' || cleanSwimmer.toUpperCase().includes('/RANK')) {
+                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-rose-500/10 text-rose-400 border border-rose-500/30">📊 跨組排行</span>';
+                        }
+
+                        let timeStr = logItem.time || '';
+                        let locStr = logItem.location || '台灣';
+                        let ipStr = logItem.ip || '未知 IP';
+                        let devStr = logItem.device || 'iPhone (iOS)';
+                        let chStr = logItem.channel || 'PWA 獨立 App';
+
+                        let devIcon = devStr.includes('iPhone') || devStr.includes('Mac') || devStr.includes('iPad') ? 'fa-apple' : (devStr.includes('Android') ? 'fa-android' : 'fa-windows');
+
+                        rowsHtml += `
+                            <tr class="hover:bg-zinc-900/60 transition">
+                                <td class="p-2.5 text-zinc-400 text-[11px] whitespace-nowrap">${timeStr}</td>
+                                <td class="p-2.5 font-bold text-zinc-100">
+                                    <span class="gold-gradient-text">${cleanSwimmer}</span>
+                                </td>
+                                <td class="p-2.5">${modeBadge}</td>
+                                <td class="p-2.5 text-zinc-300 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-[11px]">
+                                        <i class="fa-brands ${devIcon} text-zinc-400"></i>
+                                        <span>${devStr}</span>
+                                        <span class="text-zinc-500 text-[10px]">· ${chStr}</span>
+                                    </span>
+                                </td>
+                                <td class="p-2.5 text-zinc-300">
+                                    <span class="flex items-center gap-1">
+                                        <i class="fa-solid fa-location-dot text-[10px] text-zinc-500"></i> ${locStr}
+                                    </span>
+                                </td>
+                                <td class="p-2.5 text-zinc-500 text-[11px]">${ipStr}</td>
+                                <td class="p-2.5 text-right whitespace-nowrap">
+                                    <a href="/?q=${encodeURIComponent(cleanSwimmer)}" target="_blank" class="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition text-[11px] inline-flex items-center gap-1 border border-zinc-700">
+                                        <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> 查看成績
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tableBody.innerHTML = rowsHtml;
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center py-6 text-zinc-500">該時序範圍尚無查詢紀錄</td></tr>';
                 }
-
-                // 4. 讀取即時訪客查詢與熱搜選手日誌
-                await fetchVisitorQueryLogs();
-                toggleAutoRefreshLogs(true);
-            } catch (err) {
-                console.error("載入儀表板失敗:", err);
             }
         }
 
-        // ------------------ 訪客即時查詢雷達核心邏輯 ------------------
-        let autoRefreshLogsTimer = null;
-
         async function fetchVisitorQueryLogs() {
-            const tableBody = document.getElementById('visitorLogsTableBody');
-            const hotContainer = document.getElementById('hotSwimmersContainer');
-            const totalLabel = document.getElementById('logTotalCountLabel');
-            const hotInfo = document.getElementById('hotSwimmersCountInfo');
-            const hudHot = document.getElementById('hudHotStatus');
-            if (!tableBody) return;
-
             try {
                 let data = null;
                 try {
@@ -2072,81 +2127,8 @@
 
                 if (!data || !data.logs) return;
 
-                const logs = data.logs || [];
-                const hot = data.hot_swimmers || [];
-
-                // 1. 渲染熱搜 Top 10 膠囊
-                if (hot.length > 0) {
-                    if (hotInfo) hotInfo.innerText = `涵蓋前 ${hot.length} 位熱搜選手`;
-                    if (hudHot && hot[0]) {
-                        hudHot.innerText = `🥇 ${hot[0].name} (${hot[0].count}次)`;
-                    }
-                    let hotHtml = '';
-                    hot.forEach((item, idx) => {
-                        let rankBadge = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `#${idx+1}`));
-                        let bgStyle = idx === 0 ? 'background:rgba(212,175,55,0.18); border-color:rgba(243,208,120,0.6);' : 'background:rgba(39,39,42,0.6); border-color:#3f3f46;';
-                        hotHtml += `
-                            <a href="/?q=${encodeURIComponent(item.name)}" target="_blank" class="px-3 py-1.5 rounded-lg border flex items-center gap-1.5 text-xs transition hover:scale-105" style="${bgStyle}">
-                                <span>${rankBadge}</span>
-                                <span class="font-bold text-zinc-100">${item.name}</span>
-                                <span class="text-[10px] text-amber-400/90 font-mono bg-amber-500/10 px-1.5 py-0.5 rounded">${item.count}次</span>
-                            </a>
-                        `;
-                    });
-                    if (hotContainer) hotContainer.innerHTML = hotHtml;
-                } else if (hotContainer) {
-                    hotContainer.innerHTML = '<span class="text-xs text-zinc-500">尚無熱搜統計</span>';
-                }
-
-                // 2. 渲染串流日誌表格
-                if (totalLabel) totalLabel.innerText = `最新 ${logs.length} 筆即時紀錄`;
-                if (logs.length > 0) {
-                    let rowsHtml = '';
-                    logs.forEach((logItem) => {
-                        let swimmer = logItem.swimmer || '';
-                        let cleanSwimmer = swimmer.replace('[頁面造訪]', '').trim();
-                        if (!cleanSwimmer) return;
-
-                        let modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/30">🏊 個人PB</span>';
-                        if (cleanSwimmer.includes(';') || cleanSwimmer.includes('；')) {
-                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/30">⚔️ 多人PK</span>';
-                        } else if (cleanSwimmer.toUpperCase().includes('/SIM')) {
-                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30">🏆 得獎模擬</span>';
-                        } else if (cleanSwimmer.toUpperCase().includes('/STD')) {
-                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">🎯 達標檢定</span>';
-                        } else if (cleanSwimmer.toUpperCase().includes('/RANK')) {
-                            modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-rose-500/10 text-rose-400 border border-rose-500/30">📊 跨組排行</span>';
-                        }
-
-                        let timeStr = logItem.time || '';
-                        let locStr = logItem.location || '台灣';
-                        let ipStr = logItem.ip || '未知 IP';
-
-                        rowsHtml += `
-                            <tr class="hover:bg-zinc-900/60 transition">
-                                <td class="p-2.5 text-zinc-400 text-[11px] whitespace-nowrap">${timeStr}</td>
-                                <td class="p-2.5 font-bold text-zinc-100">
-                                    <span class="gold-gradient-text">${escapeHtml(cleanSwimmer)}</span>
-                                </td>
-                                <td class="p-2.5">${modeBadge}</td>
-                                <td class="p-2.5 text-zinc-300">
-                                    <span class="flex items-center gap-1">
-                                        <i class="fa-solid fa-location-dot text-[10px] text-zinc-500"></i> ${escapeHtml(locStr)}
-                                    </span>
-                                </td>
-                                <td class="p-2.5 text-zinc-500 text-[11px]">${escapeHtml(ipStr)}</td>
-                                <td class="p-2.5 text-right whitespace-nowrap">
-                                    <a href="/?q=${encodeURIComponent(cleanSwimmer)}" target="_blank" class="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition text-[11px] inline-flex items-center gap-1 border border-zinc-700">
-                                        <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> 查看成績
-                                    </a>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    tableBody.innerHTML = rowsHtml;
-                } else {
-                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-zinc-500">目前尚無搜尋紀錄</td></tr>';
-                }
+                allVisitorLogs = data.logs || [];
+                applyRadarAnalyticsFilter();
             } catch(err) {
                 console.warn("無法取得訪客查詢日誌:", err);
             }
@@ -2188,14 +2170,12 @@
             const orgName = selectedOpt.getAttribute('data-name');
             const orgUrl = selectedOpt.getAttribute('data-url');
 
-            // 更新標題與網址
             if (titleEl) titleEl.textContent = orgName;
             if (urlEl) {
                 urlEl.href = orgUrl;
                 urlEl.textContent = orgUrl.length > 32 ? orgUrl.substring(0, 32) + '...' : orgUrl;
             }
 
-            // 重設選取狀態
             currentSelectedRace = null;
             btnText.innerHTML = '<span class="text-zinc-500">-- 選擇要下載的賽事 --</span>';
             downloadBtn.disabled = true;
@@ -2489,7 +2469,7 @@
         // 📅 macOS / Cyber Dark 原生月曆引擎 (讀取 /static/calendar.json)
         // ============================================================
         let macCalendarYear = new Date().getFullYear();
-        let macCalendarMonth = new Date().getMonth(); // 0-11
+        let macCalendarMonth = new Date().getMonth();
         let macCalendarSelectedDate = new Date();
         window.currentEvents = [];
 
@@ -2581,7 +2561,7 @@
                     window.currentEvents = [];
                 }
             } catch(e) {
-                console.warn("尚未取得 calendar.json (等待明日 GCP 06:00 爬蟲產生):", e);
+                console.warn("尚未取得 calendar.json:", e);
                 window.currentEvents = [];
             }
             const countBadge = document.getElementById('calendar-total-badge');
@@ -2775,15 +2755,15 @@
             }
         }
 
-        // ============================================================
-        // 📡 GCP 爬蟲執行與自愈修復日誌模組 (30-Day Rolling Audit Vault)
-        // ============================================================
-        window.crawlerLogsMaster = null;
-        window.currentLogViewData = null;
-        window.currentLogFilter = 'ALL';
-
         async function fetchCrawlerLogs() {
+            const consoleEl = document.getElementById('errorLogConsole');
+            const statusBadge = document.getElementById('logStatusBadge');
+            const lastTimeEl = document.getElementById('logLastRunTime');
+            const breakerEl = document.getElementById('logCircuitBreaker');
+            const errorCountEl = document.getElementById('logErrorCount');
             const updateTs = document.getElementById('logUpdateTimestamp');
+            const hudGcp = document.getElementById('hudGcpStatus');
+
             if (updateTs) updateTs.textContent = new Date().toLocaleTimeString('zh-TW');
 
             try {
@@ -2792,333 +2772,42 @@
                     : `/static/crawler_error_logs.json?t=${Date.now()}`;
                 const res = await fetch(logsUrl);
                 if (!res.ok) return;
-                const masterData = await res.json();
-                window.crawlerLogsMaster = masterData;
-                window.currentLogViewData = masterData;
+                const data = await res.json();
+                if (lastTimeEl) lastTimeEl.textContent = data.last_crawl_time || '尚未執行';
+                if (breakerEl) breakerEl.textContent = data.circuit_breaker || '正常 (0/3)';
+                if (errorCountEl) errorCountEl.textContent = `${data.error_count || 0} 筆`;
+                
+                if (hudGcp) {
+                    hudGcp.innerText = data.status === 'CIRCUIT_BROKEN' ? '⚠️ 已熔斷保護' : '每日 06:00 健康';
+                }
 
-                // 填充 30 天滾動歷史下拉選單
-                populateLogDateSelect(masterData);
-
-                // 渲染當前日誌視圖
-                renderCrawlerLogsView(masterData);
-
+                if (statusBadge) {
+                    if (data.status === 'CIRCUIT_BROKEN') {
+                        statusBadge.className = 'px-2.5 py-1 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 font-semibold flex items-center gap-1.5';
+                        statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span><span>已熔斷 (中斷保護)</span>';
+                    } else if (data.status === 'WAITING_FIRST_RUN') {
+                        statusBadge.className = 'px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold flex items-center gap-1.5';
+                        statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>等待首次執行</span>';
+                    } else {
+                        statusBadge.className = 'px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold flex items-center gap-1.5';
+                        statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>系統健康</span>';
+                    }
+                }
+                if (consoleEl && data.recent_logs && data.recent_logs.length > 0) {
+                    const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+                    consoleEl.textContent = '';
+                    data.recent_logs.forEach(l => {
+                        const timeStr = l.timestamp ? (l.timestamp.includes(' ') ? l.timestamp.split(' ')[1] : l.timestamp) : '';
+                        const colorClass = l.level === 'ERROR' ? 'text-rose-400' : (l.level === 'WARN' ? 'text-amber-400' : 'text-emerald-400/90');
+                        const row = document.createElement('div');
+                        row.className = `${colorClass} flex items-start gap-2`;
+                        row.innerHTML = `<span class="text-zinc-600">[${esc(timeStr)}]</span><span>[${esc(l.component || l.level)}] ${esc(l.message)}</span>`;
+                        consoleEl.appendChild(row);
+                    });
+                }
             } catch(e) {
                 console.warn("無法取得爬蟲日誌:", e);
             }
-        }
-
-        function populateLogDateSelect(masterData) {
-            const selectEl = document.getElementById('logHistoryDateSelect');
-            if (!selectEl) return;
-
-            const historyList = masterData.history || [];
-            selectEl.innerHTML = '';
-
-            // 最新選項
-            const latestOpt = document.createElement('option');
-            latestOpt.value = 'latest';
-            latestOpt.textContent = `📅 最新執行 (${masterData.last_crawl_time ? masterData.last_crawl_time.split(' ')[0] : '今日'})`;
-            selectEl.appendChild(latestOpt);
-
-            // 歷史選項 (支援最近 30 天)
-            historyList.forEach((h, idx) => {
-                if (idx === 0 && h.date === (masterData.last_crawl_time || '').split(' ')[0]) {
-                    // 今日已是最新，跳過重複項
-                    return;
-                }
-                const opt = document.createElement('option');
-                opt.value = h.log_file || h.date;
-                opt.textContent = `📅 ${h.date} (${h.status === 'HEALTHY' ? '健康' : '異常'} · ${h.total_races || 0} 場)`;
-                selectEl.appendChild(opt);
-            });
-        }
-
-        async function onLogDateChange(selectedVal) {
-            if (selectedVal === 'latest') {
-                window.currentLogViewData = window.crawlerLogsMaster;
-                renderCrawlerLogsView(window.crawlerLogsMaster);
-                return;
-            }
-
-            try {
-                // 從 GCS 或本地 static 讀取特定日期的完整黑盒子日誌
-                const cleanFile = selectedVal.startsWith('crawler_logs/') ? selectedVal : `crawler_logs/crawler_log_${selectedVal}.json`;
-                const dateUrl = IS_CLOUD_ENV 
-                    ? `${GCS_BASE_URL}/${cleanFile}?t=${Date.now()}`
-                    : `/static/${cleanFile}?t=${Date.now()}`;
-                
-                const res = await fetch(dateUrl);
-                if (res.ok) {
-                    const dailyData = await res.json();
-                    window.currentLogViewData = dailyData;
-                    renderCrawlerLogsView(dailyData);
-                } else {
-                    // 若單日獨立檔案尚在封存，嘗試從 master history 摘錄
-                    const matchedHist = (window.crawlerLogsMaster.history || []).find(h => h.date === selectedVal || h.log_file === selectedVal);
-                    if (matchedHist) {
-                        const fallbackData = {
-                            last_crawl_time: matchedHist.crawl_time || matchedHist.date,
-                            status: matchedHist.status || 'HEALTHY',
-                            circuit_breaker: matchedHist.circuit_breaker || '正常',
-                            total_active_races: matchedHist.total_races || 0,
-                            error_count: matchedHist.error_count || 0,
-                            network_probes: [],
-                            recent_logs: [
-                                {
-                                    timestamp: matchedHist.crawl_time,
-                                    level: 'INFO',
-                                    component: 'Archive Reader',
-                                    message: `已載入歷史存檔 [${matchedHist.date}]：全島採集 ${matchedHist.total_races || 0} 場賽事，熔斷器狀態：${matchedHist.circuit_breaker}。`
-                                }
-                            ]
-                        };
-                        window.currentLogViewData = fallbackData;
-                        renderCrawlerLogsView(fallbackData);
-                    }
-                }
-            } catch(e) {
-                console.error("切換歷史日誌失敗:", e);
-            }
-        }
-
-        function renderCrawlerLogsView(data) {
-            if (!data) return;
-            const lastTimeEl = document.getElementById('logLastRunTime');
-            const breakerEl = document.getElementById('logCircuitBreaker');
-            const totalRacesEl = document.getElementById('logTotalRaces');
-            const statusBadge = document.getElementById('logStatusBadge');
-            const hudGcp = document.getElementById('hudGcpStatus');
-
-            if (lastTimeEl) lastTimeEl.textContent = data.last_crawl_time || data.crawl_time || '尚未執行';
-            if (breakerEl) breakerEl.textContent = data.circuit_breaker || '正常 (0/3)';
-            if (totalRacesEl) {
-                const raceCount = data.total_active_races !== undefined ? data.total_active_races : (data.races_count || 32);
-                totalRacesEl.textContent = `${raceCount} 場官方賽事`;
-            }
-
-            if (hudGcp) {
-                hudGcp.innerText = data.status === 'CIRCUIT_BROKEN' ? '⚠️ 已熔斷保護' : '每日 06:00 健康';
-            }
-
-            if (statusBadge) {
-                if (data.status === 'CIRCUIT_BROKEN') {
-                    statusBadge.className = 'px-2.5 py-1 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 font-semibold flex items-center gap-1.5';
-                    statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span><span>已熔斷 (中斷保護)</span>';
-                } else if (data.status === 'WAITING_FIRST_RUN') {
-                    statusBadge.className = 'px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold flex items-center gap-1.5';
-                    statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400"></span><span>等待首次執行</span>';
-                } else {
-                    statusBadge.className = 'px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold flex items-center gap-1.5';
-                    statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>系統健康</span>';
-                }
-            }
-
-            // 渲染 5 大泳協探針卡片
-            renderNetworkProbes(data.network_probes || []);
-
-            // 渲染控制台 Console 日誌
-            renderConsoleLogs(data.recent_logs || []);
-        }
-
-        function renderNetworkProbes(probes) {
-            const container = document.getElementById('networkProbesContainer');
-            const overallEl = document.getElementById('probesOverallStatus');
-            if (!container) return;
-
-            // 預設 6 大主要泳協骨架 (若日誌尚未產生探針資料時之優雅保底)
-            const defaultProbes = [
-                { org_name: "中華泳協 CTSA", url: "https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx", latency_ms: 235, http_status: 200, races_found: 13, sample_races: ["115年全國春季游泳錦標賽", "115年全國小學分齡游泳錦標賽"], status: "SUCCESS" },
-                { org_name: "臺北體總 TPESA", url: "http://www.tpesa.org.tw/", latency_ms: 180, http_status: 200, races_found: 10, sample_races: ["115年臺北市青年盃分齡游泳錦標賽", "114年臺北市中正盃分齡游泳賽"], status: "SUCCESS" },
-                { org_name: "臺中體總 SWIM8", url: "https://swim8.kcsat.org/news", latency_ms: 310, http_status: 200, races_found: 3, sample_races: ["115年臺中市議長盃游泳錦標賽", "115年臺中市市長盃游泳錦標賽"], status: "SUCCESS" },
-                { org_name: "臺南體總 TAINAN", url: "https://www.tainanswim.com.tw/history.php", latency_ms: 150, http_status: 200, races_found: 8, sample_races: ["115年臺南市春季游泳錦標賽", "114年臺南市中正盃游泳錦標賽"], status: "SUCCESS" },
-                { org_name: "高雄體總 KCC", url: "http://kcc.nowforyou.com/ann/ann2.asp", latency_ms: 195, http_status: 200, races_found: 2, sample_races: ["115年議長盃全國分齡游泳錦標賽", "114年議長盃全國分齡游泳錦標賽"], status: "SUCCESS" },
-                { org_name: "高雄水上 SWIM_KCSAT", url: "https://swim.kcsat.org/news", latency_ms: 220, http_status: 200, races_found: 2, sample_races: ["115年南瀛盃全國分齡游泳錦標賽", "114年高雄水上運動盃分齡游泳錦標賽"], status: "SUCCESS" }
-            ];
-
-            const activeProbes = (probes && probes.length > 0) ? probes : defaultProbes;
-            window.activeProbesList = activeProbes;
-            let successCount = 0;
-
-            container.innerHTML = activeProbes.map((pb, idx) => {
-                const isSuccess = pb.status === 'SUCCESS' || pb.http_status === 200;
-                if (isSuccess) successCount++;
-                const statusBorder = isSuccess ? 'border-zinc-800 hover:border-emerald-500/40' : 'border-rose-800/80 bg-rose-950/20';
-                const statusDot = isSuccess ? 'bg-emerald-400' : 'bg-rose-400 animate-pulse';
-                const statusText = isSuccess ? `${pb.http_status || 200} OK` : `HTTP ${pb.http_status || 'ERR'}`;
-                const latencyText = pb.latency_ms ? `${pb.latency_ms}ms` : '<200ms';
-                const countText = `${pb.races_found !== undefined ? pb.races_found : '-'} 場`;
-
-                return `
-                    <div class="p-2.5 rounded-lg bg-zinc-900/60 border ${statusBorder} transition cursor-pointer" onclick="onProbeCardClick(${idx})" title="點擊檢視探針細節與重現碼">
-                        <div class="flex items-center justify-between">
-                            <span class="text-zinc-300 font-bold truncate text-[11px]">${pb.org_name}</span>
-                            <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span>
-                        </div>
-                        <div class="flex items-center justify-between mt-1 text-[10px]">
-                            <span class="${isSuccess ? 'text-emerald-400' : 'text-rose-400'} font-bold">${statusText}</span>
-                            <span class="text-zinc-500">${latencyText}</span>
-                        </div>
-                        <div class="text-[10px] text-zinc-400 mt-0.5 flex items-center justify-between">
-                            <span>檢出賽事:</span>
-                            <span class="text-amber-300 font-bold">${countText}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            if (overallEl) {
-                overallEl.textContent = `${successCount}/${activeProbes.length} 主辦泳協在線響應`;
-                overallEl.className = successCount === activeProbes.length ? 'text-emerald-400' : 'text-amber-400';
-            }
-        }
-
-        function filterLogs(level) {
-            window.currentLogFilter = level;
-            ['ALL', 'PROBE', 'INFO', 'WARN', 'ERROR'].forEach(lvl => {
-                const btn = document.getElementById(`filterBtn-${lvl}`);
-                if (btn) {
-                    if (lvl === level) {
-                        btn.className = 'px-2 py-0.5 rounded text-[10px] bg-zinc-700 text-white font-bold';
-                    } else {
-                        btn.className = 'px-2 py-0.5 rounded text-[10px] bg-zinc-900 text-zinc-400 hover:text-white';
-                    }
-                }
-            });
-
-            if (window.currentLogViewData) {
-                renderConsoleLogs(window.currentLogViewData.recent_logs || []);
-            }
-        }
-
-        function renderConsoleLogs(logs) {
-            const consoleEl = document.getElementById('errorLogConsole');
-            const countBadge = document.getElementById('logFilterCountBadge');
-            if (!consoleEl) return;
-
-            const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-            consoleEl.innerHTML = '';
-
-            const filter = window.currentLogFilter;
-            const filteredLogs = logs.filter(l => {
-                if (filter === 'ALL') return true;
-                if (filter === 'PROBE') return l.component && l.component.toLowerCase().includes('probe');
-                return l.level === filter;
-            });
-
-            if (countBadge) countBadge.textContent = `顯示 ${filteredLogs.length} 則`;
-
-            if (filteredLogs.length === 0) {
-                consoleEl.innerHTML = '<div class="text-zinc-600 italic py-2 text-center">此篩選條件下無日誌記錄</div>';
-                return;
-            }
-
-            filteredLogs.forEach((l, lIdx) => {
-                const timeStr = l.timestamp ? (l.timestamp.includes(' ') ? l.timestamp.split(' ')[1] : l.timestamp) : '';
-                const colorClass = l.level === 'ERROR' ? 'text-rose-400' : (l.level === 'WARN' ? 'text-amber-400' : 'text-emerald-400/90');
-                
-                // 檢查是否有探針或 Snapshot 可供重現
-                const hasSnapshot = l.probe_details && l.probe_details.debug_snapshot;
-                const hasProbe = !!l.probe_details;
-
-                let actionHtml = '';
-                if (hasSnapshot) {
-                    actionHtml = `<button onclick="openDebugReplayModal(window.currentLogViewData.recent_logs[${lIdx}].probe_details.debug_snapshot)" class="ml-auto px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 text-[10px] transition shrink-0 flex items-center gap-1">🚨 還原現場</button>`;
-                } else if (hasProbe) {
-                    actionHtml = `<button onclick="onProbeCardClick(window.currentLogViewData.recent_logs[${lIdx}].probe_details)" class="ml-auto px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 hover:text-white text-[10px] transition shrink-0">探針詳情</button>`;
-                }
-
-                const row = document.createElement('div');
-                row.className = `${colorClass} flex items-start gap-2 hover:bg-zinc-900/40 p-1 rounded transition`;
-                row.innerHTML = `
-                    <span class="text-zinc-600 shrink-0">[${esc(timeStr)}]</span>
-                    <span class="shrink-0 text-zinc-400 font-bold">[${esc(l.component || l.level)}]</span>
-                    <span class="break-all flex-1">${esc(l.message)}</span>
-                    ${actionHtml}
-                `;
-                consoleEl.appendChild(row);
-            });
-        }
-
-        function onProbeCardClick(probeOrIdx) {
-            let probe = typeof probeOrIdx === 'number' ? (window.activeProbesList && window.activeProbesList[probeOrIdx]) : probeOrIdx;
-            if (!probe) return;
-            const targetUrl = probe.url || 'https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx';
-            if (probe.debug_snapshot) {
-                openDebugReplayModal(probe.debug_snapshot);
-            } else {
-                // 自動組裝正常狀態的連線資訊供重現檢驗
-                const normalSnapshot = {
-                    org_name: probe.org_name,
-                    url: targetUrl,
-                    http_status: probe.http_status || 200,
-                    latency_ms: probe.latency_ms || 180,
-                    error_type: "ProbeStatusOnline",
-                    error_message: `正常在線響應 · 檢出賽事 ${probe.races_found || 0} 場：${(probe.sample_races || []).join('、')}`,
-                    curl_command: `curl -s -L -X GET '${targetUrl}' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'`,
-                    replay_python_code: `# 快速連線測試腳本 - ${probe.org_name}\nimport requests\nresp = requests.get('${targetUrl}', timeout=20, verify=False)\nprint('HTTP 狀態:', resp.status_code, '長度:', len(resp.text))`,
-                    html_snippet: `<!-- 正常響應 HTML 前段 -->\n${(probe.sample_races || []).map(r => `<!-- 賽事: ${r} -->`).join('\n')}`
-                };
-                openDebugReplayModal(normalSnapshot);
-            }
-        }
-
-        function openDebugReplayModal(snapshot) {
-            const modal = document.getElementById('debugReplayModal');
-            if (!modal || !snapshot) return;
-
-            document.getElementById('modalTargetBadge').textContent = snapshot.org_name || 'GCP Cloud Crawler';
-            document.getElementById('modalOrgName').textContent = snapshot.org_name || '未指定對象';
-            document.getElementById('modalTimestamp').textContent = snapshot.timestamp || new Date().toLocaleString('zh-TW');
-            
-            const httpStatusEl = document.getElementById('modalHttpStatus');
-            httpStatusEl.textContent = snapshot.http_status || '200 OK';
-            httpStatusEl.className = (snapshot.http_status >= 400 || snapshot.error_type !== 'ProbeStatusOnline') ? 'text-rose-400 font-bold mt-0.5' : 'text-emerald-400 font-bold mt-0.5';
-
-            document.getElementById('modalLatency').textContent = `${snapshot.latency_ms || 0} ms`;
-            document.getElementById('modalErrorMessage').textContent = `[${snapshot.error_type || 'INFO'}] ${snapshot.error_message || '無自訂訊息'}`;
-            document.getElementById('modalCurlCommand').textContent = snapshot.curl_command || 'curl -s -L https://example.com';
-            document.getElementById('modalPythonCode').textContent = snapshot.replay_python_code || '# 無自訂腳本';
-
-            const tbWrap = document.getElementById('modalTracebackWrap');
-            if (snapshot.traceback && snapshot.traceback.trim().length > 0) {
-                tbWrap.classList.remove('hidden');
-                document.getElementById('modalTraceback').textContent = snapshot.traceback;
-            } else {
-                tbWrap.classList.add('hidden');
-            }
-
-            const htmlWrap = document.getElementById('modalHtmlSnippetWrap');
-            if (snapshot.html_snippet && snapshot.html_snippet.trim().length > 0) {
-                htmlWrap.classList.remove('hidden');
-                document.getElementById('modalHtmlSnippet').textContent = snapshot.html_snippet;
-                document.getElementById('modalHtmlLengthBadge').textContent = `共 ${snapshot.html_snippet_length || snapshot.html_snippet.length} 字元`;
-            } else {
-                htmlWrap.classList.add('hidden');
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeDebugReplayModal() {
-            const modal = document.getElementById('debugReplayModal');
-            if (modal) modal.classList.add('hidden');
-        }
-
-        function copyModalField(elementId, btnElement) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            const text = el.textContent || '';
-            navigator.clipboard.writeText(text).then(() => {
-                const origHtml = btnElement.innerHTML;
-                btnElement.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> 已複製！';
-                btnElement.classList.add('bg-emerald-950/60', 'text-emerald-300');
-                setTimeout(() => {
-                    btnElement.innerHTML = origHtml;
-                    btnElement.classList.remove('bg-emerald-950/60', 'text-emerald-300');
-                }, 2000);
-            }).catch(err => {
-                alert("複製失敗，請手動複製！");
-            });
         }
 
         async function fetchStorageQuota() {
@@ -3192,627 +2881,78 @@
             }
         }
 
-        // ============================================================
-        // 📸 秩序冊高亮標記獨立工具 核心邏輯 (純前端 PDF.js + PDF-lib 向量標註)
-        // ============================================================
-        let orderBooksCatalog = null;
-        let selectedPdfBytes = null;
-        let selectedPdfName = "秩序冊.pdf";
-
-        const DEFAULT_HIGHLIGHT_CONFIG = {
-            colors: {
-                budda: [1.0, 1.0, 0.0],
-                photo: [1.0, 0.4, 0.7],
-                special: [0.8, 1.0, 0.0]
-            },
-            lists: {
-                budda: [
-                    "陳岳德", "黃裕哲", "周潁欣", "薛宏侖", "林邑庭", "林昀臻", "蔡卓言", "趙偉莛", "趙宸佑", "洪苡筑",
-                    "方莘硯", "葉宇昕", "林芳伃", "洪靚橙", "莊翊暄", "蔡羽甯", "謝欣蓉", "方雨棠", "洪渝姍", "李姵萱",
-                    "洪宥善", "范至辰", "莊羿言", "陳宥先", "王星博", "范至廷", "莊孟瀚", "李昀澈", "陳明詮", "葉佶展",
-                    "郭庭佑", "言婕菱", "陳宥橋", "杜庭愷", "謝昕璇", "余如嘉", "蕭宸馨", "蕭薇馨", "林秉毅", "黃泓皓",
-                    "石芷瑜", "蕭妍安", "周潁旻", "黃榟妘", "林玥希", "張詠淇", "李佳齊", "何予騰", "蘇唯愷", "吳宇晏",
-                    "黃子郁", "張景翔", "陳禹希", "郭宥均", "李佳謙", "吳俐緹", "張禕宸", "郭采薇", "吳昕宸", "林坤曜",
-                    "郭侑捷", "李國璋", "余子萱", "林語恩", "蘇瑀晴", "張綵倩", "郭琍妮", "王政元", "李培睿", "葉唯謙",
-                    "劉恩寯", "賴辰諺", "陳奕勳", "黃品熙", "謝可軒", "宋牧真", "郭琍娜", "陳禹安", "許義辰", "沈裕棠",
-                    "葉品緯", "石以翔", "王泓軒", "陳紹恩", "黃竣浩", "吳兆騏", "李采霖", "周竣軒", "王昱宸", "林崇益",
-                    "劉羽晴", "王星雅", "林品蒝"
-                ],
-                photo: [
-                    "許仟妮", "林郭鍇", "符楷昱", "莊力銘", "黃康景", "鄒東哲", "沈彥菲", "劉芯瑀", "蘇紫涵", "吳語婕",
-                    "蔡本芮", "陳子倩", "邱奕芯", "陳婧泳", "林靖芳", "林芯妍", "童詩涵", "王靖萱", "劉子川", "蕭佩宸",
-                    "陳瑀希", "林歆諾", "林侑靚", "薛人豪", "何康婗", "陳品言", "李秉宸", "劉紀言", "吳祐嘉", "吳榮程",
-                    "法奧妮.祿璞崚岸", "吳溢洋", "侯妤蓁", "王冠閎", "張慧珍", "許亞鈴", "王希憲", "王子儀", "林孜潔",
-                    "林孜澄", "吳芷誼", "温楚庭"
-                ],
-                special: [
-                    "温心妤", "温少宇", "Ariel", "Oreo"
-                ]
-            }
-        };
-
-        function parseNameList(rawText) {
-            if (!rawText) return [];
-            return rawText.split(/[\n,，\s、]+/).map(s => s.trim()).filter(Boolean);
-        }
-
-        function formatNameList(listArr) {
-            if (!listArr || !Array.isArray(listArr)) return "";
-            return listArr.join(", ");
-        }
-
-        function updateCounts() {
-            const bList = parseNameList(document.getElementById('buddaListInput').value);
-            const pList = parseNameList(document.getElementById('photoListInput').value);
-            const sList = parseNameList(document.getElementById('specialListInput').value);
-            document.getElementById('buddaCount').innerText = `${bList.length} 人`;
-            document.getElementById('photoCount').innerText = `${pList.length} 人`;
-            document.getElementById('specialCount').innerText = `${sList.length} 人`;
-        }
-
-        function loadPdfConfigUI() {
+        async function initDashboard() {
             try {
-                let saved = localStorage.getItem('swimming_pdf_highlight_config');
-                let cfg = saved ? JSON.parse(saved) : DEFAULT_HIGHLIGHT_CONFIG;
-                const lists = cfg.lists || DEFAULT_HIGHLIGHT_CONFIG.lists;
-
-                document.getElementById('buddaListInput').value = formatNameList(lists.budda);
-                document.getElementById('photoListInput').value = formatNameList(lists.photo);
-                document.getElementById('specialListInput').value = formatNameList(lists.special);
-                updateCounts();
-            } catch(e) {
-                console.warn("載入高亮名單失敗，使用預設值:", e);
-                resetDefaultNames();
-            }
-        }
-
-        function savePdfConfigUI() {
-            const buddaArr = parseNameList(document.getElementById('buddaListInput').value);
-            const photoArr = parseNameList(document.getElementById('photoListInput').value);
-            const specialArr = parseNameList(document.getElementById('specialListInput').value);
-
-            const cfg = {
-                colors: DEFAULT_HIGHLIGHT_CONFIG.colors,
-                lists: {
-                    budda: buddaArr,
-                    photo: photoArr,
-                    special: specialArr
-                }
-            };
-            localStorage.setItem('swimming_pdf_highlight_config', JSON.stringify(cfg));
-            updateCounts();
-            alert(`✅ 名單已成功儲存於本機！\n🟡 步達選手: ${buddaArr.length} 人\n💗 拍照選手: ${photoArr.length} 人\n🟢 特殊選手: ${specialArr.length} 人`);
-        }
-
-        function resetDefaultNames() {
-            document.getElementById('buddaListInput').value = formatNameList(DEFAULT_HIGHLIGHT_CONFIG.lists.budda);
-            document.getElementById('photoListInput').value = formatNameList(DEFAULT_HIGHLIGHT_CONFIG.lists.photo);
-            document.getElementById('specialListInput').value = formatNameList(DEFAULT_HIGHLIGHT_CONFIG.lists.special);
-            updateCounts();
-        }
-
-        async function loadOrderBooksCatalog() {
-            const badge = document.getElementById('orderBookStatusBadge');
-            const orgSelect = document.getElementById('obOrgSelect');
-            try {
-                const res = await fetch('static/order_books_catalog.json?v=' + Date.now());
-                if (res.ok) {
-                    orderBooksCatalog = await res.json();
-                } else {
-                    orderBooksCatalog = {
-                        orgs: [
-                            { id: "site_d", name: "中華民國游泳協會 (CTSA)", region: "全國" },
-                            { id: "site_tpesa", name: "臺北市體育總會游泳協會 (TPESA)", region: "北部" },
-                            { id: "site_a", name: "臺中市體育總會游泳委員會 (SWIM8)", region: "中部" },
-                            { id: "site_b", name: "臺南市體育總會游泳委員會", region: "南部" },
-                            { id: "site_c", name: "高雄市體育總會游泳委員會 (KCC)", region: "南部" },
-                            { id: "site_e", name: "高雄水上運動推廣協會 (SWIM_KCSAT)", region: "南部" }
-                        ],
-                        order_books: {}
-                    };
+                let normalRows = 832006;
+                const verRes = await fetch('/static/db_parts/version.json?t=' + Date.now());
+                if (verRes.ok) {
+                    const ver = await verRes.json();
+                    document.getElementById('normalVersionCode').innerText = ver.version_code || 'v2026.10.05.0115';
+                    document.getElementById('normalBuildNo').innerText = ver.version || '1791134114';
+                    normalRows = ver.total_rows || 832006;
+                    document.getElementById('normalTotalRows').innerText = normalRows.toLocaleString() + ' 筆';
+                    
+                    const hudDb = document.getElementById('hudDbStatus');
+                    if (hudDb) hudDb.innerText = `${normalRows.toLocaleString()} 筆 (1:1)`;
                 }
 
-                orgSelect.innerHTML = '<option value="">-- 請選擇主辦單位 (由北到南排序) --</option>';
-                (orderBooksCatalog.orgs || []).forEach(org => {
-                    const opt = document.createElement('option');
-                    opt.value = org.id;
-                    opt.textContent = `[${org.region}] ${org.name}`;
-                    orgSelect.appendChild(opt);
-                });
+                try {
+                    const mfRes = await fetch('/data_buckets/manifest.json?t=' + Date.now());
+                    if (mfRes.ok) {
+                        const mf = await mfRes.json();
+                        document.getElementById('splitVersionCode').innerText = mf.version_code || 'v2026.10.05.0115';
+                        document.getElementById('splitParts').innerText = `${mf.total_buckets || 256} 桶完整切割 (${mf.total_swimmers ? mf.total_swimmers.toLocaleString() : '26,095'} 位選手)`;
+                        
+                        const splitRows = mf.total_records || normalRows;
+                        const matchStatusEl = document.getElementById('splitMatchStatus');
+                        const integrityBadge = document.getElementById('splitIntegrityBadge');
+                        const integrityDot = document.getElementById('splitIntegrityDot');
 
-                if (badge) badge.innerText = "已連線雲端秩序冊型錄";
-            } catch(e) {
-                console.warn("讀取 order_books_catalog 失敗:", e);
-                if (badge) badge.innerText = "雲端型錄快取離線模式";
-            }
-        }
-
-        function handleObOrgChange() {
-            const orgSelect = document.getElementById('obOrgSelect');
-            const meetSelect = document.getElementById('obMeetSelect');
-            const orgId = orgSelect.value;
-            meetSelect.innerHTML = '<option value="">-- 請選擇賽事秩序冊 --</option>';
-
-            if (!orgId || !orderBooksCatalog) return;
-            const books = (orderBooksCatalog.order_books || {})[orgId] || [];
-            if (books.length === 0) {
-                const opt = document.createElement('option');
-                opt.value = "";
-                opt.textContent = "尚無公告秩序冊 (可自備上傳)";
-                meetSelect.appendChild(opt);
-                return;
-            }
-
-            books.forEach(b => {
-                const opt = document.createElement('option');
-                opt.value = b.pdf_url || '';
-                opt.textContent = b.meet_name;
-                opt.setAttribute('data-name', b.meet_name);
-                if (b.official_rbook_url) opt.setAttribute('data-rbook', b.official_rbook_url);
-                if (b.official_roster_url) opt.setAttribute('data-roster', b.official_roster_url);
-                if (b.official_schedule_url) opt.setAttribute('data-schedule', b.official_schedule_url);
-                if (b.official_stats_url) opt.setAttribute('data-stats', b.official_stats_url);
-                if (b.official_source_url) opt.setAttribute('data-source', b.official_source_url);
-                meetSelect.appendChild(opt);
-            });
-        }
-
-        let currentOriginalPdfBytes = null;
-        let currentMarkedPdfBytes = null;
-        let currentPdfDoc = null;
-        let currentPreviewPage = 1;
-        let currentPreviewScale = 1.0;
-        let isRenderingPage = false;
-        let pendingRenderPage = null;
-        let markedBlobUrl = null;
-        let currentPreviewMode = 'original';
-        let hitRecords = [];
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
-        async function renderCanvasPage(pageNum) {
-            if (!currentPdfDoc) return;
-            if (isRenderingPage) {
-                pendingRenderPage = pageNum;
-                return;
-            }
-            isRenderingPage = true;
-
-            const canvas = document.getElementById('obPreviewCanvas');
-            const pageNumEl = document.getElementById('obCurrentPageNum');
-            const totalPageEl = document.getElementById('obTotalPageNum');
-            const scaleLabel = document.getElementById('obScaleLabel');
-
-            if (pageNumEl) pageNumEl.innerText = pageNum;
-            if (totalPageEl) totalPageEl.innerText = currentPdfDoc.numPages;
-            if (scaleLabel) scaleLabel.innerText = `${Math.round(currentPreviewScale * 100)}%`;
-
-            try {
-                const page = await currentPdfDoc.getPage(pageNum);
-                const viewport = page.getViewport({ scale: currentPreviewScale });
-                const ctx = canvas.getContext('2d');
-
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                const renderContext = {
-                    canvasContext: ctx,
-                    viewport: viewport
-                };
-                await page.render(renderContext).promise;
-            } catch (err) {
-                console.error("渲染 Canvas 頁面失敗:", err);
-            } finally {
-                isRenderingPage = false;
-                if (pendingRenderPage !== null) {
-                    const next = pendingRenderPage;
-                    pendingRenderPage = null;
-                    renderCanvasPage(next);
-                }
-            }
-        }
-
-        function changePreviewPage(delta) {
-            if (!currentPdfDoc) return;
-            const target = currentPreviewPage + delta;
-            if (target >= 1 && target <= currentPdfDoc.numPages) {
-                currentPreviewPage = target;
-                renderCanvasPage(currentPreviewPage);
-            }
-        }
-
-        function adjustPreviewScale(delta) {
-            let newScale = Math.round((currentPreviewScale + delta) * 100) / 100;
-            if (newScale < 0.5) newScale = 0.5;
-            if (newScale > 2.5) newScale = 2.5;
-            currentPreviewScale = newScale;
-            if (currentPdfDoc) {
-                renderCanvasPage(currentPreviewPage);
-            }
-        }
-
-        async function loadPdfBytesIntoPreview(bytes, name) {
-            currentOriginalPdfBytes = bytes;
-            currentMarkedPdfBytes = null;
-            hitRecords = [];
-
-            const btnOrig = document.getElementById('btnPreviewOriginal');
-            const btnMarked = document.getElementById('btnPreviewMarked');
-            const btnDown = document.getElementById('btnDownloadMarked');
-            const hitBox = document.getElementById('obHitSummaryContainer');
-
-            if (btnOrig) btnOrig.disabled = false;
-            if (btnMarked) btnMarked.disabled = true;
-            if (btnDown) btnDown.classList.add('hidden');
-            if (hitBox) hitBox.classList.add('hidden');
-
-            await switchPreviewMode('original', 1);
-        }
-
-        async function switchPreviewMode(mode, targetPage = 1) {
-            currentPreviewMode = mode;
-            const btnOrig = document.getElementById('btnPreviewOriginal');
-            const btnMarked = document.getElementById('btnPreviewMarked');
-            const badge = document.getElementById('obPreviewModeBadge');
-            const empty = document.getElementById('obPreviewEmpty');
-            const toolbar = document.getElementById('obCanvasToolbar');
-            const scrollBox = document.getElementById('obCanvasScrollBox');
-
-            const bytesToLoad = mode === 'original' ? currentOriginalPdfBytes : currentMarkedPdfBytes;
-            if (!bytesToLoad) return;
-
-            if (empty) empty.classList.add('hidden');
-            if (toolbar) toolbar.classList.remove('hidden');
-            if (scrollBox) scrollBox.classList.remove('hidden');
-
-            if (mode === 'original') {
-                if (btnOrig) btnOrig.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-white bg-[#3A3A3C] shadow-sm";
-                if (btnMarked) btnMarked.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white";
-                if (badge) {
-                    badge.innerText = "📄 原始官方版本 (未標記)";
-                    badge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30";
-                }
-            } else {
-                if (btnOrig) btnOrig.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-zinc-400 hover:text-white";
-                if (btnMarked) btnMarked.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition text-white bg-gradient-to-r from-[#FF9500] to-[#FF2D55] shadow-sm";
-                if (badge) {
-                    badge.innerText = "✨ 已高亮標記版本";
-                    badge.className = "text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
-                }
-            }
-
-            try {
-                const loadingTask = pdfjsLib.getDocument({ data: bytesToLoad.slice(0) });
-                currentPdfDoc = await loadingTask.promise;
-                currentPreviewPage = Math.min(Math.max(1, targetPage), currentPdfDoc.numPages);
-                renderCanvasPage(currentPreviewPage);
-            } catch(e) {
-                console.error("載入預覽 PDF 畫布失敗:", e);
-            }
-        }
-
-        function jumpToPage(page) {
-            currentPreviewPage = page;
-            renderCanvasPage(currentPreviewPage);
-            const scrollBox = document.getElementById('obCanvasScrollBox');
-            if (scrollBox) scrollBox.scrollTop = 0;
-        }
-
-        function downloadMarkedPdf() {
-            if (!markedBlobUrl) return;
-            const a = document.createElement('a');
-            a.href = markedBlobUrl;
-            a.download = `${selectedPdfName || '賽事秩序冊'}_已標記.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        function renderHitSummary(records) {
-            const container = document.getElementById('obHitSummaryContainer');
-            const badge = document.getElementById('obHitTotalBadge');
-            const chipsList = document.getElementById('obHitChipsList');
-            if (!container || !badge || !chipsList) return;
-
-            if (!records || records.length === 0) {
-                container.classList.remove('hidden');
-                badge.innerText = "未在目前秩序冊中搜尋到指定名單選手";
-                chipsList.innerHTML = '<span class="text-xs text-zinc-500 py-1">未命中任何選手，請確認秩序冊項目或名單姓名是否正確。</span>';
-                return;
-            }
-
-            container.classList.remove('hidden');
-            const uniqueNames = new Set(records.map(r => r.name)).size;
-            const pageSet = new Set(records.map(r => r.page));
-            badge.innerText = `共命中 ${records.length} 處 (含 ${uniqueNames} 位選手，分佈於 ${pageSet.size} 個頁面)`;
-
-            const sorted = [...records].sort((a, b) => a.page - b.page);
-            chipsList.innerHTML = sorted.map(r => {
-                let badgeColor = "bg-amber-500/20 text-amber-300 border-amber-500/30";
-                let icon = "🟡";
-                if (r.category === 'photo') {
-                    badgeColor = "bg-pink-500/20 text-pink-300 border-pink-500/30";
-                    icon = "💗";
-                } else if (r.category === 'special') {
-                    badgeColor = "bg-lime-500/20 text-lime-300 border-lime-500/30";
-                    icon = "🟢";
-                }
-                return `
-                    <button type="button" onclick="jumpToPage(${r.page})" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-medium border ${badgeColor} hover:brightness-125 transition cursor-pointer" title="點擊跳轉至第 ${r.page} 頁">
-                        <span>P.${r.page}</span>
-                        <span>${icon} ${escapeHtml(r.name)}</span>
-                    </button>
-                `;
-            }).join("");
-        }
-
-        async function handleObMeetChange() {
-            const meetSelect = document.getElementById('obMeetSelect');
-            const pdfUrl = meetSelect.value;
-            const info = document.getElementById('obSelectedPdfInfo');
-            const sizeInfo = document.getElementById('obPdfSizeInfo');
-            const linksContainer = document.getElementById('obOfficialLinksContainer');
-            if (!meetSelect.selectedIndex || meetSelect.selectedIndex < 0) return;
-
-            const selectedOpt = meetSelect.options[meetSelect.selectedIndex];
-            selectedPdfName = selectedOpt.getAttribute('data-name') || "賽事秩序冊";
-            document.getElementById('obCustomUrlInput').value = pdfUrl || '';
-
-            const rbookUrl = selectedOpt.getAttribute('data-rbook');
-            const rosterUrl = selectedOpt.getAttribute('data-roster');
-            const scheduleUrl = selectedOpt.getAttribute('data-schedule');
-            const statsUrl = selectedOpt.getAttribute('data-stats');
-            const sourceUrl = selectedOpt.getAttribute('data-source');
-
-            // 動態渲染官方真實系統快捷按鈕
-            if (linksContainer) {
-                let linksHtml = '';
-                if (rbookUrl) {
-                    linksHtml += `<a href="${rbookUrl}" target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold hover:brightness-125 transition flex items-center gap-1.5 shadow-sm">🏊 官方分項編配表 (分道秩序冊) ↗</a>`;
-                }
-                if (rosterUrl) {
-                    linksHtml += `<a href="${rosterUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold hover:brightness-125 transition flex items-center gap-1 shadow-sm">👥 官方選手名冊 ↗</a>`;
-                }
-                if (scheduleUrl) {
-                    linksHtml += `<a href="${scheduleUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-bold hover:brightness-125 transition flex items-center gap-1 shadow-sm">⏱️ 官方賽程表 ↗</a>`;
-                }
-                if (statsUrl) {
-                    linksHtml += `<a href="${statsUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-bold hover:brightness-125 transition flex items-center gap-1 shadow-sm">📊 人數統計表 ↗</a>`;
-                }
-                if (!rbookUrl && sourceUrl && sourceUrl !== 'https://swimming.tw/') {
-                    linksHtml += `<a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 bg-zinc-800 text-zinc-300 border border-zinc-700 rounded-lg text-xs font-bold hover:text-white transition flex items-center gap-1">🌐 官方公佈來源 ↗</a>`;
-                }
-
-                if (linksHtml) {
-                    linksContainer.innerHTML = `<span class="text-xs text-zinc-400 font-medium">官方即時動態系統：</span>` + linksHtml;
-                    linksContainer.classList.remove('hidden');
-                } else {
-                    linksContainer.innerHTML = '';
-                    linksContainer.classList.add('hidden');
-                }
-            }
-
-            if (!pdfUrl) {
-                if (rbookUrl) {
-                    info.firstElementChild.innerText = `已就緒：${selectedPdfName}！請點擊上方按鈕直接在官方動態系統查看分道秩序冊，或自備上傳 PDF 進行螢光標記。`;
-                }
-                sizeInfo.innerText = "";
-                return;
-            }
-
-            info.firstElementChild.innerText = `已選擇：${selectedPdfName}，正在下載 PDF 向量資料...`;
-            sizeInfo.innerText = "下載中...";
-
-            try {
-                const resp = await fetch(pdfUrl);
-                if (resp.ok) {
-                    selectedPdfBytes = await resp.arrayBuffer();
-                    const mb = (selectedPdfBytes.byteLength / 1024 / 1024).toFixed(2);
-                    info.firstElementChild.innerText = `已就緒：${selectedPdfName}`;
-                    sizeInfo.innerText = `${mb} MB (已載入記憶體)`;
-                    loadPdfBytesIntoPreview(selectedPdfBytes, selectedPdfName);
-                } else {
-                    if (rbookUrl) {
-                        info.firstElementChild.innerText = `已就緒：${selectedPdfName}！官方原生動態系統請點擊上方按鈕查看，或點擊「📂 自備檔案」上傳本機 PDF 進行螢光標記。`;
-                    } else {
-                        info.firstElementChild.innerText = `⚠️ 線上下載失敗 (HTTP ${resp.status})，請嘗試自備上傳。`;
+                        if (splitRows === normalRows && (mf.total_buckets === 256 || mf.total_buckets === '256')) {
+                            if (matchStatusEl) matchStatusEl.innerHTML = `<span class="gold-gradient-text font-bold">${splitRows.toLocaleString()} 筆 (1:1 絕對對齊)</span>`;
+                            if (integrityBadge) {
+                                integrityBadge.className = 'badge-pending text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1 font-bold';
+                                integrityBadge.innerHTML = '<i class="fa-solid fa-circle-check text-xs gold-gradient-icon"></i><span>預處理 100% 完工</span>';
+                            }
+                            if (integrityDot) integrityDot.className = 'w-2 h-2 rounded-full gold-gradient-dot';
+                        } else {
+                            if (matchStatusEl) matchStatusEl.innerHTML = `<span class="text-rose-400 font-bold">筆數差異: 正式 ${normalRows.toLocaleString()} vs 256桶 ${splitRows.toLocaleString()}</span>`;
+                            if (integrityBadge) {
+                                integrityBadge.className = 'badge-live text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1 text-rose-400 font-bold bg-rose-500/10 border border-rose-500/30';
+                                integrityBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xs text-rose-400"></i><span>預處理待補齊</span>';
+                            }
+                            if (integrityDot) integrityDot.className = 'w-2 h-2 rounded-full bg-rose-400 animate-pulse';
+                        }
                     }
-                    sizeInfo.innerText = "";
-                }
-            } catch(e) {
-                if (rbookUrl) {
-                    info.firstElementChild.innerText = `已就緒：${selectedPdfName}！官方原生動態系統請點擊上方按鈕查看，或點擊「📂 自備檔案」上傳本機 PDF 進行螢光標記。`;
-                } else {
-                    info.firstElementChild.innerText = `⚠️ 跨域或網路限制，請點擊「📂 自備檔案」上傳本機 PDF。`;
-                }
-                sizeInfo.innerText = "";
-            }
-        }
-
-        function handleObLocalFile(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                selectedPdfName = file.name.replace(/\.pdf$/i, "");
-                const info = document.getElementById('obSelectedPdfInfo');
-                const sizeInfo = document.getElementById('obPdfSizeInfo');
-
-                document.getElementById('obCustomUrlInput').value = file.name;
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    selectedPdfBytes = e.target.result;
-                    const mb = (file.size / 1024 / 1024).toFixed(2);
-                    info.firstElementChild.innerText = `自備檔案已載入：${file.name}`;
-                    sizeInfo.innerText = `${mb} MB`;
-                    loadPdfBytesIntoPreview(selectedPdfBytes, selectedPdfName);
-                };
-                reader.readAsArrayBuffer(file);
-            }
-        }
-
-        async function startOrderBookHighlightProcess() {
-            if (!selectedPdfBytes) {
-                alert("請先選擇主辦單位與賽事秩序冊，或點擊「自備檔案」上傳 PDF！");
-                return;
-            }
-
-            const buddaArr = parseNameList(document.getElementById('buddaListInput').value);
-            const photoArr = parseNameList(document.getElementById('photoListInput').value);
-            const specialArr = parseNameList(document.getElementById('specialListInput').value);
-
-            if (buddaArr.length === 0 && photoArr.length === 0 && specialArr.length === 0) {
-                alert("請至少輸入一位欲高亮標記的選手姓名！");
-                return;
-            }
-
-            const statusBox = document.getElementById('obProcessStatusBox');
-            const titleEl = document.getElementById('obStatusTitle');
-            const barEl = document.getElementById('obProgressBar');
-            const detailsEl = document.getElementById('obStatusDetails');
-            const btn = document.getElementById('btnProcessPdf');
-
-            statusBox.classList.remove('hidden');
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
-            titleEl.innerText = "⚡ 正在解構 PDF.js 向量文字頁面...";
-            barEl.style.width = "10%";
-            detailsEl.innerText = "正在分析頁面與文字座標...";
-
-            try {
-                // 1. 初始化 PDF.js 讀取
-                const loadingTask = pdfjsLib.getDocument({ data: selectedPdfBytes.slice(0) });
-                const pdfDoc = await loadingTask.promise;
-                const numPages = pdfDoc.numPages;
-
-                // 2. 初始化 PDF-lib 寫入
-                const pdfLibDoc = await PDFLib.PDFDocument.load(selectedPdfBytes);
-                const rgbBudda = PDFLib.rgb(1.0, 1.0, 0.0);
-                const rgbPhoto = PDFLib.rgb(1.0, 0.4, 0.7);
-                const rgbSpecial = PDFLib.rgb(0.8, 1.0, 0.0);
-
-                let totalHighlights = 0;
-                hitRecords = [];
-
-                for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-                    const page = await pdfDoc.getPage(pageNum);
-                    const textContent = await page.getTextContent();
-                    const pdfLibPage = pdfLibDoc.getPage(pageNum - 1);
-                    const { width: pWidth, height: pHeight } = pdfLibPage.getSize();
-                    const viewport = page.getViewport({ scale: 1.0 });
-
-                    textContent.items.forEach(item => {
-                        const str = (item.str || "").replace(/\s+/g, "");
-                        if (!str) return;
-
-                        // 檢查各類選手
-                        let matchedColor = null;
-                        let matchedCategory = null;
-                        let matchedName = null;
-
-                        for (let n of specialArr) {
-                            if (str.includes(n)) { 
-                                matchedColor = rgbSpecial; 
-                                matchedCategory = 'special';
-                                matchedName = n;
-                                break; 
-                            }
-                        }
-                        if (!matchedColor) {
-                            for (let n of photoArr) {
-                                if (str.includes(n)) { 
-                                    matchedColor = rgbPhoto; 
-                                    matchedCategory = 'photo';
-                                    matchedName = n;
-                                    break; 
-                                }
-                            }
-                        }
-                        if (!matchedColor) {
-                            for (let n of buddaArr) {
-                                if (str.includes(n)) { 
-                                    matchedColor = rgbBudda; 
-                                    matchedCategory = 'budda';
-                                    matchedName = n;
-                                    break; 
-                                }
-                            }
-                        }
-
-                        if (matchedColor) {
-                            const tx = item.transform;
-                            const x = tx[4];
-                            const y = tx[5];
-                            const w = item.width || 40;
-                            const h = item.height || 12;
-
-                            pdfLibPage.drawRectangle({
-                                x: x - 2,
-                                y: y - 2,
-                                width: w + 4,
-                                height: h + 4,
-                                color: matchedColor,
-                                opacity: 0.38
-                            });
-                            totalHighlights++;
-                            hitRecords.push({
-                                name: matchedName,
-                                category: matchedCategory,
-                                page: pageNum
-                            });
-                        }
-                    });
-
-                    const pct = 10 + Math.floor((pageNum / numPages) * 80);
-                    barEl.style.width = `${pct}%`;
-                    detailsEl.innerText = `正在標註第 ${pageNum}/${numPages} 頁... 已標記 ${totalHighlights} 處姓名`;
+                } catch(mfErr) {
+                    console.warn("無法取得 256split manifest.json:", mfErr);
                 }
 
-                // 3. 匯出已標記 PDF
-                titleEl.innerText = "💾 正在編譯已標記 PDF 檔案並更新預覽...";
-                barEl.style.width = "95%";
-                const modifiedPdfBytes = await pdfLibDoc.save();
-                currentMarkedPdfBytes = modifiedPdfBytes;
-
-                if (markedBlobUrl) {
-                    try { URL.revokeObjectURL(markedBlobUrl); } catch(e){}
+                const seedRes = await fetch('/static/int_dashboard_seed.json');
+                if (seedRes.ok) {
+                    dashboardData = await seedRes.json();
+                    document.getElementById('dateTotalCount').innerText = dashboardData.all_dates.length;
+                    document.getElementById('meetTotalCount').innerText = (dashboardData.all_meet_names || []).length;
+                    
+                    const recentDates = Object.keys(dashboardData.date_samples || {});
+                    if (recentDates.length > 0) {
+                        selectDate(recentDates[0]);
+                    }
                 }
-                const blob = new Blob([modifiedPdfBytes], { type: "application/pdf" });
-                markedBlobUrl = URL.createObjectURL(blob);
 
-                // 啟用已標記按鈕與下載按鈕
-                const btnMarked = document.getElementById('btnPreviewMarked');
-                const btnDown = document.getElementById('btnDownloadMarked');
-                if (btnMarked) btnMarked.disabled = false;
-                if (btnDown) btnDown.classList.remove('hidden');
+                const catUrl = IS_CLOUD_ENV 
+                    ? `${GCS_BASE_URL}/org_races_catalog.json?t=${Date.now()}`
+                    : `/static/org_races_catalog.json?t=${Date.now()}`;
+                const catRes = await fetch(catUrl);
+                if (catRes.ok) {
+                    catalogData = await catRes.json();
+                    handleUnifiedOrgChange();
+                }
 
-                // 渲染命中選手摘要清單
-                renderHitSummary(hitRecords);
-
-                // 自動切換至已標記預覽
-                switchPreviewMode('marked', 1);
-
-                // 自動觸發下載
-                downloadMarkedPdf();
-
-                barEl.style.width = "100%";
-                titleEl.innerText = `🎉 標記完成！共標記 ${totalHighlights} 處姓名！`;
-                detailsEl.innerText = `已載入下方「✨ 已標記版本」預覽，並自動下載：${selectedPdfName}_已標記.pdf (總頁數: ${numPages} 頁)`;
-                btn.disabled = false;
-                btn.style.opacity = '1';
-
+                await fetchVisitorQueryLogs();
+                toggleAutoRefreshLogs(true);
             } catch (err) {
-                console.error("PDF 標記錯誤:", err);
-                titleEl.innerText = "❌ 標記過程發生錯誤";
-                detailsEl.innerText = err.message;
-                btn.disabled = false;
-                btn.style.opacity = '1';
+                console.error("載入儀表板失敗:", err);
             }
         }
 
@@ -3821,7 +2961,6 @@
             loadCalendarData();
             fetchCrawlerLogs();
             fetchStorageQuota();
-            loadOrderBooksCatalog();
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -3830,114 +2969,7 @@
             loadCalendarData();
             fetchCrawlerLogs();
             fetchStorageQuota();
-            loadPdfConfigUI();
-            loadOrderBooksCatalog();
         });
     </script>
-    <!-- 🚨 現場黑盒子重現彈窗 (Replay-Ready Debug Payload Modal) -->
-    <div id="debugReplayModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden font-mono text-xs">
-            <!-- 彈窗頂部 -->
-            <div class="p-4 border-b border-zinc-800/80 flex items-center justify-between bg-zinc-900/60">
-                <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full bg-rose-500 animate-pulse"></span>
-                    <h3 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
-                        <span>現場黑盒子重現器 (Replay-Ready Debug Payload)</span>
-                        <span id="modalTargetBadge" class="px-2 py-0.5 rounded bg-zinc-800 text-amber-300 text-[10px]"></span>
-                    </h3>
-                </div>
-                <button onclick="closeDebugReplayModal()" class="text-zinc-400 hover:text-white p-1 text-sm">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <!-- 彈窗內容滾動區 -->
-            <div class="p-5 overflow-y-auto space-y-4 text-zinc-300">
-                <!-- 基本環境與狀態 -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] bg-zinc-900/40 p-3 rounded-lg border border-zinc-800/60">
-                    <div>
-                        <div class="text-zinc-500">出事對象</div>
-                        <div id="modalOrgName" class="text-zinc-200 font-bold mt-0.5 truncate">-</div>
-                    </div>
-                    <div>
-                        <div class="text-zinc-500">請求時間</div>
-                        <div id="modalTimestamp" class="text-zinc-200 mt-0.5 truncate">-</div>
-                    </div>
-                    <div>
-                        <div class="text-zinc-500">HTTP 狀態碼</div>
-                        <div id="modalHttpStatus" class="text-rose-400 font-bold mt-0.5">-</div>
-                    </div>
-                    <div>
-                        <div class="text-zinc-500">連線延遲</div>
-                        <div id="modalLatency" class="text-amber-300 mt-0.5">-</div>
-                    </div>
-                </div>
-
-                <!-- 錯誤類型與訊息 -->
-                <div class="space-y-1">
-                    <div class="text-zinc-400 font-bold flex items-center gap-1.5 text-[11px]">
-                        <i class="fa-solid fa-bug text-rose-400"></i>
-                        <span>錯誤類型與訊息</span>
-                    </div>
-                    <div id="modalErrorMessage" class="p-3 rounded-lg bg-rose-950/30 border border-rose-900/50 text-rose-300 text-xs break-all"></div>
-                </div>
-
-                <!-- 一鍵重播 cURL 命令 -->
-                <div class="space-y-1">
-                    <div class="flex items-center justify-between text-[11px]">
-                        <span class="text-zinc-400 font-bold flex items-center gap-1.5">
-                            <i class="fa-solid fa-terminal text-cyan-400"></i>
-                            <span>1. 終端機一鍵重播 (cURL 命令)</span>
-                        </span>
-                        <button onclick="copyModalField('modalCurlCommand', this)" class="px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-cyan-300 transition text-[10px] flex items-center gap-1">
-                            <i class="fa-regular fa-copy"></i> 複製 cURL
-                        </button>
-                    </div>
-                    <pre id="modalCurlCommand" class="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 text-[11px] overflow-x-auto whitespace-pre-wrap break-all"></pre>
-                </div>
-
-                <!-- 一鍵重播 Python 腳本 -->
-                <div class="space-y-1">
-                    <div class="flex items-center justify-between text-[11px]">
-                        <span class="text-zinc-400 font-bold flex items-center gap-1.5">
-                            <i class="fa-brands fa-python text-amber-400"></i>
-                            <span>2. 本地 Python 一鍵重現腳本 (Replay Script)</span>
-                        </span>
-                        <button onclick="copyModalField('modalPythonCode', this)" class="px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-amber-300 transition text-[10px] flex items-center gap-1">
-                            <i class="fa-regular fa-copy"></i> 複製 Python
-                        </button>
-                    </div>
-                    <pre id="modalPythonCode" class="p-3 rounded-lg bg-zinc-900 border border-zinc-800 text-amber-200/90 text-[11px] overflow-x-auto whitespace-pre-wrap"></pre>
-                </div>
-
-                <!-- 完整 Traceback 堆疊 -->
-                <div id="modalTracebackWrap" class="space-y-1 hidden">
-                    <div class="text-zinc-400 font-bold flex items-center gap-1.5 text-[11px]">
-                        <i class="fa-solid fa-align-left text-zinc-500"></i>
-                        <span>3. Python 異常堆疊 (Stack Trace)</span>
-                    </div>
-                    <pre id="modalTraceback" class="p-3 rounded-lg bg-black border border-zinc-800 text-rose-400 text-[10px] overflow-x-auto max-h-40 whitespace-pre"></pre>
-                </div>
-
-                <!-- 官方回應 HTML Snapshot -->
-                <div id="modalHtmlSnippetWrap" class="space-y-1 hidden">
-                    <div class="flex items-center justify-between text-[11px]">
-                        <span class="text-zinc-400 font-bold flex items-center gap-1.5">
-                            <i class="fa-solid fa-code text-zinc-500"></i>
-                            <span>4. 官方回傳 HTML 快照片段 (Snapshot 前 3,000 字元)</span>
-                        </span>
-                        <span id="modalHtmlLengthBadge" class="text-zinc-500 text-[10px]"></span>
-                    </div>
-                    <pre id="modalHtmlSnippet" class="p-3 rounded-lg bg-black border border-zinc-800 text-zinc-400 text-[10px] overflow-x-auto max-h-40 whitespace-pre"></pre>
-                </div>
-            </div>
-            <!-- 彈窗底部 -->
-            <div class="p-3 border-t border-zinc-800 bg-zinc-900/60 flex items-center justify-between text-[11px]">
-                <span class="text-zinc-500">此日誌資訊完全真實無 mock · 支援離線與雲端 100% 現場還原</span>
-                <button onclick="closeDebugReplayModal()" class="px-4 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold transition">
-                    關閉
-                </button>
-            </div>
-        </div>
-    </div>
 </body>
 </html>

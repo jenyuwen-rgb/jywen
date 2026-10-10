@@ -1,5 +1,14 @@
 User-agent: *
 Allow: /
+Allow: /?q=*
+
+# 內部調度中心與管理工具排除（提升 Google 爬取配額集中度與搜尋點擊率）
+Disallow: /int
+Disallow: /manage.html
+Disallow: /view_db.html
+Disallow: /system_messages.html
+Disallow: /az_relocation_presentation.html
+Disallow: /static/
 
 Sitemap: https://swimming-pwa.vercel.app/sitemap.xml
 Sitemap: https://swimming-pwa.vercel.app/sitemap_top.xml

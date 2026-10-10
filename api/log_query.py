@@ -24,6 +24,54 @@ def mask_ip(ip_str):
         return f"{parts[0]}.{parts[1]}.*.{parts[3]}"
     return ip
 
+def clean_param(s, max_len=120):
+    if not s:
+        return ""
+    return str(s).replace("<", "").replace(">", "").strip()[:max_len]
+
+def infer_mode(swimmer_str):
+    s = (swimmer_str or "").strip().upper()
+    if ';' in s or '；' in s:
+        return "PK"
+    elif '/SIM' in s or '得獎模擬' in s:
+        return "SIM"
+    elif '/STD' in s or '達標' in s:
+        return "STD"
+    elif '/RANK' in s or '排行' in s:
+        return "RANK"
+    return "PB"
+
+def infer_device_channel(user_agent, custom_device="", custom_channel=""):
+    ua = user_agent or ""
+    
+    # 設備推導
+    device = custom_device
+    if not device:
+        if "iPhone" in ua:
+            device = "iPhone (iOS)"
+        elif "iPad" in ua:
+            device = "iPad (iPadOS)"
+        elif "Android" in ua:
+            device = "Android"
+        elif "Macintosh" in ua or "Mac OS" in ua:
+            device = "Mac (macOS)"
+        elif "Windows" in ua:
+            device = "Windows PC"
+        else:
+            device = "其他設備"
+
+    # 管道推導
+    channel = custom_channel
+    if not channel:
+        if "Line/" in ua or "Line" in ua:
+            channel = "LINE 內開"
+        elif "FBAN" in ua or "FBAV" in ua or "Instagram" in ua:
+            channel = "社群內開"
+        else:
+            channel = "一般瀏覽器"
+            
+    return device, channel
+
 GLOBAL_LOG_QUEUE = []
 
 class handler(BaseHTTPRequestHandler):
@@ -38,18 +86,17 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        # 提取 URL Query String (相容 self.path 與 x-matched-path Header)
         full_path = self.headers.get('x-matched-path', '') or self.path
         parsed_path = urllib.parse.urlparse(full_path)
         query_params = urllib.parse.parse_qs(parsed_path.query)
-        
-        # 同時從原生的 self.path 再解析一次備用
         raw_query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
         
         action = query_params.get('action', [''])[0].strip() or raw_query.get('action', [''])[0].strip()
-        swimmer = query_params.get('swimmer', [''])[0].strip() or raw_query.get('swimmer', [''])[0].strip() or "[頁面造訪]"
-        location = query_params.get('location', [''])[0].strip() or raw_query.get('location', [''])[0].strip()
-        page = query_params.get('page', ['/'])[0].strip() or raw_query.get('page', ['/'])[0].strip()
+        swimmer = clean_param(query_params.get('swimmer', [''])[0].strip() or raw_query.get('swimmer', [''])[0].strip()) or "[頁面造訪]"
+        location = clean_param(query_params.get('location', [''])[0].strip() or raw_query.get('location', [''])[0].strip())
+        page = clean_param(query_params.get('page', ['/'])[0].strip() or raw_query.get('page', ['/'])[0].strip(), 200) or "/"
+        device = clean_param(query_params.get('device', [''])[0].strip() or raw_query.get('device', [''])[0].strip())
+        channel = clean_param(query_params.get('channel', [''])[0].strip() or raw_query.get('channel', [''])[0].strip())
         
         if action == 'pull':
             logs = []
@@ -89,12 +136,11 @@ class handler(BaseHTTPRequestHandler):
                 "status": "success",
                 "total_logs": len(logs),
                 "hot_swimmers": hot_swimmers,
-                "logs": logs[:100]
+                "logs": logs[:200]
             }, ensure_ascii=False).encode('utf-8'))
             return
 
-        # 只要不是 pull，無條件執行連線記錄 Process Log！
-        self.process_log(swimmer=swimmer, page=page, custom_loc=location)
+        self.process_log(swimmer=swimmer, page=page, custom_loc=location, custom_device=device, custom_channel=channel)
 
     def do_POST(self):
         parsed_path = urllib.parse.urlparse(self.path)
@@ -107,88 +153,90 @@ class handler(BaseHTTPRequestHandler):
         except Exception:
             payload = {}
 
-        swimmer = payload.get("swimmer", "").strip() or query_params.get("swimmer", [""])[0].strip() or "[頁面造訪]"
-        page = payload.get("page", "").strip() or query_params.get("page", ["query.html"])[0].strip()
-        location = payload.get("location", "").strip() or query_params.get("location", [""])[0].strip()
+        swimmer = clean_param(payload.get("swimmer", "").strip() or query_params.get("swimmer", [""])[0].strip()) or "[頁面造訪]"
+        page = clean_param(payload.get("page", "").strip() or query_params.get("page", ["query.html"])[0].strip(), 200) or "query.html"
+        location = clean_param(payload.get("location", "").strip() or query_params.get("location", [""])[0].strip())
+        device = clean_param(payload.get("device", "").strip() or query_params.get("device", [""])[0].strip())
+        channel = clean_param(payload.get("channel", "").strip() or query_params.get("channel", [""])[0].strip())
 
-        self.process_log(swimmer=swimmer, page=page, custom_loc=location)
+        self.process_log(swimmer=swimmer, page=page, custom_loc=location, custom_device=device, custom_channel=channel)
 
-    def process_log(self, swimmer, page="query.html", custom_loc=""):
+    def process_log(self, swimmer, page="query.html", custom_loc="", custom_device="", custom_channel=""):
+        utc_now = datetime.now(timezone.utc)
+        taipei_now = utc_now + timedelta(hours=8)
+        now_str = taipei_now.strftime("%Y/%m/%d %H:%M:%S")
 
-        # 抓取 IP 與 Vercel Edge 地理位置 Header
-        raw_ip = self.headers.get('x-forwarded-for') or self.headers.get('x-real-ip') or self.client_address[0]
+        raw_ip = self.headers.get('x-forwarded-for') or self.headers.get('x-real-ip') or (self.client_address[0] if self.client_address else "127.0.0.1")
         ip_masked = mask_ip(raw_ip)
 
         city = urllib.parse.unquote(self.headers.get('x-vercel-ip-city', '')).strip()
         country = self.headers.get('x-vercel-ip-country', '').strip()
-
-        # 格式化國家與城市名稱
         country_name = "台灣" if country == "TW" else ("美國" if country == "US" else (country if country else "未知國家"))
         loc_parts = []
         if country_name:
             loc_parts.append(country_name)
         if city:
             loc_parts.append(city)
-        location_str = " ".join(loc_parts) if loc_parts else "未知區域"
+        location_str = custom_loc or (" ".join(loc_parts) if loc_parts else "台灣")
+        
+        user_agent = self.headers.get('User-Agent', '')
+        device_str, channel_str = infer_device_channel(user_agent, custom_device, custom_channel)
+        mode_str = infer_mode(swimmer)
+        
+        clean_swimmer = swimmer.replace('[頁面造訪]', '').strip()
+        if clean_swimmer.startswith('/'):
+            clean_swimmer = clean_swimmer[1:]
+
         ssl_ctx = ssl._create_unverified_context()
 
-        # ❶ 第一最高優先順序：同步寫入 Google Sheet 雲端試算表 (大仁哥全台游泳查詢紀錄)
-        if swimmer:
+        # 1. 寫入記憶體隊列
+        if clean_swimmer:
+            entry = {
+                "time": now_str,
+                "ip": ip_masked,
+                "location": location_str,
+                "swimmer": clean_swimmer,
+                "page": page,
+                "mode": mode_str,
+                "device": device_str,
+                "channel": channel_str
+            }
+            GLOBAL_LOG_QUEUE.append(entry)
+            if len(GLOBAL_LOG_QUEUE) > 200:
+                GLOBAL_LOG_QUEUE.pop(0)
+
+        # 2. 同步寫入 Google Sheets
+        if clean_swimmer:
             try:
-                # 雙保險：將參數同時掛載在 Query String 與 JSON Payload，徹底防止 302 Redirect 轉 GET 時資料流失
-                qs = f"?time={urllib.parse.quote(now_str)}&ip={urllib.parse.quote(ip_masked)}&location={urllib.parse.quote(location_str)}&swimmer={urllib.parse.quote(swimmer)}&page={urllib.parse.quote(page)}"
+                qs = f"?time={urllib.parse.quote(now_str)}&ip={urllib.parse.quote(ip_masked)}&location={urllib.parse.quote(location_str)}&swimmer={urllib.parse.quote(clean_swimmer)}&page={urllib.parse.quote(page)}&device={urllib.parse.quote(device_str)}&channel={urllib.parse.quote(channel_str)}&mode={urllib.parse.quote(mode_str)}"
                 sheet_api_url = "https://script.google.com/macros/s/AKfycbzXrhiFSCgzOu02sSY28broCKRLs-zryveAT-682VnDhy7vHzwMmuDhs_GzeKlXlrUUqQ/exec" + qs
                 sheet_data = json.dumps({
                     "time": now_str,
                     "ip": ip_masked,
                     "location": location_str,
-                    "swimmer": swimmer,
-                    "page": page
+                    "swimmer": clean_swimmer,
+                    "page": page,
+                    "device": device_str,
+                    "channel": channel_str,
+                    "mode": mode_str
                 }).encode('utf-8')
                 sheet_req = urllib.request.Request(
                     sheet_api_url,
                     data=sheet_data,
                     headers={'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0'}
                 )
-                with urllib.request.urlopen(sheet_req, timeout=8, context=ssl_ctx) as s_resp:
-                    print(f"[Vercel Telemetry] Google Sheet 雲端實時記錄成功: {swimmer}")
+                with urllib.request.urlopen(sheet_req, timeout=5, context=ssl_ctx) as s_resp:
+                    pass
             except Exception as sheet_err:
                 print(f"[Vercel Telemetry] Google Sheet 記錄異常: {sheet_err}")
 
-        wh_debug_msg = "not_run"
-        # ❷ 第二順序：直連地端 Webhook.site 水管
-        if swimmer:
-            try:
-                webhook_payload = json.dumps({
-                    "time": now_str,
-                    "ip": ip_masked,
-                    "location": location_str,
-                    "swimmer": swimmer,
-                    "page": page
-                }).encode('utf-8')
-
-                wh_req = urllib.request.Request(
-                    "https://webhook.site/c61ed5df-fb3c-4c92-b768-46de62279a5b",
-                    data=webhook_payload,
-                    headers={
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'
-                    }
-                )
-                with urllib.request.urlopen(wh_req, timeout=3, context=ssl_ctx) as wh_resp:
-                    wh_debug_msg = f"success_{wh_resp.status}"
-                    print(f"[Vercel Telemetry] Webhook.site 極速同步成功: {swimmer}")
-            except Exception as wh_err:
-                wh_debug_msg = f"error_{wh_err}"
-                print(f"[Vercel Telemetry] Webhook.site 同步異常: {wh_err}")
-
-        # ❸ 第三順序：發送 Telegram 機器人即時推播
-        if swimmer:
+        # 3. Telegram 機器人即時推播
+        if clean_swimmer:
             msg_text = (
-                f"🔔 <b>[Vercel 雲端連線通知]</b>\n\n"
+                f"🔔 <b>[Vercel 訪客查詢動態]</b>\n\n"
+                f"🔍 <b>查詢選手</b>：<b>【{clean_swimmer}】</b> ({mode_str})\n"
+                f"📱 <b>設備管道</b>：<code>{device_str} · {channel_str}</code>\n"
                 f"📍 <b>來源地區</b>：{location_str} (IP: <code>{ip_masked}</code>)\n"
-                f"🔍 <b>查詢/造訪</b>：<b>【{swimmer}】</b>\n"
-                f"📄 <b>頁面</b>：<code>{page}</code>\n"
                 f"⏰ <b>時間</b>：{now_str}"
             )
             try:
@@ -201,93 +249,22 @@ class handler(BaseHTTPRequestHandler):
                 req = urllib.request.Request(
                     tg_url,
                     data=req_data,
-                    headers={
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'Mozilla/5.0'
-                    }
+                    headers={'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0'}
                 )
                 with urllib.request.urlopen(req, timeout=3, context=ssl_ctx) as resp:
                     pass
             except Exception as tg_err:
-                print(f"[Vercel Telemetry] Telegram 推播異常: {tg_err}")
-
-        # ② 同步連線紀錄至 JSONBlob 雲端橋樑（無需 Token，永久穩定）
-        try:
-            new_entry = {
-                "time": now_str,
-                "ip": ip_masked,
-                "location": location_str,
-                "swimmer": swimmer,
-                "page": page
-            }
-
-            # 讀取現有日誌
-            existing_logs = []
-            try:
-                req_get = urllib.request.Request(
-                    JSONBLOB_API,
-                    headers={'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0'}
-                )
-                with urllib.request.urlopen(req_get, timeout=4, context=ssl_ctx) as resp:
-                    existing_logs = json.loads(resp.read().decode('utf-8'))
-                    if not isinstance(existing_logs, list):
-                        existing_logs = []
-            except Exception:
-                existing_logs = []
-
-            # 防重複：同一時間+同一選手+同一IP 不重複寫入
-            is_dup = any(
-                e.get("time") == new_entry["time"] and
-                e.get("swimmer") == new_entry["swimmer"] and
-                e.get("ip") == new_entry["ip"]
-                for e in existing_logs
-            )
-            if not is_dup:
-                existing_logs.append(new_entry)
-                existing_logs = existing_logs[-200:]  # 保留最新 200 筆
-
-                put_data = json.dumps(existing_logs, ensure_ascii=False).encode('utf-8')
-                try:
-                    req_put = urllib.request.Request(
-                        JSONBLOB_API,
-                        data=put_data,
-                        headers={
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'User-Agent': 'Mozilla/5.0'
-                        },
-                        method='PUT'
-                    )
-                    with urllib.request.urlopen(req_put, timeout=5, context=ssl_ctx) as resp:
-                        pass
-                except urllib.error.HTTPError as http_err:
-                    if http_err.code in (404, 410):
-                        # 自我修復：當舊 Blob 過期 (404/410) 時，自動重新創建全新的 JSONBlob 通道
-                        req_post = urllib.request.Request(
-                            "https://jsonblob.com/api/jsonBlob",
-                            data=put_data,
-                            headers={
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'User-Agent': 'Mozilla/5.0'
-                            },
-                            method='POST'
-                        )
-                        with urllib.request.urlopen(req_post, timeout=5, context=ssl_ctx) as post_resp:
-                            pass
-                    else:
-                        print(f"[Vercel Telemetry] JSONBlob HTTP Error: {http_err}")
-        except Exception as jb_err:
-            print(f"[Vercel Telemetry] JSONBlob 同步異常: {jb_err}")
+                pass
 
         response_body = {
             "status": "ok",
-            "vercel_build_version": "v2026.08.31.2240",
-            "webhook_debug": wh_debug_msg,
             "time": now_str,
             "ip": ip_masked,
             "location": location_str,
-            "swimmer": swimmer
+            "swimmer": clean_swimmer,
+            "mode": mode_str,
+            "device": device_str,
+            "channel": channel_str
         }
 
         self.send_response(200)
