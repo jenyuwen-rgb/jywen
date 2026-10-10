@@ -755,9 +755,62 @@
             font-size: 0.9rem;
             line-height: 1.6;
         }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .shake {
+            animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
     </style>
 </head>
 <body class="selection:bg-yellow-500 selection:text-black">
+
+    <!-- 🔒 專屬通行鑑別門禁 (Apple Cyber Dark Auth Modal) -->
+    <div id="authGateModal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 transition-all duration-300">
+        <div class="tech-card glass-panel w-full max-w-md p-6 sm:p-8 space-y-6 text-center shadow-2xl border-yellow-500/30 relative">
+            <div class="space-y-2">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400/20 to-amber-600/10 border border-yellow-500/40 flex items-center justify-center mx-auto shadow-lg shadow-yellow-500/10">
+                    <i class="fa-solid fa-shield-halved text-2xl gold-gradient-icon"></i>
+                </div>
+                <h3 class="text-xl font-bold gold-gradient-text">專屬系統管理與數據中心</h3>
+                <p class="text-xs text-zinc-400 font-light">大仁哥專屬管理區域 · 登入後自動永久綁定此設備</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="relative">
+                    <input id="authPasswordInput" type="password" placeholder="請輸入管理密鑰..." 
+                           class="w-full bg-[#0D0D0E] border border-zinc-700 focus:border-yellow-500 rounded-xl px-4 py-3.5 text-white text-center tracking-widest text-base outline-none transition-all placeholder:text-zinc-600 font-mono shadow-inner"
+                           onkeydown="if(event.key==='Enter') verifyAccessPass()">
+                </div>
+
+                <div id="authErrorMessage" class="hidden text-xs text-rose-400 bg-rose-950/40 border border-rose-800/60 rounded-xl p-3 text-center flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>密鑰驗證失敗，請重新輸入</span>
+                </div>
+
+                <div class="flex items-center justify-center gap-2 text-xs text-zinc-400 select-none">
+                    <i class="fa-solid fa-laptop-code text-yellow-500/80 text-[11px]"></i>
+                    <span class="text-zinc-400 font-mono">登入後此設備將永久綁定自動通行</span>
+                </div>
+
+                <button onclick="verifyAccessPass()" id="authSubmitBtn"
+                        class="w-full py-3.5 rounded-xl bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 text-black font-extrabold tracking-wide shadow-lg shadow-yellow-500/25 hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-key"></i>
+                    <span>驗證密鑰並綁定設備</span>
+                </button>
+            </div>
+
+            <div class="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-500 font-mono">
+                <a href="/" class="hover:text-zinc-300 transition flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left text-[10px]"></i> 返回 PWA 首頁
+                </a>
+                <span>SHA-256 物理加密</span>
+            </div>
+        </div>
+    </div>
 
     <!-- 頂部高科技導航欄 -->
     <header class="sticky top-0 z-40 glass-panel border-b border-zinc-800/80 px-4 py-3.5 flex items-center justify-between">
@@ -773,6 +826,13 @@
             </div>
         </div>
         <div class="flex items-center gap-3">
+            <div id="authStatusCapsule" class="hidden items-center gap-1.5 px-2.5 py-1 bg-zinc-900/90 border border-emerald-500/40 rounded-lg text-xs font-mono text-emerald-400 shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+                <span class="hidden sm:inline text-zinc-300 font-medium">大仁哥設備已綁定</span>
+                <button onclick="logoutAdmin()" class="ml-1 px-1.5 py-0.5 rounded bg-zinc-800 hover:bg-rose-950 hover:text-rose-400 text-zinc-400 border border-zinc-700 hover:border-rose-700 transition text-[10px]" title="解除設備綁定">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> 登出解綁
+                </button>
+            </div>
             <span class="text-[11px] font-mono text-zinc-400 hidden sm:inline">GCP Cloud Dispatcher Active</span>
             <button onclick="refreshData()" class="px-2.5 py-1 text-xs rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition flex items-center gap-1.5 border border-zinc-700">
                 <i class="fa-solid fa-arrows-rotate text-[11px]"></i>
@@ -1725,6 +1785,52 @@
                             <span class="text-zinc-600">[21:14:00]</span>
                             <span>[MONITOR] 3-Attempt Circuit Breaker 已掛載，若遇官方格式異常自動啟動 AI 自我修復。</span>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 📱 大仁哥專屬管理員授權與設備綁定中心 -->
+            <section class="tech-card p-6 space-y-4 border-yellow-500/30">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-base font-bold text-zinc-100 flex items-center gap-2">
+                            <i class="fa-solid fa-laptop-code gold-gradient-icon"></i>
+                            <span class="gold-gradient-text">專屬設備授權與永久綁定中樞 (Device Binding Hub)</span>
+                        </h3>
+                        <p class="text-xs text-zinc-400">大仁哥專屬管理終端 · 登入後此設備永久記住免密碼自動通行</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-mono">
+                        <span class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold flex items-center gap-1.5 shadow-[0_0_10px_rgba(52,211,153,0.15)]">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>已綁定此設備</span>
+                        </span>
+                        <button onclick="logoutAdmin()" class="px-2.5 py-1 rounded-md bg-zinc-800 hover:bg-rose-950 hover:text-rose-400 text-zinc-300 border border-zinc-700 hover:border-rose-700 transition flex items-center gap-1 text-[11px]" title="解除此設備綁定">
+                            <i class="fa-solid fa-arrow-right-from-bracket text-[10px]"></i> 解除綁定登出
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
+                    <div class="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
+                        <div class="text-zinc-500 text-[11px] flex items-center gap-1">
+                            <i class="fa-solid fa-microchip text-yellow-500/70"></i> 當前設備識別
+                        </div>
+                        <div id="boundDeviceName" class="text-zinc-200 font-bold text-sm">Apple Mac / 瀏覽器</div>
+                        <div id="boundDeviceId" class="text-[10px] text-zinc-500 truncate">DeviceID: DEV-MAC-PWA-01</div>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
+                        <div class="text-zinc-500 text-[11px] flex items-center gap-1">
+                            <i class="fa-regular fa-clock text-sky-400"></i> 綁定生效時間
+                        </div>
+                        <div id="boundDeviceTime" class="text-emerald-400 font-bold text-sm">2026/10/10 14:52</div>
+                        <div class="text-[10px] text-zinc-500">永久持久化 (localStorage)</div>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
+                        <div class="text-zinc-500 text-[11px] flex items-center gap-1">
+                            <i class="fa-solid fa-shield-halved text-emerald-400"></i> 安全防護等級
+                        </div>
+                        <div class="text-yellow-400 font-bold text-sm">SHA-256 物理加密</div>
+                        <div class="text-[10px] text-zinc-500 truncate">Hash: 3b5fe9aa...ebbc</div>
                     </div>
                 </div>
             </section>
@@ -2956,6 +3062,158 @@
             }
         }
 
+        // ─── 專屬門禁權限控制 (SHA-256 物理加密) ───
+        const ADMIN_HASH = "3b5fe9aa759a6756530b8aa038f6f9fc707327eb9df7a5a027aa7302ada2ebbc";
+        const AUTH_STORAGE_KEY = "swimming_pwa_int_admin_token";
+
+        async function computeSHA256(str) {
+            const buf = new TextEncoder().encode(str);
+            const digest = await crypto.subtle.digest('SHA-256', buf);
+            return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function updateBoundDeviceInfoUI() {
+            const devNameEl = document.getElementById('boundDeviceName');
+            const devIdEl = document.getElementById('boundDeviceId');
+            const devTimeEl = document.getElementById('boundDeviceTime');
+
+            let ua = navigator.userAgent;
+            let dev = 'Apple Mac / 瀏覽器';
+            if (/iPhone/i.test(ua)) dev = 'Apple iPhone (iOS)';
+            else if (/iPad/i.test(ua)) dev = 'Apple iPad (iPadOS)';
+            else if (/Macintosh|Mac OS X/i.test(ua)) dev = 'Apple Mac (macOS)';
+            else if (/Android/i.test(ua)) dev = 'Android 旗艦設備';
+            else if (/Windows/i.test(ua)) dev = 'Windows PC 終端';
+
+            let boundTime = localStorage.getItem('swimming_pwa_int_bound_time');
+            if (!boundTime) {
+                boundTime = new Date().toLocaleString('zh-TW', { hour12: false });
+                localStorage.setItem('swimming_pwa_int_bound_time', boundTime);
+            }
+
+            let devId = localStorage.getItem('swimming_pwa_int_device_id');
+            if (!devId) {
+                devId = 'DEV-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+                localStorage.setItem('swimming_pwa_int_device_id', devId);
+            }
+
+            if (devNameEl) devNameEl.innerText = dev;
+            if (devIdEl) devIdEl.innerText = 'DeviceID: ' + devId;
+            if (devTimeEl) devTimeEl.innerText = boundTime;
+        }
+
+        async function checkAuthStatus() {
+            const token = localStorage.getItem(AUTH_STORAGE_KEY) || sessionStorage.getItem(AUTH_STORAGE_KEY);
+            const modal = document.getElementById('authGateModal');
+            const statusCap = document.getElementById('authStatusCapsule');
+
+            if (token === ADMIN_HASH) {
+                if (modal) modal.classList.add('hidden');
+                if (statusCap) {
+                    statusCap.classList.remove('hidden');
+                    statusCap.classList.add('flex');
+                }
+                updateBoundDeviceInfoUI();
+                return true;
+            } else {
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    setTimeout(() => {
+                        const input = document.getElementById('authPasswordInput');
+                        if (input) input.focus();
+                    }, 100);
+                }
+                if (statusCap) statusCap.classList.add('hidden');
+                return false;
+            }
+        }
+
+        async function verifyAccessPass() {
+            const input = document.getElementById('authPasswordInput');
+            const errBox = document.getElementById('authErrorMessage');
+            const pass = input ? input.value : '';
+
+            if (!pass) {
+                if (errBox) {
+                    errBox.classList.remove('hidden');
+                    errBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><span>請輸入通行金鑰</span>';
+                }
+                return;
+            }
+
+            const hash = await computeSHA256(pass);
+            if (hash === ADMIN_HASH) {
+                // 👑 永久綁定此設備至 localStorage
+                localStorage.setItem(AUTH_STORAGE_KEY, hash);
+                localStorage.setItem('swimming_pwa_int_device_bound', 'true');
+                localStorage.setItem('swimming_pwa_int_bound_time', new Date().toLocaleString('zh-TW', { hour12: false }));
+                const devId = 'DEV-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+                localStorage.setItem('swimming_pwa_int_device_id', devId);
+
+                if (errBox) errBox.classList.add('hidden');
+                const modal = document.getElementById('authGateModal');
+                if (modal) {
+                    modal.style.opacity = '0';
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                        modal.style.opacity = '1';
+                    }, 250);
+                }
+
+                const statusCap = document.getElementById('authStatusCapsule');
+                if (statusCap) {
+                    statusCap.classList.remove('hidden');
+                    statusCap.classList.add('flex');
+                }
+
+                updateBoundDeviceInfoUI();
+
+                // 成功解鎖後啟動儀表板數據
+                initActiveTab();
+                initDashboard();
+                loadCalendarData();
+                fetchCrawlerLogs();
+                fetchStorageQuota();
+            } else {
+                if (errBox) {
+                    errBox.classList.remove('hidden');
+                    errBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><span>密鑰驗證失敗，請重新輸入</span>';
+                }
+                const modalBox = document.querySelector('#authGateModal .tech-card');
+                if (modalBox) {
+                    modalBox.classList.remove('shake');
+                    void modalBox.offsetWidth;
+                    modalBox.classList.add('shake');
+                }
+                if (input) {
+                    input.value = '';
+                    input.focus();
+                }
+            }
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+            localStorage.removeItem('swimming_pwa_int_device_bound');
+            localStorage.removeItem('swimming_pwa_int_bound_time');
+            localStorage.removeItem('swimming_pwa_int_device_id');
+            sessionStorage.removeItem(AUTH_STORAGE_KEY);
+            const statusCap = document.getElementById('authStatusCapsule');
+            if (statusCap) statusCap.classList.add('hidden');
+            const modal = document.getElementById('authGateModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.opacity = '1';
+                const input = document.getElementById('authPasswordInput');
+                if (input) {
+                    input.value = '';
+                    input.focus();
+                }
+            }
+            const errBox = document.getElementById('authErrorMessage');
+            if (errBox) errBox.classList.add('hidden');
+        }
+
         function refreshData() {
             initDashboard();
             loadCalendarData();
@@ -2963,12 +3221,15 @@
             fetchStorageQuota();
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            initActiveTab();
-            initDashboard();
-            loadCalendarData();
-            fetchCrawlerLogs();
-            fetchStorageQuota();
+        window.addEventListener('DOMContentLoaded', async () => {
+            const isAuthed = await checkAuthStatus();
+            if (isAuthed) {
+                initActiveTab();
+                initDashboard();
+                loadCalendarData();
+                fetchCrawlerLogs();
+                fetchStorageQuota();
+            }
         });
     </script>
 </body>
