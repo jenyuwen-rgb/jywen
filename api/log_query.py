@@ -10,46 +10,10 @@ from datetime import datetime, timezone, timedelta
 # Telegram 設定
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8939873453:AAH5EXWOMoJ6D3I3i1FoQihMLa_lmumCt5A")
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID", "8270092740")
-TELEGRAM_LIVE_LOG_MSG_ID = 11526
 
-def get_telegram_live_logs():
-    """從 Telegram 雲端永久置頂訊息獲取最新訪客即時串流"""
-    try:
-        ctx = ssl._create_unverified_context()
-        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getChat?chat_id={TELEGRAM_USER_ID}"
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=4, context=ctx) as resp:
-            data = json.loads(resp.read().decode('utf-8'))
-            pinned = data.get('result', {}).get('pinned_message', {})
-            text = pinned.get('text', '')
-            if text.startswith('LIVE_LOGS:'):
-                return json.loads(text[len('LIVE_LOGS:'):])
-    except Exception as e:
-        print(f"[Telegram Telemetry] 讀取置頂日誌失敗: {e}")
-    return None
-
-def update_telegram_live_logs(new_entry):
-    """將最新日誌即時推入 Telegram 雲端置頂訊息 (維持最新 30 筆)"""
-    try:
-        ctx = ssl._create_unverified_context()
-        existing = get_telegram_live_logs() or []
-        # 去除完全重複
-        existing = [e for e in existing if not (e.get("time") == new_entry.get("time") and e.get("swimmer") == new_entry.get("swimmer"))]
-        existing.insert(0, new_entry)
-        existing = existing[:30] # 維持 30 筆精確不超過 Telegram 4096 字符上限
-
-        payload_text = 'LIVE_LOGS:' + json.dumps(existing, ensure_ascii=False)
-        edit_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/editMessageText"
-        data = json.dumps({
-            'chat_id': TELEGRAM_USER_ID,
-            'message_id': TELEGRAM_LIVE_LOG_MSG_ID,
-            'text': payload_text
-        }).encode('utf-8')
-        req = urllib.request.Request(edit_url, data=data, headers={'Content-Type': 'application/json'})
-        with urllib.request.urlopen(req, timeout=4, context=ctx) as resp:
-            pass
-    except Exception as e:
-        print(f"[Telegram Telemetry] 更新置頂日誌失敗: {e}")
+# JSONBlob 雲端橋樑設定 (無需 Token，公開讀寫，永遠不會被撤銷)
+JSONBLOB_ID = os.environ.get("JSONBLOB_ID", "019fd1ff-27cd-7921-a1ce-c0a46b9741b0")
+JSONBLOB_API = f"https://jsonblob.com/api/jsonBlob/{JSONBLOB_ID}"
 
 def mask_ip(ip_str):
     if not ip_str:
@@ -109,6 +73,24 @@ def infer_device_channel(user_agent, custom_device="", custom_channel=""):
     return device, channel
 
 GLOBAL_LOG_QUEUE = []
+import time
+_IP_RATE_STORE = {}
+
+def check_rate_limit(client_ip: str, max_requests: int = 120, window_seconds: int = 60) -> bool:
+    if not client_ip or client_ip in ("127.0.0.1", "localhost", "testclient"):
+        return True
+    now = time.time()
+    history = _IP_RATE_STORE.get(client_ip, [])
+    history = [t for t in history if now - t < window_seconds]
+    if len(history) >= max_requests:
+        _IP_RATE_STORE[client_ip] = history
+        return False
+    history.append(now)
+    _IP_RATE_STORE[client_ip] = history
+    if len(_IP_RATE_STORE) > 2000:
+        for k in list(_IP_RATE_STORE.keys())[:500]:
+            _IP_RATE_STORE.pop(k, None)
+    return True
 
 class handler(BaseHTTPRequestHandler):
     def _send_cors_headers(self):
@@ -122,6 +104,16 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        client_ip = (self.headers.get('x-forwarded-for') or self.headers.get('x-real-ip') or (self.client_address[0] if hasattr(self, 'client_address') and self.client_address else "")).split(',')[0].strip()
+        if not check_rate_limit(client_ip, max_requests=120, window_seconds=60):
+            self.send_response(429)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self._send_cors_headers()
+            self.send_header('Retry-After', '60')
+            self.end_headers()
+            self.wfile.write(b'{"error": "Too Many Requests. Please slow down."}')
+            return
+
         full_path = self.headers.get('x-matched-path', '') or self.path
         parsed_path = urllib.parse.urlparse(full_path)
         query_params = urllib.parse.parse_qs(parsed_path.query)
@@ -136,24 +128,15 @@ class handler(BaseHTTPRequestHandler):
         
         if action == 'pull':
             logs = []
-            # 優先從 Telegram 雲端永久置頂通道獲取即時串流
-            tg_logs = get_telegram_live_logs()
-            if tg_logs and isinstance(tg_logs, list):
-                logs = tg_logs
-
-            # 再以本地靜態庫做補充歷史快照
             try:
                 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                 json_path = os.path.join(base_dir, "static", "visitor_query_logs.json")
                 if os.path.exists(json_path):
                     with open(json_path, "r", encoding="utf-8") as f:
                         data = json.load(f)
-                        fallback_logs = data.get("logs", [])
-                        for fl in fallback_logs:
-                            if not any(e.get("time") == fl.get("time") and e.get("swimmer") == fl.get("swimmer") for e in logs):
-                                logs.append(fl)
+                        logs = data.get("logs", [])
             except Exception:
-                pass
+                logs = []
 
             if GLOBAL_LOG_QUEUE:
                 for item in reversed(GLOBAL_LOG_QUEUE):
@@ -188,6 +171,16 @@ class handler(BaseHTTPRequestHandler):
         self.process_log(swimmer=swimmer, page=page, custom_loc=location, custom_device=device, custom_channel=channel)
 
     def do_POST(self):
+        client_ip = (self.headers.get('x-forwarded-for') or self.headers.get('x-real-ip') or (self.client_address[0] if hasattr(self, 'client_address') and self.client_address else "")).split(',')[0].strip()
+        if not check_rate_limit(client_ip, max_requests=120, window_seconds=60):
+            self.send_response(429)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self._send_cors_headers()
+            self.send_header('Retry-After', '60')
+            self.end_headers()
+            self.wfile.write(b'{"error": "Too Many Requests. Please slow down."}')
+            return
+
         parsed_path = urllib.parse.urlparse(self.path)
         query_params = urllib.parse.parse_qs(parsed_path.query)
 
@@ -234,7 +227,7 @@ class handler(BaseHTTPRequestHandler):
 
         ssl_ctx = ssl._create_unverified_context()
 
-        # 1. 寫入記憶體隊列與 Telegram 雲端即時串流通路
+        # 1. 寫入記憶體隊列
         if clean_swimmer:
             entry = {
                 "time": now_str,
@@ -249,9 +242,6 @@ class handler(BaseHTTPRequestHandler):
             GLOBAL_LOG_QUEUE.append(entry)
             if len(GLOBAL_LOG_QUEUE) > 200:
                 GLOBAL_LOG_QUEUE.pop(0)
-
-            # 🚀 立即持久化至 Telegram 雲端置頂通道 (跨 Serverless 實例 100% 共享)
-            update_telegram_live_logs(entry)
 
         # 2. 同步寫入 Google Sheets
         if clean_swimmer:

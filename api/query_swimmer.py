@@ -25,8 +25,37 @@ def get_bucket_index(name: str) -> int:
     h = hashlib.md5(clean_name.encode("utf-8")).hexdigest()
     return int(h[:4], 16) % 256
 
+import time
+_IP_RATE_STORE = {}
+
+def check_rate_limit(client_ip: str, max_requests: int = 120, window_seconds: int = 60) -> bool:
+    if not client_ip or client_ip in ("127.0.0.1", "localhost", "testclient"):
+        return True
+    now = time.time()
+    history = _IP_RATE_STORE.get(client_ip, [])
+    history = [t for t in history if now - t < window_seconds]
+    if len(history) >= max_requests:
+        _IP_RATE_STORE[client_ip] = history
+        return False
+    history.append(now)
+    _IP_RATE_STORE[client_ip] = history
+    if len(_IP_RATE_STORE) > 2000:
+        for k in list(_IP_RATE_STORE.keys())[:500]:
+            _IP_RATE_STORE.pop(k, None)
+    return True
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
+        client_ip = (self.headers.get('x-forwarded-for') or self.headers.get('x-real-ip') or (self.client_address[0] if hasattr(self, 'client_address') and self.client_address else "")).split(',')[0].strip()
+        if not check_rate_limit(client_ip, max_requests=120, window_seconds=60):
+            self.send_response(429)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Retry-After', '60')
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": "Too Many Requests. Please slow down."}, ensure_ascii=False).encode('utf-8'))
+            return
+
         parsed = urllib.parse.urlparse(self.path)
         params = urllib.parse.parse_qs(parsed.query)
         
