@@ -92,6 +92,14 @@
       "destination": "/256split.html"
     },
     {
+      "source": "/athlete/:name",
+      "destination": "/athletes/:name.html"
+    },
+    {
+      "source": "/athletes/:name",
+      "destination": "/athletes/:name.html"
+    },
+    {
       "source": "/int",
       "destination": "/int.html"
     }

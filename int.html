@@ -123,12 +123,18 @@
             border-radius: 14px;
             padding: 5px;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 6px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
+            .segmented-control-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
             .segmented-control-container {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -925,6 +931,11 @@
                 <i class="fa-solid fa-cloud-bolt tab-icon text-sm"></i>
                 <span>雲端架構與日誌</span>
                 <span class="tab-badge hidden sm:inline">GCP</span>
+            </button>
+            <button id="tab-btn-seo" class="nav-tab-btn" onclick="switchTab('seo')">
+                <i class="fa-brands fa-google tab-icon text-sm"></i>
+                <span>Google 搜尋與 SEO</span>
+                <span class="tab-badge hidden sm:inline">GSC</span>
             </button>
         </nav>
 
@@ -1832,6 +1843,279 @@
                         <div class="text-yellow-400 font-bold text-sm">SHA-256 物理加密</div>
                         <div class="text-[10px] text-zinc-500 truncate">Hash: 3b5fe9aa...ebbc</div>
                     </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- TAB PANE 5: 🔍 Google 搜尋收錄與 SEO 觀測中樞 (Google Search & SEO Analytics Hub) -->
+        <!-- ============================================================ -->
+        <div id="pane-seo" class="tab-pane space-y-6">
+
+            <!-- 主標題卡片 -->
+            <section class="tech-card p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">
+                            <i class="fa-brands fa-google"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-zinc-100 flex items-center gap-2">
+                                <span>Google 搜尋引擎收錄與曝光成效觀測中樞</span>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">SEO RADAR</span>
+                            </h3>
+                            <p class="text-xs text-zinc-400">即時追蹤 Google 爬蟲檢索收錄、焦點選手靜態預渲染 (Prerender)、Sitemap 狀態與 GSC 7 大核心指標</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="https://search.google.com/search-console" target="_blank" class="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 text-xs font-semibold flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                            <span>Google Search Console 官網</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 4 大核心總覽指標卡 -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="p-4 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1">
+                        <div class="text-[11px] text-zinc-500 flex items-center justify-between">
+                            <span>靜態預渲染選手數</span>
+                            <i class="fa-solid fa-bolt text-amber-400"></i>
+                        </div>
+                        <div class="text-2xl font-bold font-mono text-amber-300">997 <span class="text-xs font-normal text-zinc-500">位</span></div>
+                        <div class="text-[10px] text-emerald-400 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            <span>免 JS · 秒級爬取</span>
+                        </div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1">
+                        <div class="text-[11px] text-zinc-500 flex items-center justify-between">
+                            <span>Sitemap 提交 URL</span>
+                            <i class="fa-solid fa-sitemap text-sky-400"></i>
+                        </div>
+                        <div class="text-2xl font-bold font-mono text-sky-300">998 <span class="text-xs font-normal text-zinc-500">條</span></div>
+                        <div class="text-[10px] text-zinc-400">sitemap_top.xml</div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1">
+                        <div class="text-[11px] text-zinc-500 flex items-center justify-between">
+                            <span>Core Web Vitals</span>
+                            <i class="fa-solid fa-gauge-high text-emerald-400"></i>
+                        </div>
+                        <div class="text-2xl font-bold font-mono text-emerald-400">100 <span class="text-xs font-normal text-zinc-500">分</span></div>
+                        <div class="text-[10px] text-emerald-400">良好 (Good) · 綠色體驗</div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-zinc-950/60 border border-zinc-800/80 space-y-1">
+                        <div class="text-[11px] text-zinc-500 flex items-center justify-between">
+                            <span>結構化資料 (Schema)</span>
+                            <i class="fa-solid fa-code text-indigo-400"></i>
+                        </div>
+                        <div class="text-xl font-bold font-mono text-indigo-300">Person+Web</div>
+                        <div class="text-[10px] text-zinc-400">Rich Snippets 知識卡</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7 大核心驗證指標觀測表與判斷標準 -->
+            <section class="tech-card p-5 space-y-4">
+                <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+                    <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-amber-400"></i>
+                        <span>證明努力有用的 7 大客觀成效觀測指標 (SEO Verification Benchmarks)</span>
+                    </h4>
+                    <span class="text-xs font-mono text-zinc-500">大仁哥專屬觀測指南</span>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-zinc-800/80">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-zinc-900/90 text-zinc-400 font-semibold border-b border-zinc-800">
+                                <th class="p-3">#</th>
+                                <th class="p-3">指標名稱 (Metric)</th>
+                                <th class="p-3">資料來源 (Source)</th>
+                                <th class="p-3">當前基準與判定成功標準 (Success Target)</th>
+                                <th class="p-3">努力發酵機制 (Mechanism)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-800/40 font-mono">
+                            <tr class="hover:bg-zinc-900/40">
+                                <td class="p-3 text-amber-400 font-bold">1</td>
+                                <td class="p-3 text-zinc-100 font-sans font-bold">總曝光次數 (Total Impressions)</td>
+                                <td class="p-3 text-sky-400">Google Search Console</td>
+                                <td class="p-3 text-emerald-300 font-sans font-medium">在 Google 搜尋結果出現次數<strong>週環比上升 > 20%</strong></td>
+                                <td class="p-3 text-zinc-400 font-sans">997 位選手靜態頁讓 Googlebot 全面收錄長尾詞</td>
+                            </tr>
+                            <tr class="hover:bg-zinc-900/40">
+                                <td class="p-3 text-amber-400 font-bold">2</td>
+                                <td class="p-3 text-zinc-100 font-sans font-bold">總點擊次數 (Total Clicks)</td>
+                                <td class="p-3 text-sky-400">Google Search Console</td>
+                                <td class="p-3 text-emerald-300 font-sans font-medium">自然搜尋點進平台之點擊數<strong>月增長 > 30%</strong></td>
+                                <td class="p-3 text-zinc-400 font-sans">Title/Description 標註「PB 總表與同齡排行」極具吸引力</td>
+                            </tr>
+                            <tr class="hover:bg-zinc-900/40">
+                                <td class="p-3 text-amber-400 font-bold">3</td>
+                                <td class="p-3 text-zinc-100 font-sans font-bold">平均點擊率 (Average CTR)</td>
+                                <td class="p-3 text-sky-400">Google Search Console</td>
+                                <td class="p-3 text-emerald-300 font-sans font-medium">維持在 <strong>5.0% ~ 15.0%</strong> 優良高點擊區間</td>
+                                <td class="p-3 text-zinc-400 font-sans">富摘要 (Rich Snippets) 與選手性別、單位精準切中需求</td>
+                            </tr>
+                            <tr class="hover:bg-zinc-900/40">
+                                <td class="p-3 text-amber-400 font-bold">4</td>
+                                <td class="p-3 text-zinc-100 font-sans font-bold">核心詞平均排名 (Avg Position)</td>
+                                <td class="p-3 text-sky-400">Google Search Console</td>
+                                <td class="p-3 text-emerald-300 font-sans font-medium">「[選手名] 游泳成績/PB」挺進<strong>前 3 名或首頁</strong></td>
+                                <td class="p-3 text-zinc-400 font-sans">權威 85 萬筆真實數據與語意化 H1/H2 標籤加權</td>
+                            </tr>
+                            <tr class="hover:bg-zinc-900/40">
+                                <td class="p-3 text-amber-400 font-bold">5</td>
+                                <td class="p-3 text-zinc-100 font-sans font-bold">已編入索引有效頁數 (Indexed Pages)</td>
+                                <td class="p-3 text-sky-400">GSC 網頁涵蓋率報告</td>
+                                <td class="p-3 text-emerald-300 font-sans font-medium">有效索引頁數達到 <strong>997+ 頁</strong>且零「未編入」警告</td>
+                                <td class="p-3 text-zinc-400 font-sans">Sitemap 分層提交 + 靜態 HTML 快照零 JS 延遲</td>
+                            </tr>
+                            <tr class="hover:bg-zinc-900/40">
+                                <td class="p-3 text-amber-400 font-bold">6</td>
+                                <td class="p-3 text-zinc-100 font-sans font-bold">Core Web Vitals 良好率</td>
+                                <td class="p-3 text-sky-400">PageSpeed / CrUX</td>
+                                <td class="p-3 text-emerald-300 font-sans font-medium">LCP &lt; 1.2s、INP &lt; 100ms、CLS = 0 (<strong>100% 綠色</strong>)</td>
+                                <td class="p-3 text-zinc-400 font-sans">純前端靜態 256 桶切割，首屏秒開獲得 Google 體驗加權</td>
+                            </tr>
+                            <tr class="hover:bg-zinc-900/40">
+                                <td class="p-3 text-amber-400 font-bold">7</td>
+                                <td class="p-3 text-zinc-100 font-sans font-bold">自然搜尋流量佔比 (Organic Ratio)</td>
+                                <td class="p-3 text-sky-400">訪客即時雷達 (Tab 1) / GA4</td>
+                                <td class="p-3 text-emerald-300 font-sans font-medium">Referrer 為 Google 之查詢佔總量 <strong>30% ~ 50%+</strong></td>
+                                <td class="p-3 text-zinc-400 font-sans">家長與教練透過 Google 搜尋自然進入平台查詢</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 焦點選手靜態預渲染即時展示卡 (Top 12 Focus Swimmers Preview) -->
+            <section class="tech-card p-5 space-y-4">
+                <div class="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+                    <div>
+                        <h4 class="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                            <i class="fa-solid fa-users-viewfinder text-sky-400"></i>
+                            <span>焦點選手靜態快照頁面 (Prerendered Focus Athletes Preview)</span>
+                        </h4>
+                        <p class="text-xs text-zinc-400">已產出 997 位選手之獨立 HTML 快照，包含語意化表格、JSON-LD 與 Canonical 唯一網址</p>
+                    </div>
+                    <span class="px-2 py-1 rounded bg-zinc-800 text-[10px] font-mono text-zinc-300">共 997 頁</span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 text-xs">
+                    <a href="/athletes/王冠閎.html" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 hover:border-amber-500/50 transition group flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-zinc-200 group-hover:text-amber-300 transition">王冠閎</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">國手</span>
+                        </div>
+                        <div class="text-[11px] text-zinc-500 mt-2 flex items-center justify-between font-mono">
+                            <span>239 場官方出賽</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-zinc-600 group-hover:text-zinc-300"></i>
+                        </div>
+                    </a>
+                    <a href="/athletes/王星皓.html" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 hover:border-amber-500/50 transition group flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-zinc-200 group-hover:text-amber-300 transition">王星皓</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">國手</span>
+                        </div>
+                        <div class="text-[11px] text-zinc-500 mt-2 flex items-center justify-between font-mono">
+                            <span>302 場官方出賽</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-zinc-600 group-hover:text-zinc-300"></i>
+                        </div>
+                    </a>
+                    <a href="/athletes/鄭向恩.html" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 hover:border-amber-500/50 transition group flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-zinc-200 group-hover:text-amber-300 transition">鄭向恩</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20 font-mono">常勝</span>
+                        </div>
+                        <div class="text-[11px] text-zinc-500 mt-2 flex items-center justify-between font-mono">
+                            <span>368 場官方出賽</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-zinc-600 group-hover:text-zinc-300"></i>
+                        </div>
+                    </a>
+                    <a href="/athletes/莊沐倫.html" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 hover:border-amber-500/50 transition group flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-zinc-200 group-hover:text-amber-300 transition">莊沐倫</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">國手</span>
+                        </div>
+                        <div class="text-[11px] text-zinc-500 mt-2 flex items-center justify-between font-mono">
+                            <span>243 場官方出賽</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-zinc-600 group-hover:text-zinc-300"></i>
+                        </div>
+                    </a>
+                    <a href="/athletes/卓承齊.html" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 hover:border-amber-500/50 transition group flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-zinc-200 group-hover:text-amber-300 transition">卓承齊</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">國手</span>
+                        </div>
+                        <div class="text-[11px] text-zinc-500 mt-2 flex items-center justify-between font-mono">
+                            <span>545 場官方出賽</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-zinc-600 group-hover:text-zinc-300"></i>
+                        </div>
+                    </a>
+                    <a href="/athletes/林姵彣.html" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 hover:border-amber-500/50 transition group flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-zinc-200 group-hover:text-amber-300 transition">林姵彣</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-pink-500/10 text-pink-400 border border-pink-500/20 font-mono">紀錄保持</span>
+                        </div>
+                        <div class="text-[11px] text-zinc-500 mt-2 flex items-center justify-between font-mono">
+                            <span>196 場官方出賽</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-zinc-600 group-hover:text-zinc-300"></i>
+                        </div>
+                    </a>
+                    <a href="/athletes/黃渼茜.html" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 hover:border-amber-500/50 transition group flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-zinc-200 group-hover:text-amber-300 transition">黃渼茜</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-pink-500/10 text-pink-400 border border-pink-500/20 font-mono">國手</span>
+                        </div>
+                        <div class="text-[11px] text-zinc-500 mt-2 flex items-center justify-between font-mono">
+                            <span>138 場官方出賽</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-zinc-600 group-hover:text-zinc-300"></i>
+                        </div>
+                    </a>
+                    <a href="/athletes/陳宥安.html" target="_blank" class="p-3 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 hover:border-amber-500/50 transition group flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-zinc-200 group-hover:text-amber-300 transition">陳宥安</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">出賽之冠</span>
+                        </div>
+                        <div class="text-[11px] text-zinc-500 mt-2 flex items-center justify-between font-mono">
+                            <span>887 場官方出賽</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-zinc-600 group-hover:text-zinc-300"></i>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- SEO 快速工具箱與外部官方驗證捷徑 -->
+            <section class="p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 space-y-3">
+                <h4 class="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-toolbox text-amber-400"></i>
+                    <span>SEO 快速工具箱與實體檔案檢閱</span>
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-mono">
+                    <a href="/sitemap_top.xml" target="_blank" class="p-3 rounded-xl bg-zinc-950/60 hover:bg-zinc-800/50 border border-zinc-800 transition flex items-center justify-between group">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-file-code text-sky-400"></i>
+                            <span class="text-zinc-300 group-hover:text-white">sitemap_top.xml</span>
+                        </div>
+                        <span class="text-[10px] text-zinc-500 font-mono">998 URLs</span>
+                    </a>
+                    <a href="/robots.txt" target="_blank" class="p-3 rounded-xl bg-zinc-950/60 hover:bg-zinc-800/50 border border-zinc-800 transition flex items-center justify-between group">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-robot text-emerald-400"></i>
+                            <span class="text-zinc-300 group-hover:text-white">robots.txt</span>
+                        </div>
+                        <span class="text-[10px] text-emerald-400">配額優化</span>
+                    </a>
+                    <a href="https://pagespeed.web.dev/analysis?url=https%3A%2F%2Fswimming-pwa.vercel.app%2F" target="_blank" class="p-3 rounded-xl bg-zinc-950/60 hover:bg-zinc-800/50 border border-zinc-800 transition flex items-center justify-between group">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-gauge-simple-high text-yellow-400"></i>
+                            <span class="text-zinc-300 group-hover:text-white">PageSpeed 測速</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-zinc-600"></i>
+                    </a>
                 </div>
             </section>
         </div>
