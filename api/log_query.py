@@ -10,10 +10,49 @@ from datetime import datetime, timezone, timedelta
 # Telegram 設定
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8939873453:AAH5EXWOMoJ6D3I3i1FoQihMLa_lmumCt5A")
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID", "8270092740")
+TELEGRAM_PINNED_MSG_ID = int(os.environ.get("TELEGRAM_PINNED_MSG_ID", "11526"))
 
-# JSONBlob 雲端橋樑設定 (無需 Token，公開讀寫，永遠不會被撤銷)
-JSONBLOB_ID = os.environ.get("JSONBLOB_ID", "019fd1ff-27cd-7921-a1ce-c0a46b9741b0")
-JSONBLOB_API = f"https://jsonblob.com/api/jsonBlob/{JSONBLOB_ID}"
+def fetch_telegram_live_logs():
+    """從 Telegram Pinned Message 讀取跨伺服器持久化之即時訪客日誌"""
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getChat?chat_id={TELEGRAM_USER_ID}"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        ctx = ssl._create_unverified_context()
+        with urllib.request.urlopen(req, timeout=3, context=ctx) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+            msg = data.get("result", {}).get("pinned_message", {}).get("text", "")
+            if msg.startswith("LIVE_LOGS:"):
+                return json.loads(msg[len("LIVE_LOGS:"):])
+    except Exception as e:
+        print(f"[Telegram Telemetry] 讀取即時日誌失敗: {e}")
+    return []
+
+def update_telegram_live_logs(new_entry):
+    """將最新搜尋紀錄原子推入 Telegram Pinned Message，確保即時持久化"""
+    try:
+        current_logs = fetch_telegram_live_logs()
+        current_logs.insert(0, new_entry)
+        seen = set()
+        dedup = []
+        for item in current_logs:
+            key = (item.get("time"), item.get("swimmer"))
+            if key not in seen:
+                seen.add(key)
+                dedup.append(item)
+        trimmed = dedup[:20]
+        payload = {
+            "chat_id": TELEGRAM_USER_ID,
+            "message_id": TELEGRAM_PINNED_MSG_ID,
+            "text": "LIVE_LOGS:" + json.dumps(trimmed, ensure_ascii=False)
+        }
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/editMessageText"
+        req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'})
+        ctx = ssl._create_unverified_context()
+        with urllib.request.urlopen(req, timeout=3, context=ctx) as resp:
+            pass
+    except Exception as e:
+        print(f"[Telegram Telemetry] 更新置頂日誌失敗: {e}")
+
 
 def mask_ip(ip_str):
     if not ip_str:
@@ -128,17 +167,26 @@ class handler(BaseHTTPRequestHandler):
         
         if action == 'pull':
             logs = []
+            
+            # 1. 優先嘗試從 Telegram 置頂訊息讀取極速跨 Serverless 實例的即時日誌 (100% 雲端持久化)
             try:
-                # 1. 優先嘗試從 GCS 雲端日誌讀取最新資料
+                tg_logs = fetch_telegram_live_logs()
+                if tg_logs:
+                    logs.extend(tg_logs)
+            except Exception:
+                pass
+
+            # 2. 補充從 GCS 雲端日誌讀取全量歷史資料
+            try:
                 gcs_url = "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/visitor_query_logs.json"
                 req = urllib.request.Request(gcs_url, headers={'User-Agent': 'Mozilla/5.0'})
-                ctx = ssl.create_default_context()
-                ctx.check_hostname = False
-                ctx.verify_mode = ssl.CERT_NONE
+                ctx = ssl._create_unverified_context()
                 with urllib.request.urlopen(req, timeout=3, context=ctx) as response:
                     if response.status == 200:
                         data = json.loads(response.read().decode('utf-8'))
-                        logs = data.get("logs", [])
+                        for item in data.get("logs", []):
+                            if not any(e.get("time") == item.get("time") and e.get("swimmer") == item.get("swimmer") for e in logs):
+                                logs.append(item)
             except Exception:
                 pass
 
@@ -149,9 +197,11 @@ class handler(BaseHTTPRequestHandler):
                     if os.path.exists(json_path):
                         with open(json_path, "r", encoding="utf-8") as f:
                             data = json.load(f)
-                            logs = data.get("logs", [])
+                            for item in data.get("logs", []):
+                                if not any(e.get("time") == item.get("time") and e.get("swimmer") == item.get("swimmer") for e in logs):
+                                    logs.append(item)
                 except Exception:
-                    logs = []
+                    pass
 
             if GLOBAL_LOG_QUEUE:
                 for item in reversed(GLOBAL_LOG_QUEUE):
@@ -177,14 +227,17 @@ class handler(BaseHTTPRequestHandler):
 
             logs.sort(key=get_sort_key, reverse=True)
 
+            # 過濾掉「頁面造訪」與心跳，純保留選手查詢
+            real_logs = [e for e in logs if e.get("swimmer") and "頁面造訪" not in e.get("swimmer") and not e.get("swimmer", "").strip().startswith("[")]
+
             swimmer_counts = {}
-            for entry in logs:
+            for entry in real_logs:
                 s = entry.get("swimmer", "").strip()
-                if s and s != "[頁面造訪]":
+                if s and "頁面造訪" not in s and not s.startswith("["):
                     names = [n.strip() for n in s.replace('；', ';').split(';') if n.strip()]
                     for n in names:
                         clean_name = n.split('/')[0].strip()
-                        if clean_name:
+                        if clean_name and "頁面造訪" not in clean_name and not clean_name.startswith("["):
                             swimmer_counts[clean_name] = swimmer_counts.get(clean_name, 0) + 1
 
             sorted_hot = sorted(swimmer_counts.items(), key=lambda x: x[1], reverse=True)[:10]
@@ -196,9 +249,9 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({
                 "status": "success",
-                "total_logs": len(logs),
+                "total_logs": len(real_logs),
                 "hot_swimmers": hot_swimmers,
-                "logs": logs[:200]
+                "logs": real_logs[:200]
             }, ensure_ascii=False).encode('utf-8'))
             return
 
@@ -255,13 +308,16 @@ class handler(BaseHTTPRequestHandler):
         device_str, channel_str = infer_device_channel(user_agent, custom_device, custom_channel)
         mode_str = infer_mode(swimmer)
         
-        clean_swimmer = swimmer.replace('[頁面造訪]', '').strip()
-        if clean_swimmer.startswith('/'):
-            clean_swimmer = clean_swimmer[1:]
+        if "頁面造訪" in swimmer or (swimmer.strip().startswith("[") and swimmer.strip().endswith("]")):
+            clean_swimmer = ""
+        else:
+            clean_swimmer = swimmer.replace('[頁面造訪]', '').strip()
+            if clean_swimmer.startswith('/'):
+                clean_swimmer = clean_swimmer[1:]
 
         ssl_ctx = ssl._create_unverified_context()
 
-        # 1. 寫入記憶體隊列
+        # 1. 寫入記憶體隊列與 Telegram 雲端置頂訊息 (跨 Serverless 實例極速同步)
         if clean_swimmer:
             entry = {
                 "time": now_str,
@@ -276,6 +332,12 @@ class handler(BaseHTTPRequestHandler):
             GLOBAL_LOG_QUEUE.append(entry)
             if len(GLOBAL_LOG_QUEUE) > 200:
                 GLOBAL_LOG_QUEUE.pop(0)
+
+            # 同步原子更新 Telegram 雲端即時隊列
+            try:
+                update_telegram_live_logs(entry)
+            except Exception as tg_sync_err:
+                print(f"[Telegram Telemetry] 同步置頂異常: {tg_sync_err}")
 
         # 2. 同步寫入 Google Sheets
         if clean_swimmer:

@@ -1,7 +1,7 @@
 {
   "status": "success",
-  "updated_at": "2026-10-10 19:36:00",
-  "total_logs": 140,
+  "updated_at": "2026-10-11 13:04:55",
+  "total_logs": 141,
   "hot_swimmers": [
     {
       "name": "鄭向恩",
@@ -45,6 +45,16 @@
     }
   ],
   "logs": [
+    {
+      "time": "2026/10/11 上午11:56:32",
+      "ip": "36.236.*.148",
+      "location": "Taiwan Tainan",
+      "swimmer": "陳宥橋",
+      "page": "/",
+      "mode": "PB",
+      "device": "Mac (macOS)",
+      "channel": "PWA 獨立 App"
+    },
     {
       "time": "2026/10/10 下午7:35:12",
       "ip": "114.34.*.89",

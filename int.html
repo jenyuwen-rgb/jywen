@@ -3015,13 +3015,20 @@
         function applyRadarAnalyticsFilter() {
             if (!allVisitorLogs || allVisitorLogs.length === 0) return;
 
+            // 嚴格排除所有「頁面造訪」、「256split頁面造訪」與系統心跳，純保留選手實體查詢
+            const validLogs = allVisitorLogs.filter(log => {
+                const s = (log && log.swimmer) ? String(log.swimmer).trim() : '';
+                return s && !s.includes('頁面造訪') && !s.startsWith('[');
+            });
+            if (validLogs.length === 0) return;
+
             const now = new Date();
             const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime();
             const weekStart = now.getTime() - (7 * 24 * 60 * 60 * 1000);
             const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0).getTime();
 
             // 依據時間篩選日誌
-            let filtered = allVisitorLogs.filter(log => {
+            let filtered = validLogs.filter(log => {
                 const logDate = parseLogTime(log.time);
                 const logTime = logDate.getTime();
                 
@@ -3042,17 +3049,17 @@
                 return true;
             });
 
-            if (filtered.length === 0) filtered = allVisitorLogs;
+            if (filtered.length === 0) filtered = validLogs;
 
             // 1. 計算該時期熱搜 Top 10 選手
             const swimmerCounts = {};
             filtered.forEach(entry => {
-                const s = entry.swimmer || '';
-                if (s && s !== '[頁面造訪]') {
+                const s = (entry.swimmer || '').trim();
+                if (s && !s.includes('頁面造訪') && !s.startsWith('[')) {
                     const names = s.replace(/；/g, ';').split(';').map(n => n.trim()).filter(Boolean);
                     names.forEach(n => {
                         const clean = n.split('/')[0].trim();
-                        if (clean) {
+                        if (clean && !clean.includes('頁面造訪') && !clean.startsWith('[')) {
                             swimmerCounts[clean] = (swimmerCounts[clean] || 0) + 1;
                         }
                     });
@@ -3226,9 +3233,9 @@
                 let feedHtml = '';
 
                 filtered.forEach(logItem => {
-                    let swimmer = logItem.swimmer || '';
-                    let cleanSwimmer = swimmer.replace('[頁面造訪]', '').trim();
-                    if (!cleanSwimmer) return;
+                    let swimmer = (logItem.swimmer || '').trim();
+                    if (!swimmer || swimmer.includes('頁面造訪') || swimmer.startsWith('[')) return;
+                    let cleanSwimmer = swimmer;
 
                     let modeBadge = '<span class="px-2 py-0.5 rounded text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/30">🏊 個人PB</span>';
                     let modeBadgeMini = '<span class="px-1.5 py-0.5 rounded text-[10px] bg-sky-500/15 text-sky-300 font-mono font-semibold">🏊 PB</span>';
@@ -3312,19 +3319,8 @@
         async function fetchVisitorQueryLogs() {
             try {
                 let logs = [];
-                // 1. 先抓取最新全量結構化日誌 (GCS 或本地靜態檔)
-                try {
-                    const primaryUrl = IS_CLOUD_ENV
-                        ? `${GCS_BASE_URL}/visitor_query_logs.json?t=${Date.now()}`
-                        : `/static/visitor_query_logs.json?t=${Date.now()}`;
-                    const res = await fetch(primaryUrl);
-                    if (res.ok) {
-                        const data = await res.json();
-                        logs = data.logs || [];
-                    }
-                } catch(e) {}
 
-                // 2. 嘗試抓取 Vercel Serverless 即時動態佇列
+                // 1. 優先抓取 Vercel Serverless / 地端 API 之跨伺服器即時日誌 (後端安全代理 Telegram 置頂訊息與 GCS，100% 雲端持久化)
                 try {
                     const apiRes = await fetch('/api/log_query?action=pull&t=' + Date.now());
                     if (apiRes.ok) {
@@ -3332,13 +3328,30 @@
                         const liveQueue = apiData.logs || [];
                         liveQueue.forEach(item => {
                             if (!logs.some(e => e.time === item.time && e.swimmer === item.swimmer)) {
-                                logs.unshift(item);
+                                logs.push(item);
                             }
                         });
                     }
                 } catch(e) {}
 
-                // 3. 注入本機即時查詢 (localStorage)
+                // 3. 補充抓取全量歷史結構化日誌 (GCS 或本地靜態檔)
+                try {
+                    const primaryUrl = IS_CLOUD_ENV
+                        ? `${GCS_BASE_URL}/visitor_query_logs.json?t=${Date.now()}`
+                        : `/static/visitor_query_logs.json?t=${Date.now()}`;
+                    const res = await fetch(primaryUrl);
+                    if (res.ok) {
+                        const data = await res.json();
+                        const gcsLogs = data.logs || [];
+                        gcsLogs.forEach(item => {
+                            if (!logs.some(e => e.time === item.time && e.swimmer === item.swimmer)) {
+                                logs.push(item);
+                            }
+                        });
+                    }
+                } catch(e) {}
+
+                // 4. 注入本機即時查詢 (localStorage)
                 try {
                     const localQueries = JSON.parse(localStorage.getItem('swimming_pwa_live_queries') || '[]');
                     if (localQueries.length > 0) {
@@ -3349,6 +3362,13 @@
                         });
                     }
                 } catch(e) {}
+
+                // 5. 確保精準按時間排序 (由新到舊)
+                logs.sort((a, b) => {
+                    const da = parseLogTime(a.time).getTime();
+                    const db = parseLogTime(b.time).getTime();
+                    return db - da;
+                });
 
                 allVisitorLogs = logs;
                 applyRadarAnalyticsFilter();
@@ -4096,7 +4116,19 @@
             const blackboxSection = document.getElementById('blackboxSection');
             const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-            if (lastTimeEl) lastTimeEl.textContent = data.last_crawl_time || data.crawl_time || '尚未執行';
+            if (lastTimeEl) {
+                let rawTime = data.last_crawl_time || data.crawl_time || '尚未執行';
+                let formattedTime = rawTime;
+                try {
+                    if (rawTime.includes('-') && rawTime.includes(':')) {
+                        const d = new Date(rawTime.replace(/-/g, '/') + ' UTC');
+                        if (!isNaN(d.getTime())) {
+                            formattedTime = d.toLocaleString('zh-TW', { hour12: false, timeZone: 'Asia/Taipei' });
+                        }
+                    }
+                } catch(e) {}
+                lastTimeEl.textContent = formattedTime;
+            }
             if (breakerEl) breakerEl.textContent = data.circuit_breaker || '正常 (0/3)';
             if (errorCountEl) errorCountEl.textContent = `${data.error_count || 0} 筆`;
             if (totalRacesEl) totalRacesEl.textContent = `${data.total_active_races || 0} 場`;
@@ -4227,7 +4259,20 @@
             if (consoleEl && data.recent_logs && data.recent_logs.length > 0) {
                 consoleEl.textContent = '';
                 data.recent_logs.forEach(l => {
-                    const timeStr = l.timestamp ? (l.timestamp.includes(' ') ? l.timestamp.split(' ')[1] : l.timestamp) : '';
+                    let timeStr = '';
+                    if (l.timestamp) {
+                        try {
+                            if (l.timestamp.includes('-') && l.timestamp.includes(':')) {
+                                const d = new Date(l.timestamp.replace(/-/g, '/') + ' UTC');
+                                if (!isNaN(d.getTime())) {
+                                    timeStr = d.toLocaleTimeString('zh-TW', { hour12: false, timeZone: 'Asia/Taipei' });
+                                }
+                            }
+                        } catch(e) {}
+                        if (!timeStr) {
+                            timeStr = l.timestamp.includes(' ') ? l.timestamp.split(' ')[1] : l.timestamp;
+                        }
+                    }
                     const colorClass = l.level === 'ERROR' ? 'text-rose-400 font-bold' : (l.level === 'WARN' ? 'text-amber-400' : 'text-emerald-400/90');
                     const row = document.createElement('div');
                     row.className = `${colorClass} flex items-start gap-2`;

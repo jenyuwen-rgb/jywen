@@ -847,6 +847,11 @@
                 console.warn("Direct Sheet log fail:", err);
             }
 
+            // 排除純頁面造訪，不計入選手查詢隊列與即時雷達
+            if (swimmerName.includes('頁面造訪') || swimmerName.startsWith('[')) {
+                return;
+            }
+
             // ❷ 雙通道 B：同步發送至 Vercel Serverless /api/log_query (Telegram 推播與 JSONBlob 備份)
             fetch('/api/log_query', {
                 method: 'POST',

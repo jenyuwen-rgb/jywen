@@ -847,12 +847,37 @@
                 console.warn("Direct Sheet log fail:", err);
             }
 
-            // ❷ 雙通道 B：同步發送至 Vercel Serverless /api/log_query (Telegram 推播與 JSONBlob 備份)
+            // 排除純頁面造訪，不計入選手查詢隊列與即時雷達
+            if (swimmerName.includes('頁面造訪') || swimmerName.startsWith('[')) {
+                return;
+            }
+
+            // ❷ 雙通道 B：同步發送至 Vercel Serverless /api/log_query (Telegram 雲端持久化隊列與即時推播)
             fetch('/api/log_query', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ swimmer: swimmerName, page: pageStr })
             }).catch(err => console.warn("Vercel Telemetry log skipped:", err));
+
+            // ❸ 跨分頁與本地即時廣播通道 (秒級推播至同機 /int 儀表板)
+            try {
+                const queryEntry = {
+                    time: nowStr,
+                    swimmer: swimmerName,
+                    page: pageStr,
+                    mode: (swimmerName.includes(';') || swimmerName.includes('；')) ? 'PK' : (swimmerName.toUpperCase().includes('/SIM') ? 'SIM' : (swimmerName.toUpperCase().includes('/STD') ? 'STD' : (swimmerName.toUpperCase().includes('/RANK') ? 'RANK' : 'PB'))),
+                    device: navigator.userAgent.includes('iPhone') ? 'iPhone (iOS)' : (navigator.userAgent.includes('Macintosh') ? 'Mac (macOS)' : (navigator.userAgent.includes('Android') ? 'Android' : 'Windows PC')),
+                    channel: window.matchMedia('(display-mode: standalone)').matches ? 'PWA 獨立 App' : '一般瀏覽器',
+                    location: '台灣'
+                };
+                const bc = new BroadcastChannel('swimming_pwa_query_channel');
+                bc.postMessage(queryEntry);
+                setTimeout(() => bc.close(), 1000);
+
+                let localQueries = JSON.parse(localStorage.getItem('swimming_pwa_live_queries') || '[]');
+                localQueries.unshift(queryEntry);
+                localStorage.setItem('swimming_pwa_live_queries', JSON.stringify(localQueries.slice(0, 30)));
+            } catch(e) {}
         }
 
         // ☁️ 將查詢紀錄自動寫入大仁哥的 Google 雲端空間檔案 (包含使用者地點與詳細成績)

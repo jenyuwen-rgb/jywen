@@ -1,39 +1,40 @@
 {
-  "last_crawl_time": "2026-10-10 17:48:52",
+  "last_crawl_time": "2026-10-11 07:37:01",
   "status": "HEALTHY",
   "circuit_breaker": "正常 (0/3)",
   "retention_policy": "30-Day Rolling Audit Vault",
-  "pending_meets_monitored": 22,
-  "total_active_races": 85,
+  "pending_meets_monitored": 20,
+  "total_active_races": 92,
   "database_actions": [],
   "network_probes": [
     {
       "org_id": "site_d",
       "org_name": "中華泳協 CTSA",
-      "url": "https://ctsa.swimming.org.tw/",
+      "url": "https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx",
       "http_status": 200,
-      "latency_ms": 185,
-      "response_bytes": 48920,
-      "races_found": 13,
+      "latency_ms": 92,
+      "response_bytes": 25648,
+      "races_found": 15,
       "sample_races": [
-        "115年全國中等學校運動會",
-        "115年全國春季分齡游泳錦標賽",
-        "114年全國冬季短水道分齡游泳錦標賽"
+        "115年全國中區(1)游泳錦標賽",
+        "115年全國南區(1)游泳錦標賽",
+        "115年全國北區A(1)游泳錦標賽"
       ],
       "status": "SUCCESS",
       "debug_snapshot": null
     },
     {
       "org_id": "site_tpesa",
-      "org_name": "臺北體總 TPESA",
+      "org_name": "臺北市體育總會 TPESA",
       "url": "http://www.tpesa.org.tw/",
       "http_status": 200,
-      "latency_ms": 210,
-      "response_bytes": 32450,
-      "races_found": 8,
+      "latency_ms": 355,
+      "response_bytes": 15539,
+      "races_found": 10,
       "sample_races": [
-        "115年臺北市青年盃分齡游泳錦標賽",
-        "114年臺北市中正盃分齡游泳錦標賽"
+        "115年中正盃總成績",
+        "115年臺北市中正盃分齡游泳賽分組表最終版",
+        "115年臺北市中正盃分齡游泳賽競賽章程"
       ],
       "status": "SUCCESS",
       "debug_snapshot": null
@@ -43,13 +44,13 @@
       "org_name": "新北市游泳委員會 NTPC",
       "url": "https://ntpc-sports.com/twps/",
       "http_status": 200,
-      "latency_ms": 195,
-      "response_bytes": 35840,
+      "latency_ms": 993,
+      "response_bytes": 181204,
       "races_found": 16,
       "sample_races": [
         "115年新北市小學游泳對抗賽",
-        "115年新北市基層訓練站區域對抗賽",
-        "115年新北市中等學校運動會游泳比賽"
+        "114年新北市小學游泳對抗賽",
+        "113年新北市小學游泳對抗賽"
       ],
       "status": "SUCCESS",
       "debug_snapshot": null
@@ -57,29 +58,31 @@
     {
       "org_id": "site_a",
       "org_name": "臺中市體育總會 SWIM8",
-      "url": "https://swim8.kcsat.org/score_search",
+      "url": "https://swim8.kcsat.org/news",
       "http_status": 200,
-      "latency_ms": 230,
-      "response_bytes": 41200,
-      "races_found": 19,
+      "latency_ms": 170,
+      "response_bytes": 11376,
+      "races_found": 9,
       "sample_races": [
-        "115年臺中市議長盃游泳錦標賽",
-        "115年臺中市市長盃游泳錦標賽"
+        "115年臺中市議長盃游泳錦標賽團體總錦標及成績總表",
+        "115年臺中市議長盃游泳錦標賽秩序冊",
+        "幼兒組50公尺浮板打水報名及比賽說明"
       ],
       "status": "SUCCESS",
       "debug_snapshot": null
     },
     {
       "org_id": "site_b",
-      "org_name": "臺南市游泳委員會 TAINAN",
-      "url": "https://www.tainanswim.com.tw/",
+      "org_name": "臺南市游泳委員會",
+      "url": "https://www.tainanswim.com.tw/history.php",
       "http_status": 200,
-      "latency_ms": 245,
-      "response_bytes": 28900,
+      "latency_ms": 79,
+      "response_bytes": 25325,
       "races_found": 10,
       "sample_races": [
-        "115年臺南市主委盃全國游泳錦標賽",
-        "114年臺南市市長盃分齡游泳錦標賽"
+        "115年臺南市中小學游泳錦標賽",
+        "115年臺南市主委盃游泳錦標賽",
+        "115年全國E世代青少年游泳錦標賽"
       ],
       "status": "SUCCESS",
       "debug_snapshot": null
@@ -89,12 +92,13 @@
       "org_name": "高雄市體育總會 KCC",
       "url": "http://kcc.nowforyou.com/ann/ann2.asp",
       "http_status": 200,
-      "latency_ms": 260,
-      "response_bytes": 31050,
-      "races_found": 10,
+      "latency_ms": 298,
+      "response_bytes": 22865,
+      "races_found": 26,
       "sample_races": [
-        "115年高雄市主委盃游泳錦標賽",
-        "114年高雄市港都盃分齡游泳錦標賽"
+        "高雄市議會115年議長盃全國分齡游泳錦標賽（成績總表）",
+        "115年議長盃全國分齡游泳錦標賽（秩序冊）",
+        "高雄市議會115年議長盃全國分齡游泳錦標賽（競賽規程）V2"
       ],
       "status": "SUCCESS",
       "debug_snapshot": null
@@ -104,12 +108,13 @@
       "org_name": "高雄水上 SWIM_KCSAT",
       "url": "https://swim.kcsat.org/news",
       "http_status": 200,
-      "latency_ms": 225,
-      "response_bytes": 27600,
-      "races_found": 9,
+      "latency_ms": 223,
+      "response_bytes": 10940,
+      "races_found": 6,
       "sample_races": [
-        "115年南瀛盃全國分齡游泳錦標賽",
-        "114年高雄水上運動盃分齡游泳錦標賽"
+        "2026全青秩序冊-1- 競賽規程-7.3確認",
+        "2026全青秩序冊-4-競賽程序表-7.3確認",
+        "2026全青秩序冊-5-競賽時程預定表-7.3確認"
       ],
       "status": "SUCCESS",
       "debug_snapshot": null
@@ -117,183 +122,197 @@
   ],
   "recent_logs": [
     {
-      "timestamp": "2026-10-10 17:48:52",
+      "timestamp": "2026-10-11 07:37:01",
       "level": "INFO",
       "component": "GCP Cloud Run Job",
-      "message": "雲端採集排程就緒！成功對齊全台 7 大協會（CTSA、TPESA、NTPC、SWIM8、TAINAN、KCC、SWIM_KCSAT），共監控 85 場官方賽事。"
+      "message": "雲端採集完成！成功解析 CTSA 官方真實大賽 15 場、台南泳協 10 場、臺北 TPESA 10 場、臺中 SWIM8 9 場、高雄 KCC 26 場、高雄水上 SWIM_KCSAT 6 場，涵蓋全台 6 大就緒泳協架構。"
     },
     {
-      "timestamp": "2026-10-10 17:48:52",
+      "timestamp": "2026-10-11 07:37:01",
       "level": "INFO",
       "component": "Probe: 中華泳協 CTSA",
-      "message": "HTTP 200 OK (延遲: 185ms, 酬載: 47KB) 檢出 13 場賽事",
+      "message": "HTTP 200 OK (延遲: 92ms, 酬載: 25KB) 檢出 15 場賽事",
       "probe_details": {
         "org_id": "site_d",
         "org_name": "中華泳協 CTSA",
-        "url": "https://ctsa.swimming.org.tw/",
+        "url": "https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx",
         "http_status": 200,
-        "latency_ms": 185,
-        "response_bytes": 48920,
-        "races_found": 13,
+        "latency_ms": 92,
+        "response_bytes": 25648,
+        "races_found": 15,
         "sample_races": [
-          "115年全國中等學校運動會",
-          "115年全國春季分齡游泳錦標賽",
-          "114年全國冬季短水道分齡游泳錦標賽"
+          "115年全國中區(1)游泳錦標賽",
+          "115年全國南區(1)游泳錦標賽",
+          "115年全國北區A(1)游泳錦標賽"
         ],
         "status": "SUCCESS",
         "debug_snapshot": null
       }
     },
     {
-      "timestamp": "2026-10-10 17:48:52",
+      "timestamp": "2026-10-11 07:37:01",
       "level": "INFO",
-      "component": "Probe: 臺北體總 TPESA",
-      "message": "HTTP 200 OK (延遲: 210ms, 酬載: 31KB) 檢出 8 場賽事",
+      "component": "Probe: 臺北市體育總會 TPESA",
+      "message": "HTTP 200 OK (延遲: 355ms, 酬載: 15KB) 檢出 10 場賽事",
       "probe_details": {
         "org_id": "site_tpesa",
-        "org_name": "臺北體總 TPESA",
+        "org_name": "臺北市體育總會 TPESA",
         "url": "http://www.tpesa.org.tw/",
         "http_status": 200,
-        "latency_ms": 210,
-        "response_bytes": 32450,
-        "races_found": 8,
+        "latency_ms": 355,
+        "response_bytes": 15539,
+        "races_found": 10,
         "sample_races": [
-          "115年臺北市青年盃分齡游泳錦標賽",
-          "114年臺北市中正盃分齡游泳錦標賽"
+          "115年中正盃總成績",
+          "115年臺北市中正盃分齡游泳賽分組表最終版",
+          "115年臺北市中正盃分齡游泳賽競賽章程"
         ],
         "status": "SUCCESS",
         "debug_snapshot": null
       }
     },
     {
-      "timestamp": "2026-10-10 17:48:52",
+      "timestamp": "2026-10-11 07:37:01",
       "level": "INFO",
       "component": "Probe: 新北市游泳委員會 NTPC",
-      "message": "HTTP 200 OK (延遲: 195ms, 酬載: 35KB) 檢出 16 場賽事",
+      "message": "HTTP 200 OK (延遲: 993ms, 酬載: 176KB) 檢出 16 場賽事",
       "probe_details": {
         "org_id": "site_ntpc",
         "org_name": "新北市游泳委員會 NTPC",
         "url": "https://ntpc-sports.com/twps/",
         "http_status": 200,
-        "latency_ms": 195,
-        "response_bytes": 35840,
+        "latency_ms": 993,
+        "response_bytes": 181204,
         "races_found": 16,
         "sample_races": [
           "115年新北市小學游泳對抗賽",
-          "115年新北市基層訓練站區域對抗賽",
-          "115年新北市中等學校運動會游泳比賽"
+          "114年新北市小學游泳對抗賽",
+          "113年新北市小學游泳對抗賽"
         ],
         "status": "SUCCESS",
         "debug_snapshot": null
       }
     },
     {
-      "timestamp": "2026-10-10 17:48:52",
+      "timestamp": "2026-10-11 07:37:01",
       "level": "INFO",
       "component": "Probe: 臺中市體育總會 SWIM8",
-      "message": "HTTP 200 OK (延遲: 230ms, 酬載: 40KB) 檢出 19 場賽事",
+      "message": "HTTP 200 OK (延遲: 170ms, 酬載: 11KB) 檢出 9 場賽事",
       "probe_details": {
         "org_id": "site_a",
         "org_name": "臺中市體育總會 SWIM8",
-        "url": "https://swim8.kcsat.org/score_search",
+        "url": "https://swim8.kcsat.org/news",
         "http_status": 200,
-        "latency_ms": 230,
-        "response_bytes": 41200,
-        "races_found": 19,
+        "latency_ms": 170,
+        "response_bytes": 11376,
+        "races_found": 9,
         "sample_races": [
-          "115年臺中市議長盃游泳錦標賽",
-          "115年臺中市市長盃游泳錦標賽"
+          "115年臺中市議長盃游泳錦標賽團體總錦標及成績總表",
+          "115年臺中市議長盃游泳錦標賽秩序冊",
+          "幼兒組50公尺浮板打水報名及比賽說明"
         ],
         "status": "SUCCESS",
         "debug_snapshot": null
       }
     },
     {
-      "timestamp": "2026-10-10 17:48:52",
+      "timestamp": "2026-10-11 07:37:01",
       "level": "INFO",
-      "component": "Probe: 臺南市游泳委員會 TAINAN",
-      "message": "HTTP 200 OK (延遲: 245ms, 酬載: 28KB) 檢出 10 場賽事",
+      "component": "Probe: 臺南市游泳委員會",
+      "message": "HTTP 200 OK (延遲: 79ms, 酬載: 24KB) 檢出 10 場賽事",
       "probe_details": {
         "org_id": "site_b",
-        "org_name": "臺南市游泳委員會 TAINAN",
-        "url": "https://www.tainanswim.com.tw/",
+        "org_name": "臺南市游泳委員會",
+        "url": "https://www.tainanswim.com.tw/history.php",
         "http_status": 200,
-        "latency_ms": 245,
-        "response_bytes": 28900,
+        "latency_ms": 79,
+        "response_bytes": 25325,
         "races_found": 10,
         "sample_races": [
-          "115年臺南市主委盃全國游泳錦標賽",
-          "114年臺南市市長盃分齡游泳錦標賽"
+          "115年臺南市中小學游泳錦標賽",
+          "115年臺南市主委盃游泳錦標賽",
+          "115年全國E世代青少年游泳錦標賽"
         ],
         "status": "SUCCESS",
         "debug_snapshot": null
       }
     },
     {
-      "timestamp": "2026-10-10 17:48:52",
+      "timestamp": "2026-10-11 07:37:01",
       "level": "INFO",
       "component": "Probe: 高雄市體育總會 KCC",
-      "message": "HTTP 200 OK (延遲: 260ms, 酬載: 30KB) 檢出 10 場賽事",
+      "message": "HTTP 200 OK (延遲: 298ms, 酬載: 22KB) 檢出 26 場賽事",
       "probe_details": {
         "org_id": "site_c",
         "org_name": "高雄市體育總會 KCC",
         "url": "http://kcc.nowforyou.com/ann/ann2.asp",
         "http_status": 200,
-        "latency_ms": 260,
-        "response_bytes": 31050,
-        "races_found": 10,
+        "latency_ms": 298,
+        "response_bytes": 22865,
+        "races_found": 26,
         "sample_races": [
-          "115年高雄市主委盃游泳錦標賽",
-          "114年高雄市港都盃分齡游泳錦標賽"
+          "高雄市議會115年議長盃全國分齡游泳錦標賽（成績總表）",
+          "115年議長盃全國分齡游泳錦標賽（秩序冊）",
+          "高雄市議會115年議長盃全國分齡游泳錦標賽（競賽規程）V2"
         ],
         "status": "SUCCESS",
         "debug_snapshot": null
       }
     },
     {
-      "timestamp": "2026-10-10 17:48:52",
+      "timestamp": "2026-10-11 07:37:01",
       "level": "INFO",
       "component": "Probe: 高雄水上 SWIM_KCSAT",
-      "message": "HTTP 200 OK (延遲: 225ms, 酬載: 26KB) 檢出 9 場賽事",
+      "message": "HTTP 200 OK (延遲: 223ms, 酬載: 10KB) 檢出 6 場賽事",
       "probe_details": {
         "org_id": "site_e",
         "org_name": "高雄水上 SWIM_KCSAT",
         "url": "https://swim.kcsat.org/news",
         "http_status": 200,
-        "latency_ms": 225,
-        "response_bytes": 27600,
-        "races_found": 9,
+        "latency_ms": 223,
+        "response_bytes": 10940,
+        "races_found": 6,
         "sample_races": [
-          "115年南瀛盃全國分齡游泳錦標賽",
-          "114年高雄水上運動盃分齡游泳錦標賽"
+          "2026全青秩序冊-1- 競賽規程-7.3確認",
+          "2026全青秩序冊-4-競賽程序表-7.3確認",
+          "2026全青秩序冊-5-競賽時程預定表-7.3確認"
         ],
         "status": "SUCCESS",
         "debug_snapshot": null
       }
     },
     {
-      "timestamp": "2026-10-10 17:48:52",
+      "timestamp": "2026-10-11 07:37:01",
       "level": "INFO",
       "component": "Roster Harvester",
-      "message": "官方名冊巡檢完成: 隊伍總計 569 所，精確選手鍵值 6,053 個 (支援 2027 及往後自動擴充)。"
+      "message": "官方名冊巡檢完成: 隊伍總計 672 所，精確選手鍵值 6053 個 (支援 2027 及往後自動擴充)。"
     },
     {
-      "timestamp": "2026-10-10 17:48:52",
+      "timestamp": "2026-10-11 07:37:01",
       "level": "INFO",
-      "component": "Scheduler Sentinel",
-      "message": "Cloud Scheduler [swim-daily-0600-schedule] 狀態 ENABLED，鎖定每日 06:00 (Asia/Taipei) 準時自動觸發。"
+      "component": "Database & Preprocessing",
+      "message": "賽事探針巡檢完成: 監控 20 場未入庫賽事，本次無新公布完賽成績。"
     },
     {
-      "timestamp": "2026-10-10 17:48:52",
+      "timestamp": "2026-10-11 07:37:01",
       "level": "INFO",
       "component": "GCS Storage",
-      "message": "成果已發布至 gs://ctsa-swim-cloud-287296629155，全鏈路耗時 18.25 秒。"
+      "message": "成果已發布至 gs://ctsa-swim-cloud-287296629155，耗時 170.45 秒。"
     }
   ],
   "error_count": 0,
   "recent_errors": [],
   "debug_snapshots": [],
   "history": [
+    {
+      "date": "2026-10-11",
+      "crawl_time": "2026-10-11 07:37:01",
+      "status": "HEALTHY",
+      "circuit_breaker": "正常 (0/3)",
+      "total_races": 92,
+      "error_count": 0,
+      "log_file": "crawler_logs/crawler_log_2026-10-11.json"
+    },
     {
       "date": "2026-10-10",
       "crawl_time": "2026-10-10 17:48:52",
