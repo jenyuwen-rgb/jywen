@@ -847,11 +847,6 @@
                 console.warn("Direct Sheet log fail:", err);
             }
 
-            // 排除純頁面造訪，不計入選手查詢隊列與即時雷達
-            if (swimmerName.includes('頁面造訪') || swimmerName.startsWith('[')) {
-                return;
-            }
-
             // ❷ 雙通道 B：同步發送至 Vercel Serverless /api/log_query (Telegram 推播與 JSONBlob 備份)
             fetch('/api/log_query', {
                 method: 'POST',
@@ -3998,23 +3993,24 @@
         }
 
         
-        // ── 方案 A：單張卡片深度轉發分享核心函數 (專屬數位泳者卡社群裂變) ──
+        // ── 方案 A：單張卡片深度轉發分享核心函數 ──
         async function shareCardView(strokeName) {
             const rawInput = (document.getElementById('searchInput').value || '').trim();
-            const sName = rawInput ? rawInput.split('/')[0].split(';')[0].trim() : '';
+            const currentUrl = new URL(window.location.origin + window.location.pathname);
+            if (rawInput) {
+                currentUrl.searchParams.set('q', rawInput);
+            }
+            if (strokeName) {
+                currentUrl.searchParams.set('card', strokeName);
+            }
+            const shareUrl = currentUrl.toString();
             
-            let shareUrl = '';
             let shareTitle = '金水 ● 台灣游泳成績查詢';
-            let shareText = `點擊查看「${strokeName}」完整成績與對手分析！`;
-
-            if (sName) {
-                shareUrl = `${window.location.origin}/card/${encodeURIComponent(sName)}/${encodeURIComponent(strokeName)}`;
-                shareTitle = `【金水 數位泳者卡】${sName} · ${strokeName}`;
-                shareText = `快來看 ${sName} 的「${strokeName}」官方認證個人最佳成績 (PB) 與專屬泳者卡！`;
-            } else {
-                const currentUrl = new URL(window.location.origin + window.location.pathname);
-                if (strokeName) currentUrl.searchParams.set('card', strokeName);
-                shareUrl = currentUrl.toString();
+            let shareText = `點擊查看${rawInput ? ' ' + rawInput + ' 的' : ''}「${strokeName}」完整成績與對手分析！`;
+            
+            if (rawInput) {
+                const sName = rawInput.split('/')[0].split(';')[0].trim();
+                shareTitle = `【金水 游泳成績】${sName} · ${strokeName}卡片`;
             }
 
             if (navigator.share) {
@@ -4036,9 +4032,9 @@
 
             try {
                 await navigator.clipboard.writeText(shareUrl);
-                showShareToast(`✅ 已複製「${sName ? sName + ' · ' : ''}${strokeName}」專屬數位泳者卡連結！`);
+                showShareToast(`✅ 已複製「${rawInput ? rawInput + ' · ' : ''}${strokeName}」專屬卡片分享連結！`);
             } catch (clipErr) {
-                prompt("請複製此專屬數位泳者卡連結：", shareUrl);
+                prompt("請複製此卡片專屬分享連結：", shareUrl);
             }
         }
 
