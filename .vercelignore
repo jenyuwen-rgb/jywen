@@ -15,3 +15,5 @@ static/swim_results_downloaded.db
 static/wealth_clock.db
 static/car_depreciation.db
 static/hot_money.db
+full.html
+static/db_parts/db.part*

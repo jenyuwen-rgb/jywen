@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>數位泳者卡 ｜ 金水台灣游泳成績資料庫</title>
+    <meta name="description" content="金水台灣游泳成績資料庫 - 選手專屬數位泳者卡。收錄官方認證個人最佳成績 (PB)、全台常模百分位與賽事成就。">
+    
+    <!-- OpenGraph & Twitter Meta Tags for Social Preview -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="金水 ● 台灣游泳成績資料庫">
+    <meta property="og:title" id="ogTitle" content="金水 選手專屬數位泳者卡">
+    <meta property="og:description" id="ogDesc" content="官方認證個人最佳紀錄 (PB) 與全台常模排名，點擊立即查驗與查看完整出賽履歷！">
+    <meta property="og:image" id="ogImage" content="https://swimming-pwa.vercel.app/static/og-card-preview.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" id="twTitle" content="金水 選手專屬數位泳者卡">
+    <meta name="twitter:description" id="twDesc" content="官方認證個人最佳紀錄 (PB) 與全台常模排名">
+    
+    <!-- Apple Web App & Favicon -->
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --gold-gradient: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%);
+            --gold-primary: #d4af37;
+            --gold-light: #f3d078;
+            --metal-shine: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.15) 100%);
+        }
+        body {
+            background-color: #050507;
+            color: #F3F4F6;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        /* 鐳射金屬卡片立體光影 */
+        .pro-card {
+            background: linear-gradient(165deg, #16161D 0%, #0D0D12 100%);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8), 0 0 35px -5px rgba(212, 175, 55, 0.2);
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .pro-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 200%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), rgba(212, 175, 55, 0.1), transparent);
+            transform: skewX(-20deg);
+            animation: cardShine 8s infinite ease-in-out;
+            pointer-events: none;
+        }
+        @keyframes cardShine {
+            0% { transform: translateX(-100%) skewX(-20deg); }
+            30%, 100% { transform: translateX(100%) skewX(-20deg); }
+        }
+
+        /* 金水官方同款經典金色漸層字體 */
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-silver-gradient {
+            background: linear-gradient(135deg, #FFFFFF 0%, #D1D5DB 60%, #9CA3AF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 獎章與晶片 */
+        .chip-badge {
+            background: linear-gradient(135deg, rgba(243, 208, 120, 0.16) 0%, rgba(212, 175, 55, 0.08) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+        }
+
+        /* 水印 */
+        .watermark-bg {
+            position: absolute;
+            right: -20px;
+            bottom: -30px;
+            font-size: 140px;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.025);
+            pointer-events: none;
+            user-select: none;
+            line-height: 1;
+            letter-spacing: -4px;
+        }
+
+        /* 脈衝動態 */
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10B981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10B981;
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        /* 毛玻璃導覽列 */
+        .glass-header {
+            background: rgba(10, 10, 15, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Apple 質感按鈕 */
+        .btn-apple-primary {
+            background: linear-gradient(135deg, #ffffff 0%, #f3d078 45%, #d4af37 100%);
+            color: #000;
+            font-weight: 800;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.35);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-apple-primary:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .btn-apple-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #FFF;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-apple-secondary:active {
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* 距離膠囊標籤 */
+        .dist-pill {
+            transition: all 0.2s ease;
+        }
+        .dist-pill.active {
+            background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%);
+            color: #000;
+            font-weight: 800;
+            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
+            border-color: #d4af37;
+        }
+
+        /* 隱藏的 Canvas 渲染區 */
+        #posterCanvas {
+            display: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between pb-12">
+
+    <!-- 頂部精簡導航 -->
+    <header class="w-full sticky top-0 z-50 glass-header px-4 py-3 flex items-center justify-between">
+        <a href="/" class="flex items-center gap-1.5 text-white font-bold tracking-tight hover:opacity-80 transition-opacity">
+            <span class="text-sm font-black tracking-wider text-gold-gradient">金水</span>
+            <span class="text-xs text-amber-400 font-bold">●</span>
+            <span class="text-sm font-bold tracking-wide text-zinc-200">游泳成績查詢</span>
+        </a>
+        <div class="flex items-center gap-2">
+            <a href="/" class="text-xs px-3 py-1.5 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 font-medium transition-colors flex items-center gap-1.5 border border-zinc-700/50">
+                <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                <span>查詢其他選手</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- 主展示區 -->
+    <main class="w-full max-w-md px-4 pt-5 flex flex-col items-center">
+
+        <!-- 官方認證與即時狀態標籤 -->
+        <div class="w-full flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-1.5 text-xs text-zinc-400">
+                <div class="live-dot"></div>
+                <span class="font-medium text-emerald-400">官方認證數據</span>
+                <span class="text-zinc-600">·</span>
+                <span id="certTime" class="text-zinc-400">即時查驗</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-black border border-amber-400/50 bg-[#16161D] shadow-[0_0_12px_rgba(212,175,55,0.25)]">
+                <span class="text-amber-300 text-[10px] leading-none">✦</span>
+                <span class="text-gold-gradient tracking-wider font-extrabold text-[12px]">數位泳者卡</span>
+            </div>
+        </div>
+
+        <!-- 數位球員卡實體 (Apple 黑金立體質感) -->
+        <div id="swimmerCard" class="w-full pro-card p-6 flex flex-col justify-between">
+            <div class="watermark-bg" id="watermarkStroke">50M 蛙</div>
+
+            <!-- 卡片頂部：選手姓名、泳隊與頭銜 -->
+            <div>
+                <div class="flex items-start justify-between">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 id="swimmerName" class="text-3xl font-black tracking-tight text-white">
+                                載入中...
+                            </h1>
+                            <span id="genderBadge" class="text-xs px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300 font-medium border border-zinc-700">
+                                女子組
+                            </span>
+                        </div>
+                        <p id="swimmerTeam" class="text-xs text-zinc-400 mt-1 font-medium flex items-center gap-1.5">
+                            <i data-lucide="shield" class="w-3.5 h-3.5 text-amber-400"></i>
+                            <span id="teamText" class="text-gold-gradient font-semibold">官方認證選手</span>
+                        </p>
+                    </div>
+                    
+                    <!-- 認證防偽徽章 -->
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400/25 via-amber-500/15 to-amber-600/10 border border-amber-400/40 flex flex-col items-center justify-center shadow-inner">
+                        <i data-lucide="award" class="w-6 h-6 text-amber-300"></i>
+                        <span class="text-[8px] font-black tracking-tighter uppercase text-gold-gradient">VERIFIED</span>
+                    </div>
+                </div>
+
+                <!-- 泳姿與距離項目主標題 (含清晰距離標註) -->
+                <div class="mt-6 flex items-center justify-between border-b border-zinc-800 pb-3">
+                    <div>
+                        <!-- 中文大標題：明確標註 50M 蛙式 / 100M 自由式 -->
+                        <div id="itemMainTitle" class="text-xl font-black tracking-wide text-gold-gradient">
+                            50M 蛙式
+                        </div>
+                        <!-- 英文副標題 -->
+                        <div id="itemSubTitle" class="text-[11px] text-zinc-400 font-medium tracking-wider mt-0.5">
+                            50M BREASTSTROKE
+                        </div>
+                    </div>
+                    <div id="rankBadge" class="chip-badge px-3 py-1.5 rounded-xl font-bold flex flex-col items-end justify-center text-right shadow-sm">
+                        <div class="flex items-center gap-1 text-gold-gradient text-xs font-black tracking-wide">
+                            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-400"></i>
+                            <span id="prLine1" class="text-gold-gradient">PR 100.0%</span>
+                        </div>
+                        <div id="prLine2" class="text-[11px] font-bold mt-0.5 text-gold-gradient">
+                            同齡第一名 🥇
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 核心 PB 秒數大字特寫 -->
+                <div class="my-6 text-center">
+                    <div class="text-xs text-zinc-400 tracking-wider font-semibold uppercase mb-1">
+                        PERSONAL BEST · 個人最佳紀錄
+                    </div>
+                    <div id="pbTime" class="text-5xl md:text-6xl font-black font-mono tracking-tight text-gold-gradient drop-shadow-lg">
+                        00:36.49
+                    </div>
+                    <div id="diffBadgeWrap" class="mt-2 flex justify-center">
+                        <span id="pbStatusBadge" class="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                            <span id="pbStatusText">官方賽事認證成績</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 卡片底部：賽事、出賽日期與名次 -->
+            <div class="mt-2 pt-4 border-t border-zinc-800/80 bg-zinc-900/40 -mx-6 -mb-6 p-6 rounded-b-[28px]">
+                <div class="grid grid-cols-2 gap-3.5 text-xs">
+                    <div>
+                        <div class="text-[10px] text-zinc-500 font-medium">達成賽事</div>
+                        <div id="raceName" class="font-bold text-zinc-200 mt-0.5 truncate" title="--">
+                            全國青年盃游泳錦標賽
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-zinc-500 font-medium">出賽組別 / 名次</div>
+                        <div id="groupRank" class="font-bold text-gold-gradient mt-0.5 truncate">
+                            國小高年級女子組 · 第 3 名 🥉
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-zinc-500 font-medium">紀錄日期</div>
+                        <div id="recordDate" class="font-bold text-zinc-300 mt-0.5 font-mono">
+                            2026/05/30
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-zinc-500 font-medium">全台累積場次</div>
+                        <div id="totalRacesCount" class="font-bold text-zinc-300 mt-0.5">
+                            118 場次 (累計 246 筆)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 泳姿與距離二合一快速切換列 -->
+        <div class="w-full mt-5 flex flex-col gap-2.5 bg-zinc-900/50 p-3 rounded-2xl border border-zinc-800/80">
+            <!-- 1. 泳姿切換列 -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                <span class="text-[11px] text-zinc-500 font-medium whitespace-nowrap pr-1">泳姿:</span>
+                <div id="strokeButtons" class="flex items-center gap-1.5">
+                    <!-- 動態注入泳姿按鈕 -->
+                </div>
+            </div>
+
+            <!-- 2. 具體距離切換列 (包含各距離即時 PB 秒數標籤) -->
+            <div id="distanceSelectorWrap" class="flex items-center gap-1.5 overflow-x-auto pt-1 border-t border-zinc-800/60 scrollbar-none">
+                <span class="text-[11px] text-zinc-500 font-medium whitespace-nowrap pr-1">距離:</span>
+                <div id="distanceButtons" class="flex items-center gap-1.5">
+                    <!-- 動態注入距離按鈕 (例如: 50M, 100M, 200M) -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按鈕群 (三合一社群病毒裂變) -->
+        <div class="w-full flex flex-col gap-2.5 mt-5">
+            <!-- 1. 匯出 Apple 高清獎狀海報 -->
+            <button id="btnExportPoster" onclick="generateAndDownloadPoster()" class="w-full btn-apple-primary py-3.5 px-5 rounded-2xl flex items-center justify-center gap-2 text-sm font-bold tracking-wide">
+                <i data-lucide="image-down" class="w-5 h-5"></i>
+                <span>📸 儲存個人專屬海報 (發限動 / 存相簿)</span>
+            </button>
+
+            <!-- 2. 分享 / 複製卡片連結 -->
+            <div class="grid grid-cols-2 gap-2">
+                <button id="btnShareCard" onclick="shareThisCard()" class="btn-apple-secondary py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 text-xs font-semibold">
+                    <i data-lucide="share-2" class="w-4 h-4 text-amber-400"></i>
+                    <span>分享卡片</span>
+                </button>
+                <button id="btnCopyLink" onclick="copyCardUrl()" class="btn-apple-secondary py-3 px-4 rounded-xl flex items-center justify-center gap-1.5 text-xs font-semibold">
+                    <i data-lucide="link" class="w-4 h-4 text-blue-400"></i>
+                    <span id="copyBtnText">複製連結</span>
+                </button>
+            </div>
+
+            <!-- 3. 前往主 PWA 查看歷年完整紀錄 -->
+            <a id="btnViewFullProfile" href="/" class="w-full py-3 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800 flex items-center justify-center gap-2 text-xs font-medium transition-colors">
+                <i data-lucide="external-link" class="w-4 h-4 text-emerald-400"></i>
+                <span>前往完整 PWA 查看歷年出賽歷程</span>
+            </a>
+        </div>
+
+        <!-- 社群推廣與防偽宣告 -->
+        <div class="w-full text-center mt-6 text-[11px] text-zinc-500 flex flex-col items-center gap-1">
+            <p>金水台灣游泳成績資料庫 · 官方賽事成績全量收錄</p>
+            <p class="text-zinc-600 font-mono">https://swimming-pwa.vercel.app</p>
+        </div>
+    </main>
+
+    <!-- 隱藏的海報渲染 Canvas -->
+    <canvas id="posterCanvas" width="1080" height="1920"></canvas>
+
+    <!-- 成功提示 Toast -->
+    <div id="toast" class="fixed bottom-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 px-4 py-2.5 rounded-full bg-zinc-800/90 text-white text-xs font-medium border border-zinc-700 shadow-xl flex items-center gap-2 backdrop-blur-md">
+        <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toastMsg">已複製卡片連結！</span>
+    </div>
+
+    <!-- JavaScript 邏輯 -->
+    <script>
+        // 核心狀態
+        let currentSwimmer = '';
+        let currentStroke = '';
+        let currentDistance = '';
+        let swimmerFullData = null;
+        let strokeHierarchy = {}; // { '蛙式': { '50M': { best, all, stats }, '100M': ... } }
+        let currentItemData = null;
+
+        // 初始化圖標
+        lucide.createIcons();
+
+        // 格式化當前日期
+        const now = new Date();
+        document.getElementById('certTime').innerText = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
+
+        // 泳姿英文對照表
+        const STROKE_ENG_MAP = {
+            '自由式': 'FREESTYLE',
+            '仰式': 'BACKSTROKE',
+            '蛙式': 'BREASTSTROKE',
+            '蝶式': 'BUTTERFLY',
+            '混合式': 'INDIVIDUAL MEDLEY'
+        };
+
+        const STROKE_EMOJI_MAP = {
+            '自由式': '🏊',
+            '仰式': '🏊‍♂️',
+            '蛙式': '🐸',
+            '蝶式': '🦋',
+            '混合式': '⚡'
+        };
+
+        // 解析 URL 參數
+        function parseParams() {
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            let name = '';
+            let stroke = '';
+            let dist = '';
+
+            // 支援 /card/:name/:stroke/:dist 或 /card/:name/:stroke
+            if (pathParts.length >= 2 && pathParts[0] === 'card') {
+                name = decodeURIComponent(pathParts[1]);
+                if (pathParts.length >= 3) {
+                    const p2 = decodeURIComponent(pathParts[2]);
+                    // 若 p2 為 "50M蛙式" 或 "蛙式"
+                    if (p2.includes('50') || p2.includes('100') || p2.includes('200') || p2.includes('400')) {
+                        const m = p2.match(/(\d+M?)\s*(.+)/);
+                        if (m) { dist = m[1]; stroke = m[2]; }
+                        else stroke = p2;
+                    } else {
+                        stroke = p2;
+                    }
+                }
+                if (pathParts.length >= 4) {
+                    dist = decodeURIComponent(pathParts[3]);
+                }
+            }
+            
+            // 優先 Query 覆蓋
+            if (urlParams.get('q')) name = urlParams.get('q');
+            if (urlParams.get('name')) name = urlParams.get('name');
+            if (urlParams.get('stroke')) stroke = urlParams.get('stroke');
+            if (urlParams.get('card')) stroke = urlParams.get('card');
+            if (urlParams.get('dist')) dist = urlParams.get('dist');
+
+            // 預設示範
+            if (!name) name = '温心妤';
+            if (!stroke) stroke = '蛙式';
+            if (!dist) dist = '50M';
+
+            // 正規化距離格式 (50 -> 50M)
+            if (dist && !dist.toUpperCase().endsWith('M')) {
+                dist = dist + 'M';
+            }
+
+            return { name, stroke, dist, urlParams };
+        }
+
+        // 顯示 Toast 訊息
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        // 純 JS MD5 實作 (標準 UTF-8 相容)
+        function md5(string) {
+            function md5cycle(x, k) {
+                var a = x[0], b = x[1], c = x[2], d = x[3];
+                a = ff(a, b, c, d, k[0], 7, -680876936);
+                d = ff(d, a, b, c, k[1], 12, -389564586);
+                c = ff(c, d, a, b, k[2], 17,  606105819);
+                b = ff(b, c, d, a, k[3], 22, -1044525330);
+                a = ff(a, b, c, d, k[4], 7, -176418897);
+                d = ff(d, a, b, c, k[5], 12,  1200080426);
+                c = ff(c, d, a, b, k[6], 17, -1473231341);
+                b = ff(b, c, d, a, k[7], 22, -45705983);
+                a = ff(a, b, c, d, k[8], 7,  1770035416);
+                d = ff(d, a, b, c, k[9], 12, -1958414417);
+                c = ff(c, d, a, b, k[10], 17, -42063);
+                b = ff(b, c, d, a, k[11], 22, -1990404162);
+                a = ff(a, b, c, d, k[12], 7,  1804603682);
+                d = ff(d, a, b, c, k[13], 12, -40341101);
+                c = ff(c, d, a, b, k[14], 17, -1502002290);
+                b = ff(b, c, d, a, k[15], 22,  1236535329);
+
+                a = gg(a, b, c, d, k[1], 5, -165796510);
+                d = gg(d, a, b, c, k[6], 9, -1069501632);
+                c = gg(c, d, a, b, k[11], 14,  643717713);
+                b = gg(b, c, d, a, k[0], 20, -373897302);
+                a = gg(a, b, c, d, k[5], 5, -701558691);
+                d = gg(d, a, b, c, k[10], 9,  38016083);
+                c = gg(c, d, a, b, k[15], 14, -660478335);
+                b = gg(b, c, d, a, k[4], 20, -405537848);
+                a = gg(a, b, c, d, k[9], 5,  568446438);
+                d = gg(d, a, b, c, k[14], 9, -1019803690);
+                c = gg(c, d, a, b, k[3], 14, -187363961);
+                b = gg(b, c, d, a, k[8], 20,  1163531501);
+                a = gg(a, b, c, d, k[13], 5, -1444681467);
+                d = gg(d, a, b, c, k[2], 9, -51403784);
+                c = gg(c, d, a, b, k[7], 14,  1735328473);
+                b = gg(b, c, d, a, k[12], 20, -1926607734);
+
+                a = hh(a, b, c, d, k[5], 4, -378558);
+                d = hh(d, a, b, c, k[8], 11, -2022574463);
+                c = hh(c, d, a, b, k[11], 16,  1839030562);
+                b = hh(b, c, d, a, k[14], 23, -35309556);
+                a = hh(a, b, c, d, k[1], 4, -1530992060);
+                d = hh(d, a, b, c, k[4], 11,  1272893353);
+                c = hh(c, d, a, b, k[7], 16, -155497632);
+                b = hh(b, c, d, a, k[10], 23, -1094730640);
+                a = hh(a, b, c, d, k[13], 4,  681279174);
+                d = hh(d, a, b, c, k[0], 11, -358537222);
+                c = hh(c, d, a, b, k[3], 16, -722521979);
+                b = hh(b, c, d, a, k[6], 23,  76029189);
+                a = hh(a, b, c, d, k[9], 4, -640364487);
+                d = hh(d, a, b, c, k[12], 11, -421815835);
+                c = hh(c, d, a, b, k[15], 16,  530742520);
+                b = hh(b, c, d, a, k[2], 23, -995338651);
+
+                a = ii(a, b, c, d, k[0], 6, -198630844);
+                d = ii(d, a, b, c, k[7], 10,  1126891415);
+                c = ii(c, d, a, b, k[14], 15, -1416354905);
+                b = ii(b, c, d, a, k[5], 21, -57434055);
+                a = ii(a, b, c, d, k[12], 6,  1700485571);
+                d = ii(d, a, b, c, k[3], 10, -1894986606);
+                c = ii(c, d, a, b, k[10], 15, -1051523);
+                b = ii(b, c, d, a, k[1], 21, -2054922799);
+                a = ii(a, b, c, d, k[8], 6,  1873313359);
+                d = ii(d, a, b, c, k[15], 10, -30611744);
+                c = ii(c, d, a, b, k[6], 15, -1560198380);
+                b = ii(b, c, d, a, k[13], 21,  1309151649);
+                a = ii(a, b, c, d, k[4], 6, -145523070);
+                d = ii(d, a, b, c, k[11], 10, -1120210379);
+                c = ii(c, d, a, b, k[2], 15,  718787259);
+                b = ii(b, c, d, a, k[9], 21, -343485551);
+
+                x[0] = add32(a, x[0]);
+                x[1] = add32(b, x[1]);
+                x[2] = add32(c, x[2]);
+                x[3] = add32(d, x[3]);
+            }
+
+            function cmn(q, a, b, x, s, t) {
+                a = add32(add32(a, q), add32(x, t));
+                return add32((a << s) | (a >>> (32 - s)), b);
+            }
+            function ff(a, b, c, d, x, s, t) { return cmn((b & c) | ((~b) & d), a, b, x, s, t); }
+            function gg(a, b, c, d, x, s, t) { return cmn((b & d) | (c & (~d)), a, b, x, s, t); }
+            function hh(a, b, c, d, x, s, t) { return cmn(b ^ c ^ d, a, b, x, s, t); }
+            function ii(a, b, c, d, x, s, t) { return cmn(c ^ (b | (~d)), a, b, x, s, t); }
+            function add32(a, b) { return (a + b) & 0xFFFFFFFF; }
+
+            var bytes = typeof TextEncoder !== "undefined" ? new TextEncoder().encode(string) : unescape(encodeURIComponent(string));
+            var n = bytes.length;
+            var state = [1732584193, -271733879, -1732584194, 271733878];
+            var i, length = n;
+            var blocks = [];
+            for (i = 0; i < n; i++) {
+                var byteVal = typeof bytes === "string" ? bytes.charCodeAt(i) : bytes[i];
+                var wordIdx = i >> 2;
+                blocks[wordIdx] = (blocks[wordIdx] || 0) | (byteVal << ((i % 4) * 8));
+            }
+            var wordIdx = n >> 2;
+            blocks[wordIdx] = (blocks[wordIdx] || 0) | (0x80 << ((n % 4) * 8));
+            var totalWords = (((n + 8) >> 6) + 1) * 16;
+            for (i = (n >> 2) + 1; i < totalWords; i++) {
+                if (!blocks[i]) blocks[i] = 0;
+            }
+            blocks[totalWords - 2] = (length * 8) & 0xFFFFFFFF;
+            blocks[totalWords - 1] = Math.floor((length * 8) / 0x100000000);
+
+            for (i = 0; i < totalWords; i += 16) {
+                var k = blocks.slice(i, i + 16);
+                while (k.length < 16) k.push(0);
+                md5cycle(state, k);
+            }
+
+            var hex = "";
+            for (i = 0; i < 4; i++) {
+                var word = state[i];
+                for (var j = 0; j < 4; j++) {
+                    var b = (word >> (j * 8)) & 0xFF;
+                    hex += (b < 16 ? "0" : "") + b.toString(16);
+                }
+            }
+            return hex;
+        }
+
+        // 載入選手資料 (256 分桶讀取)
+        async function loadSwimmerCard() {
+            const { name, stroke, dist, urlParams } = parseParams();
+            currentSwimmer = name;
+            currentStroke = stroke;
+            currentDistance = dist;
+
+            document.getElementById('swimmerName').innerText = name;
+            document.getElementById('btnViewFullProfile').href = `/?q=${encodeURIComponent(name)}`;
+
+            try {
+                const cleanName = name.replace(/[\s　]/g, '');
+                const md5Hex = md5(cleanName);
+                const bIdx = parseInt(md5Hex.substring(0, 4), 16) % 256;
+                const bHex = bIdx.toString(16).padStart(2, '0');
+
+                let swimmerRaw = null;
+
+                // 1. 優先嘗試 gzip 分桶
+                try {
+                    const resp = await fetch(`/data_buckets/bucket_${bHex}.json.gz`);
+                    if (resp.ok && typeof DecompressionStream !== 'undefined') {
+                        const ds = new DecompressionStream('gzip');
+                        const decompressed = resp.body.pipeThrough(ds);
+                        const bData = await new Response(decompressed).json();
+                        if (bData[cleanName]) {
+                            swimmerRaw = bData[cleanName];
+                        }
+                    }
+                } catch(e) {}
+
+                // 2. 若 gzip 失敗，嘗試 json 分桶
+                if (!swimmerRaw) {
+                    try {
+                        const resp2 = await fetch(`/data_buckets/bucket_${bHex}.json`);
+                        if (resp2.ok) {
+                            const bData2 = await resp2.json();
+                            if (bData2[cleanName]) {
+                                swimmerRaw = bData2[cleanName];
+                            }
+                        }
+                    } catch(e2) {}
+                }
+
+                // 3. 若分桶未載入，嘗試本地/雲端 query API
+                if (!swimmerRaw) {
+                    try {
+                        const apiResp = await fetch('/api/local_query', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ query: cleanName })
+                        });
+                        if (apiResp.ok) {
+                            const apiData = await apiResp.json();
+                            if (apiData.data && apiData.data.length > 0) {
+                                swimmerRaw = { records: apiData.data, stats: {} };
+                            }
+                        }
+                    } catch(e3) {}
+                }
+
+                if (swimmerRaw) {
+                    processSwimmerFullData(swimmerRaw);
+                } else {
+                    renderFallbackFromParams(urlParams);
+                }
+            } catch (err) {
+                console.warn('載入數據失敗，採用降級渲染:', err);
+                renderFallbackFromParams(urlParams);
+            }
+        }
+
+        // 處理並構建選手的階層化成績結構 (泳姿 -> 距離 -> PB)
+        function processSwimmerFullData(swimmerRaw) {
+            swimmerFullData = swimmerRaw;
+            const records = Array.isArray(swimmerRaw) ? swimmerRaw : (swimmerRaw.records || []);
+            const stats = swimmerRaw.stats || {};
+            
+            if (records.length === 0) {
+                renderFallbackFromParams(new URLSearchParams());
+                return;
+            }
+
+            // 1. 找出選手所屬單位、性別、出生年
+            let latestTeam = '官方認證選手';
+            let gender = '選手';
+            let birthYear = '';
+
+            // 按年份排序
+            const sortedByDate = [...records].sort((a, b) => (b['年份'] || b['日期'] || '').localeCompare(a['年份'] || a['日期'] || ''));
+            for (const r of sortedByDate) {
+                const team = (r['單位'] || r['所屬泳隊'] || '').trim();
+                if (team && team !== '官方認證選手') {
+                    latestTeam = team;
+                    break;
+                }
+            }
+            if (sortedByDate[0]) {
+                if (sortedByDate[0]['性別']) gender = sortedByDate[0]['性別'] + '子組';
+                if (sortedByDate[0]['出生年']) birthYear = sortedByDate[0]['出生年'];
+            }
+
+            document.getElementById('teamText').innerText = latestTeam;
+            document.getElementById('genderBadge').innerText = gender;
+            
+            // 計算真實總場次
+            const uniqueEvents = new Set(records.map(r => (r['賽事名稱'] || '') + '_' + (r['年份'] || r['日期'] || '')));
+            document.getElementById('totalRacesCount').innerText = `${uniqueEvents.size} 場次 (累計 ${records.length} 筆)`;
+
+            // 2. 解析所有項目並歸類到 泳姿 -> 距離
+            const strokeOrder = ['蛙式', '自由式', '蝶式', '仰式', '混合式'];
+            strokeHierarchy = {};
+
+            records.forEach(r => {
+                const score = (r['成績'] || '').trim();
+                if (!score || score.includes('DQ') || score.includes('棄權')) return;
+
+                const itemStr = r['項目'] || '';
+                let stroke = '';
+                for (const s of strokeOrder) {
+                    if (itemStr.includes(s)) { stroke = s; break; }
+                }
+                if (!stroke) return;
+
+                // 提取距離
+                const m = itemStr.match(/(\d+)\s*(?:公尺|M|m)/i);
+                let dist = m ? `${m[1]}M` : '50M';
+
+                if (!strokeHierarchy[stroke]) strokeHierarchy[stroke] = {};
+                if (!strokeHierarchy[stroke][dist]) {
+                    strokeHierarchy[stroke][dist] = {
+                        stroke,
+                        dist,
+                        best: null,
+                        records: []
+                    };
+                }
+                strokeHierarchy[stroke][dist].records.push(r);
+            });
+
+            // 3. 對每個 [stroke][dist] 找出最佳成績 (PB)
+            Object.keys(strokeHierarchy).forEach(stk => {
+                Object.keys(strokeHierarchy[stk]).forEach(dst => {
+                    const group = strokeHierarchy[stk][dst];
+                    group.records.sort((a, b) => timeToSec(a['成績']) - timeToSec(b['成績']));
+                    group.best = group.records[0];
+
+                    // 綁定 stats 中的同齡排行
+                    const statKey = `${stk}_${dst.replace('M','')}`;
+                    if (stats[statKey]) {
+                        group.stat = stats[statKey];
+                    }
+                });
+            });
+
+            // 4. 渲染泳姿切換按鈕列
+            renderStrokeLevelButtons();
+
+            // 5. 決定當前選取的泳姿與距離
+            let activeStroke = currentStroke;
+            if (!strokeHierarchy[activeStroke]) {
+                activeStroke = strokeOrder.find(s => strokeHierarchy[s]) || Object.keys(strokeHierarchy)[0];
+            }
+            
+            let activeDist = currentDistance;
+            if (!strokeHierarchy[activeStroke] || !strokeHierarchy[activeStroke][activeDist]) {
+                // 優先選 50M 或 100M，或該泳姿第一個距離
+                const availDists = Object.keys(strokeHierarchy[activeStroke] || {});
+                activeDist = availDists.includes('50M') ? '50M' : (availDists.includes('100M') ? '100M' : availDists[0]);
+            }
+
+            selectStrokeAndDistance(activeStroke, activeDist);
+        }
+
+        // 輔助秒數轉換
+        function timeToSec(timeStr) {
+            if (!timeStr) return 999999;
+            const parts = timeStr.trim().split(':');
+            if (parts.length === 2) {
+                return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+            }
+            return parseFloat(parts[0]) || 999999;
+        }
+
+        // 格式化日期 (20260530 -> 2026/05/30)
+        function formatDate(dStr) {
+            if (!dStr) return '--';
+            const clean = dStr.replace(/[^0-9]/g, '');
+            if (clean.length === 8) {
+                return `${clean.substring(0,4)}/${clean.substring(4,6)}/${clean.substring(6,8)}`;
+            }
+            return dStr;
+        }
+
+        // 渲染第一層：泳姿切換按鈕
+        function renderStrokeLevelButtons() {
+            const container = document.getElementById('strokeButtons');
+            container.innerHTML = '';
+
+            const availableStrokes = Object.keys(strokeHierarchy);
+            if (availableStrokes.length === 0) return;
+
+            availableStrokes.forEach(s => {
+                const btn = document.createElement('button');
+                const isSelected = s === currentStroke;
+                btn.className = `text-xs px-3 py-1 rounded-full font-semibold transition-all whitespace-nowrap ${
+                    isSelected 
+                    ? 'bg-amber-400 text-black shadow-md font-bold' 
+                    : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-700/50'
+                }`;
+                btn.innerText = s;
+                btn.onclick = () => {
+                    const availDists = Object.keys(strokeHierarchy[s]);
+                    const targetDist = availDists.includes(currentDistance) ? currentDistance : availDists[0];
+                    selectStrokeAndDistance(s, targetDist);
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        // 渲染第二層：距離切換按鈕 (包含各距離即時 PB 秒數標籤)
+        function renderDistanceLevelButtons(stroke) {
+            const container = document.getElementById('distanceButtons');
+            container.innerHTML = '';
+
+            const distMap = strokeHierarchy[stroke] || {};
+            const distList = Object.keys(distMap);
+
+            // 依距離數字排序 (50M, 100M, 200M, 400M...)
+            distList.sort((a, b) => parseInt(a) - parseInt(b));
+
+            distList.forEach(d => {
+                const item = distMap[d];
+                const pbSec = item.best ? item.best['成績'] : '';
+                const btn = document.createElement('button');
+                const isSelected = d === currentDistance;
+                
+                btn.className = `dist-pill text-xs px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1.5 whitespace-nowrap ${
+                    isSelected
+                    ? 'active'
+                    : 'bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700 border-zinc-700/60'
+                }`;
+                btn.innerHTML = `<span>${d}</span><span class="text-[10px] opacity-80 font-mono">${pbSec}</span>`;
+                btn.onclick = () => selectStrokeAndDistance(stroke, d);
+                container.appendChild(btn);
+            });
+        }
+
+        // 選中特定泳姿與距離並更新 UI
+        function selectStrokeAndDistance(stroke, dist) {
+            currentStroke = stroke;
+            currentDistance = dist;
+
+            // 刷新兩層切換按鈕外觀
+            renderStrokeLevelButtons();
+            renderDistanceLevelButtons(stroke);
+
+            const group = (strokeHierarchy[stroke] && strokeHierarchy[stroke][dist]) ? strokeHierarchy[stroke][dist] : null;
+            if (!group || !group.best) return;
+
+            currentItemData = group;
+            const best = group.best;
+
+            // 1. 更新卡片主標題與副標 (明確標註距離與項目)
+            const itemTitleText = `${dist} ${stroke}`;
+            const engTitleText = `${dist} ${STROKE_ENG_MAP[stroke] || 'SWIM'}`;
+            
+            document.getElementById('itemMainTitle').innerText = itemTitleText;
+            document.getElementById('itemSubTitle').innerText = engTitleText;
+            document.getElementById('watermarkStroke').innerText = `${dist} ${stroke.charAt(0)}`;
+
+            // 2. 核心大字 PB
+            document.getElementById('pbTime').innerText = best['成績'] || '--:--.--';
+
+            // 3. 達成賽事、日期、名次、組別
+            const rName = best['賽事名稱'] || '官方錦標賽';
+            const rDate = formatDate(best['年份'] || best['日期'] || '');
+            let rGroup = best['組別'] || '';
+            // 若組別僅為數字 (例如 16)，嘗試從項目名稱中提煉
+            if (/^\d+$/.test(rGroup.trim())) {
+                const itemRaw = best['項目'] || '';
+                const mGrp = itemRaw.match(/(.+?女子組|.+?男子組|.+?公開組)/);
+                if (mGrp) rGroup = mGrp[1];
+                else rGroup = `第 ${rGroup} 組`;
+            }
+
+            let rankStr = best['名次'] ? `第 ${best['名次']} 名` : '決賽完賽';
+            if (best['名次'] === '1' || best['名次'] === '01') rankStr = '第 1 名 🥇 金牌';
+            else if (best['名次'] === '2' || best['名次'] === '02') rankStr = '第 2 名 🥈 銀牌';
+            else if (best['名次'] === '3' || best['名次'] === '03') rankStr = '第 3 名 🥉 銅牌';
+
+            document.getElementById('raceName').innerText = rName;
+            document.getElementById('raceName').title = rName;
+            document.getElementById('recordDate').innerText = rDate;
+            document.getElementById('groupRank').innerText = `${rGroup} · ${rankStr}`;
+
+            // 4. 計算並展示同齡常模百分位 (兩行式清晰排版)
+            let pr1 = 'PR 99%+';
+            let pr2 = '全台頂尖水準';
+            if (group.stat && group.stat.age_rank && group.stat.age_total) {
+                const prVal = ((1 - (group.stat.age_rank - 1) / group.stat.age_total) * 100).toFixed(1);
+                pr1 = `PR ${prVal}%`;
+                const rk = group.stat.age_rank;
+                if (rk === 1) pr2 = '同齡第一名 🥇';
+                else if (rk === 2) pr2 = '同齡第二名 🥈';
+                else if (rk === 3) pr2 = '同齡第三名 🥉';
+                else pr2 = `同齡第 ${rk} 名`;
+            } else if (best['名次'] === '1' || best['名次'] === '01') {
+                pr1 = 'PR 100.0%';
+                pr2 = '分組第一名 🥇';
+            }
+            document.getElementById('prLine1').innerText = pr1;
+            document.getElementById('prLine2').innerText = pr2;
+
+            // 5. 更新 Meta 標籤與 URL
+            const pageTitle = `${currentSwimmer} · ${dist} ${stroke} 數位泳者卡 ｜ 金水 ● 游泳成績查詢網`;
+            document.title = pageTitle;
+            const ogTitle = document.getElementById('ogTitle');
+            if (ogTitle) ogTitle.content = `【金水 數位泳者卡】${currentSwimmer} · ${dist} ${stroke} (PB: ${best['成績']})`;
+            const twTitle = document.getElementById('twTitle');
+            if (twTitle) twTitle.content = `【金水 數位泳者卡】${currentSwimmer} · ${dist} ${stroke} (PB: ${best['成績']})`;
+
+            // 更新歷史 URL (乾淨短網址)
+            const newUrl = `/card/${encodeURIComponent(currentSwimmer)}/${encodeURIComponent(stroke)}/${encodeURIComponent(dist)}`;
+            window.history.replaceState({}, '', newUrl);
+
+            lucide.createIcons();
+        }
+
+        // 降級參數渲染
+        function renderFallbackFromParams(params) {
+            document.getElementById('teamText').innerText = '官方認證選手';
+            document.getElementById('itemMainTitle').innerText = `${currentDistance} ${currentStroke}`;
+            document.getElementById('itemSubTitle').innerText = `${currentDistance} ${STROKE_ENG_MAP[currentStroke] || 'SWIM'}`;
+            document.getElementById('pbTime').innerText = params.get('time') || '00:36.49';
+            document.getElementById('raceName').innerText = params.get('race') || '全國青年盃游泳錦標賽';
+            document.getElementById('recordDate').innerText = params.get('date') || '2026/05/30';
+            document.getElementById('groupRank').innerText = params.get('rank') || '國小高年級女子組 · 第 3 名 🥉';
+            document.getElementById('totalRacesCount').innerText = '官方賽事全量認證';
+            document.getElementById('prLine1').innerText = 'PR 100.0%';
+            document.getElementById('prLine2').innerText = '同齡第一名 🥇';
+            lucide.createIcons();
+        }
+
+        // 複製卡片專屬短網址
+        async function copyCardUrl() {
+            const cardUrl = window.location.href;
+            try {
+                await navigator.clipboard.writeText(cardUrl);
+                document.getElementById('copyBtnText').innerText = '已複製！';
+                showToast(`📋 已複製「${currentSwimmer} · ${currentDistance} ${currentStroke}」泳者卡網址！`);
+                setTimeout(() => {
+                    document.getElementById('copyBtnText').innerText = '複製連結';
+                }, 2000);
+            } catch (err) {
+                prompt('請手動複製卡片連結：', cardUrl);
+            }
+        }
+
+        // 生成金水官方同款經典金色漸層 (#ffffff 0%, #f3d078 50%, #d4af37 100%)
+        function getGoldGrad(ctx, x1, y1, x2, y2) {
+            const g = ctx.createLinearGradient(x1, y1, x2, y2);
+            g.addColorStop(0, '#ffffff');
+            g.addColorStop(0.48, '#f3d078');
+            g.addColorStop(1, '#d4af37');
+            return g;
+        }
+
+        // 繪製海報到 Canvas 的核心函式
+        function drawPosterOnCanvas() {
+            const canvas = document.getElementById('posterCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = 1080;
+            const h = 1920;
+
+            // 1. 深邃極致黑金背景
+            const bgGradient = ctx.createLinearGradient(0, 0, w, h);
+            bgGradient.addColorStop(0, '#090A0F');
+            bgGradient.addColorStop(0.5, '#12131A');
+            bgGradient.addColorStop(1, '#050608');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, w, h);
+
+            // 2. 幾何裝飾光暈
+            const glow = ctx.createRadialGradient(w/2, 600, 50, w/2, 600, 550);
+            glow.addColorStop(0, 'rgba(212, 175, 55, 0.18)');
+            glow.addColorStop(1, 'rgba(212, 175, 55, 0)');
+            ctx.fillStyle = glow;
+            ctx.fillRect(0, 0, w, h);
+
+            // 3. 雙金屬裝飾外框 (漸層金)
+            ctx.strokeStyle = getGoldGrad(ctx, 40, 40, w - 40, h - 40);
+            ctx.lineWidth = 4;
+            ctx.strokeRect(40, 40, w - 80, h - 80);
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(55, 55, w - 110, h - 110);
+
+            // 4. 頂部認證標章 (漸層金)
+            ctx.fillStyle = getGoldGrad(ctx, w/2 - 320, 0, w/2 + 320, 0);
+            ctx.font = '900 28px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.letterSpacing = '3px';
+            ctx.fillText('金水 • 游泳成績查詢網 • 數位泳者卡', w/2, 140);
+
+            // 5. 選手大名 (超大字)
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '900 84px -apple-system, sans-serif';
+            ctx.fillText(currentSwimmer, w/2, 310);
+
+            // 選手所屬泳隊 (漸層金)
+            const teamText = document.getElementById('teamText').innerText.trim() || '官方認證選手';
+            ctx.fillStyle = getGoldGrad(ctx, w/2 - 250, 0, w/2 + 250, 0);
+            ctx.font = '600 32px -apple-system, sans-serif';
+            ctx.fillText(`🏆 ${teamText}`, w/2, 380);
+
+            // 6. 中央立體卡片主體 (Card Shell) (漸層金邊框)
+            const cardX = 90;
+            const cardY = 460;
+            const cardW = 900;
+            const cardH = 880;
+
+            ctx.fillStyle = 'rgba(22, 23, 30, 0.88)';
+            ctx.strokeStyle = getGoldGrad(ctx, cardX, cardY, cardX + cardW, cardY + cardH);
+            ctx.lineWidth = 3;
+            roundRect(ctx, cardX, cardY, cardW, cardH, 40, true, true);
+
+            // 卡片內部：明確標註距離與泳姿
+            ctx.fillStyle = '#9CA3AF';
+            ctx.font = '700 28px -apple-system, sans-serif';
+            ctx.fillText(`${currentDistance} ${STROKE_ENG_MAP[currentStroke] || 'SWIM'}`, w/2, cardY + 90);
+
+            // 項目名稱 (漸層金)
+            ctx.fillStyle = getGoldGrad(ctx, w/2 - 180, 0, w/2 + 180, 0);
+            ctx.font = '900 44px -apple-system, sans-serif';
+            ctx.fillText(`${currentDistance} ${currentStroke}`, w/2, cardY + 155);
+
+            // 7. 核心 PB 秒數 (超大金屬金黃字漸層)
+            const pbText = document.getElementById('pbTime').innerText;
+            ctx.fillStyle = getGoldGrad(ctx, w/2 - 280, 0, w/2 + 280, 0);
+            ctx.font = '900 130px -apple-system, monospace';
+            ctx.fillText(pbText, w/2, cardY + 340);
+
+            // 常模百分位與名次標籤
+            const pr1Text = document.getElementById('prLine1').innerText || 'PR 99%+';
+            const pr2Text = document.getElementById('prLine2').innerText || '第一名 🥇';
+            ctx.fillStyle = '#10B981';
+            ctx.font = '800 32px -apple-system, sans-serif';
+            ctx.fillText(`🌟 ${pr1Text} · ${pr2Text}`, w/2, cardY + 430);
+
+            // 賽事資訊方塊
+            const infoY = cardY + 500;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+            roundRect(ctx, cardX + 40, infoY, cardW - 80, 290, 24, true, false);
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#9CA3AF';
+            ctx.font = '500 24px -apple-system, sans-serif';
+            ctx.fillText('達成賽事：', cardX + 70, infoY + 65);
+            ctx.fillText('出賽組別：', cardX + 70, infoY + 135);
+            ctx.fillText('紀錄日期：', cardX + 70, infoY + 205);
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '700 28px -apple-system, sans-serif';
+            const raceName = document.getElementById('raceName').innerText;
+            const groupRank = document.getElementById('groupRank').innerText;
+            const recDate = document.getElementById('recordDate').innerText;
+
+            ctx.fillText(truncateText(ctx, raceName, 480), cardX + 220, infoY + 65);
+            ctx.fillStyle = getGoldGrad(ctx, cardX + 220, 0, cardX + 480, 0);
+            ctx.fillText(groupRank, cardX + 220, infoY + 135);
+            ctx.fillStyle = '#E5E7EB';
+            ctx.fillText(recDate, cardX + 220, infoY + 205);
+
+            // 8. 底部官方防偽與 QR Code 引流 (漸層金)
+            ctx.textAlign = 'center';
+            ctx.fillStyle = getGoldGrad(ctx, w/2 - 280, 0, w/2 + 280, 0);
+            ctx.font = '800 28px -apple-system, sans-serif';
+            ctx.fillText('掃描或前往查驗全台選手歷年完整戰績', w/2, 1460);
+
+            ctx.fillStyle = '#9CA3AF';
+            ctx.font = '500 24px -apple-system, monospace';
+            ctx.fillText('https://swimming-pwa.vercel.app', w/2, 1510);
+
+            // 底部官方印鑑 (極簡金屬漸層質感)
+            ctx.strokeStyle = getGoldGrad(ctx, w/2 - 200, 1620, w/2 + 200, 1700);
+            ctx.lineWidth = 2.5;
+            roundRect(ctx, w/2 - 200, 1620, 400, 80, 20, false, true);
+
+            ctx.fillStyle = getGoldGrad(ctx, w/2 - 180, 0, w/2 + 180, 0);
+            ctx.font = '700 26px -apple-system, sans-serif';
+            ctx.fillText('金水 ● 游泳成績查詢網', w/2, 1670);
+        }
+
+        // 📸 生成並下載 1080x1920 Apple 高清獎狀海報 (發限動 / 存相簿)
+        function generateAndDownloadPoster() {
+            const itemText = `${currentDistance} ${currentStroke}`;
+            showToast(`🎨 正在繪製「${currentSwimmer} · ${itemText}」專屬海報...`);
+
+            drawPosterOnCanvas();
+            const canvas = document.getElementById('posterCanvas');
+
+            // 匯出下載
+            const link = document.createElement('a');
+            link.download = `金水泳者卡_${currentSwimmer}_${currentDistance}_${currentStroke}_PB.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            showToast('✅ 已儲存個人專屬海報！可前往相簿發限動或分享～');
+        }
+
+        // 分享卡片 (支援 Web Share API，直接喚起 iOS / Android 原生分享面板，一鍵傳送 LINE 或存相簿)
+        async function shareThisCard() {
+            const itemText = `${currentDistance} ${currentStroke}`;
+            const pbTime = document.getElementById('pbTime').innerText;
+            const shareTitle = `【金水 數位泳者卡】${currentSwimmer} · ${itemText}`;
+            const shareText = `快來看 ${currentSwimmer} 於「${itemText}」創下官方認證個人最佳 (PB: ${pbTime})！點擊查看全台常模與出賽履歷：`;
+            const shareUrl = window.location.href;
+
+            if (navigator.share) {
+                try {
+                    drawPosterOnCanvas();
+                    const canvas = document.getElementById('posterCanvas');
+
+                    // 嘗試以原生圖片檔案分享 (iOS Safari / Android Chrome 支援)
+                    if (canvas.toBlob && navigator.canShare) {
+                        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                        if (blob) {
+                            const file = new File([blob], `金水泳者卡_${currentSwimmer}_${currentDistance}_${currentStroke}.png`, { type: 'image/png' });
+                            if (navigator.canShare({ files: [file] })) {
+                                await navigator.share({
+                                    title: shareTitle,
+                                    text: shareText,
+                                    url: shareUrl,
+                                    files: [file]
+                                });
+                                return;
+                            }
+                        }
+                    }
+
+                    // 若瀏覽器不支援多媒體檔案分享，退回原生文字與網址分享
+                    await navigator.share({
+                        title: shareTitle,
+                        text: shareText,
+                        url: shareUrl
+                    });
+                    return;
+                } catch (err) {
+                    if (err.name !== 'AbortError') copyCardUrl();
+                }
+            } else {
+                copyCardUrl();
+            }
+        }
+
+        // 繪製圓角矩形輔助函數
+        function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+            if (fill) ctx.fill();
+            if (stroke) ctx.stroke();
+        }
+
+        function truncateText(ctx, text, maxWidth) {
+            if (ctx.measureText(text).width <= maxWidth) return text;
+            while (text.length > 0 && ctx.measureText(text + '...').width > maxWidth) {
+                text = text.substring(0, text.length - 1);
+            }
+            return text + '...';
+        }
+
+        // 啟動加載
+        window.addEventListener('DOMContentLoaded', loadSwimmerCard);
+    </script>
+</body>
+</html>

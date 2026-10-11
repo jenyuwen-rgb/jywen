@@ -85,7 +85,7 @@
     },
     {
       "source": "/full",
-      "destination": "/full.html"
+      "destination": "/256split.html"
     },
     {
       "source": "/256split",
@@ -98,6 +98,22 @@
     {
       "source": "/athletes/:name",
       "destination": "/athletes/:name.html"
+    },
+    {
+      "source": "/card/:name/:stroke/:dist",
+      "destination": "/card.html"
+    },
+    {
+      "source": "/card/:name/:stroke",
+      "destination": "/card.html"
+    },
+    {
+      "source": "/card/:name",
+      "destination": "/card.html"
+    },
+    {
+      "source": "/card",
+      "destination": "/card.html"
     },
     {
       "source": "/int",

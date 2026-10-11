@@ -197,12 +197,12 @@
         {
           "value": "tpesa_112_fall",
           "text": "112年臺北市中正盃分齡游泳賽",
-          "in_db": false
+          "in_db": true
         },
         {
           "value": "tpesa_112_youth",
           "text": "112年臺北市青年盃分齡游泳錦標賽",
-          "in_db": false
+          "in_db": true
         }
       ]
     },
@@ -228,7 +228,7 @@
         {
           "value": "swim8_24",
           "text": "臺中市114年市長盃水上運動競賽(游泳項目)",
-          "in_db": false
+          "in_db": true
         },
         {
           "value": "swim8_23",
@@ -477,77 +477,77 @@
         {
           "value": "ntpc_ceswim115",
           "text": "115年新北市小學游泳對抗賽",
-          "in_db": false,
+          "in_db": true,
           "date": "2026-03-20",
           "end_date": "2026-03-22"
         },
         {
           "value": "ntpc_ceswim114",
           "text": "114年新北市小學游泳對抗賽",
-          "in_db": false,
+          "in_db": true,
           "date": "2025-03-21",
           "end_date": "2025-03-23"
         },
         {
           "value": "ntpc_ceswim113",
           "text": "113年新北市小學游泳對抗賽",
-          "in_db": false,
+          "in_db": true,
           "date": "2024-03-22",
           "end_date": "2024-03-24"
         },
         {
           "value": "ntpc_cmswim115",
           "text": "115年新北市基層訓練站區域對抗賽",
-          "in_db": false,
+          "in_db": true,
           "date": "2026-09-18",
           "end_date": "2026-09-20"
         },
         {
           "value": "ntpc_cmswim114",
           "text": "114年新北市基層訓練站區域對抗賽",
-          "in_db": false,
+          "in_db": true,
           "date": "2025-09-19",
           "end_date": "2025-09-21"
         },
         {
           "value": "ntpc_cmswim113",
           "text": "113年新北市基層訓練站區域對抗賽",
-          "in_db": false,
+          "in_db": true,
           "date": "2024-09-20",
           "end_date": "2024-09-22"
         },
         {
           "value": "ntpc_cenm115",
           "text": "115年新北市中等學校運動會游泳比賽",
-          "in_db": false,
+          "in_db": true,
           "date": "2026-01-08",
           "end_date": "2026-01-11"
         },
         {
           "value": "ntpc_cenm114",
           "text": "114年新北市中等學校運動會游泳比賽",
-          "in_db": false,
+          "in_db": true,
           "date": "2025-01-09",
           "end_date": "2025-01-12"
         },
         {
           "value": "ntpc_cenm113",
           "text": "113年新北市中等學校運動會游泳比賽",
-          "in_db": false,
+          "in_db": true,
           "date": "2024-01-04",
           "end_date": "2024-01-07"
         },
         {
           "value": "ntpc_cenm112",
           "text": "112年新北市中等學校運動會游泳比賽",
-          "in_db": false,
+          "in_db": true,
           "date": "2023-01-05",
           "end_date": "2023-01-08"
         },
         {
           "value": "ntpc_cenm111",
           "text": "111年新北市中等學校運動會游泳比賽",
-          "in_db": false,
+          "in_db": true,
           "date": "2022-01-06",
           "end_date": "2022-01-09"
         },
