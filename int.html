@@ -4428,9 +4428,31 @@
                     console.warn("無法取得 256split manifest.json:", mfErr);
                 }
 
-                const seedRes = await fetch('/static/int_dashboard_seed.json');
-                if (seedRes.ok) {
-                    dashboardData = await seedRes.json();
+                let seedLoaded = false;
+                try {
+                    const gcsSeedUrl = `${GCS_BASE_URL}/int_dashboard_seed.json?t=${Date.now()}`;
+                    const gcsSeedRes = await fetch(gcsSeedUrl);
+                    if (gcsSeedRes.ok) {
+                        dashboardData = await gcsSeedRes.json();
+                        seedLoaded = true;
+                    }
+                } catch(seedGcsErr) {
+                    console.warn("自 GCS 讀取雙向探針種子檔失敗，嘗試讀取本地備援:", seedGcsErr);
+                }
+
+                if (!seedLoaded) {
+                    try {
+                        const seedRes = await fetch('/static/int_dashboard_seed.json?t=' + Date.now());
+                        if (seedRes.ok) {
+                            dashboardData = await seedRes.json();
+                            seedLoaded = true;
+                        }
+                    } catch(seedLocErr) {
+                        console.warn("自本地讀取雙向探針種子檔失敗:", seedLocErr);
+                    }
+                }
+
+                if (dashboardData && dashboardData.all_dates) {
                     document.getElementById('dateTotalCount').innerText = dashboardData.all_dates.length;
                     document.getElementById('meetTotalCount').innerText = (dashboardData.all_meet_names || []).length;
                     

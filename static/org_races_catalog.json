@@ -102,8 +102,8 @@
         {
           "value": "ctsa_170",
           "text": "115年全國春季分齡游泳錦標賽",
-          "in_db": false,
-          "score_count": 0
+          "in_db": true,
+          "score_count": 4242
         },
         {
           "value": "ctsa_171",
@@ -252,8 +252,8 @@
         {
           "value": "swim8_24",
           "text": "臺中市114年市長盃水上運動競賽(游泳項目)",
-          "in_db": false,
-          "score_count": 0
+          "in_db": true,
+          "score_count": 3023
         },
         {
           "value": "swim8_23",
@@ -342,8 +342,8 @@
         {
           "value": "swim8_2",
           "text": "105臺中市年市長盃游泳錦標賽",
-          "in_db": false,
-          "score_count": 0
+          "in_db": true,
+          "score_count": 2048
         }
       ]
     },
