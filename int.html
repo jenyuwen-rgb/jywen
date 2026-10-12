@@ -4415,6 +4415,11 @@
                                 integrityBadge.innerHTML = '<i class="fa-solid fa-circle-check text-xs gold-gradient-icon"></i><span>預處理 100% 完工</span>';
                             }
                             if (integrityDot) integrityDot.className = 'w-2 h-2 rounded-full gold-gradient-dot';
+
+                            const dSyncRows = document.getElementById('drawerDbSyncRows');
+                            if (dSyncRows) dSyncRows.innerText = `${splitRows.toLocaleString()} 筆 / 85 場賽事`;
+                            const dSyncHash = document.getElementById('drawerDbSyncHash');
+                            if (dSyncHash) dSyncHash.innerText = `Hash: ${splitRows}_FULL_SYNC`;
                         } else {
                             if (matchStatusEl) matchStatusEl.innerHTML = `<span class="text-rose-400 font-bold">筆數差異: 正式 ${normalRows.toLocaleString()} vs 256桶 ${splitRows.toLocaleString()}</span>`;
                             if (integrityBadge) {
@@ -4936,15 +4941,15 @@
             <div class="p-4 rounded-xl bg-zinc-900/80 border border-emerald-500/30 space-y-2">
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-zinc-400">當前資料庫版本筆數</span>
-                    <span class="text-xs font-bold text-emerald-400">862,917 筆 / 93 場賽事</span>
+                    <span id="drawerDbSyncRows" class="text-xs font-bold text-emerald-400">817,890 筆 / 85 場賽事</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-zinc-400">256 桶守恆差額</span>
-                    <span class="text-xs font-bold text-emerald-400">0 筆 (100% 守恆無損)</span>
+                    <span id="drawerDbSyncDiff" class="text-xs font-bold text-emerald-400">0 筆 (100% 守恆無損)</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-zinc-400">最後預處理簽章</span>
-                    <span class="text-xs text-zinc-300">Hash: 862917_FULL_SYNC</span>
+                    <span id="drawerDbSyncHash" class="text-xs text-zinc-300">Hash: 817890_FULL_SYNC</span>
                 </div>
             </div>
             <div class="text-xs text-zinc-400">
