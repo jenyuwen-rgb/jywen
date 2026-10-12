@@ -784,6 +784,18 @@
         .accordion-card:hover {
             border-color: rgba(243, 208, 120, 0.35);
         }
+        /* 含下拉選單的卡片：允許選單溢出卡片邊界，並壓在下方卡片之上 */
+        #card-probe-harvester {
+            overflow: visible;
+            position: relative;
+            z-index: 40;
+        }
+        #card-probe-harvester > .accordion-header {
+            border-radius: 16px 16px 0 0;
+        }
+        #card-probe-harvester:not(.open) > .accordion-header {
+            border-radius: 16px;
+        }
         .accordion-header {
             display: flex;
             align-items: center;
@@ -3402,12 +3414,28 @@
         function toggleRaceDropdown(forceClose = false) {
             const menu = document.getElementById('customRaceDropdownMenu');
             const btn = document.getElementById('customRaceSelectBtn');
+            const card = document.getElementById('card-probe-harvester');
             if (forceClose || !menu.classList.contains('hidden')) {
                 menu.classList.add('hidden');
                 btn.classList.remove('active');
+                if (card) card.style.marginBottom = '';
             } else {
                 menu.classList.remove('hidden');
                 btn.classList.add('active');
+                // 確保整個選單可見：預留卡片下方空間，並捲動到固定 footer 之上
+                requestAnimationFrame(() => {
+                    const footer = document.querySelector('body > footer.fixed, footer.fixed');
+                    const footerH = footer ? footer.getBoundingClientRect().height : 0;
+                    const m = menu.getBoundingClientRect();
+                    if (card) {
+                        const overflowBelowCard = m.bottom - card.getBoundingClientRect().bottom;
+                        if (overflowBelowCard > 0) card.style.marginBottom = (overflowBelowCard + 16) + 'px';
+                    }
+                    const limit = window.innerHeight - footerH - 12;
+                    if (m.bottom > limit) {
+                        window.scrollBy({ top: m.bottom - limit, behavior: 'smooth' });
+                    }
+                });
             }
         }
 
