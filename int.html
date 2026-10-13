@@ -3229,6 +3229,7 @@
                         const pct = Math.max(2, Math.min(100, parseFloat(gcs.used_percentage) || 2));
                         hudStorageQuotaBar.style.width = `${pct}%`;
                     }
+                }
 
                 const ver = data.services && data.services.vercel_edge_deployment;
                 if (ver) {
