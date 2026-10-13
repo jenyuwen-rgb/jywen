@@ -1338,25 +1338,61 @@
                         <span class="neon-dot calm-green"></span>SYNC
                     </span>
                 </div>
-                <div id="hudDbStatus" class="kpi-num">808,741</div>
+                <div class="my-auto py-0.5">
+                    <div id="hudDbStatus" class="kpi-num leading-tight text-white font-mono font-extrabold text-[20px] sm:text-[24px]">817,890</div>
+                    <div class="text-[10px] text-zinc-400 font-mono mt-0.5">主庫正式成績</div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
+                    <span class="truncate max-w-[110px] text-zinc-400">🏆 台中議長盃</span>
+                    <span class="text-emerald-400/90 font-bold">0 差額</span>
+                </div>
             </div>
 
-            <!-- KPI 2: 雲端水位 -->
+            <!-- KPI 2: 雲端水位 / 賽事排程 -->
             <div id="card-kpi-calendar" class="war-room-kpi-card" onclick="openDrawer('drawer-calendar')">
                 <div class="flex items-center justify-between">
                     <span class="kpi-title"><i class="fa-solid fa-calendar-days text-amber-500/70 text-[11px]"></i> 賽事日曆</span>
                     <span id="hudCalendarBadge" class="badge-calm-gold">96 場</span>
                 </div>
-                <div id="hudCalendarStatus" class="kpi-num gold-gradient-text truncate">📅 本月有賽</div>
+                <div class="my-auto py-0.5">
+                    <div id="hudCalendarStatus" class="kpi-num gold-gradient-text truncate leading-tight text-[17px] sm:text-[20px]">📅 本月有賽</div>
+                    <div id="hudCalendarSub" class="text-[10px] text-zinc-400 font-mono mt-0.5">全台賽事排程總覽</div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
+                    <span class="text-zinc-400">☁️ GCS 水位</span>
+                    <span id="hudStorageQuotaSub" class="text-amber-400/90 font-bold font-mono">24%</span>
+                </div>
             </div>
 
-            <!-- KPI 3: 即時熱搜 -->
+            <!-- KPI 3: 即時熱搜 (訪客雷達 本日/本週 Top 1) -->
             <div id="card-kpi-hot" class="war-room-kpi-card" onclick="openDrawer('drawer-radar')">
                 <div class="flex items-center justify-between">
-                    <span class="kpi-title"><i class="fa-solid fa-fire text-amber-500/70 text-[11px]"></i> 即時熱搜</span>
+                    <span class="kpi-title"><i class="fa-solid fa-fire text-amber-500/70 text-[11px]"></i> 訪客雷達</span>
                     <span class="badge-calm-gold">TOP 1</span>
                 </div>
-                <div id="hudHotStatus" class="kpi-num gold-gradient-text truncate"><span class="text-[17px] sm:text-[20px]">🥇 鄭向恩</span><span class="text-[11px] text-amber-400/80 font-normal ml-1">95次</span></div>
+                <!-- 雙膠囊並列 (本日 TOP 1 + 本週 TOP 1) -->
+                <div class="my-auto py-0.5 flex flex-col gap-1 w-full">
+                    <!-- 本日 TOP 1 -->
+                    <div class="flex items-center justify-between bg-zinc-900/80 border border-amber-500/30 rounded-md px-1.5 py-1 shadow-sm">
+                        <div class="flex items-center gap-1 min-w-0">
+                            <span class="text-[8px] font-extrabold text-amber-300 bg-amber-500/20 px-1 py-0.5 rounded leading-none shrink-0">本日</span>
+                            <span id="hudHotTodayName" class="text-[11px] sm:text-[13px] font-bold text-white truncate">陳宥橋</span>
+                        </div>
+                        <span id="hudHotTodayCount" class="text-[10px] font-mono font-bold text-amber-400 shrink-0 ml-1">3次</span>
+                    </div>
+                    <!-- 本週 TOP 1 -->
+                    <div class="flex items-center justify-between bg-zinc-900/50 border border-zinc-800 rounded-md px-1.5 py-1">
+                        <div class="flex items-center gap-1 min-w-0">
+                            <span class="text-[8px] font-bold text-zinc-400 bg-zinc-800 px-1 py-0.5 rounded leading-none shrink-0">本週</span>
+                            <span id="hudHotWeekName" class="text-[11px] sm:text-[13px] font-semibold text-zinc-300 truncate">鄭向恩</span>
+                        </div>
+                        <span id="hudHotWeekCount" class="text-[10px] font-mono text-zinc-400 shrink-0 ml-1">95次</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
+                    <span id="hudHotTotalQueries" class="truncate">共 141 筆查詢</span>
+                    <span class="text-amber-500/70 shrink-0 ml-1">詳情 →</span>
+                </div>
             </div>
 
             <!-- KPI 4: GCP 守護 -->
@@ -1367,7 +1403,14 @@
                         <span class="neon-dot calm-green"></span>06:00 OK
                     </span>
                 </div>
-                <div id="hudGcpStatus" class="kpi-num">06:00 OK</div>
+                <div class="my-auto py-0.5">
+                    <div id="hudGcpStatus" class="kpi-num leading-tight text-emerald-400 font-mono font-bold text-[18px] sm:text-[22px]">每日 06:00</div>
+                    <div class="text-[10px] text-zinc-400 font-mono mt-0.5">7 協會定時巡檢</div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
+                    <span class="text-zinc-400">Cloud Run</span>
+                    <span class="text-emerald-400 font-mono font-bold">Exit(0)</span>
+                </div>
                 <div id="gcpAlertTag" class="hidden mt-1 px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40 text-[9px] font-bold font-mono animate-pulse inline-block">CRITICAL 異常</div>
             </div>
         </div>
@@ -1603,6 +1646,90 @@
                 } else {
                     hotContainer.innerHTML = '<span class="text-xs text-zinc-500">該時序範圍尚無查詢紀錄</span>';
                 }
+            }
+
+            // ─── 專供 2x2 正方形方塊 3：動態計算本日 Top 1 與本週 Top 1 ───
+            const todayLogs = validLogs.filter(log => {
+                const logDate = parseLogTime(log.time);
+                const isSameDay = logDate.getFullYear() === now.getFullYear() && 
+                                  logDate.getMonth() === now.getMonth() && 
+                                  logDate.getDate() === now.getDate();
+                const dateStrMatch = log.time && (
+                    log.time.includes(`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`) ||
+                    log.time.includes(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`)
+                );
+                return isSameDay || dateStrMatch;
+            });
+            const todayCounts = {};
+            todayLogs.forEach(entry => {
+                const s = (entry.swimmer || '').trim();
+                if (s && !s.includes('頁面造訪') && !s.startsWith('[')) {
+                    const names = s.replace(/；/g, ';').split(';').map(n => n.trim()).filter(Boolean);
+                    names.forEach(n => {
+                        const clean = n.split('/')[0].trim();
+                        if (clean && !clean.includes('頁面造訪') && !clean.startsWith('[')) {
+                            todayCounts[clean] = (todayCounts[clean] || 0) + 1;
+                        }
+                    });
+                }
+            });
+            const todaySorted = Object.entries(todayCounts).sort((a, b) => b[1] - a[1]);
+
+            const weekLogs = validLogs.filter(log => {
+                const logDate = parseLogTime(log.time);
+                return logDate.getTime() >= weekStart;
+            });
+            const weekCounts = {};
+            weekLogs.forEach(entry => {
+                const s = (entry.swimmer || '').trim();
+                if (s && !s.includes('頁面造訪') && !s.startsWith('[')) {
+                    const names = s.replace(/；/g, ';').split(';').map(n => n.trim()).filter(Boolean);
+                    names.forEach(n => {
+                        const clean = n.split('/')[0].trim();
+                        if (clean && !clean.includes('頁面造訪') && !clean.startsWith('[')) {
+                            weekCounts[clean] = (weekCounts[clean] || 0) + 1;
+                        }
+                    });
+                }
+            });
+            const weekSorted = Object.entries(weekCounts).sort((a, b) => b[1] - a[1]);
+
+            // 更新方塊 3 雙膠囊數值 (本日 Top 1 + 本週 Top 1)
+            const hudTodayName = document.getElementById('hudHotTodayName');
+            const hudTodayCount = document.getElementById('hudHotTodayCount');
+            const hudWeekName = document.getElementById('hudHotWeekName');
+            const hudWeekCount = document.getElementById('hudHotWeekCount');
+            const hudTotalQueries = document.getElementById('hudHotTotalQueries');
+
+            if (hudTodayName && hudTodayCount) {
+                if (todaySorted.length > 0) {
+                    hudTodayName.innerText = todaySorted[0][0];
+                    hudTodayCount.innerText = `${todaySorted[0][1]}次`;
+                } else if (validLogs.length > 0) {
+                    const latestName = (validLogs[0].swimmer || '').split('/')[0].trim();
+                    hudTodayName.innerText = latestName || '暫無查詢';
+                    hudTodayCount.innerText = latestName ? '最新' : '0次';
+                } else {
+                    hudTodayName.innerText = '暫無查詢';
+                    hudTodayCount.innerText = '0次';
+                }
+            }
+
+            if (hudWeekName && hudWeekCount) {
+                if (weekSorted.length > 0) {
+                    hudWeekName.innerText = weekSorted[0][0];
+                    hudWeekCount.innerText = `${weekSorted[0][1]}次`;
+                } else if (sortedHot.length > 0) {
+                    hudWeekName.innerText = sortedHot[0][0];
+                    hudWeekCount.innerText = `${sortedHot[0][1]}次`;
+                } else {
+                    hudWeekName.innerText = '暫無查詢';
+                    hudWeekCount.innerText = '0次';
+                }
+            }
+
+            if (hudTotalQueries) {
+                hudTotalQueries.innerText = `共 ${validLogs.length} 筆查詢`;
             }
 
             // 2. 統計查詢模式分佈 (PB / PK / SIM / STD / RANK)
@@ -3070,6 +3197,8 @@
                     if (gcsBar) gcsBar.style.width = `${Math.min(100, Math.max(0.2, gcs.used_percentage))}%`;
                     if (gcsUsed) gcsUsed.textContent = `${gcs.used_mb} MB`;
                     if (gcsFree) gcsFree.textContent = `${gcs.free_remaining_mb} MB`;
+                    const hudStorageQuotaSub = document.getElementById('hudStorageQuotaSub');
+                    if (hudStorageQuotaSub) hudStorageQuotaSub.textContent = `${gcs.used_percentage}%`;
                 }
 
                 const ver = data.services && data.services.vercel_edge_deployment;
