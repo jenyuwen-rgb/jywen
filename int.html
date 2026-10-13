@@ -1105,6 +1105,26 @@
             margin: 8px auto 6px auto;
             cursor: pointer;
         }
+
+        .drawer-header {
+            padding: 12px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(18, 18, 22, 0.98);
+            flex-shrink: 0;
+            gap: 12px;
+        }
+
+        .drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            padding: 18px;
+            padding-bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+        }
     
 
         /* ─── Alert Driven 戰情室警報驅動與沉靜低彩度樣式 ─── */
