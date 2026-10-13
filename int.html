@@ -1038,12 +1038,12 @@
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: space-between !important;
-                padding: 16px 14px !important;
-                border-radius: 20px !important;
+                padding: 12px 11px !important;
+                border-radius: 18px !important;
             }
             .kpi-num {
-                font-size: 21px !important;
-                margin: auto 0 !important;
+                font-size: 19px !important;
+                margin: 0 !important;
                 word-break: break-all;
             }
         }
@@ -1335,36 +1335,48 @@
                 <div class="flex items-center justify-between">
                     <span class="kpi-title"><i class="fa-solid fa-database text-zinc-500 text-[11px]"></i> 雙軌守恆</span>
                     <span id="hudDbBadge" class="badge-calm-green">
-                        <span class="neon-dot calm-green"></span>SYNC
+                        <span class="neon-dot calm-green"></span>100% 對齊
                     </span>
                 </div>
                 <div class="my-auto py-0.5">
-                    <div id="hudDbStatus" class="kpi-num leading-tight text-white font-mono font-extrabold text-[20px] sm:text-[24px]">817,890</div>
-                    <div class="text-[10px] text-zinc-400 font-mono mt-0.5">主庫正式成績</div>
+                    <div id="hudDbStatus" class="kpi-num leading-tight text-white font-mono font-extrabold text-[20px] sm:text-[24px]">817,890 <span class="text-[12px] font-normal text-amber-400">筆</span></div>
+                    <div class="text-[10px] text-zinc-400 font-mono mt-0.5">主庫正式成績 · 0 差額</div>
                 </div>
-                <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
-                    <span class="truncate max-w-[110px] text-zinc-400">🏆 台中議長盃</span>
-                    <span class="text-emerald-400/90 font-bold">0 差額</span>
+                <div class="space-y-0.5 text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="truncate text-zinc-400">🏆 最新：台中市議長盃</span>
+                        <span class="text-zinc-500 shrink-0 ml-1">10/02</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[9px] text-zinc-500">
+                        <span>⚡ 256 桶守恆</span>
+                        <span class="text-emerald-400/90 font-bold">地端 ⇋ 雲端同步</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- KPI 2: 雲端水位 / 賽事排程 -->
+            <!-- KPI 2: 賽事排程 -->
             <div id="card-kpi-calendar" class="war-room-kpi-card" onclick="openDrawer('drawer-calendar')">
                 <div class="flex items-center justify-between">
-                    <span class="kpi-title"><i class="fa-solid fa-calendar-days text-amber-500/70 text-[11px]"></i> 賽事日曆</span>
-                    <span id="hudCalendarBadge" class="badge-calm-gold">96 場</span>
+                    <span class="kpi-title"><i class="fa-solid fa-calendar-days text-amber-500/70 text-[11px]"></i> 賽事排程</span>
+                    <span id="hudCalendarBadge" class="badge-calm-gold">96 場賽事</span>
                 </div>
                 <div class="my-auto py-0.5">
-                    <div id="hudCalendarStatus" class="kpi-num gold-gradient-text truncate leading-tight text-[17px] sm:text-[20px]">📅 本月有賽</div>
-                    <div id="hudCalendarSub" class="text-[10px] text-zinc-400 font-mono mt-0.5">全台賽事排程總覽</div>
+                    <div id="hudCalendarStatus" class="kpi-num gold-gradient-text truncate leading-tight text-[17px] sm:text-[20px]">本月 3 場大賽</div>
+                    <div id="hudCalendarSub" class="text-[10px] text-zinc-400 font-mono mt-0.5">全台賽事時程排程總覽</div>
                 </div>
-                <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
-                    <span class="text-zinc-400">☁️ GCS 水位</span>
-                    <span id="hudStorageQuotaSub" class="text-amber-400/90 font-bold font-mono">24%</span>
+                <div class="space-y-0.5 text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
+                    <div class="flex items-center justify-between text-amber-400/90 font-bold">
+                        <span class="truncate">⏳ 下場：全國分齡賽</span>
+                        <span class="shrink-0 ml-1">倒數 11 天</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[9px] text-zinc-400">
+                        <span class="truncate">📄 最新：115新北小學賽</span>
+                        <span class="text-zinc-500 shrink-0 ml-1">秩序冊</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- KPI 3: 即時熱搜 (訪客雷達 本日/本週 Top 1) -->
+            <!-- KPI 3: 即時熱搜 (訪客雷達) -->
             <div id="card-kpi-hot" class="war-room-kpi-card" onclick="openDrawer('drawer-radar')">
                 <div class="flex items-center justify-between">
                     <span class="kpi-title"><i class="fa-solid fa-fire text-amber-500/70 text-[11px]"></i> 訪客雷達</span>
@@ -1378,7 +1390,7 @@
                             <span class="text-[8px] font-extrabold text-amber-300 bg-amber-500/20 px-1 py-0.5 rounded leading-none shrink-0">本日</span>
                             <span id="hudHotTodayName" class="text-[11px] sm:text-[13px] font-bold text-white truncate">陳宥橋</span>
                         </div>
-                        <span id="hudHotTodayCount" class="text-[10px] font-mono font-bold text-amber-400 shrink-0 ml-1">3次</span>
+                        <span id="hudHotTodayCount" class="text-[10px] font-mono font-bold text-amber-400 shrink-0 ml-1">4次</span>
                     </div>
                     <!-- 本週 TOP 1 -->
                     <div class="flex items-center justify-between bg-zinc-900/50 border border-zinc-800 rounded-md px-1.5 py-1">
@@ -1386,11 +1398,11 @@
                             <span class="text-[8px] font-bold text-zinc-400 bg-zinc-800 px-1 py-0.5 rounded leading-none shrink-0">本週</span>
                             <span id="hudHotWeekName" class="text-[11px] sm:text-[13px] font-semibold text-zinc-300 truncate">鄭向恩</span>
                         </div>
-                        <span id="hudHotWeekCount" class="text-[10px] font-mono text-zinc-400 shrink-0 ml-1">95次</span>
+                        <span id="hudHotWeekCount" class="text-[10px] font-mono text-zinc-400 shrink-0 ml-1">65次</span>
                     </div>
                 </div>
                 <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
-                    <span id="hudHotTotalQueries" class="truncate">共 141 筆查詢</span>
+                    <span id="hudHotTotalQueries" class="truncate">共 156 筆實體串流</span>
                     <span class="text-amber-500/70 shrink-0 ml-1">詳情 →</span>
                 </div>
             </div>
@@ -1400,16 +1412,28 @@
                 <div class="flex items-center justify-between">
                     <span class="kpi-title"><i class="fa-solid fa-robot text-zinc-500 text-[11px]"></i> GCP 守護</span>
                     <span id="hudGcpBadge" class="badge-calm-green">
-                        <span class="neon-dot calm-green"></span>06:00 OK
+                        <span class="neon-dot calm-green"></span>節點健康
                     </span>
                 </div>
                 <div class="my-auto py-0.5">
                     <div id="hudGcpStatus" class="kpi-num leading-tight text-emerald-400 font-mono font-bold text-[18px] sm:text-[22px]">每日 06:00</div>
-                    <div class="text-[10px] text-zinc-400 font-mono mt-0.5">7 協會定時巡檢</div>
+                    <div class="text-[10px] text-zinc-400 font-mono mt-0.5">7 協會全自動定時巡檢</div>
                 </div>
-                <div class="flex items-center justify-between text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
-                    <span class="text-zinc-400">Cloud Run</span>
-                    <span class="text-emerald-400 font-mono font-bold">Exit(0)</span>
+                <div class="space-y-1 text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
+                    <div class="flex items-center justify-between">
+                        <span class="text-zinc-400">🌐 Cloud Run</span>
+                        <span class="text-emerald-400 font-bold">Exit(0) 零異常</span>
+                    </div>
+                    <!-- GCS 水位 + 微型發光進度條 -->
+                    <div>
+                        <div class="flex items-center justify-between text-[9px]">
+                            <span class="text-zinc-400">☁️ GCS 水位</span>
+                            <span id="hudStorageQuotaSub" class="text-amber-400/90 font-bold font-mono">0.2% / 5GB</span>
+                        </div>
+                        <div class="w-full bg-zinc-800/80 rounded-full h-[2.5px] mt-0.5 overflow-hidden">
+                            <div id="hudStorageQuotaBar" class="bg-gradient-to-r from-amber-400 to-yellow-500 h-full rounded-full transition-all duration-500" style="width: 2%;"></div>
+                        </div>
+                    </div>
                 </div>
                 <div id="gcpAlertTag" class="hidden mt-1 px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40 text-[9px] font-bold font-mono animate-pulse inline-block">CRITICAL 異常</div>
             </div>
@@ -2514,8 +2538,7 @@
             const count = (window.currentEvents && window.currentEvents.length) || 0;
             const calText = count > 0 ? `共 ${count} 場賽事` : `待 GCP 抓取 (0 場)`;
             if (countBadge) countBadge.textContent = calText;
-            if (countBadgeAcc) countBadgeAcc.textContent = calText;
-            if (hudCalBadge && count > 0) hudCalBadge.textContent = `${count} 場`;
+            if (hudCalBadge && count > 0) hudCalBadge.textContent = `${count} 場賽事`;
             if (hudCalStatus && count > 0) {
                 // 檢查本月是否有賽事
                 const now = new Date();
@@ -2523,7 +2546,7 @@
                     const d = parseEventDate(ev.date);
                     return d && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
                 });
-                hudCalStatus.textContent = thisMonthEvents.length > 0 ? `📅 本月 ${thisMonthEvents.length} 場` : `📅 96 場行事曆`;
+                hudCalStatus.textContent = thisMonthEvents.length > 0 ? `本月 ${thisMonthEvents.length} 場大賽` : `96 場賽事總覽`;
             }
             const dsBadge = document.getElementById('calendarDataSourceBadge');
             if (dsBadge) {
@@ -3196,10 +3219,16 @@
                     if (gcsPct) gcsPct.textContent = `${gcs.used_percentage}%`;
                     if (gcsBar) gcsBar.style.width = `${Math.min(100, Math.max(0.2, gcs.used_percentage))}%`;
                     if (gcsUsed) gcsUsed.textContent = `${gcs.used_mb} MB`;
-                    if (gcsFree) gcsFree.textContent = `${gcs.free_remaining_mb} MB`;
                     const hudStorageQuotaSub = document.getElementById('hudStorageQuotaSub');
-                    if (hudStorageQuotaSub) hudStorageQuotaSub.textContent = `${gcs.used_percentage}%`;
-                }
+                    if (hudStorageQuotaSub) {
+                        const pct = gcs.used_percentage !== undefined ? gcs.used_percentage : '0.2';
+                        hudStorageQuotaSub.textContent = `${pct}% / 5GB`;
+                    }
+                    const hudStorageQuotaBar = document.getElementById('hudStorageQuotaBar');
+                    if (hudStorageQuotaBar) {
+                        const pct = Math.max(2, Math.min(100, parseFloat(gcs.used_percentage) || 2));
+                        hudStorageQuotaBar.style.width = `${pct}%`;
+                    }
 
                 const ver = data.services && data.services.vercel_edge_deployment;
                 if (ver) {
