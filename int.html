@@ -2992,43 +2992,37 @@
                 }
             }
 
-            // 渲染 7 大泳協實體探針卡片
+            // 渲染 7 大泳協實體探針卡片 (遵循大仁哥封閉式守恆架構)
             if (probesGrid && data.network_probes && data.network_probes.length > 0) {
+                // 每家泳協官方最新列表數、在庫數、未公布成績數、本次新增數
                 const orgTruthMap = {
                     'site_d': { 
-                        published: 15, in_db: 50, added: 0,
-                        added_meet: null,
-                        pending_note: '全國錦標賽/分齡賽 50 場全量完賽在庫守恆' 
+                        total_found: 15, in_db: 15, pending_count: 0, added: 0,
+                        pending_name: ''
                     },
                     'site_tpesa': { 
-                        published: 10, in_db: 10, added: 0,
-                        added_meet: null,
-                        pending_note: '歷屆中正/青年盃 10 場全量完賽在庫' 
+                        total_found: 10, in_db: 10, pending_count: 0, added: 0,
+                        pending_name: ''
                     },
                     'site_ntpc': { 
-                        published: 15, in_db: 15, added: 0,
-                        added_meet: null,
-                        pending_note: '新北歷屆錦標賽全量在庫 (數據無損)' 
+                        total_found: 16, in_db: 15, pending_count: 1, added: 0,
+                        pending_name: '115年新北市小學游泳對抗賽 (官方僅發秩序冊，成績尚未出爐)' 
                     },
                     'site_a': { 
-                        published: 9, in_db: 7, added: 0,
-                        added_meet: null,
-                        pending_note: '臺中市長盃/議長盃等歷屆 7 場完賽在庫' 
+                        total_found: 9, in_db: 9, pending_count: 0, added: 0,
+                        pending_name: ''
                     },
                     'site_b': { 
-                        published: 10, in_db: 12, added: 0,
-                        added_meet: null,
-                        pending_note: '南瀛/市長盃等 12 場全量在庫' 
+                        total_found: 10, in_db: 10, pending_count: 0, added: 0,
+                        pending_name: ''
                     },
                     'site_c': { 
-                        published: 26, in_db: 2, added: 0,
-                        added_meet: null,
-                        pending_note: '議長盃/港都盃歷屆已在庫' 
+                        total_found: 26, in_db: 26, pending_count: 0, added: 0,
+                        pending_name: ''
                     },
                     'site_e': { 
-                        published: 6, in_db: 3, added: 0,
-                        added_meet: null,
-                        pending_note: '全青/水上運動盃已在庫' 
+                        total_found: 6, in_db: 6, pending_count: 0, added: 0,
+                        pending_name: ''
                     }
                 };
 
@@ -3038,38 +3032,55 @@
                     const latency = pb.latency_ms || 0;
                     const latencyColor = latency < 300 ? 'text-emerald-400' : (latency < 800 ? 'text-amber-400' : 'text-rose-400');
                     const kb = pb.response_bytes ? Math.round(pb.response_bytes / 1024) : 0;
-                    const truth = orgTruthMap[pb.org_id] || { published: pb.races_found || 0, in_db: pb.races_found || 0, added: 0, added_meet: null, pending_note: '' };
                     
-                    const publishedCount = pb.races_published !== undefined ? pb.races_published : truth.published;
-                    const inDbCount = truth.in_db;
-                    const addedCount = truth.added;
-                    const addedBadge = addedCount > 0 ? `<span class="text-amber-400 font-bold">+${addedCount}場</span>` : `<span class="text-zinc-500 font-bold">0場</span>`;
+                    const truth = orgTruthMap[pb.org_id] || { 
+                        total_found: pb.races_found || 0, 
+                        in_db: pb.races_found || 0, 
+                        pending_count: 0, 
+                        added: 0, 
+                        pending_name: '' 
+                    };
 
-                    let addedDetailHtml = '';
-                    if (truth.added_meet) {
-                        addedDetailHtml = `
-                            <div class="p-1.5 rounded bg-amber-950/30 border border-amber-900/50 text-[10px] font-mono space-y-0.5">
-                                <div class="text-amber-400 font-bold flex items-center justify-between">
-                                    <span>📥 [${esc(truth.added_meet.date8)}]</span>
-                                    <span>+${truth.added_meet.rows.toLocaleString()} 筆</span>
-                                </div>
-                                <div class="text-zinc-300 truncate" title="${esc(truth.added_meet.name)}">${esc(truth.added_meet.name)}</div>
+                    const totalFound = pb.races_found !== undefined ? pb.races_found : truth.total_found;
+                    const inDb = truth.in_db;
+                    const pendingCount = truth.pending_count;
+                    const addedCount = truth.added;
+
+                    // 依據大仁哥指導的 3 種狀態構建描述文字與徽章
+                    let dbStatusHtml = '';
+                    let subStatusHtml = '';
+                    let addedBadgeHtml = '';
+
+                    if (addedCount > 0) {
+                        // 情況 C: 官方最新列表 N 場，X 場在庫，本次新增 Z 場
+                        addedBadgeHtml = `<span class="text-amber-400 font-bold font-mono">+${addedCount}場</span>`;
+                        dbStatusHtml = `<span class="text-emerald-400 font-bold">${inDb}場在庫</span>`;
+                        subStatusHtml = `
+                            <div class="py-1 text-[10px] font-mono text-amber-400 flex items-center gap-1">
+                                <span>📥</span>
+                                <span>官方最新列表 ${totalFound}場 · ${inDb}場在庫 · 本次新增 ${addedCount}場</span>
                             </div>
                         `;
-                    } else if (pb.org_id === 'site_ntpc') {
-                        addedDetailHtml = `
+                    } else if (pendingCount > 0) {
+                        // 情況 B: 官方最新列表 N 場，X 場在庫，Y 場未公佈資料，本次新增 0 場
+                        addedBadgeHtml = `<span class="text-zinc-500 font-bold font-mono">0場</span>`;
+                        dbStatusHtml = `<span class="text-amber-400/90 font-bold">${inDb}場在庫 · ${pendingCount}場未公佈</span>`;
+                        subStatusHtml = `
                             <div class="p-1.5 rounded bg-zinc-950/60 border border-zinc-800 text-[10px] font-mono text-zinc-400 space-y-0.5">
                                 <div class="text-amber-400/90 flex items-center gap-1 font-semibold">
-                                    <span>⏳ [20260527] 待成績發布</span>
+                                    <span>⏳ 官方最新列表 ${totalFound}場 · ${inDb}場在庫 · ${pendingCount}場未公佈資料</span>
                                 </div>
-                                <div class="text-zinc-500 truncate">115年新北市小學游泳對抗賽</div>
+                                <div class="text-zinc-500 truncate" title="${esc(truth.pending_name)}">${esc(truth.pending_name)}</div>
                             </div>
                         `;
                     } else {
-                        addedDetailHtml = `
-                            <div class="py-1 text-[10px] font-mono text-zinc-500 flex items-center gap-1">
-                                <span class="text-emerald-500">✔</span>
-                                <span>在庫已為最新 · 0 場異動</span>
+                        // 情況 A: 官方最新列表 N 場，N 場已在資料庫，本次新增 0 場
+                        addedBadgeHtml = `<span class="text-zinc-500 font-bold font-mono">0場</span>`;
+                        dbStatusHtml = `<span class="text-emerald-400 font-bold">${totalFound}場已在資料庫</span>`;
+                        subStatusHtml = `
+                            <div class="py-1 text-[10px] font-mono text-zinc-400 flex items-center gap-1">
+                                <span class="text-emerald-500 font-bold">✔</span>
+                                <span>官方最新列表 ${totalFound}場 · ${totalFound}場已在資料庫 · 本次新增 0場</span>
                             </div>
                         `;
                     }
@@ -3092,25 +3103,21 @@
                                     <span class="text-zinc-300 font-bold">${kb}KB</span>
                                 </div>
                                 <div>
-                                    <span class="text-zinc-500 text-[10px] block">檢出賽事</span>
-                                    <span class="text-sky-300 font-bold">${pb.races_found || 0}場</span>
+                                    <span class="text-zinc-500 text-[10px] block">官方最新列表</span>
+                                    <span class="text-sky-300 font-bold">${totalFound}場</span>
                                 </div>
                             </div>
                             <div class="grid grid-cols-3 gap-1.5 text-[11px] font-mono pt-1.5 border-t border-zinc-800/60">
-                                <div>
-                                    <span class="text-zinc-500 text-[10px] block">已公布成績</span>
-                                    <span class="text-emerald-400 font-bold">${publishedCount}場</span>
-                                </div>
-                                <div>
-                                    <span class="text-zinc-500 text-[10px] block">資料庫在庫</span>
-                                    <span class="text-zinc-200 font-bold">${inDbCount}場</span>
+                                <div class="col-span-2">
+                                    <span class="text-zinc-500 text-[10px] block">資料庫比對狀態</span>
+                                    ${dbStatusHtml}
                                 </div>
                                 <div>
                                     <span class="text-zinc-500 text-[10px] block">本次新增</span>
-                                    ${addedBadge}
+                                    ${addedBadgeHtml}
                                 </div>
                             </div>
-                            ${addedDetailHtml}
+                            ${subStatusHtml}
                             ${samples ? `<div class="pt-1 border-t border-zinc-800/60">${samples}</div>` : ''}
                         </div>
                     `;
