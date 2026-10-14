@@ -2581,13 +2581,15 @@
                     }) || futureEvents[0];
 
                     const diffMs = targetMeet.range.startDate.getTime() - todayMidnight.getTime();
-                    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-                    const meetShortName = getEventShortName(targetMeet.ev.name);
+                    let meetShortName = targetMeet.ev.name.replace(/^(?:11\d|202\d)\s*年?\s*/, '').replace(/^(?:中華民國|臺灣|台灣)/, '').trim();
+                    if (meetShortName.length > 8) {
+                        meetShortName = getEventShortName(targetMeet.ev.name);
+                    }
 
                     const nextNameEl = document.getElementById('hudNextMeetName');
                     const nextDaysEl = document.getElementById('hudNextMeetDays');
                     if (nextNameEl) {
-                        nextNameEl.textContent = `⏳ 下場：${meetShortName}`;
+                        nextNameEl.innerHTML = `<span class="text-amber-500/80">⏳</span> ${meetShortName}`;
                     }
                     if (nextDaysEl) {
                         if (diffDays <= 0) {
@@ -2896,13 +2898,13 @@
                         badge.innerHTML = '<span class="neon-dot red"></span>ALERT';
                     }
                 } else {
-                    hudGcp.innerText = '06:00 OK';
+                    hudGcp.innerText = '每日 06:00';
                     if (gcpCard) gcpCard.classList.remove('kpi-alert');
                     if (alertTag) alertTag.classList.add('hidden');
                     if (normalHint) normalHint.classList.remove('hidden');
                     if (badge) {
                         badge.className = 'badge-calm-green';
-                        badge.innerHTML = '<span class="neon-dot calm-green"></span>06:00 OK';
+                        badge.innerHTML = '<span class="neon-dot calm-green"></span>節點健康';
                     }
                 }
             }
