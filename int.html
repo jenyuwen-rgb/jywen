@@ -867,11 +867,13 @@
         }
 
         .war-room-kpi-card {
-            background: rgba(18, 18, 22, 0.85);
+            background: linear-gradient(160deg, #1A1A20 0%, #101014 100%) !important;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 0.5px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px;
+            border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+            border-top: 1.5px solid rgba(255, 255, 255, 0.42) !important;
+            box-shadow: 0 14px 30px -4px rgba(0, 0, 0, 0.92), inset 0 1px 1px 0 rgba(255, 255, 255, 0.32) !important;
+            border-radius: 18px;
             padding: 12px 14px;
             cursor: pointer;
             position: relative;
@@ -880,9 +882,11 @@
             user-select: none;
         }
         .war-room-kpi-card:hover {
-            border-color: rgba(243, 208, 120, 0.5);
-            background: rgba(24, 24, 30, 0.95);
+            border-color: rgba(243, 208, 120, 0.6) !important;
+            border-top-color: rgba(255, 255, 255, 0.65) !important;
+            background: linear-gradient(160deg, #22222A 0%, #15151B 100%) !important;
             transform: translateY(-2px);
+            box-shadow: 0 18px 36px -4px rgba(0, 0, 0, 0.95), 0 0 20px rgba(243, 208, 120, 0.2), inset 0 1px 1px 0 rgba(255, 255, 255, 0.45) !important;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
         }
         .war-room-kpi-card:active {
@@ -1032,7 +1036,7 @@
             .tab-pane {
                 display: none !important;
             }
-            /* 讓 4 方塊在手機端為純粹黃金比例正方形 (1:1 Aspect Ratio) */
+            /* 讓 4 方塊在手機端為純粹黃金比例正方形 (1:1 Aspect Ratio) 與 Apple 3D 浮雕 */
             .war-room-kpi-card {
                 aspect-ratio: 1 / 1 !important;
                 display: flex !important;
@@ -1040,6 +1044,10 @@
                 justify-content: space-between !important;
                 padding: 12px 11px !important;
                 border-radius: 18px !important;
+                background: linear-gradient(160deg, #1C1C24 0%, #111116 100%) !important;
+                border: 1.5px solid rgba(255, 255, 255, 0.24) !important;
+                border-top: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+                box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.95), inset 0 1px 1px 0 rgba(255, 255, 255, 0.35) !important;
             }
             .kpi-num {
                 font-size: 19px !important;
@@ -1132,14 +1140,16 @@
         }
     
 
-        /* ─── Alert Driven 戰情室警報驅動與沉靜低彩度樣式 ─── */
+        /* ─── Alert Driven 戰情室警報驅動與 3D 浮雕立體美學 ─── */
         .war-room-kpi-card {
-            background: rgba(14, 14, 18, 0.75) !important;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 0.5px solid rgba(255, 255, 255, 0.08) !important;
-            border-radius: 14px;
-            padding: 10px 12px;
+            background: linear-gradient(160deg, #1C1C24 0%, #111116 100%) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+            border-top: 1.5px solid rgba(255, 255, 255, 0.42) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 14px 30px -4px rgba(0, 0, 0, 0.92), inset 0 1px 1px 0 rgba(255, 255, 255, 0.32) !important;
+            padding: 11px 13px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
@@ -1147,9 +1157,11 @@
             user-select: none;
         }
         .war-room-kpi-card:hover {
-            border-color: rgba(255, 255, 255, 0.2) !important;
-            background: rgba(20, 20, 26, 0.9) !important;
-            transform: translateY(-1px);
+            border-color: rgba(243, 208, 120, 0.6) !important;
+            border-top-color: rgba(255, 255, 255, 0.7) !important;
+            background: linear-gradient(160deg, #22222A 0%, #15151B 100%) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 18px 36px -4px rgba(0, 0, 0, 0.95), 0 0 20px rgba(243, 208, 120, 0.25), inset 0 1px 1px 0 rgba(255, 255, 255, 0.45) !important;
         }
         
         .kpi-title {
@@ -1361,16 +1373,16 @@
                     <span id="hudCalendarBadge" class="badge-calm-gold">96 場賽事</span>
                 </div>
                 <div class="my-auto py-0.5">
-                    <div id="hudCalendarStatus" class="kpi-num gold-gradient-text truncate leading-tight text-[17px] sm:text-[20px]">本月 3 場大賽</div>
+                    <div id="hudCalendarStatus" class="kpi-num gold-gradient-text truncate leading-tight text-[17px] sm:text-[20px]">本月 9 場大賽</div>
                     <div id="hudCalendarSub" class="text-[10px] text-zinc-400 font-mono mt-0.5">全台賽事時程排程總覽</div>
                 </div>
                 <div class="space-y-0.5 text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
-                    <div class="flex items-center justify-between text-amber-400/90 font-bold">
-                        <span class="truncate">⏳ 下場：全國分齡賽</span>
-                        <span class="shrink-0 ml-1">倒數 11 天</span>
+                    <div class="flex items-center justify-between text-amber-400 font-bold">
+                        <span id="hudNextMeetName" class="truncate">⏳ 下場：全國北區B錦標賽</span>
+                        <span id="hudNextMeetDays" class="shrink-0 ml-1 text-emerald-400 font-extrabold">倒數 3 天 (這週末)</span>
                     </div>
                     <div class="flex items-center justify-between text-[9px] text-zinc-400">
-                        <span class="truncate">📄 最新：115新北小學賽</span>
+                        <span id="hudRecentMeetName" class="truncate text-zinc-400">📄 最新：115新北小學賽</span>
                         <span class="text-zinc-500 shrink-0 ml-1">秩序冊</span>
                     </div>
                 </div>
@@ -2539,14 +2551,57 @@
             const calText = count > 0 ? `共 ${count} 場賽事` : `待 GCP 抓取 (0 場)`;
             if (countBadge) countBadge.textContent = calText;
             if (hudCalBadge && count > 0) hudCalBadge.textContent = `${count} 場賽事`;
-            if (hudCalStatus && count > 0) {
-                // 檢查本月是否有賽事
+            if (count > 0) {
                 const now = new Date();
+                const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+
+                // 1. 動態計算本月進行中或即將開賽賽事
                 const thisMonthEvents = window.currentEvents.filter(ev => {
-                    const d = parseEventDate(ev.date);
-                    return d && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+                    const r = parseEventDateRange(ev.date);
+                    if (!r) return false;
+                    return (r.startDate.getFullYear() === now.getFullYear() && r.startDate.getMonth() === now.getMonth()) ||
+                           (r.endDate.getFullYear() === now.getFullYear() && r.endDate.getMonth() === now.getMonth());
                 });
-                hudCalStatus.textContent = thisMonthEvents.length > 0 ? `本月 ${thisMonthEvents.length} 場大賽` : `96 場賽事總覽`;
+                if (hudCalStatus) {
+                    hudCalStatus.textContent = thisMonthEvents.length > 0 ? `本月 ${thisMonthEvents.length} 場大賽` : `96 場賽事總覽`;
+                }
+
+                // 2. 動態挑選最近一場即將開賽之國內焦點大賽
+                const futureEvents = window.currentEvents.map(ev => ({
+                    ev,
+                    range: parseEventDateRange(ev.date)
+                })).filter(item => item.range && item.range.endDate >= todayMidnight)
+                  .sort((a, b) => a.range.startDate - b.range.startDate);
+
+                if (futureEvents.length > 0) {
+                    // 優先選取國內焦點賽事（若首場為海外站/世界盃且次場為國內，優先呈現國內選手最關切者）
+                    let targetMeet = futureEvents.find(item => {
+                        const n = item.ev.name || "";
+                        return !n.includes("世界盃") && !n.includes("跳水");
+                    }) || futureEvents[0];
+
+                    const diffMs = targetMeet.range.startDate.getTime() - todayMidnight.getTime();
+                    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+                    const meetShortName = getEventShortName(targetMeet.ev.name);
+
+                    const nextNameEl = document.getElementById('hudNextMeetName');
+                    const nextDaysEl = document.getElementById('hudNextMeetDays');
+                    if (nextNameEl) {
+                        nextNameEl.textContent = `⏳ 下場：${meetShortName}`;
+                    }
+                    if (nextDaysEl) {
+                        if (diffDays <= 0) {
+                            nextDaysEl.textContent = `🔥 進行中`;
+                            nextDaysEl.className = "shrink-0 ml-1 text-red-400 font-extrabold animate-pulse";
+                        } else if (diffDays <= 3) {
+                            nextDaysEl.textContent = `倒數 ${diffDays} 天 (這週末)`;
+                            nextDaysEl.className = "shrink-0 ml-1 text-emerald-400 font-extrabold";
+                        } else {
+                            nextDaysEl.textContent = `倒數 ${diffDays} 天`;
+                            nextDaysEl.className = "shrink-0 ml-1 text-amber-400 font-bold";
+                        }
+                    }
+                }
             }
             const dsBadge = document.getElementById('calendarDataSourceBadge');
             if (dsBadge) {
