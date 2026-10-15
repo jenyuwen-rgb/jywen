@@ -1,2 +1,5 @@
 .vercel
 swim_results_birthday.db
+static/swim_results_birthday.db
+*.db
+static/*.db
