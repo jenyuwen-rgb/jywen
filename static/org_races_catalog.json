@@ -586,8 +586,8 @@
         {
           "value": "tainan_55",
           "text": "114年全國E世代青少年游泳錦標賽",
-          "in_db": false,
-          "score_count": 0,
+          "in_db": true,
+          "score_count": 1845,
           "in_progress": false
         },
         {
