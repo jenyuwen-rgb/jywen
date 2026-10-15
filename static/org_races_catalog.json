@@ -1,229 +1,245 @@
 {
-  "existing_names": [
-    "115年全國總統盃暨美津濃游泳錦標賽",
-    "85年全國分齡游泳錦標賽.高雄市",
-    "世界錦標賽.澳洲伯斯",
-    "中華泳協排名賽",
-    "亞洲水上運動錦標賽(游泳項目)",
-    "亞洲游泳錦標賽 中國佛山",
-    "亞洲運動會",
-    "亞洲運動會(銅牌)泰國.曼谷",
-    "亞運會",
-    "全中運",
-    "全國E世代青少年游泳錦標賽",
-    "全國中區(1)分齡游泳錦標賽",
-    "全國中區(1)游泳錦標賽",
-    "全國中區(2)分齡游泳錦標賽",
-    "全國中區(2)游泳錦標賽",
-    "全國中區(3)分齡游泳錦標賽",
-    "全國中區(4)分齡游泳錦標賽",
-    "全國中區(4)游泳錦標賽",
-    "全國中正盃游泳錦標賽",
-    "全國冬季短水道分齡游泳錦標賽",
-    "全國冬季短水道游泳錦標賽",
-    "全國分齡游泳錦標賽",
-    "全國北區(1)分齡游泳錦標賽",
-    "全國北區(2)分齡游泳錦標賽",
-    "全國北區(3)分齡游泳錦標賽",
-    "全國北區(4)分齡游泳錦標賽",
-    "全國北區A(1)分齡游泳錦標賽",
-    "全國北區A(1)游泳錦標賽",
-    "全國北區A(2)游泳錦標賽",
-    "全國北區A(3)分齡游泳錦標賽",
-    "全國北區A(4)游泳錦標賽",
-    "全國北區B(1)分齡游泳錦標賽",
-    "全國北區B(1)游泳錦標賽",
-    "全國北區B(2)游泳錦標賽",
-    "全國北區B(3)分齡游泳錦標賽",
-    "全國北區B(4)游泳錦標賽",
-    "全國南區(1)分齡游泳錦標賽",
-    "全國南區(1)游泳錦標賽",
-    "全國南區(2)分齡游泳錦標賽",
-    "全國南區(2)游泳錦標賽",
-    "全國南區(3)分齡游泳錦標賽",
-    "全國南區(4)分齡游泳錦標賽",
-    "全國南區(4)游泳錦標賽",
-    "全國大專校院運動會",
-    "全國小學分級游泳錦標賽",
-    "全國小學游泳錦標賽",
-    "全國春季分齡游泳錦標賽",
-    "全國春季游泳錦標賽",
-    "全國總統盃分齡游泳錦標賽",
-    "全國總統盃暨美津濃分齡游泳錦標賽",
-    "全國總統盃暨美津濃游泳錦標賽",
-    "全國美津濃盃分齡游泳錦標賽",
-    "全國運動會",
-    "全國運動會台南市游泳代表隊選拔賽",
-    "全國青少年游泳錦標賽",
-    "全國青年盃游泳錦標賽",
-    "全大運",
-    "台中市市長盃水上運動競賽(游泳項目)",
-    "台中市市長盃游泳錦標賽",
-    "台中市年市長盃游泳錦標賽",
-    "台中市議長盃游泳錦標賽",
-    "台北世大運",
-    "台南市中小學游泳錦標賽",
-    "台南市中運游泳錦標賽",
-    "台南市主委盃游泳錦標賽",
-    "台南市全國運動會游泳選拔賽",
-    "台南市全國運動會選拔賽",
-    "台南市國民小學游泳分級賽",
-    "台南市委員盃暨康黃金慈善基金會游泳錦標賽",
-    "台南市委員盃游泳錦標賽",
-    "台南市市長盃短水道分級游泳錦標賽",
-    "台南市市長盃短水道游泳錦標賽",
-    "台南市短水道分級游泳錦標賽",
-    "奧運會.美國亞特蘭大",
-    "德國萊茵魯爾世大運",
-    "日本公開賽",
-    "東京奧林匹克運動會",
-    "模擬東京奧運對抗賽",
-    "水都盃全國青少年游泳錦標賽",
-    "港都盃全國分級游泳錦標賽",
-    "理事長盃冬季短水道全國分齡游泳錦標賽",
-    "美津濃盃全國分齡游泳錦標賽",
-    "西班牙公開賽",
-    "議長盃全國分齡游泳錦標賽",
-    "雲林全運會",
-    "香港公開賽",
-    "香港東亞運動會"
-  ],
   "site_catalog": {
     "site_d": {
       "name": "中華民國游泳協會 (CTSA)",
       "url": "https://ctsa.utk.com.tw/CTSA/public/race/game_data.aspx",
       "races": [
         {
-          "value": "ctsa_174",
-          "text": "115年全國總統盃暨美津濃游泳錦標賽",
-          "in_db": true,
-          "score_count": 8196
-        },
-        {
-          "value": "ctsa_170",
-          "text": "115年全國春季分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 4242
-        },
-        {
-          "value": "ctsa_171",
-          "text": "115年全國小學游泳錦標賽",
-          "in_db": true,
-          "score_count": 5187
-        },
-        {
-          "value": "ctsa_172",
-          "text": "115年全國青年盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 8506
-        },
-        {
-          "value": "ctsa_173",
-          "text": "115年全國中正盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 5187
-        },
-        {
           "value": "ctsa_166",
           "text": "115年全國中區(1)游泳錦標賽",
-          "in_db": true,
-          "score_count": 5951
+          "in_db": true
         },
         {
           "value": "ctsa_167",
           "text": "115年全國南區(1)游泳錦標賽",
-          "in_db": true,
-          "score_count": 3804
+          "in_db": true
         },
         {
           "value": "ctsa_168",
           "text": "115年全國北區A(1)游泳錦標賽",
-          "in_db": true,
-          "score_count": 6263
+          "in_db": true
         },
         {
           "value": "ctsa_169",
           "text": "115年全國北區B(1)游泳錦標賽",
-          "in_db": true,
-          "score_count": 5475
+          "in_db": true
+        },
+        {
+          "value": "ctsa_170",
+          "text": "115年全國春季游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_171",
+          "text": "115年全國小學游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_172",
+          "text": "115年全國青年盃游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_173",
+          "text": "115年全國中正盃游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "ctsa_174",
+          "text": "115年全國總統盃暨美津濃游泳錦標賽",
+          "in_db": true
         },
         {
           "value": "ctsa_175",
           "text": "115年全國北區A(2)游泳錦標賽",
-          "in_db": true,
-          "score_count": 7307
+          "in_db": true
         },
         {
           "value": "ctsa_176",
           "text": "115年全國北區B(2)游泳錦標賽",
-          "in_db": false,
-          "score_count": 0
+          "in_db": false
         },
         {
           "value": "ctsa_177",
           "text": "115年全國中區(2)游泳錦標賽",
-          "in_db": true,
-          "score_count": 5008
+          "in_db": true
         },
         {
           "value": "ctsa_178",
           "text": "115年全國南區(2)游泳錦標賽",
-          "in_db": false,
-          "score_count": 0
+          "in_db": false
+        },
+        {
+          "value": "ctsa_179",
+          "text": "115年全國冬季短水道游泳錦標賽",
+          "in_db": false
+        },
+        {
+          "value": "ctsa_180",
+          "text": "115年中華泳協排名賽",
+          "in_db": false
         }
       ]
     },
     "site_tpesa": {
       "name": "臺北市體育總會游泳協會 (TPESA)",
-      "url": "https://www.tpesa.org.tw/",
+      "url": "http://www.tpesa.org.tw/new/",
       "races": [
         {
           "value": "tpesa_115_fall",
           "text": "115年臺北市中正盃分齡游泳賽",
-          "in_db": false,
-          "score_count": 0
+          "in_db": false
         },
         {
           "value": "tpesa_115_youth",
           "text": "115年臺北市青年盃分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 3721
+          "in_db": true
         },
         {
           "value": "tpesa_114_fall",
           "text": "114年臺北市中正盃分齡游泳賽",
-          "in_db": true,
-          "score_count": 3443
+          "in_db": true
         },
         {
           "value": "tpesa_114_youth",
           "text": "114年臺北市青年盃分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 3672
+          "in_db": true
         },
         {
           "value": "tpesa_113_fall",
           "text": "113年臺北市中正盃分齡游泳賽",
-          "in_db": true,
-          "score_count": 3692
+          "in_db": true
         },
         {
           "value": "tpesa_113_youth",
           "text": "113年臺北市青年盃分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 3435
+          "in_db": true
         },
         {
           "value": "tpesa_112_fall",
           "text": "112年臺北市中正盃分齡游泳賽",
-          "in_db": true,
-          "score_count": 3629
+          "in_db": true
         },
         {
           "value": "tpesa_112_youth",
           "text": "112年臺北市青年盃分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 3254
+          "in_db": true
+        },
+        {
+          "value": "tpesa_111_fall",
+          "text": "111年臺北市中正盃分齡游泳賽",
+          "in_db": false
+        },
+        {
+          "value": "tpesa_111_youth",
+          "text": "111年臺北市青年盃分齡游泳錦標賽",
+          "in_db": false
+        },
+        {
+          "value": "tpesa_110_fall",
+          "text": "110年臺北市中正盃分齡游泳賽",
+          "in_db": false
+        },
+        {
+          "value": "tpesa_110_youth",
+          "text": "110年臺北市青年盃分齡游泳錦標賽",
+          "in_db": false
+        },
+        {
+          "value": "tpesa_109_fall",
+          "text": "109年臺北市中正盃分齡游泳賽",
+          "in_db": false
+        },
+        {
+          "value": "tpesa_109_youth",
+          "text": "109年臺北市青年盃分齡游泳錦標賽",
+          "in_db": false
+        }
+      ]
+    },
+    "site_ntpc": {
+      "name": "新北市體育總會游泳委員會 (NTPC)",
+      "url": "https://ntpc-sports.com/",
+      "races": [
+        {
+          "value": "ntpc_115_elem_vs",
+          "text": "115年新北市小學游泳對抗賽",
+          "in_db": false
+        },
+        {
+          "value": "ntpc_114_elem_vs",
+          "text": "114年新北市小學游泳對抗賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_113_elem_vs",
+          "text": "113年新北市小學游泳對抗賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_115_base",
+          "text": "115年新北市基層訓練站區域對抗賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_114_base",
+          "text": "114年新北市基層訓練站區域對抗賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_113_base",
+          "text": "113年新北市基層訓練站區域對抗賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_115_middle",
+          "text": "115年新北市中等學校運動會游泳比賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_114_middle",
+          "text": "114年新北市中等學校運動會游泳比賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_113_middle",
+          "text": "113年新北市中等學校運動會游泳比賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_112_middle",
+          "text": "112年新北市中等學校運動會游泳比賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_111_middle",
+          "text": "111年新北市中等學校運動會游泳比賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_115_elem",
+          "text": "115年新北市小學運動會游泳比賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_114_elem",
+          "text": "114年新北市小學運動會游泳比賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_113_elem",
+          "text": "113年新北市小學運動會游泳比賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_112_elem",
+          "text": "112年新北市小學運動會游泳比賽",
+          "in_db": true
+        },
+        {
+          "value": "ntpc_111_elem",
+          "text": "111年新北市小學運動會游泳比賽",
+          "in_db": true
         }
       ]
     },
@@ -234,116 +250,97 @@
         {
           "value": "swim8_27",
           "text": "115年臺中市議長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2424
+          "in_db": true
         },
         {
           "value": "swim8_26",
           "text": "115年臺中市市長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 3349
+          "in_db": true
         },
         {
           "value": "swim8_25",
           "text": "114年臺中市議長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2925
+          "in_db": true
         },
         {
           "value": "swim8_24",
           "text": "臺中市114年市長盃水上運動競賽(游泳項目)",
-          "in_db": true,
-          "score_count": 3023
+          "in_db": true
         },
         {
           "value": "swim8_23",
           "text": "113年臺中市議長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2930
+          "in_db": true
         },
         {
           "value": "swim8_22",
           "text": "113年臺中市市長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2913
+          "in_db": true
         },
         {
           "value": "swim8_21",
           "text": "112年臺中市議長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2558
+          "in_db": true
         },
         {
           "value": "swim8_20",
           "text": "112年臺中市市長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2547
+          "in_db": true
         },
         {
           "value": "swim8_18",
           "text": "111年臺中市議長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2037
+          "in_db": true
         },
         {
           "value": "swim8_14",
           "text": "109年臺中市議長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2535
+          "in_db": true
         },
         {
           "value": "swim8_13",
           "text": "109年臺中市市長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2548
+          "in_db": true
         },
         {
           "value": "swim8_11",
           "text": "108年臺中市議長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2642
+          "in_db": true
         },
         {
           "value": "swim8_10",
           "text": "108年臺中市市長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2456
+          "in_db": true
         },
         {
           "value": "swim8_8",
           "text": "107年臺中市議長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2249
+          "in_db": true
         },
         {
           "value": "swim8_7",
           "text": "107年臺中市市長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2302
+          "in_db": true
         },
         {
           "value": "swim8_6",
           "text": "106年臺中市議長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 1969
+          "in_db": true
         },
         {
           "value": "swim8_5",
           "text": "106年臺中市市長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2106
+          "in_db": true
         },
         {
           "value": "swim8_4",
           "text": "105年臺中市議長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 1971
+          "in_db": true
         },
         {
           "value": "swim8_2",
           "text": "105臺中市年市長盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 2048
+          "in_db": true
         }
       ]
     },
@@ -354,62 +351,47 @@
         {
           "value": "tainan_62",
           "text": "115年臺南市中小學游泳錦標賽",
-          "in_db": true,
-          "score_count": 1523
+          "in_db": true
         },
         {
           "value": "tainan_61",
           "text": "115年臺南市主委盃游泳錦標賽",
-          "in_db": true,
-          "score_count": 1925
+          "in_db": true
         },
         {
           "value": "tainan_60",
           "text": "115年全國E世代青少年游泳錦標賽",
-          "in_db": true,
-          "score_count": 1825
+          "in_db": true
         },
         {
           "value": "tainan_59",
           "text": "114年臺南市市長盃短水道游泳錦標賽",
-          "in_db": true,
-          "score_count": 2181
+          "in_db": true
         },
         {
           "value": "tainan_58",
           "text": "114年臺南市中小學游泳錦標賽",
-          "in_db": true,
-          "score_count": 1748
+          "in_db": true
         },
         {
           "value": "tainan_57",
           "text": "114年臺南市主委盃游泳錦標賽",
-          "in_db": false,
-          "score_count": 0
+          "in_db": true
         },
         {
           "value": "tainan_56",
-          "text": "114年第23屆全國E世代青少年游泳錦標賽",
-          "in_db": false,
-          "score_count": 0
+          "text": "114年全國E世代青少年游泳錦標賽",
+          "in_db": true
         },
         {
           "value": "tainan_55",
-          "text": "113年臺南市市長盃短水道分齡游泳錦標賽",
-          "in_db": false,
-          "score_count": 0
+          "text": "113年臺南市市長盃短水道游泳錦標賽",
+          "in_db": true
         },
         {
           "value": "tainan_54",
           "text": "113年臺南市中小學游泳錦標賽",
-          "in_db": true,
-          "score_count": 1908
-        },
-        {
-          "value": "tainan_53",
-          "text": "113年臺南市主委盃游泳錦標賽",
-          "in_db": false,
-          "score_count": 0
+          "in_db": true
         }
       ]
     },
@@ -418,64 +400,84 @@
       "url": "http://kcc.nowforyou.com/register/gameeventqry.asp",
       "races": [
         {
-          "value": "kcc_1155",
+          "value": "kcc_115_sp",
           "text": "115年議長盃全國分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 3937
+          "in_db": false
         },
         {
-          "value": "kcc_1151",
+          "value": "kcc_115_mizuno",
           "text": "115年全國美津濃盃分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 5689
+          "in_db": false
         },
         {
-          "value": "kcc_1145",
+          "value": "kcc_114_sp",
           "text": "114年議長盃全國分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 1556
+          "in_db": true
         },
         {
-          "value": "kcc_1141",
+          "value": "kcc_114_mizuno",
           "text": "114年全國美津濃盃分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 5464
+          "in_db": true
         },
         {
-          "value": "kcc_1135",
+          "value": "kcc_113_sp",
           "text": "113年議長盃全國分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 1485
+          "in_db": true
         },
         {
-          "value": "kcc_1133",
-          "text": "2024第六屆港都盃全國分級游泳錦標賽",
-          "in_db": true,
-          "score_count": 1442
+          "value": "kcc_2024_port",
+          "text": "2024 第六屆港都盃全國分級游泳錦標賽",
+          "in_db": true
         },
         {
-          "value": "kcc_1131",
+          "value": "kcc_113_mizuno",
           "text": "113年全國美津濃盃分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 2719
+          "in_db": true
         },
         {
-          "value": "kcc_1122",
+          "value": "kcc_112_sp",
           "text": "112年議長盃全國分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 1426
+          "in_db": true
         },
         {
-          "value": "kcc_1121",
+          "value": "kcc_112_mizuno",
           "text": "112年美津濃盃全國分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 1246
+          "in_db": true
         },
         {
-          "value": "kcc_1111",
+          "value": "kcc_111_mizuno",
           "text": "111年全國美津濃盃分齡游泳錦標賽",
-          "in_db": true,
-          "score_count": 2003
+          "in_db": true
+        },
+        {
+          "value": "kcc_110_sp",
+          "text": "110年議長盃全國分齡游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "kcc_110_mizuno",
+          "text": "110年全國美津濃盃分齡游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "kcc_4_winter",
+          "text": "第四屆理事長盃冬季短水道全國分齡游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "kcc_109_sp",
+          "text": "109年議長盃全國分齡游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "kcc_2020_port",
+          "text": "2020 第五屆港都盃全國分級游泳錦標賽",
+          "in_db": true
+        },
+        {
+          "value": "kcc_3_winter",
+          "text": "第三屆理事長盃冬季短水道全國分齡游泳錦標賽",
+          "in_db": true
         }
       ]
     },
@@ -486,190 +488,47 @@
         {
           "value": "kcsat_27",
           "text": "2026全國青少年游泳錦標賽",
-          "in_db": true,
-          "score_count": 5815
+          "in_db": true
         },
         {
           "value": "kcsat_26",
           "text": "2025全國青少年游泳錦標賽",
-          "in_db": true,
-          "score_count": 5837
+          "in_db": true
         },
         {
           "value": "kcsat_25",
           "text": "2024全國青少年游泳錦標賽",
-          "in_db": true,
-          "score_count": 3498
+          "in_db": true
         },
         {
           "value": "kcsat_21",
           "text": "2023全國青少年游泳錦標賽",
-          "in_db": true,
-          "score_count": 4753
+          "in_db": true
         },
         {
           "value": "kcsat_18",
           "text": "2022全國青少年游泳錦標賽",
-          "in_db": true,
-          "score_count": 1950
+          "in_db": true
         },
         {
           "value": "kcsat_17",
           "text": "2021全國青少年游泳錦標賽",
-          "in_db": true,
-          "score_count": 3402
+          "in_db": true
         },
         {
           "value": "kcsat_16",
           "text": "2020全國青少年游泳錦標賽",
-          "in_db": true,
-          "score_count": 3002
+          "in_db": true
         },
         {
           "value": "kcsat_14",
           "text": "2019全國青少年游泳錦標賽",
-          "in_db": true,
-          "score_count": 4847
+          "in_db": true
         },
         {
           "value": "kcsat_13",
           "text": "2018全國青少年游泳錦標賽",
-          "in_db": true,
-          "score_count": 3749
-        }
-      ]
-    },
-    "site_ntpc": {
-      "name": "新北市游泳委員會 (NTPC)",
-      "url": "https://ntpc-sports.com/twps/",
-      "races": [
-        {
-          "value": "ntpc_ceswim115",
-          "text": "115年新北市小學游泳對抗賽",
-          "in_db": false,
-          "date": "2026-03-20",
-          "end_date": "2026-03-22",
-          "score_count": 0
-        },
-        {
-          "value": "ntpc_ceswim114",
-          "text": "114年新北市小學游泳對抗賽",
-          "in_db": true,
-          "date": "2025-03-21",
-          "end_date": "2025-03-23",
-          "score_count": 377
-        },
-        {
-          "value": "ntpc_ceswim113",
-          "text": "113年新北市小學游泳對抗賽",
-          "in_db": true,
-          "date": "2024-03-22",
-          "end_date": "2024-03-24",
-          "score_count": 437
-        },
-        {
-          "value": "ntpc_cmswim115",
-          "text": "115年新北市基層訓練站區域對抗賽",
-          "in_db": true,
-          "date": "2026-09-18",
-          "end_date": "2026-09-20",
-          "score_count": 444
-        },
-        {
-          "value": "ntpc_cmswim114",
-          "text": "114年新北市基層訓練站區域對抗賽",
-          "in_db": true,
-          "date": "2025-09-19",
-          "end_date": "2025-09-21",
-          "score_count": 432
-        },
-        {
-          "value": "ntpc_cmswim113",
-          "text": "113年新北市基層訓練站區域對抗賽",
-          "in_db": true,
-          "date": "2024-09-20",
-          "end_date": "2024-09-22",
-          "score_count": 433
-        },
-        {
-          "value": "ntpc_cenm115",
-          "text": "115年新北市中等學校運動會游泳比賽",
-          "in_db": true,
-          "date": "2026-01-08",
-          "end_date": "2026-01-11",
-          "score_count": 908
-        },
-        {
-          "value": "ntpc_cenm114",
-          "text": "114年新北市中等學校運動會游泳比賽",
-          "in_db": true,
-          "date": "2025-01-09",
-          "end_date": "2025-01-12",
-          "score_count": 816
-        },
-        {
-          "value": "ntpc_cenm113",
-          "text": "113年新北市中等學校運動會游泳比賽",
-          "in_db": true,
-          "date": "2024-01-04",
-          "end_date": "2024-01-07",
-          "score_count": 663
-        },
-        {
-          "value": "ntpc_cenm112",
-          "text": "112年新北市中等學校運動會游泳比賽",
-          "in_db": true,
-          "date": "2023-01-05",
-          "end_date": "2023-01-08",
-          "score_count": 607
-        },
-        {
-          "value": "ntpc_cenm111",
-          "text": "111年新北市中等學校運動會游泳比賽",
-          "in_db": true,
-          "date": "2022-01-06",
-          "end_date": "2022-01-09",
-          "score_count": 375
-        },
-        {
-          "value": "ntpc_stutea115",
-          "text": "115年新北市小學運動會游泳比賽",
-          "in_db": true,
-          "date": "2026-02-25",
-          "end_date": "2026-02-27",
-          "score_count": 1177
-        },
-        {
-          "value": "ntpc_stutea114",
-          "text": "114年新北市小學運動會游泳比賽",
-          "in_db": true,
-          "date": "2025-02-26",
-          "end_date": "2025-02-28",
-          "score_count": 1074
-        },
-        {
-          "value": "ntpc_stutea113",
-          "text": "113年新北市小學運動會游泳比賽",
-          "in_db": true,
-          "date": "2024-02-21",
-          "end_date": "2024-02-23",
-          "score_count": 908
-        },
-        {
-          "value": "ntpc_stutea112",
-          "text": "112年新北市小學運動會游泳比賽",
-          "in_db": true,
-          "date": "2023-02-22",
-          "end_date": "2023-02-24",
-          "score_count": 765
-        },
-        {
-          "value": "ntpc_stutea111",
-          "text": "111年新北市小學運動會游泳比賽",
-          "in_db": true,
-          "date": "2022-02-23",
-          "end_date": "2022-02-25",
-          "score_count": 374
+          "in_db": true
         }
       ]
     }

@@ -2992,40 +2992,8 @@
                 }
             }
 
-            // 渲染 7 大泳協實體探針卡片 (遵循大仁哥封閉式守恆架構)
+            // 渲染 7 大泳協實體探針卡片 (遵循大仁哥封閉式守恆架構 - 100% 動態綁定最新目錄)
             if (probesGrid && data.network_probes && data.network_probes.length > 0) {
-                // 每家泳協官方最新列表數、在庫數、未公布成績數、本次新增數
-                const orgTruthMap = {
-                    'site_d': { 
-                        total_found: 15, in_db: 15, pending_count: 0, added: 0,
-                        pending_name: ''
-                    },
-                    'site_tpesa': { 
-                        total_found: 10, in_db: 10, pending_count: 0, added: 0,
-                        pending_name: ''
-                    },
-                    'site_ntpc': { 
-                        total_found: 16, in_db: 15, pending_count: 1, added: 0,
-                        pending_name: '115年新北市小學游泳對抗賽 (官方僅發秩序冊，成績尚未出爐)' 
-                    },
-                    'site_a': { 
-                        total_found: 9, in_db: 9, pending_count: 0, added: 0,
-                        pending_name: ''
-                    },
-                    'site_b': { 
-                        total_found: 10, in_db: 10, pending_count: 0, added: 0,
-                        pending_name: ''
-                    },
-                    'site_c': { 
-                        total_found: 26, in_db: 26, pending_count: 0, added: 0,
-                        pending_name: ''
-                    },
-                    'site_e': { 
-                        total_found: 6, in_db: 6, pending_count: 0, added: 0,
-                        pending_name: ''
-                    }
-                };
-
                 const safeProbesCards = data.network_probes.map(pb => {
                     const isOk = pb.status === 'SUCCESS' || pb.http_status === 200;
                     const badgeBg = isOk ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400';
@@ -3033,18 +3001,31 @@
                     const latencyColor = latency < 300 ? 'text-emerald-400' : (latency < 800 ? 'text-amber-400' : 'text-rose-400');
                     const kb = pb.response_bytes ? Math.round(pb.response_bytes / 1024) : 0;
                     
-                    const truth = orgTruthMap[pb.org_id] || { 
-                        total_found: pb.races_found || 0, 
-                        in_db: pb.races_found || 0, 
-                        pending_count: 0, 
-                        added: 0, 
-                        pending_name: '' 
-                    };
-
-                    const totalFound = pb.races_found !== undefined ? pb.races_found : truth.total_found;
-                    const inDb = truth.in_db;
-                    const pendingCount = truth.pending_count;
-                    const addedCount = truth.added;
+                    // 100% 動態自 catalogData.site_catalog 即時計算（完全廢除靜態寫死對照表）
+                    const orgCat = (catalogData && catalogData.site_catalog && catalogData.site_catalog[pb.org_id]) ? catalogData.site_catalog[pb.org_id] : null;
+                    const races = orgCat ? (orgCat.races || []) : [];
+                    const inDbRaces = races.filter(r => r.in_db === true);
+                    const pendingRaces = races.filter(r => !r.in_db);
+                    
+                    const addedCount = meetReceipts.filter(r => r.org_id === pb.org_id).length;
+                    
+                    let totalFound = pb.races_found || 0;
+                    let inDb = pb.races_found || 0;
+                    let pendingCount = 0;
+                    let pendingName = '';
+                    
+                    if (races.length > 0) {
+                        totalFound = races.length;
+                        inDb = inDbRaces.length;
+                        pendingCount = pendingRaces.length;
+                        if (pendingRaces.length > 0) {
+                            pendingName = pendingRaces[0].text + (pendingRaces.length > 1 ? ` 等 ${pendingRaces.length} 場未開賽/未公布` : ' (未開賽/未公布)');
+                        }
+                    } else if (pb.races_found !== undefined) {
+                        totalFound = pb.races_found;
+                        inDb = pb.races_found;
+                        pendingCount = 0;
+                    }
 
                     // 依據大仁哥指導的 3 種狀態構建描述文字與徽章
                     let dbStatusHtml = '';
@@ -3070,7 +3051,7 @@
                                 <div class="text-amber-400/90 flex items-center gap-1 font-semibold">
                                     <span>⏳ 官方最新列表 ${totalFound}場 · ${inDb}場在庫 · ${pendingCount}場未公佈資料</span>
                                 </div>
-                                <div class="text-zinc-500 truncate" title="${esc(truth.pending_name)}">${esc(truth.pending_name)}</div>
+                                <div class="text-zinc-500 truncate" title="${esc(pendingName)}">${esc(pendingName)}</div>
                             </div>
                         `;
                     } else {
@@ -3419,6 +3400,9 @@
                 if (loadedCatalog) {
                     catalogData = loadedCatalog;
                     handleUnifiedOrgChange();
+                    if (globalCrawlerLogs) {
+                        renderCrawlerLogData(globalCrawlerLogs);
+                    }
                 }
 
                 await fetchVisitorQueryLogs();
