@@ -5364,18 +5364,45 @@
 
         async function updateFooterVersionInfo() {
             try {
-                const res = await fetch('/static/db_parts/version.json?t=' + Date.now());
-                if (res.ok) {
-                    const data = await res.json();
-                    const verDisplay = data.version_display || data.version_code || (`Build #${data.version}`);
-                    const rowsStr = data.total_rows ? Number(data.total_rows).toLocaleString() : '845,388';
-                    const verCodeSpan = document.getElementById('verCodeSpan');
-                    const verRowsSpan = document.getElementById('verRowsSpan');
-                    if (verCodeSpan) verCodeSpan.textContent = verDisplay;
-                    if (verRowsSpan) verRowsSpan.textContent = `${rowsStr} 筆成績紀錄`;
+                let verDisplay = null;
+                let totalRows = null;
+
+                try {
+                    const mfRes = await fetch('/data_buckets/manifest.json?t=' + Date.now());
+                    if (mfRes.ok) {
+                        const mf = await mfRes.json();
+                        verDisplay = mf.version_code || (`Build #${mf.version}`);
+                        totalRows = mf.total_records;
+                    }
+                } catch(e) {}
+
+                if (!verDisplay) {
+                    try {
+                        const metaRes = await fetch('/static/metadata.json?t=' + Date.now());
+                        if (metaRes.ok) {
+                            const meta = await metaRes.json();
+                            totalRows = totalRows || meta.total_records;
+                        }
+                    } catch(e) {}
                 }
+
+                if (!verDisplay) {
+                    try {
+                        const vRes = await fetch('/static/db_parts/version.json?t=' + Date.now());
+                        if (vRes.ok) {
+                            const vData = await vRes.json();
+                            verDisplay = vData.version_display || vData.version_code || (`Build #${vData.version}`);
+                            totalRows = totalRows || vData.total_rows;
+                        }
+                    } catch(e) {}
+                }
+
+                const verCodeSpan = document.getElementById('verCodeSpan');
+                const verRowsSpan = document.getElementById('verRowsSpan');
+                if (verCodeSpan && verDisplay) verCodeSpan.textContent = verDisplay;
+                if (verRowsSpan && totalRows) verRowsSpan.textContent = `${Number(totalRows).toLocaleString()} 筆成績紀錄`;
             } catch(e) {
-                console.warn("無法取得 version.json", e);
+                console.warn("無法取得版本資訊", e);
             }
         }
         updateFooterVersionInfo();
