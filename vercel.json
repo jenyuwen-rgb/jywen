@@ -89,6 +89,10 @@
   ],
   "rewrites": [
     {
+      "source": "/static/db_parts/version.json",
+      "destination": "/version.json"
+    },
+    {
       "source": "/",
       "destination": "/256split.html"
     },
