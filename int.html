@@ -1351,7 +1351,7 @@
                     </span>
                 </div>
                 <div class="my-auto py-0.5">
-                    <div id="hudDbStatus" class="kpi-num leading-tight text-white font-mono font-extrabold text-[20px] sm:text-[24px]">817,890 <span class="text-[12px] font-normal text-amber-400">筆</span></div>
+                    <div id="hudDbStatus" class="kpi-num leading-tight text-white font-mono font-extrabold text-[20px] sm:text-[24px]">845,388 <span class="text-[12px] font-normal text-amber-400">筆</span></div>
                     <div class="text-[10px] text-zinc-400 font-mono mt-0.5">主庫正式成績 · 0 差額</div>
                 </div>
                 <div class="space-y-0.5 text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
@@ -3288,18 +3288,40 @@
 
         async function initDashboard() {
             try {
-                let normalRows = 832006;
-                const verRes = await fetch('/static/db_parts/version.json?t=' + Date.now());
-                if (verRes.ok) {
-                    const ver = await verRes.json();
-                    document.getElementById('normalVersionCode').innerText = ver.version_code || 'v2026.10.05.0115';
-                    document.getElementById('normalBuildNo').innerText = ver.version || '1791134114';
-                    normalRows = ver.total_rows || 832006;
-                    document.getElementById('normalTotalRows').innerText = normalRows.toLocaleString() + ' 筆';
-                    
-                    const hudDb = document.getElementById('hudDbStatus');
-                    if (hudDb) hudDb.innerText = normalRows.toLocaleString();
-                }
+                let normalRows = 845388;
+                let normalVerCode = 'v2026.10.16.2054';
+                let normalBuild = '1792155270';
+
+                // 優先從 manifest.json 或 metadata.json 取得權威版本
+                try {
+                    const mfPreRes = await fetch('/data_buckets/manifest.json?t=' + Date.now());
+                    if (mfPreRes.ok) {
+                        const mfPre = await mfPreRes.json();
+                        normalRows = mfPre.total_records || normalRows;
+                        normalVerCode = mfPre.version_code || normalVerCode;
+                        normalBuild = String(mfPre.version || normalBuild);
+                    }
+                } catch(e) {}
+
+                try {
+                    const verRes = await fetch('/static/db_parts/version.json?t=' + Date.now());
+                    if (verRes.ok) {
+                        const ver = await verRes.json();
+                        normalVerCode = ver.version_code || normalVerCode;
+                        normalBuild = ver.version || normalBuild;
+                        normalRows = ver.total_rows || normalRows;
+                    }
+                } catch(e) {}
+
+                const nVerCodeEl = document.getElementById('normalVersionCode');
+                const nBuildNoEl = document.getElementById('normalBuildNo');
+                const nTotalRowsEl = document.getElementById('normalTotalRows');
+                const hudDb = document.getElementById('hudDbStatus');
+
+                if (nVerCodeEl) nVerCodeEl.innerText = normalVerCode;
+                if (nBuildNoEl) nBuildNoEl.innerText = normalBuild;
+                if (nTotalRowsEl) nTotalRowsEl.innerText = normalRows.toLocaleString() + ' 筆';
+                if (hudDb) hudDb.innerHTML = `${normalRows.toLocaleString()} <span class="text-[12px] font-normal text-amber-400">筆</span>`;
 
                 try {
                     const mfRes = await fetch('/data_buckets/manifest.json?t=' + Date.now());

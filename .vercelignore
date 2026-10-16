@@ -1,3 +1,4 @@
+.git
 launchpad.html
 wealth.html
 car.html
@@ -5,15 +6,14 @@ manage.html
 view_db.html
 system_messages.html
 az_relocation_presentation.html
+full.html
+原始未改語法/**
+static/*.db
+static/db_parts/**
+static/docs/**
+static/guide/**
 static/tunnel_url.txt
 static/tsmc_az_housing_map.jpg
 static/az_study_icon.png
 static/wealth_icon.png
 static/car_icon.png
-static/swim_results_template.db
-static/swim_results_downloaded.db
-static/wealth_clock.db
-static/car_depreciation.db
-static/hot_money.db
-full.html
-static/db_parts/db.part*

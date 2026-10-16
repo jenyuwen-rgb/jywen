@@ -1099,12 +1099,22 @@
 
                     const statsData = (swimmerResp && swimmerResp.stats) ? swimmerResp.stats[`${stroke}_${dist}`] : null;
                     if (statsData) {
-                        ageRank = statsData.age_rank || 0;
-                        ageTotalCount = statsData.age_total || 0;
-                        agePR = statsData.age_pr || (ageTotalCount > 0 ? (((ageTotalCount - ageRank + 1) / ageTotalCount) * 100).toFixed(1) : "0.0");
-                        natRank = statsData.nat_rank || 0;
-                        natTotalCount = statsData.nat_total || 0;
-                        natPR = statsData.nat_pr || (natTotalCount > 0 ? (((natTotalCount - natRank + 1) / natTotalCount) * 100).toFixed(1) : "0.0");
+                        let curStat = statsData;
+                        let sObj = (statsData.by_sex && statsData.by_sex[sex]) ? statsData.by_sex[sex] : statsData;
+                        const bKey = String(pb.出生年 || '').replace(/\.0$/, '');
+                        if (sObj.by_birth && sObj.by_birth[bKey]) {
+                            curStat = sObj.by_birth[bKey];
+                        } else if (sObj.age_rank !== undefined && sObj.age_rank !== null) {
+                            curStat = sObj;
+                        }
+                        ageRank = curStat.age_rank || sObj.age_rank || statsData.age_rank || 0;
+                        ageTotalCount = curStat.age_total || sObj.age_total || statsData.age_total || 0;
+                        agePR = curStat.age_pr || (ageTotalCount > 0 ? (((ageTotalCount - ageRank + 1) / ageTotalCount) * 100).toFixed(1) : "0.0");
+                        
+                        let natObj = (sObj.nat_by_birth && sObj.nat_by_birth[bKey]) ? sObj.nat_by_birth[bKey] : sObj;
+                        natRank = natObj.nat_rank || sObj.nat_rank || statsData.nat_rank || 0;
+                        natTotalCount = natObj.nat_total || sObj.nat_total || statsData.nat_total || 0;
+                        natPR = natObj.nat_pr || (natTotalCount > 0 ? (((natTotalCount - natRank + 1) / natTotalCount) * 100).toFixed(1) : "0.0");
                     } else {
                         const [ageRankRes, natRankRes] = await Promise.all([
                             getRankData(dist, stroke, input, pb.出生年, sex, false),
@@ -5247,7 +5257,7 @@
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
             <div id="footerDbInfo" style="color: #8E8E93; font-size: 12px; font-weight: 500;">
-                📊 <span id="verRowsSpan">832,006 筆成績紀錄</span>
+                📊 <span id="verRowsSpan">845,388 筆成績紀錄</span>
             </div>
             <span style="color: #48484A;">|</span>
             <button type="button" onclick="openPrivacyModal()" style="background: none; border: none; color: #A1A1A6; cursor: pointer; font-size: 11px; padding: 2px 6px; border-radius: 4px; transition: color 0.2s; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#A1A1A6'">🛡️ 隱私權與資料聲明</button>
@@ -5358,7 +5368,7 @@
                 if (res.ok) {
                     const data = await res.json();
                     const verDisplay = data.version_display || data.version_code || (`Build #${data.version}`);
-                    const rowsStr = data.total_rows ? Number(data.total_rows).toLocaleString() : '832,006';
+                    const rowsStr = data.total_rows ? Number(data.total_rows).toLocaleString() : '845,388';
                     const verCodeSpan = document.getElementById('verCodeSpan');
                     const verRowsSpan = document.getElementById('verRowsSpan');
                     if (verCodeSpan) verCodeSpan.textContent = verDisplay;

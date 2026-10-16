@@ -1,6 +1,31 @@
 {
   "headers": [
     {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+        }
+      ]
+    },
+    {
       "source": "/(.*\\.html|/)?",
       "headers": [
         {
@@ -14,18 +39,6 @@
         {
           "key": "Expires",
           "value": "0"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
         }
       ]
     },
@@ -93,11 +106,15 @@
     },
     {
       "source": "/athlete/:name",
-      "destination": "/athletes/:name.html"
+      "destination": "/api/athlete_seo.py?name=:name"
+    },
+    {
+      "source": "/athletes/:name.html",
+      "destination": "/api/athlete_seo.py?name=:name"
     },
     {
       "source": "/athletes/:name",
-      "destination": "/athletes/:name.html"
+      "destination": "/api/athlete_seo.py?name=:name"
     },
     {
       "source": "/card/:name/:stroke/:dist",
@@ -122,6 +139,10 @@
   ],
   "functions": {
     "api/query_swimmer.py": {
+      "includeFiles": "data_buckets/**",
+      "excludeFiles": "static/db_parts/**"
+    },
+    "api/athlete_seo.py": {
       "includeFiles": "data_buckets/**",
       "excludeFiles": "static/db_parts/**"
     },

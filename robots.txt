@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+Allow: /athlete/
+Allow: /athletes/
 Allow: /?q=*
 
 # 內部調度中心與管理工具排除（提升 Google 爬取配額集中度與搜尋點擊率）
