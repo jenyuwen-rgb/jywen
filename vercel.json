@@ -90,7 +90,7 @@
   "rewrites": [
     {
       "source": "/static/db_parts/version.json",
-      "destination": "/version.json"
+      "destination": "/data_buckets/version.json"
     },
     {
       "source": "/",
