@@ -11,7 +11,7 @@
           "in_progress": false,
           "start_date": "2026-02-06",
           "end_date": "2026-02-08",
-          "score_count": 10959
+          "score_count": 5951
         },
         {
           "value": "ctsa_167",
@@ -29,7 +29,7 @@
           "in_progress": false,
           "start_date": "2026-01-23",
           "end_date": "2026-01-25",
-          "score_count": 13570
+          "score_count": 6263
         },
         {
           "value": "ctsa_169",
@@ -92,16 +92,16 @@
           "in_progress": false,
           "start_date": "2026-10-02",
           "end_date": "2026-10-04",
-          "score_count": 13570
+          "score_count": 7307
         },
         {
           "value": "ctsa_176",
-          "text": "115年全國北區B(2)游泳錦標賽 [未開賽]",
+          "text": "115年全國北區B(2)游泳錦標賽",
           "in_db": false,
           "in_progress": true,
           "start_date": "2026-10-16",
           "end_date": "2026-10-18",
-          "score_count": 5475
+          "score_count": 1628
         },
         {
           "value": "ctsa_177",
@@ -110,20 +110,20 @@
           "in_progress": false,
           "start_date": "2026-09-18",
           "end_date": "2026-09-20",
-          "score_count": 10959
+          "score_count": 5008
         },
         {
           "value": "ctsa_178",
-          "text": "115年全國南區(2)游泳錦標賽 [未開賽]",
+          "text": "115年全國南區(2)游泳錦標賽",
           "in_db": false,
           "in_progress": true,
           "start_date": "2026-10-31",
           "end_date": "2026-11-01",
-          "score_count": 3804
+          "score_count": 0
         },
         {
           "value": "ctsa_179",
-          "text": "115年全國冬季短水道游泳錦標賽 [未開賽]",
+          "text": "115年全國冬季短水道游泳錦標賽",
           "in_db": false,
           "in_progress": true,
           "start_date": "2026-11-19",
@@ -132,7 +132,7 @@
         },
         {
           "value": "ctsa_180",
-          "text": "115年中華泳協排名賽 [未開賽]",
+          "text": "115年中華泳協排名賽",
           "in_db": false,
           "in_progress": true,
           "start_date": "2026-12-05",
