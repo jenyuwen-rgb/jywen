@@ -854,6 +854,13 @@ class handler(BaseHTTPRequestHandler):
         else:
             spider_network_section_html = ""
 
+        if roc_year:
+            birth_tag = f'<span class="px-2.5 py-1 rounded-full text-xs font-mono bg-zinc-800/80 text-zinc-400">民國 {roc_year} 年次 ({birth_year})</span>'
+        elif birth_year:
+            birth_tag = f'<span class="px-2.5 py-1 rounded-full text-xs font-mono bg-zinc-800/80 text-zinc-400">{birth_year} 年次</span>'
+        else:
+            birth_tag = ''
+
         full_html = f"""<!DOCTYPE html>
 <html lang="zh-TW" class="dark">
 <head>
@@ -986,7 +993,7 @@ class handler(BaseHTTPRequestHandler):
                     <div class="flex items-center gap-3">
                         <h1 class="text-3xl font-black gold-gradient-text tracking-tight">{clean_name}</h1>
                         <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-zinc-800 border border-zinc-700 text-zinc-300">{gender_badge}</span>
-                        {f'<span class=\"px-2.5 py-1 rounded-full text-xs font-mono bg-zinc-800/80 text-zinc-400\">民國 {roc_year} 年次 ({birth_year})</span>' if roc_year else (f'<span class=\"px-2.5 py-1 rounded-full text-xs font-mono bg-zinc-800/80 text-zinc-400\">{birth_year} 年次</span>' if birth_year else '')}
+                        {birth_tag}
                     </div>
                     <p class="text-sm text-zinc-400 mt-1">代表所屬泳隊／學校：<strong class="text-zinc-200">{primary_unit}</strong> {f'（曾代表：{all_units_str}）' if len(units) > 1 else ''}</p>
                 </div>
