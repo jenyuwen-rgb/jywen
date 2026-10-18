@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Arial 建興國中段考衝刺戰情室 ｜ 115學年度 國一專屬排程系統</title>
-    <meta name="description" content="專為台南市立建興國中國一（七年級）Arial 量身打造的段考倒數與學科智能排程戰情室。落實『段考前一週全科精讀完畢，最後一週專心刷題與錯題封神』的頂級學霸學習心法。支援自訂匯入考科分配內容。">
+    <meta name="description" content="專為台南市立建興國中國一（七年級）Arial 量身打造的段考倒數與學科智能排程戰情室。落實『段考前一週全科精讀完畢，最後一週專心刷題與錯題封神』。支援自訂每天讀書空檔時間與智慧容量動態分配。">
     <meta name="theme-color" content="#09090b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,7 +15,7 @@
     <!-- Google Fonts Inter & Noto Sans TC -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -88,6 +88,7 @@
         .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
         .badge-purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
         .badge-rose { background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3); }
+        .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
 
         /* 卡片系統 */
         .card {
@@ -192,15 +193,6 @@
             color: #ffffff;
         }
 
-        /* 科目色彩系統 */
-        .color-chinese { border-left: 4px solid #f43f5e !important; }
-        .color-english { border-left: 4px solid #3b82f6 !important; }
-        .color-math    { border-left: 4px solid #f59e0b !important; }
-        .color-bio     { border-left: 4px solid #10b981 !important; }
-        .color-history { border-left: 4px solid #8b5cf6 !important; }
-        .color-geo     { border-left: 4px solid #06b6d4 !important; }
-        .color-civics  { border-left: 4px solid #ec4899 !important; }
-
         /* 進度條 */
         .progress-track {
             width: 100%;
@@ -251,6 +243,32 @@
         .custom-input:focus {
             outline: none;
             border-color: var(--brand-primary);
+        }
+
+        /* 空檔時間晶片標籤 */
+        .time-chip {
+            padding: 0.4rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .time-chip:hover {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.35);
+            color: #60a5fa;
+        }
+        .time-chip.active {
+            background: var(--brand-primary);
+            border-color: var(--brand-primary);
+            color: #fff;
         }
 
         /* 慶祝彩色粒子 (Canvas) */
@@ -317,11 +335,11 @@
                 <button onclick="switchTab('import')" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.15); color: #60a5fa;">
                     <i class="fa-solid fa-file-import"></i> 📥 匯入考科分配
                 </button>
+                <button onclick="openBatchTimeModal()" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                    <i class="fa-regular fa-clock"></i> ⏰ 設定每天空檔
+                </button>
                 <button onclick="window.print()" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid var(--border-subtle);">
                     <i class="fa-solid fa-print"></i> 列印課表
-                </button>
-                <button onclick="openConfigModal()" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid var(--border-subtle);">
-                    <i class="fa-solid fa-sliders"></i> 自訂時數
                 </button>
                 <a href="/" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; text-decoration: none;">
                     <i class="fa-solid fa-arrow-left"></i> 回首頁
@@ -397,7 +415,12 @@
                         <i class="fa-solid fa-bolt"></i>
                     </span>
                     <div>
-                        <h3 style="font-size: 1.15rem; font-weight: 700;">Arial 今日專屬衝刺任務 (Today's Focus)</h3>
+                        <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                            <h3 style="font-size: 1.15rem; font-weight: 700;">Arial 今日專屬衝刺任務 (Today's Focus)</h3>
+                            <span id="todaySlotBadge" class="badge badge-blue" style="cursor: pointer;" onclick="openTodayTimeModal()">
+                                <i class="fa-regular fa-clock"></i> 今日讀書時段設定
+                            </span>
+                        </div>
                         <p id="todayDateLabel" style="font-size: 0.75rem; color: var(--text-secondary);">載入中...</p>
                     </div>
                 </div>
@@ -435,11 +458,18 @@
         <div id="view-timeline" class="tab-content">
             
             <!-- 學習策略與時間指引提示 -->
-            <div style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                <i class="fa-solid fa-lightbulb" style="color: #60a5fa; font-size: 1.5rem;"></i>
-                <div style="flex: 1; font-size: 0.85rem; color: var(--text-secondary);">
-                    <strong style="color: var(--text-primary);">科學交錯學習法則：</strong>
-                    平日每晚分配約 2 小時（<span style="color:#60a5fa; font-weight:600;">1 核心主科 70 分鐘</span> + <span style="color:#34d399; font-weight:600;">1 記憶副科 40 分鐘</span> + 10 分鐘錯題整理）；週末集中攻克大章節與實驗題。左右腦輪流切換，效率最高且不易疲倦！若科目有變動，可點擊上方「📥 自行匯入考科分配」隨時更新。
+            <div style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1 1 500px;">
+                    <i class="fa-solid fa-clock-rotate-left" style="color: #60a5fa; font-size: 1.5rem;"></i>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                        <strong style="color: var(--text-primary);">智能時間容量排程機制：</strong>
+                        點擊每一天卡片右上角的「<span style="color:#60a5fa; font-weight:600;"><i class="fa-regular fa-clock"></i> 時段標籤</span>」，即可自訂 Arial 當天幾點到幾點有空讀書！系統會<strong>自動依據每天的空檔時數容量</strong>，將要讀的章節精準填入，遇到有事情或沒空的日期自動避開！
+                    </div>
+                </div>
+                <div class="no-print">
+                    <button onclick="openBatchTimeModal()" class="tab-btn" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.8rem; padding: 0.45rem 0.85rem;">
+                        <i class="fa-solid fa-sliders"></i> 批次設定平日/週末時段
+                    </button>
                 </div>
             </div>
 
@@ -480,7 +510,7 @@
                             <h3 style="font-size: 1.35rem; font-weight: 800;">自行匯入與自訂考科分配中心</h3>
                         </div>
                         <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.4rem; max-width: 800px;">
-                            大仁哥可以直接在下方貼上學校最新的段考科目、教科書版本、時數佔比、範圍與避坑點（支援表格複製貼上、Tab 分隔或自訂條列文字），系統會<strong>智慧自動解析</strong>，並<strong>自動重新排程生成 30 天每日平衡課表</strong>！
+                            大仁哥可以直接在下方貼上學校最新的段考科目、教科書版本、時數佔比、範圍與避坑點（支援表格複製貼上、Tab 分隔或自訂條列文字），系統會<strong>智慧自動解析</strong>，並<strong>自動依據 Arial 每日設定的空檔時段，智慧重新平衡 30 天每日課表</strong>！
                         </p>
                     </div>
 
@@ -586,65 +616,133 @@
 
     </main>
 
-    <!-- 彈出視窗 1: 自訂時間與排程分配器 -->
-    <div id="configModal" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 1.25rem;">
-        <div class="card" style="max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; border-color: var(--border-strong);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-                <h3 style="font-size: 1.15rem; font-weight: 700;"><i class="fa-solid fa-sliders"></i> Arial 學習時數調節器</h3>
-                <button onclick="closeConfigModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer;">&times;</button>
+    <!-- 彈出視窗 1: 單日空檔時段自訂 Modal (Single Day Time Adjuster) -->
+    <div id="dayTimeModal" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 1.25rem;">
+        <div class="card" style="max-width: 480px; width: 100%; border-color: var(--border-strong);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="width: 2rem; height: 2rem; border-radius: 0.5rem; background: rgba(59, 130, 246, 0.2); color: #60a5fa; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-regular fa-clock"></i>
+                    </span>
+                    <div>
+                        <h3 id="dayTimeModalTitle" style="font-size: 1.15rem; font-weight: 700;">設定空檔讀書時間</h3>
+                        <p id="dayTimeModalSubtitle" style="font-size: 0.75rem; color: var(--text-muted);">2026-10-19 (週一)</p>
+                    </div>
+                </div>
+                <button onclick="closeDayTimeModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer;">&times;</button>
             </div>
-            
+
             <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.85rem;">
+                
+                <!-- 快捷預設時段 (Quick Presets) -->
                 <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.35rem;">平日（週一至週五）每晚可專注讀書時間：</label>
-                    <select id="cfgWeekdayHours" class="custom-input">
-                        <option value="1.5">1.5 小時 (輕量適應)</option>
-                        <option value="2.0" selected>2.0 小時 (標準學霸推薦節奏)</option>
-                        <option value="2.5">2.5 小時 (深度扎實衝刺)</option>
-                        <option value="3.0">3.0 小時 (高強度攻頂)</option>
-                    </select>
+                    <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">
+                        ⚡ 快捷點選常用空檔時段：
+                    </label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                        <button type="button" class="time-chip" onclick="applyTimePreset('19:00', '21:00')">🏫 平日標準 (19:00~21:00, 2h)</button>
+                        <button type="button" class="time-chip" onclick="applyTimePreset('20:00', '22:00')">🌙 晚間黃金 (20:00~22:00, 2h)</button>
+                        <button type="button" class="time-chip" onclick="applyTimePreset('20:30', '22:00')">📚 晚自習後 (20:30~22:00, 1.5h)</button>
+                        <button type="button" class="time-chip" onclick="applyTimePreset('20:00', '21:00')">⚡ 輕量衝刺 (20:00~21:00, 1h)</button>
+                        <button type="button" class="time-chip" onclick="applyTimePreset('21:00', '21:30')">🏊 課後訓練 (21:00~21:30, 0.5h)</button>
+                        <button type="button" class="time-chip" onclick="applyTimePreset('13:30', '18:00')">🌅 週末充裕 (13:30~18:00, 4.5h)</button>
+                        <button type="button" class="time-chip" style="color: #f87171;" onclick="applyTimePreset('00:00', '00:00', true)">🏖️ 今日沒空/休息 (0h)</button>
+                    </div>
                 </div>
 
-                <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.35rem;">週末（週六、週日）每日專注讀書時間：</label>
-                    <select id="cfgWeekendHours" class="custom-input">
-                        <option value="3.5">3.5 小時 (上午 1.5h + 下午 2h)</option>
-                        <option value="4.5" selected>4.5 小時 (上午 2h + 下午 2.5h 標準推薦)</option>
-                        <option value="5.5">5.5 小時 (全天大章節全真精攻)</option>
-                    </select>
+                <!-- 精確時間輸入框 (Start ~ End) -->
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: 0.75rem; padding: 0.85rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 2px;">開始時間：</label>
+                            <input type="time" id="inputStartTime" onchange="calculateModalDuration()" class="custom-input" style="font-size: 1rem; font-weight: 600;">
+                        </div>
+                        <span style="font-weight: 700; color: var(--text-muted); margin-top: 1rem;">至</span>
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 2px;">結束時間：</label>
+                            <input type="time" id="inputEndTime" onchange="calculateModalDuration()" class="custom-input" style="font-size: 1rem; font-weight: 600;">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--border-subtle);">
+                        <span style="color: var(--text-secondary); font-size: 0.8rem;">當天可用讀書總時長：</span>
+                        <span id="labelModalDuration" style="font-weight: 800; font-size: 1rem; color: #34d399;">120 分鐘 (2.0 小時)</span>
+                    </div>
                 </div>
 
-                <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.35rem;">科目權重偏好（哪科需要多花心思）：</label>
-                    <select id="cfgFocusSubject" class="custom-input">
-                        <option value="math" selected>數學 (拉分王，需手算大量素養題)</option>
-                        <option value="bio">生物 (圖表實驗多，需手繪概念圖)</option>
-                        <option value="chinese">國文 (文言文文意與字音字形)</option>
-                        <option value="balanced">均衡分配 (標準黃金比例)</option>
-                    </select>
+                <!-- 批次套用勾選 -->
+                <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.8rem; color: var(--text-secondary);">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="chkApplyAllWeekdays">
+                        <span>同時將此時段套用到<strong>接下來所有平日 (週一至週五)</strong></span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="chkApplyAllWeekends">
+                        <span>同時將此時段套用到<strong>接下來所有週末 (週六、週日)</strong></span>
+                    </label>
                 </div>
 
-                <div style="background: rgba(255,255,255,0.03); padding: 0.85rem; border-radius: 0.5rem; border: 1px solid var(--border-subtle); margin-top: 0.5rem;">
-                    <div style="font-weight: 600; margin-bottom: 0.35rem;">資料備份與還原：</div>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button onclick="exportData()" class="tab-btn" style="flex: 1; padding: 0.4rem; font-size: 0.75rem; border: 1px solid var(--border-subtle);">
-                            <i class="fa-solid fa-download"></i> 導出進度
-                        </button>
-                        <button onclick="importDataPrompt()" class="tab-btn" style="flex: 1; padding: 0.4rem; font-size: 0.75rem; border: 1px solid var(--border-subtle);">
-                            <i class="fa-solid fa-upload"></i> 匯入備份
-                        </button>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.25rem;">
+                <button onclick="closeDayTimeModal()" class="tab-btn" style="border: 1px solid var(--border-subtle);">取消</button>
+                <button onclick="saveDayTimeSlot()" class="tab-btn" style="background: var(--brand-primary); color: #fff; font-weight: 700;">
+                    <i class="fa-solid fa-check"></i> 儲存並重新依時間分配
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 彈出視窗 2: 全局批次時段設定 (Batch Time Modal) -->
+    <div id="batchTimeModal" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 1.25rem;">
+        <div class="card" style="max-width: 520px; width: 100%; border-color: var(--border-strong);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="width: 2rem; height: 2rem; border-radius: 0.5rem; background: rgba(16, 185, 129, 0.2); color: #34d399; display: flex; align-items: center; justify-content: center;">
+                        <i class="fa-solid fa-sliders"></i>
+                    </span>
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700;">批次快速設定 30 天空檔時段</h3>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);">一鍵調整平日與週末的常規讀書時段</p>
+                    </div>
+                </div>
+                <button onclick="closeBatchTimeModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer;">&times;</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.85rem;">
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: 0.75rem; padding: 0.85rem;">
+                    <label style="font-weight: 700; color: #60a5fa; margin-bottom: 0.5rem; display: block;">
+                        🏫 平日（週一至週五）讀書時段：
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="time" id="batchWeekdayStart" value="19:00" class="custom-input">
+                        <span>至</span>
+                        <input type="time" id="batchWeekdayEnd" value="21:00" class="custom-input">
+                    </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: 0.75rem; padding: 0.85rem;">
+                    <label style="font-weight: 700; color: #fbbf24; margin-bottom: 0.5rem; display: block;">
+                        🌅 週末（週六、週日）讀書時段：
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="time" id="batchWeekendStart" value="13:30" class="custom-input">
+                        <span>至</span>
+                        <input type="time" id="batchWeekendEnd" value="18:00" class="custom-input">
                     </div>
                 </div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.25rem;">
-                <button onclick="closeConfigModal()" class="tab-btn" style="border: 1px solid var(--border-subtle);">取消</button>
-                <button onclick="saveAndRebalance()" class="tab-btn" style="background: var(--brand-primary); color: #fff;">儲存並重新平衡課表</button>
+                <button onclick="closeBatchTimeModal()" class="tab-btn" style="border: 1px solid var(--border-subtle);">取消</button>
+                <button onclick="applyBatchTimeSlots()" class="tab-btn" style="background: var(--brand-emerald); color: #fff; font-weight: 700;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> 一鍵套用並重新分配課表
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- 彈出視窗 2: 新增錯題筆記 -->
+    <!-- 彈出視窗 3: 新增錯題筆記 -->
     <div id="addMistakeModal" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 1.25rem;">
         <div class="card" style="max-width: 500px; width: 100%; border-color: var(--border-strong);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
@@ -691,7 +789,7 @@
         const EXAM_DATE = new Date("2026-11-24T08:00:00"); // 第二次段考日 (11/24)
         const FINISH_DATE = new Date("2026-11-17T23:59:59"); // 考前一週封關日 (11/17)
 
-        // 預設建興國一黃金標準考科內容 (完全對齊大仁哥提供內容)
+        // 預設建興國一黃金標準考科內容 (對齊大仁哥提供內容)
         const DEFAULT_SUBJECTS = [
             {
                 id: "math",
@@ -822,21 +920,17 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
         // ==========================================
         // 2. 本地儲存金鑰與狀態初始化
         // ==========================================
-        const STORAGE_KEY_SUBJECTS = "arial_custom_subjects_v2";
-        const STORAGE_KEY_TASKS = "arial_study_completed_tasks_v2";
-        const STORAGE_KEY_MISTAKES = "arial_study_mistakes_v2";
-        const STORAGE_KEY_CONFIG = "arial_study_config_v2";
-        const STORAGE_KEY_CALENDAR = "arial_generated_calendar_v2";
+        const STORAGE_KEY_SUBJECTS = "arial_custom_subjects_v3";
+        const STORAGE_KEY_TASKS = "arial_study_completed_tasks_v3";
+        const STORAGE_KEY_MISTAKES = "arial_study_mistakes_v3";
+        const STORAGE_KEY_TIMESLOTS = "arial_daily_time_slots_v3";
 
         let currentSubjects = [];
         let completedTasks = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY_TASKS) || "[]"));
         let mistakes = JSON.parse(localStorage.getItem(STORAGE_KEY_MISTAKES) || "[]");
-        let appConfig = JSON.parse(localStorage.getItem(STORAGE_KEY_CONFIG) || JSON.stringify({
-            weekdayHours: 2.0,
-            weekendHours: 4.5,
-            focusSubject: "math"
-        }));
+        let dailyTimeSlots = JSON.parse(localStorage.getItem(STORAGE_KEY_TIMESLOTS) || "{}");
         let activeCalendar = [];
+        let editingDate = null; // 當前正在編輯時段的日期
 
         // 初始化加載考科資料
         function loadSavedSubjects() {
@@ -853,41 +947,50 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
         }
 
         // ==========================================
-        // 3. 智慧 30 天排程演算法 (Dynamic Calendar Allocator)
+        // 3. 智慧時間容量動態調度演算法 (Smart Dynamic Capacity Allocator)
         // ==========================================
+        function getDayTimeSlot(dateStr, isWeekend) {
+            if (dailyTimeSlots[dateStr]) {
+                return dailyTimeSlots[dateStr];
+            }
+            // 預設值
+            if (isWeekend) {
+                return { start: "13:30", end: "18:00", minutes: 270, isOff: false }; // 週末 4.5h
+            } else {
+                return { start: "19:00", end: "21:00", minutes: 120, isOff: false }; // 平日 2.0h
+            }
+        }
+
         function buildDynamicCalendar() {
-            // 生成從 2026-10-19 到 2026-11-17 共 30 天日期陣列
             const startDate = new Date("2026-10-19T00:00:00");
             const daysCount = 30;
             const daysArr = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
 
             // 展開所有子單元
-            const coreTasks = []; // 主科（數學、生物等）
-            const subTasks = [];  // 副科（國、英、歷、地、公等）
+            const allTasksQueue = [];
 
-            currentSubjects.forEach((sub, sIdx) => {
+            currentSubjects.forEach((sub) => {
                 const lines = sub.scope.split("\n").map(l => l.replace(/^[•\-\*\d+\.\s]+/, "").trim()).filter(l => l.length > 0);
                 lines.forEach((line, uIdx) => {
-                    const taskItem = {
+                    allTasksQueue.push({
                         subId: sub.id,
                         subName: sub.name,
                         color: sub.color || "#3b82f6",
                         taskId: `${sub.id}_u${uIdx + 1}`,
                         title: `${sub.name} - ${line}`,
-                        isCore: sub.isCore || (sub.name.includes("數") || sub.name.includes("生"))
-                    };
-                    if (taskItem.isCore) {
-                        coreTasks.push(taskItem);
-                    } else {
-                        subTasks.push(taskItem);
-                    }
+                        isCore: sub.isCore || (sub.name.includes("數") || sub.name.includes("生")),
+                        book: sub.book
+                    });
                 });
             });
 
-            // 產生 30 天滾動日曆
-            const calendar = [];
+            // 區分主科與副科序列
+            const coreTasks = allTasksQueue.filter(t => t.isCore);
+            const subTasks = allTasksQueue.filter(t => !t.isCore);
+
             let coreIdx = 0;
             let subIdx = 0;
+            const calendar = [];
 
             for (let i = 0; i < daysCount; i++) {
                 const cur = new Date(startDate);
@@ -898,60 +1001,106 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                 const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
                 const weekNum = Math.floor(i / 7) + 1;
 
+                const timeSlot = getDayTimeSlot(dateStr, isWeekend);
+
                 const dayPlan = {
                     date: dateStr,
                     day: dayName,
                     week: Math.min(4, weekNum),
                     type: isWeekend ? "weekend" : "weekday",
+                    timeSlot: timeSlot,
                     items: []
                 };
 
-                // 平日：1 主科 (70m) + 1 記憶副科 (40m)
-                if (!isWeekend) {
-                    if (coreTasks.length > 0) {
-                        const itemCore = coreTasks[coreIdx % coreTasks.length];
+                // 若當天設定為休息 / 無空檔時間 (0 分鐘)
+                if (timeSlot.isOff || timeSlot.minutes <= 0) {
+                    dayPlan.focus = "🏖️ 自訂休息日 / 今日無排程";
+                    dayPlan.items = [];
+                    calendar.push(dayPlan);
+                    continue;
+                }
+
+                // 依據當天可用分鐘數分配任務容量
+                const availableMins = timeSlot.minutes;
+
+                if (availableMins <= 45) {
+                    // 時間極少（<= 45 分鐘）：僅排 1 個輕量副科
+                    if (subTasks.length > 0) {
+                        const it = subTasks[subIdx % subTasks.length];
                         dayPlan.items.push({
-                            sub: itemCore.subId,
-                            taskId: itemCore.taskId,
-                            title: itemCore.title,
-                            dur: "70m"
+                            sub: it.subId,
+                            taskId: it.taskId,
+                            title: it.title,
+                            dur: `${availableMins}m`
+                        });
+                        subIdx++;
+                    } else if (coreTasks.length > 0) {
+                        const it = coreTasks[coreIdx % coreTasks.length];
+                        dayPlan.items.push({
+                            sub: it.subId,
+                            taskId: it.taskId,
+                            title: `${it.title} (精簡複習)`,
+                            dur: `${availableMins}m`
                         });
                         coreIdx++;
                     }
+                    dayPlan.focus = dayPlan.items.map(it => it.title.split(" - ")[0]).join("") + " 輕量衝刺";
+
+                } else if (availableMins <= 90) {
+                    // 時間適中（46 ~ 90 分鐘）：1 主科 (50m) + 1 副科 (30m) 或 1 深度主科
+                    const durCore = Math.round(availableMins * 0.6);
+                    const durSub = availableMins - durCore;
+
+                    if (coreTasks.length > 0) {
+                        const it1 = coreTasks[coreIdx % coreTasks.length];
+                        dayPlan.items.push({ sub: it1.subId, taskId: it1.taskId, title: it1.title, dur: `${durCore}m` });
+                        coreIdx++;
+                    }
                     if (subTasks.length > 0) {
-                        const itemSub = subTasks[subIdx % subTasks.length];
-                        dayPlan.items.push({
-                            sub: itemSub.subId,
-                            taskId: itemSub.taskId,
-                            title: itemSub.title,
-                            dur: "40m"
-                        });
+                        const it2 = subTasks[subIdx % subTasks.length];
+                        dayPlan.items.push({ sub: it2.subId, taskId: it2.taskId, title: it2.title, dur: `${durSub}m` });
                         subIdx++;
                     }
-                    dayPlan.focus = dayPlan.items.map(it => it.title.split(" - ")[0]).join(" + ") || "常規複習";
+                    dayPlan.focus = dayPlan.items.map(it => it.title.split(" - ")[0]).join(" + ");
+
+                } else if (availableMins <= 150) {
+                    // 標準平日（91 ~ 150 分鐘）：1 核心主科 (~70m) + 1 記憶副科 (~50m)
+                    const durCore = Math.round(availableMins * 0.6);
+                    const durSub = availableMins - durCore;
+
+                    if (coreTasks.length > 0) {
+                        const it1 = coreTasks[coreIdx % coreTasks.length];
+                        dayPlan.items.push({ sub: it1.subId, taskId: it1.taskId, title: it1.title, dur: `${durCore}m` });
+                        coreIdx++;
+                    }
+                    if (subTasks.length > 0) {
+                        const it2 = subTasks[subIdx % subTasks.length];
+                        dayPlan.items.push({ sub: it2.subId, taskId: it2.taskId, title: it2.title, dur: `${durSub}m` });
+                        subIdx++;
+                    }
+                    dayPlan.focus = dayPlan.items.map(it => it.title.split(" - ")[0]).join(" + ");
+
                 } else {
-                    // 週末：2~3 個深度攻堅單元
+                    // 時間充裕（> 150 分鐘，如週末 4.5 小時）：2 主科深度突破 + 1 副科綜合精練
+                    const partCore = Math.round(availableMins * 0.45);
+                    const partSub = availableMins - (partCore * 2);
+
                     if (coreTasks.length > 0) {
-                        const item1 = coreTasks[coreIdx % coreTasks.length];
-                        dayPlan.items.push({
-                            sub: item1.subId,
-                            taskId: item1.taskId,
-                            title: `【週末大單元】${item1.title}`,
-                            dur: "130m"
-                        });
+                        const it1 = coreTasks[coreIdx % coreTasks.length];
+                        dayPlan.items.push({ sub: it1.subId, taskId: it1.taskId, title: `【主攻大單元】${it1.title}`, dur: `${partCore}m` });
+                        coreIdx++;
+                    }
+                    if (coreTasks.length > 0) {
+                        const it2 = coreTasks[coreIdx % coreTasks.length];
+                        dayPlan.items.push({ sub: it2.subId, taskId: it2.taskId, title: `【深入算題】${it2.title}`, dur: `${partCore}m` });
                         coreIdx++;
                     }
                     if (subTasks.length > 0) {
-                        const item2 = subTasks[subIdx % subTasks.length];
-                        dayPlan.items.push({
-                            sub: item2.subId,
-                            taskId: item2.taskId,
-                            title: `【週末精練】${item2.title}`,
-                            dur: "110m"
-                        });
+                        const it3 = subTasks[subIdx % subTasks.length];
+                        dayPlan.items.push({ sub: it3.subId, taskId: it3.taskId, title: `【綜合記憶】${it3.title}`, dur: `${partSub}m` });
                         subIdx++;
                     }
-                    dayPlan.focus = "週末深度攻堅";
+                    dayPlan.focus = "深度綜合攻堅";
                 }
 
                 // 考前最後兩天（11/16, 11/17）加註封關里程碑
@@ -961,7 +1110,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                         sub: "all",
                         taskId: "finish_buffer_1",
                         title: "【封關檢核】全科課本與習題做最後清點與盲點掃除！",
-                        dur: "60m"
+                        dur: "40m"
                     });
                 } else if (dateStr === "2026-11-17") {
                     dayPlan.focus = "🏁 第一輪 100% 圓滿封關日！";
@@ -969,7 +1118,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                         sub: "all",
                         taskId: "finish_buffer_2",
                         title: "【考前一週封關日】進度全數達標，邁入最後黃金 7 天刷題！",
-                        dur: "60m"
+                        dur: "40m"
                     });
                 }
 
@@ -977,7 +1126,6 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             }
 
             activeCalendar = calendar;
-            localStorage.setItem(STORAGE_KEY_CALENDAR, JSON.stringify(activeCalendar));
         }
 
         // ==========================================
@@ -996,25 +1144,20 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             renderVisualEditor();
             populateMistakeSubjectDropdown();
 
-            // 每分微調倒數
             setInterval(updateCountdowns, 60000);
         }
 
         function updateCountdowns() {
             const now = new Date();
-
-            // 1. 考前一週封關倒數 (11/17)
             const diffFinish = FINISH_DATE - now;
             const daysFinish = Math.max(0, Math.ceil(diffFinish / (1000 * 60 * 60 * 24)));
             document.getElementById("daysToFinish").innerText = daysFinish;
 
-            // 2. 正式段考決戰倒數 (11/24)
             const diffExam = EXAM_DATE - now;
             const daysExam = Math.max(0, Math.ceil(diffExam / (1000 * 60 * 60 * 24)));
             document.getElementById("daysToExam").innerText = daysExam;
         }
 
-        // 總進度統計
         function getAllTotalTasksCount() {
             let total = 0;
             currentSubjects.forEach(s => {
@@ -1027,10 +1170,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
         function renderOverallProgress() {
             const total = getAllTotalTasksCount();
             let done = 0;
-            completedTasks.forEach(tId => {
-                // 檢查是否屬於當前科目中的任務
-                done++;
-            });
+            completedTasks.forEach(() => done++);
             const pct = Math.min(100, Math.round((done / Math.max(1, total)) * 100));
 
             document.getElementById("overallProgressText").innerText = `${pct}% (${done}/${total} 單元)`;
@@ -1064,15 +1204,30 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             const daysArr = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
             const dayName = daysArr[dateObj.getDay()];
 
-            document.getElementById("todayDateLabel").innerText = `${todayStr} (${dayName}) · 專屬課表排程`;
-
             let planToday = activeCalendar.find(p => p.date === todayStr);
             if (!planToday) {
-                planToday = activeCalendar[0] || { items: [] };
+                planToday = activeCalendar[0] || { items: [], timeSlot: { start: "19:00", end: "21:00", minutes: 120, isOff: false } };
             }
+
+            const slot = planToday.timeSlot;
+            const slotText = slot.isOff ? "今日設定休息 (0h)" : `${slot.start} ~ ${slot.end} (${(slot.minutes / 60).toFixed(1)}h)`;
+            document.getElementById("todayDateLabel").innerText = `${todayStr} (${dayName}) · 空檔時間：${slotText}`;
+            document.getElementById("todaySlotBadge").innerHTML = `<i class="fa-regular fa-clock"></i> ${slotText} (點擊調整)`;
 
             const container = document.getElementById("todayTaskList");
             container.innerHTML = "";
+
+            if (slot.isOff || planToday.items.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-muted); background: rgba(255,255,255,0.02); border-radius: 0.75rem; border: 1px dashed var(--border-subtle);">
+                        <i class="fa-solid fa-mug-hot" style="font-size: 2rem; margin-bottom: 0.5rem; color: #a78bfa;"></i>
+                        <p style="font-weight: 600; color: var(--text-primary);">今日設定為休息日或無空檔讀書時間</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.25rem;">好好的放鬆或專心處理事情！若今天臨時有空，隨時點擊上方「讀書時段標籤」設定時間。</p>
+                    </div>
+                `;
+                document.getElementById("todayStatusBadge").innerHTML = `<span class="badge badge-purple"><i class="fa-solid fa-moon"></i> 今日休息日</span>`;
+                return;
+            }
 
             let allTodayDone = true;
 
@@ -1132,7 +1287,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                 const card = document.createElement("div");
                 card.className = "card";
                 card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
                         <div>
                             <h4 style="font-size: 1.15rem; font-weight: 700;">${weekTitle}</h4>
                             <p style="font-size: 0.8rem; color: var(--text-secondary);">${weekSubtitle}</p>
@@ -1142,24 +1297,32 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.85rem;">
                         ${weekPlans.map(dayPlan => {
                             const isWeekend = dayPlan.type === "weekend";
-                            const itemsHtml = dayPlan.items.map(item => {
-                                const isDone = completedTasks.has(item.taskId);
-                                const subMeta = currentSubjects.find(s => s.id === item.sub) || { name: "全科", color: "#3b82f6" };
-                                return `
-                                    <div class="task-item ${isDone ? 'completed' : ''}" onclick="toggleTask('${item.taskId}')" style="padding: 0.6rem 0.75rem; margin-bottom: 0.35rem;">
-                                        <div class="checkbox-custom" style="width: 1.15rem; height: 1.15rem;">
-                                            ${isDone ? '<i class="fa-solid fa-check" style="font-size: 0.65rem;"></i>' : ''}
-                                        </div>
-                                        <div style="flex: 1; font-size: 0.85rem;">
-                                            <div style="display:flex; align-items:center; gap:0.3rem;">
-                                                <span style="font-size: 0.7rem; font-weight:700; color:${subMeta.color};">[${subMeta.name}]</span>
-                                                <span class="task-title" style="font-weight: 500;">${item.title}</span>
+                            const slot = dayPlan.timeSlot;
+                            const slotBadgeText = slot.isOff ? "🏖️ 休息 (0h)" : `${slot.start}~${slot.end} (${(slot.minutes / 60).toFixed(1)}h)`;
+
+                            let itemsHtml = "";
+                            if (slot.isOff || dayPlan.items.length === 0) {
+                                itemsHtml = `<div style="padding: 1.25rem 0.5rem; text-align: center; color: var(--text-muted); font-size: 0.8rem;"><i class="fa-solid fa-bed" style="margin-right: 0.35rem;"></i> 今日無讀書排程</div>`;
+                            } else {
+                                itemsHtml = dayPlan.items.map(item => {
+                                    const isDone = completedTasks.has(item.taskId);
+                                    const subMeta = currentSubjects.find(s => s.id === item.sub) || { name: "全科", color: "#3b82f6" };
+                                    return `
+                                        <div class="task-item ${isDone ? 'completed' : ''}" onclick="toggleTask('${item.taskId}')" style="padding: 0.6rem 0.75rem; margin-bottom: 0.35rem;">
+                                            <div class="checkbox-custom" style="width: 1.15rem; height: 1.15rem;">
+                                                ${isDone ? '<i class="fa-solid fa-check" style="font-size: 0.65rem;"></i>' : ''}
                                             </div>
-                                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 1px;">建議 ${item.dur}</div>
+                                            <div style="flex: 1; font-size: 0.85rem;">
+                                                <div style="display:flex; align-items:center; gap:0.3rem;">
+                                                    <span style="font-size: 0.7rem; font-weight:700; color:${subMeta.color};">[${subMeta.name}]</span>
+                                                    <span class="task-title" style="font-weight: 500;">${item.title}</span>
+                                                </div>
+                                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 1px;">建議 ${item.dur}</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                `;
-                            }).join("");
+                                    `;
+                                }).join("");
+                            }
 
                             return `
                                 <div style="background: ${isWeekend ? 'rgba(59, 130, 246, 0.04)' : 'rgba(255, 255, 255, 0.02)'}; border: 1px solid ${isWeekend ? 'rgba(59, 130, 246, 0.2)' : 'var(--border-subtle)'}; border-radius: 0.75rem; padding: 0.85rem;">
@@ -1167,7 +1330,9 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                                         <span style="font-weight: 700; font-size: 0.9rem; color: ${isWeekend ? '#60a5fa' : 'var(--text-primary)'};">
                                             ${dayPlan.date.substring(5)} (${dayPlan.day})
                                         </span>
-                                        <span class="badge" style="font-size: 0.7rem; background: rgba(255,255,255,0.06);">${dayPlan.focus}</span>
+                                        <button onclick="openDayTimeModal('${dayPlan.date}')" class="badge ${slot.isOff ? 'badge-purple' : (isWeekend ? 'badge-gold' : 'badge-blue')}" style="cursor: pointer; border: 1px solid var(--border-subtle); background: transparent;">
+                                            <i class="fa-regular fa-clock"></i> ${slotBadgeText} <i class="fa-solid fa-pen" style="font-size: 0.55rem; margin-left: 2px;"></i>
+                                        </button>
                                     </div>
                                     <div>${itemsHtml}</div>
                                 </div>
@@ -1187,7 +1352,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             if (!container) return;
             container.innerHTML = "";
 
-            currentSubjects.forEach((sub, sIdx) => {
+            currentSubjects.forEach((sub) => {
                 const lines = sub.scope.split("\n").map(l => l.replace(/^[•\-\*\d+\.\s]+/, "").trim()).filter(l => l.length > 0);
                 const subColor = sub.color || "#3b82f6";
 
@@ -1195,7 +1360,6 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                 cardEl.className = "card";
                 cardEl.style.borderLeft = `4px solid ${subColor}`;
 
-                // 拆分單元 HTML
                 const tasksHtml = lines.map((line, uIdx) => {
                     const taskId = `${sub.id}_u${uIdx + 1}`;
                     const isDone = completedTasks.has(taskId);
@@ -1346,7 +1510,171 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
         }
 
         // ==========================================
-        // 10. 匯入與自訂編輯器核心邏輯 (Import Center)
+        // 10. 空檔時段彈出視窗與互動處理 (Time Slot Controllers)
+        // ==========================================
+        function openTodayTimeModal() {
+            const todayStr = new Date().toISOString().split("T")[0];
+            openDayTimeModal(todayStr);
+        }
+
+        function openDayTimeModal(dateStr) {
+            editingDate = dateStr;
+            const curDate = new Date(dateStr);
+            const daysArr = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
+            const isWeekend = (curDate.getDay() === 0 || curDate.getDay() === 6);
+            const slot = getDayTimeSlot(dateStr, isWeekend);
+
+            document.getElementById("dayTimeModalTitle").innerText = `設定 ${dateStr.substring(5)} (${daysArr[curDate.getDay()]}) 讀書空檔`;
+            document.getElementById("dayTimeModalSubtitle").innerText = `為 Arial 指定這一天幾點到幾點可用來讀書`;
+
+            document.getElementById("inputStartTime").value = slot.start || "19:00";
+            document.getElementById("inputEndTime").value = slot.end || "21:00";
+            document.getElementById("chkApplyAllWeekdays").checked = false;
+            document.getElementById("chkApplyAllWeekends").checked = false;
+
+            calculateModalDuration(slot.isOff);
+            document.getElementById("dayTimeModal").style.display = "flex";
+        }
+
+        function closeDayTimeModal() {
+            document.getElementById("dayTimeModal").style.display = "none";
+            editingDate = null;
+        }
+
+        function applyTimePreset(start, end, isOff = false) {
+            document.getElementById("inputStartTime").value = start;
+            document.getElementById("inputEndTime").value = end;
+            calculateModalDuration(isOff);
+        }
+
+        function calculateModalDuration(forceOff = false) {
+            const sVal = document.getElementById("inputStartTime").value;
+            const eVal = document.getElementById("inputEndTime").value;
+            const labelEl = document.getElementById("labelModalDuration");
+
+            if (forceOff || (sVal === "00:00" && eVal === "00:00")) {
+                labelEl.innerText = "0 分鐘 (休息日 / 今日不排課)";
+                labelEl.style.color = "#a78bfa";
+                return 0;
+            }
+
+            if (!sVal || !eVal) {
+                labelEl.innerText = "-- 分鐘";
+                return 0;
+            }
+
+            const [sH, sM] = sVal.split(":").map(Number);
+            const [eH, eM] = eVal.split(":").map(Number);
+            let diffMins = (eH * 60 + eM) - (sH * 60 + sM);
+            if (diffMins < 0) diffMins += 24 * 60; // 跨午夜處理
+
+            const hours = (diffMins / 60).toFixed(1);
+            labelEl.innerText = `${diffMins} 分鐘 (${hours} 小時)`;
+            labelEl.style.color = diffMins > 0 ? "#34d399" : "#a78bfa";
+            return diffMins;
+        }
+
+        function saveDayTimeSlot() {
+            if (!editingDate) return;
+
+            const sVal = document.getElementById("inputStartTime").value;
+            const eVal = document.getElementById("inputEndTime").value;
+            const mins = calculateModalDuration();
+            const isOff = (mins <= 0);
+
+            const newSlot = {
+                start: sVal,
+                end: eVal,
+                minutes: mins,
+                isOff: isOff
+            };
+
+            dailyTimeSlots[editingDate] = newSlot;
+
+            // 批次套用檢查
+            const applyWeekdays = document.getElementById("chkApplyAllWeekdays").checked;
+            const applyWeekends = document.getElementById("chkApplyAllWeekends").checked;
+
+            if (applyWeekdays || applyWeekends) {
+                const startDate = new Date("2026-10-19T00:00:00");
+                for (let i = 0; i < 30; i++) {
+                    const c = new Date(startDate);
+                    c.setDate(startDate.getDate() + i);
+                    const dStr = c.toISOString().split("T")[0];
+                    const isWk = (c.getDay() === 0 || c.getDay() === 6);
+
+                    if (applyWeekdays && !isWk) {
+                        dailyTimeSlots[dStr] = { ...newSlot };
+                    }
+                    if (applyWeekends && isWk) {
+                        dailyTimeSlots[dStr] = { ...newSlot };
+                    }
+                }
+            }
+
+            localStorage.setItem(STORAGE_KEY_TIMESLOTS, JSON.stringify(dailyTimeSlots));
+            closeDayTimeModal();
+
+            // 依據新時段重新排程分配
+            buildDynamicCalendar();
+            renderOverallProgress();
+            renderTodayTasks();
+            renderWeeklySchedule();
+            triggerConfetti();
+
+            alert(`✅ ${editingDate} 讀書時段已設定為 ${sVal}~${eVal} (${(mins/60).toFixed(1)}h)！\n課表內容已依據可用時間重新分配平衡完畢。`);
+        }
+
+        // 批次設定 Modal
+        function openBatchTimeModal() {
+            document.getElementById("batchTimeModal").style.display = "flex";
+        }
+        function closeBatchTimeModal() {
+            document.getElementById("batchTimeModal").style.display = "none";
+        }
+        function applyBatchTimeSlots() {
+            const wStart = document.getElementById("batchWeekdayStart").value;
+            const wEnd = document.getElementById("batchWeekdayEnd").value;
+            const weStart = document.getElementById("batchWeekendStart").value;
+            const weEnd = document.getElementById("batchWeekendEnd").value;
+
+            const [wsH, wsM] = wStart.split(":").map(Number);
+            const [weH, weM] = wEnd.split(":").map(Number);
+            let wMins = (weH * 60 + weM) - (wsH * 60 + wsM);
+            if (wMins < 0) wMins += 24 * 60;
+
+            const [wesH, wesM] = weStart.split(":").map(Number);
+            const [weeH, weeM] = weEnd.split(":").map(Number);
+            let weMins = (weeH * 60 + weeM) - (wesH * 60 + wesM);
+            if (weMins < 0) weMins += 24 * 60;
+
+            const startDate = new Date("2026-10-19T00:00:00");
+            for (let i = 0; i < 30; i++) {
+                const c = new Date(startDate);
+                c.setDate(startDate.getDate() + i);
+                const dStr = c.toISOString().split("T")[0];
+                const isWk = (c.getDay() === 0 || c.getDay() === 6);
+
+                if (!isWk) {
+                    dailyTimeSlots[dStr] = { start: wStart, end: wEnd, minutes: wMins, isOff: wMins <= 0 };
+                } else {
+                    dailyTimeSlots[dStr] = { start: weStart, end: weEnd, minutes: weMins, isOff: weMins <= 0 };
+                }
+            }
+
+            localStorage.setItem(STORAGE_KEY_TIMESLOTS, JSON.stringify(dailyTimeSlots));
+            closeBatchTimeModal();
+            buildDynamicCalendar();
+            renderOverallProgress();
+            renderTodayTasks();
+            renderWeeklySchedule();
+            triggerConfetti();
+
+            alert(`✅ 30 天每日時段已批次套用！\n平日：${wStart}~${wEnd} (${(wMins/60).toFixed(1)}h)\n週末：${weStart}~${weEnd} (${(weMins/60).toFixed(1)}h)\n課表已根據時間全面重新動態分配！`);
+        }
+
+        // ==========================================
+        // 11. 匯入與自訂編輯器核心邏輯 (Import Center)
         // ==========================================
         const COLOR_PALETTE = ["#f59e0b", "#10b981", "#f43f5e", "#3b82f6", "#8b5cf6", "#06b6d4", "#ec4899", "#84cc16"];
 
@@ -1460,11 +1788,10 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             populateMistakeSubjectDropdown();
             triggerConfetti();
 
-            alert("✅ 考科分配已成功儲存！30 天排程課表與進度已全面重新計算同步完畢！");
+            alert("✅ 考科分配已成功儲存！課表已全面依據各日時間容量重新動態計算完畢！");
             switchTab('timeline');
         }
 
-        // 批次文字貼上智慧解析器
         function parseAndApplyImport() {
             const raw = document.getElementById("importRawText").value.trim();
             if (!raw) {
@@ -1478,10 +1805,8 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                 let currentSub = null;
 
                 lines.forEach((line) => {
-                    // 若是標題行跳過
                     if (line.includes("考科") && line.includes("版本")) return;
 
-                    // 檢查是否包含 Tab 分隔 (例如直接從試算表複製)
                     if (line.includes("\t")) {
                         const cols = line.split("\t").map(c => c.trim());
                         if (cols.length >= 2 && cols[0].length <= 8) {
@@ -1501,7 +1826,6 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                         }
                     }
 
-                    // 檢查是否以科目名稱開頭 (國文/英語/數學/生物/歷史/地理/公民 等)
                     const subNames = ["數學", "生物", "國文", "英語", "英文", "歷史", "地理", "公民", "健體", "資訊", "科技"];
                     const matchedName = subNames.find(n => line.startsWith(n) && (line.length <= 12 || line.includes("版") || line.includes("小時")));
 
@@ -1547,7 +1871,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                 populateMistakeSubjectDropdown();
                 triggerConfetti();
 
-                alert(`🎉 成功解析並匯入 ${parsedSubjects.length} 門考科！30 天排程課表已自動更新。`);
+                alert(`🎉 成功解析並匯入 ${parsedSubjects.length} 門考科！30 天排程課表已自動依據每日時段重新分配。`);
                 switchTab('timeline');
 
             } catch (err) {
@@ -1560,7 +1884,6 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                 currentSubjects = JSON.parse(JSON.stringify(DEFAULT_SUBJECTS));
                 localStorage.setItem(STORAGE_KEY_SUBJECTS, JSON.stringify(currentSubjects));
 
-                // 同步填入文字框供檢視
                 let sampleText = "考科\t教科書版本\t建議總時數與佔比\t第二次段考範圍重點\t建興段考名師必考避坑點\n";
                 DEFAULT_SUBJECTS.forEach(s => {
                     sampleText += `${s.name}\t${s.book}\t${s.hoursText} (${s.pctText})\t${s.scope.replace(/\n/g, " • ")}\t${s.pitfalls.replace(/\n/g, " ")}\n`;
@@ -1584,7 +1907,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
         }
 
         // ==========================================
-        // 11. 切換 Tab 視圖與彈出視窗
+        // 12. 視圖切換
         // ==========================================
         function switchTab(tabName) {
             document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
@@ -1598,8 +1921,6 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function openConfigModal() { document.getElementById("configModal").style.display = "flex"; }
-        function closeConfigModal() { document.getElementById("configModal").style.display = "none"; }
         function openAddMistakeModal() {
             document.getElementById("mistakeSource").value = "";
             document.getElementById("mistakeReason").value = "";
@@ -1608,66 +1929,8 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
         }
         function closeAddMistakeModal() { document.getElementById("addMistakeModal").style.display = "none"; }
 
-        function saveAndRebalance() {
-            appConfig.weekdayHours = parseFloat(document.getElementById("cfgWeekdayHours").value);
-            appConfig.weekendHours = parseFloat(document.getElementById("cfgWeekendHours").value);
-            appConfig.focusSubject = document.getElementById("cfgFocusSubject").value;
-
-            localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(appConfig));
-            closeConfigModal();
-            buildDynamicCalendar();
-            renderWeeklySchedule();
-            renderTodayTasks();
-            alert("✅ 排程時數已重新配置！課表已平衡完畢。");
-        }
-
-        // 備份與還原
-        function exportData() {
-            const backup = {
-                subjects: currentSubjects,
-                completedTasks: Array.from(completedTasks),
-                mistakes: mistakes,
-                config: appConfig,
-                timestamp: new Date().toISOString()
-            };
-            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `Arial_建興國一段考衝刺進度備份_${new Date().toISOString().split("T")[0]}.json`;
-            a.click();
-        }
-
-        function importDataPrompt() {
-            const input = prompt("請貼上匯出的 JSON 備份字串：");
-            if (!input) return;
-            try {
-                const data = JSON.parse(input);
-                if (data.subjects) {
-                    currentSubjects = data.subjects;
-                    localStorage.setItem(STORAGE_KEY_SUBJECTS, JSON.stringify(currentSubjects));
-                }
-                if (data.completedTasks) {
-                    completedTasks = new Set(data.completedTasks);
-                    localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(Array.from(completedTasks)));
-                }
-                if (data.mistakes) {
-                    mistakes = data.mistakes;
-                    localStorage.setItem(STORAGE_KEY_MISTAKES, JSON.stringify(mistakes));
-                }
-                if (data.config) {
-                    appConfig = data.config;
-                    localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(appConfig));
-                }
-                alert("✅ 備份資料已成功匯入！");
-                location.reload();
-            } catch (e) {
-                alert("❌ JSON 格式解析失敗，請確認內容無誤。");
-            }
-        }
-
         // ==========================================
-        // 12. 彩色彩帶特效 (Canvas Confetti)
+        // 13. 彩色彩帶特效 (Canvas Confetti)
         // ==========================================
         function triggerConfetti() {
             const canvas = document.getElementById("confettiCanvas");
@@ -1724,7 +1987,6 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             draw();
         }
 
-        // 啟動頁面
         window.addEventListener("DOMContentLoaded", initApp);
     </script>
 </body>
