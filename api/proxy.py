@@ -5,6 +5,16 @@ import urllib.parse
 import json
 import ssl
 
+ALLOWED_ORIGINS = {
+    "https://swimming-pwa.vercel.app",
+    "http://localhost:5001",
+    "http://127.0.0.1:5001",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080"
+}
+
 ALLOWED_HOST_SUFFIXES = (
     "kcsat.org", ".kcsat.org",
     "utk.com.tw", ".utk.com.tw",
@@ -36,7 +46,39 @@ def is_allowed_url(target_url: str) -> bool:
     except Exception:
         return False
 
+def get_client_ip(headers, client_address=None) -> str:
+    vercel_ip = headers.get('x-vercel-forwarded-for') or headers.get('x-real-ip')
+    if vercel_ip:
+        return vercel_ip.split(',')[0].strip()
+    fwd = headers.get('x-forwarded-for', '')
+    if fwd:
+        return fwd.split(',')[0].strip()
+    if client_address and len(client_address) > 0:
+        return str(client_address[0])
+    return "127.0.0.1"
+
 class handler(BaseHTTPRequestHandler):
+    def _send_cors_headers(self):
+        req_origin = self.headers.get('Origin', '').strip().rstrip('/')
+        is_allowed = (
+            not req_origin or
+            req_origin in ALLOWED_ORIGINS or
+            req_origin.endswith('.vercel.app')
+        )
+        if is_allowed and req_origin:
+            self.send_header('Access-Control-Allow-Origin', req_origin)
+            self.send_header('Vary', 'Origin')
+        else:
+            self.send_header('Access-Control-Allow-Origin', 'https://swimming-pwa.vercel.app')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With')
+        self.send_header('Access-Control-Max-Age', '86400')
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self._send_cors_headers()
+        self.end_headers()
+
     def _proxy_request(self, method, post_data=None):
         """Unified proxy logic for GET and POST with strict domain allowlist.
         Transparently forwards allowed official swimming association requests."""
@@ -47,7 +89,7 @@ class handler(BaseHTTPRequestHandler):
         if not url:
             self.send_response(400)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.send_header('Access-Control-Allow-Origin', '*')
+            self._send_cors_headers()
             self.end_headers()
             self.wfile.write(b'{"error": "Missing url parameter"}')
             return
@@ -55,7 +97,7 @@ class handler(BaseHTTPRequestHandler):
         if not is_allowed_url(url):
             self.send_response(403)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.send_header('Access-Control-Allow-Origin', '*')
+            self._send_cors_headers()
             self.end_headers()
             self.wfile.write(b'{"error": "Forbidden: Destination host not in allowed swimming domains"}')
             return
@@ -74,7 +116,7 @@ class handler(BaseHTTPRequestHandler):
                 ct = resp.headers.get('Content-Type', 'text/html; charset=utf-8')
                 self.send_response(200)
                 self.send_header('Content-Type', ct)
-                self.send_header('Access-Control-Allow-Origin', '*')
+                self._send_cors_headers()
                 self.send_header('Content-Length', str(len(body)))
                 self.end_headers()
                 self.wfile.write(body)
@@ -82,7 +124,7 @@ class handler(BaseHTTPRequestHandler):
             err_body = json.dumps({'error': str(e)}, ensure_ascii=False).encode('utf-8')
             self.send_response(502)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.send_header('Access-Control-Allow-Origin', '*')
+            self._send_cors_headers()
             self.send_header('Content-Length', str(len(err_body)))
             self.end_headers()
             self.wfile.write(err_body)
@@ -91,6 +133,19 @@ class handler(BaseHTTPRequestHandler):
         self._proxy_request('GET')
 
     def do_POST(self):
-        content_length = int(self.headers.get('Content-Length', 0))
+        try:
+            content_length = int(self.headers.get('Content-Length', 0))
+        except (ValueError, TypeError):
+            content_length = 0
+
+        # 限制 Proxy POST 請求上限為 64KB，防範惡意大量資料濫用
+        if content_length > 65536:
+            self.send_response(413)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self._send_cors_headers()
+            self.end_headers()
+            self.wfile.write(b'{"error": "Payload Too Large: Maximum 64KB allowed"}')
+            return
+
         post_data = self.rfile.read(content_length) if content_length > 0 else b''
         self._proxy_request('POST', post_data)

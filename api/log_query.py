@@ -12,6 +12,16 @@ TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8939873453:AAH5EXWOMo
 TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID", "8270092740")
 TELEGRAM_PINNED_MSG_ID = int(os.environ.get("TELEGRAM_PINNED_MSG_ID", "11526"))
 
+ALLOWED_ORIGINS = {
+    "https://swimming-pwa.vercel.app",
+    "http://localhost:5001",
+    "http://127.0.0.1:5001",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080"
+}
+
 def fetch_telegram_live_logs():
     """從 Telegram Pinned Message 讀取跨伺服器持久化之即時訪客日誌"""
     try:
@@ -53,7 +63,6 @@ def update_telegram_live_logs(new_entry):
     except Exception as e:
         print(f"[Telegram Telemetry] 更新置頂日誌失敗: {e}")
 
-
 def mask_ip(ip_str):
     if not ip_str:
         return "未知 IP"
@@ -63,10 +72,24 @@ def mask_ip(ip_str):
         return f"{parts[0]}.{parts[1]}.*.{parts[3]}"
     return ip
 
+def get_client_ip(headers, client_address=None) -> str:
+    """擷取不可偽造之真客戶端 IP（優先信任邊緣代理標頭）"""
+    vercel_ip = headers.get('x-vercel-forwarded-for') or headers.get('x-real-ip')
+    if vercel_ip:
+        return vercel_ip.split(',')[0].strip()
+    fwd = headers.get('x-forwarded-for', '')
+    if fwd:
+        return fwd.split(',')[0].strip()
+    if client_address and len(client_address) > 0:
+        return str(client_address[0])
+    return "127.0.0.1"
+
 def clean_param(s, max_len=120):
-    if not s:
+    if not s or not isinstance(s, str):
         return ""
-    return str(s).replace("<", "").replace(">", "").strip()[:max_len]
+    # HTML 與控制字元安全跳脫，防止 Telegram HTML Injection
+    clean = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").strip()
+    return clean[:max_len]
 
 def infer_mode(swimmer_str):
     s = (swimmer_str or "").strip().upper()
@@ -133,9 +156,20 @@ def check_rate_limit(client_ip: str, max_requests: int = 120, window_seconds: in
 
 class handler(BaseHTTPRequestHandler):
     def _send_cors_headers(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
+        req_origin = self.headers.get('Origin', '').strip().rstrip('/')
+        is_allowed = (
+            not req_origin or
+            req_origin in ALLOWED_ORIGINS or
+            req_origin.endswith('.vercel.app')
+        )
+        if is_allowed and req_origin:
+            self.send_header('Access-Control-Allow-Origin', req_origin)
+            self.send_header('Vary', 'Origin')
+        else:
+            self.send_header('Access-Control-Allow-Origin', 'https://swimming-pwa.vercel.app')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With')
+        self.send_header('Access-Control-Max-Age', '86400')
 
     def do_OPTIONS(self):
         self.send_response(200)
@@ -143,7 +177,7 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        client_ip = (self.headers.get('x-forwarded-for') or self.headers.get('x-real-ip') or (self.client_address[0] if hasattr(self, 'client_address') and self.client_address else "")).split(',')[0].strip()
+        client_ip = get_client_ip(self.headers, getattr(self, 'client_address', None))
         if not check_rate_limit(client_ip, max_requests=120, window_seconds=60):
             self.send_response(429)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -258,7 +292,7 @@ class handler(BaseHTTPRequestHandler):
         self.process_log(swimmer=swimmer, page=page, custom_loc=location, custom_device=device, custom_channel=channel)
 
     def do_POST(self):
-        client_ip = (self.headers.get('x-forwarded-for') or self.headers.get('x-real-ip') or (self.client_address[0] if hasattr(self, 'client_address') and self.client_address else "")).split(',')[0].strip()
+        client_ip = get_client_ip(self.headers, getattr(self, 'client_address', None))
         if not check_rate_limit(client_ip, max_requests=120, window_seconds=60):
             self.send_response(429)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
@@ -268,21 +302,47 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(b'{"error": "Too Many Requests. Please slow down."}')
             return
 
+        # 1. 嚴格限制 Content-Length 上限（16KB），防範 DoS 記憶體耗盡
+        try:
+            content_length = int(self.headers.get('Content-Length', 0))
+        except (ValueError, TypeError):
+            content_length = 0
+
+        if content_length > 16384:
+            self.send_response(413)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self._send_cors_headers()
+            self.end_headers()
+            self.wfile.write(b'{"error": "Payload Too Large: Maximum 16KB allowed"}')
+            return
+
         parsed_path = urllib.parse.urlparse(self.path)
         query_params = urllib.parse.parse_qs(parsed_path.query)
 
-        try:
-            content_length = int(self.headers.get('Content-Length', 0))
-            post_data = self.rfile.read(content_length).decode('utf-8') if content_length > 0 else ""
-            payload = json.loads(post_data) if post_data else {}
-        except Exception:
-            payload = {}
+        # 2. JSON Schema 結構與型別嚴格校驗
+        payload = {}
+        if content_length > 0:
+            content_type = self.headers.get('Content-Type', '')
+            try:
+                post_data = self.rfile.read(content_length).decode('utf-8', errors='ignore')
+                if 'application/json' in content_type or post_data.strip().startswith('{'):
+                    raw_json = json.loads(post_data)
+                    if isinstance(raw_json, dict):
+                        payload = raw_json
+            except Exception:
+                payload = {}
 
-        swimmer = clean_param(payload.get("swimmer", "").strip() or query_params.get("swimmer", [""])[0].strip()) or "[頁面造訪]"
-        page = clean_param(payload.get("page", "").strip() or query_params.get("page", ["query.html"])[0].strip(), 200) or "query.html"
-        location = clean_param(payload.get("location", "").strip() or query_params.get("location", [""])[0].strip())
-        device = clean_param(payload.get("device", "").strip() or query_params.get("device", [""])[0].strip())
-        channel = clean_param(payload.get("channel", "").strip() or query_params.get("channel", [""])[0].strip())
+        swimmer_raw = payload.get("swimmer") if isinstance(payload.get("swimmer"), str) else query_params.get("swimmer", [""])[0]
+        page_raw = payload.get("page") if isinstance(payload.get("page"), str) else query_params.get("page", ["query.html"])[0]
+        location_raw = payload.get("location") if isinstance(payload.get("location"), str) else query_params.get("location", [""])[0]
+        device_raw = payload.get("device") if isinstance(payload.get("device"), str) else query_params.get("device", [""])[0]
+        channel_raw = payload.get("channel") if isinstance(payload.get("channel"), str) else query_params.get("channel", [""])[0]
+
+        swimmer = clean_param(swimmer_raw) or "[頁面造訪]"
+        page = clean_param(page_raw, 200) or "query.html"
+        location = clean_param(location_raw)
+        device = clean_param(device_raw)
+        channel = clean_param(channel_raw)
 
         self.process_log(swimmer=swimmer, page=page, custom_loc=location, custom_device=device, custom_channel=channel)
 
@@ -291,7 +351,7 @@ class handler(BaseHTTPRequestHandler):
         taipei_now = utc_now + timedelta(hours=8)
         now_str = taipei_now.strftime("%Y/%m/%d %H:%M:%S")
 
-        raw_ip = self.headers.get('x-forwarded-for') or self.headers.get('x-real-ip') or (self.client_address[0] if self.client_address else "127.0.0.1")
+        raw_ip = get_client_ip(self.headers, getattr(self, 'client_address', None))
         ip_masked = mask_ip(raw_ip)
 
         city = urllib.parse.unquote(self.headers.get('x-vercel-ip-city', '')).strip()

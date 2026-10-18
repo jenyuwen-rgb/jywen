@@ -44,9 +44,21 @@ def check_rate_limit(client_ip: str, max_requests: int = 120, window_seconds: in
             _IP_RATE_STORE.pop(k, None)
     return True
 
+def get_client_ip(headers, client_address=None) -> str:
+    """擷取不可偽造之真客戶端 IP（優先信任邊緣代理標頭）"""
+    vercel_ip = headers.get('x-vercel-forwarded-for') or headers.get('x-real-ip')
+    if vercel_ip:
+        return vercel_ip.split(',')[0].strip()
+    fwd = headers.get('x-forwarded-for', '')
+    if fwd:
+        return fwd.split(',')[0].strip()
+    if client_address and len(client_address) > 0:
+        return str(client_address[0])
+    return "127.0.0.1"
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        client_ip = (self.headers.get('x-forwarded-for') or self.headers.get('x-real-ip') or (self.client_address[0] if hasattr(self, 'client_address') and self.client_address else "")).split(',')[0].strip()
+        client_ip = get_client_ip(self.headers, getattr(self, 'client_address', None))
         if not check_rate_limit(client_ip, max_requests=120, window_seconds=60):
             self.send_response(429)
             self.send_header('Content-Type', 'application/json; charset=utf-8')

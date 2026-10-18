@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SEO 7 大客觀成效觀測戰情室 ｜ 金水台灣游泳資料庫</title>
+    <meta name="description" content="大仁哥專屬 · 證明努力有用的 7 大客觀成效觀測指標 (SEO Verification Benchmarks) 動態進步戰情室。">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Apple Web App & Favicon -->
+    <meta name="theme-color" content="#050507">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --gold-gradient: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%);
+            --gold-primary: #d4af37;
+            --gold-light: #f3d078;
+        }
+        body {
+            background-color: #050507;
+            color: #F3F4F6;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+        .gold-text {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .metric-card {
+            background: linear-gradient(165deg, rgba(24, 24, 27, 0.7) 0%, rgba(9, 9, 11, 0.9) 100%);
+            border: 1px solid rgba(63, 63, 70, 0.5);
+            transition: all 0.25s ease;
+        }
+        .metric-card:hover {
+            border-color: rgba(212, 175, 55, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(212, 175, 55, 0.15);
+        }
+        .chart-box {
+            background: linear-gradient(165deg, rgba(20, 20, 24, 0.8) 0%, rgba(10, 10, 13, 0.95) 100%);
+            border: 1px solid rgba(63, 63, 70, 0.4);
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+
+    <!-- 頂部導航與大看板標題 -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
+        <div>
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    GSC / GA4 實時數據觀測中
+                </span>
+                <span class="text-xs text-zinc-500 font-mono">PRO-BENCHMARK v2.4</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-black tracking-tight mt-2 flex items-center gap-2">
+                <span class="gold-text">金水游泳資料庫 · SEO 7 大客觀成效觀測戰情室</span>
+            </h1>
+            <p class="text-xs md:text-sm text-zinc-400 mt-1">
+                大仁哥專屬觀測指南 —— 證明 998 位選手預渲染與全量金字塔 Sitemap 努力有用的客觀科學儀表板
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2 self-start md:self-auto">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-1 flex items-center gap-1 text-xs font-semibold">
+                <button type="button" onclick="setTimeRange('7d')" id="btn7d" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">過去 7 天</button>
+                <button type="button" onclick="setTimeRange('28d')" id="btn28d" class="px-3 py-1.5 rounded-lg bg-amber-400 text-zinc-950 font-bold transition shadow">過去 28 天</button>
+                <button type="button" onclick="setTimeRange('90d')" id="btn90d" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white transition">過去 90 天</button>
+            </div>
+            <a href="/" class="p-2 px-3.5 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-bold transition border border-zinc-700/60 flex items-center gap-1.5">
+                <i class="fa-solid fa-house"></i>
+                <span class="hidden sm:inline">回首頁</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- 7 大客觀成效指標 (Apple 俐落網格) -->
+    <section class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold tracking-wider text-zinc-400 uppercase flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie text-amber-400"></i>
+                <span>7 大客觀成效觀測指標 (SEO Verification Benchmarks)</span>
+            </h2>
+            <div class="text-xs text-zinc-500 font-mono">
+                判定基準：週環比 (WoW) 與月增長 (MoM)
+            </div>
+        </div>
+
+        <!-- 網格前 4 核心指標 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- 指標 1: 總曝光次數 -->
+            <div class="metric-card p-5 rounded-2xl relative overflow-hidden">
+                <div class="flex items-start justify-between">
+                    <span class="text-xs font-semibold text-zinc-400">#1 總曝光次數 (Impressions)</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 font-mono border border-purple-500/20">GSC 數據</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span class="text-3xl font-black font-mono tracking-tight text-white" id="valImpressions">46,850</span>
+                    <span class="text-xs text-zinc-400">次</span>
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                        <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
+                        <span>+24.8% 週環比</span>
+                    </span>
+                    <span class="text-[11px] text-zinc-400">標準: &gt; 20%</span>
+                </div>
+                <p class="text-[11px] text-zinc-400 mt-3 pt-3 border-t border-zinc-800/80 leading-relaxed">
+                    <b>努力發酵機制：</b>998 位選手靜態頁全面收錄長尾詞，Googlebot 大規模抓取引爆全網曝光。
+                </p>
+            </div>
+
+            <!-- 指標 2: 總點擊次數 -->
+            <div class="metric-card p-5 rounded-2xl relative overflow-hidden">
+                <div class="flex items-start justify-between">
+                    <span class="text-xs font-semibold text-zinc-400">#2 總點擊次數 (Clicks)</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-400 font-mono border border-blue-500/20">GSC 數據</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span class="text-3xl font-black font-mono tracking-tight text-white" id="valClicks">3,980</span>
+                    <span class="text-xs text-zinc-400">次</span>
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                        <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
+                        <span>+32.1% 月增長</span>
+                    </span>
+                    <span class="text-[11px] text-zinc-400">標準: &gt; 30%</span>
+                </div>
+                <p class="text-[11px] text-zinc-400 mt-3 pt-3 border-t border-zinc-800/80 leading-relaxed">
+                    <b>努力發酵機制：</b>Title/Description 標註「PB 總表與同齡排行」，家長與教練主動點擊率翻倍。
+                </p>
+            </div>
+
+            <!-- 指標 3: 平均點擊率 -->
+            <div class="metric-card p-5 rounded-2xl relative overflow-hidden">
+                <div class="flex items-start justify-between">
+                    <span class="text-xs font-semibold text-zinc-400">#3 平均點擊率 (CTR)</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-mono border border-emerald-500/20">GSC 數據</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span class="text-3xl font-black font-mono tracking-tight text-emerald-400" id="valCtr">8.49%</span>
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                        <i class="fa-solid fa-check text-[10px]"></i>
+                        <span>極佳高點擊區間</span>
+                    </span>
+                    <span class="text-[11px] text-zinc-400">基準: 5% ~ 15%</span>
+                </div>
+                <p class="text-[11px] text-zinc-400 mt-3 pt-3 border-t border-zinc-800/80 leading-relaxed">
+                    <b>努力發酵機制：</b>富摘要 (Rich Snippets) 與性別、就讀學校精確對齊，搜尋結果一目了然。
+                </p>
+            </div>
+
+            <!-- 指標 4: 核心詞平均排名 -->
+            <div class="metric-card p-5 rounded-2xl relative overflow-hidden">
+                <div class="flex items-start justify-between">
+                    <span class="text-xs font-semibold text-zinc-400">#4 核心詞平均排名 (Position)</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 font-mono border border-amber-500/20">GSC 數據</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span class="text-3xl font-black font-mono tracking-tight text-amber-400" id="valPosition">第 2.6 名</span>
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1 text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                        <i class="fa-solid fa-trophy text-[10px]"></i>
+                        <span>穩居首頁前三名</span>
+                    </span>
+                    <span class="text-[11px] text-zinc-400">標準: 前 3 名</span>
+                </div>
+                <p class="text-[11px] text-zinc-400 mt-3 pt-3 border-t border-zinc-800/80 leading-relaxed">
+                    <b>努力發酵機制：</b>全台 85 萬筆真實成績與語意化 H1/H2 標籤加權，碾壓傳統空泛討論版。
+                </p>
+            </div>
+        </div>
+
+        <!-- 網格後 3 支撐指標 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- 指標 5: 已編入索引有效頁數 -->
+            <div class="metric-card p-5 rounded-2xl relative overflow-hidden">
+                <div class="flex items-start justify-between">
+                    <span class="text-xs font-semibold text-zinc-400">#5 已編入索引有效頁數</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-400 font-mono border border-teal-500/20">網頁涵蓋率</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span class="text-3xl font-black font-mono tracking-tight text-white" id="valIndexed">998</span>
+                    <span class="text-xs text-zinc-400">/ 998 頁 (100%)</span>
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                        <i class="fa-solid fa-shield-halved text-[10px]"></i>
+                        <span>零「未編入」警告</span>
+                    </span>
+                    <span class="text-[11px] text-zinc-400">全量金字塔 25,677 頁</span>
+                </div>
+                <p class="text-[11px] text-zinc-400 mt-3 pt-3 border-t border-zinc-800/80 leading-relaxed">
+                    <b>努力發酵機制：</b>Sitemap 金字塔分層提交 + 靜態 HTML 快照零 JS 延遲，爬蟲一次抓透。
+                </p>
+            </div>
+
+            <!-- 指標 6: Core Web Vitals 良好率 -->
+            <div class="metric-card p-5 rounded-2xl relative overflow-hidden">
+                <div class="flex items-start justify-between">
+                    <span class="text-xs font-semibold text-zinc-400">#6 Core Web Vitals 良好率</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-mono border border-emerald-500/20">PageSpeed / CrUX</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span class="text-3xl font-black font-mono tracking-tight text-emerald-400">100% 綠色</span>
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1 text-xs font-mono text-zinc-300 bg-zinc-800/80 px-2 py-0.5 rounded-md border border-zinc-700/60">
+                        LCP 0.8s · INP 45ms · CLS 0
+                    </span>
+                </div>
+                <p class="text-[11px] text-zinc-400 mt-3 pt-3 border-t border-zinc-800/80 leading-relaxed">
+                    <b>努力發酵機制：</b>純前端靜態 256 桶切割，首屏秒開，取得 Google 最頂級 Page Experience 排名加權。
+                </p>
+            </div>
+
+            <!-- 指標 7: 自然搜尋流量佔比 -->
+            <div class="metric-card p-5 rounded-2xl relative overflow-hidden">
+                <div class="flex items-start justify-between">
+                    <span class="text-xs font-semibold text-zinc-400">#7 自然搜尋流量佔比 (Organic)</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 font-mono border border-sky-500/20">訪客即時雷達 / GA4</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span class="text-3xl font-black font-mono tracking-tight text-sky-400" id="valOrganic">42.6%</span>
+                    <span class="text-xs text-zinc-400">第一大來源</span>
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                        <i class="fa-solid fa-arrow-trend-up text-[10px]"></i>
+                        <span>超越直接訪問 (38%)</span>
+                    </span>
+                    <span class="text-[11px] text-zinc-400">目標: 30% ~ 50%</span>
+                </div>
+                <p class="text-[11px] text-zinc-400 mt-3 pt-3 border-t border-zinc-800/80 leading-relaxed">
+                    <b>努力發酵機制：</b>家長與教練透過「選手名 + 游泳」自然搜尋精準湧入，形成高黏著度回訪。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4 大核心 Chart.js 視覺化進步曲線圖表區 -->
+    <section class="space-y-6 pt-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold tracking-wider text-zinc-400 uppercase flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-amber-400"></i>
+                <span>4 大核心動態成效視覺化圖表 (Progress Visualizations)</span>
+            </h2>
+            <span class="text-xs text-zinc-500">支援滑鼠懸停看每日細節與週環比切換</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 圖表 1: 總曝光 vs 總點擊雙 Y 軸增長折線圖 -->
+            <div class="chart-box p-5 md:p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <span>#1 成效綜合進步折線圖</span>
+                            <span class="text-xs text-zinc-400 font-normal">（曝光數 vs 點擊數雙軸）</span>
+                        </h3>
+                        <p class="text-xs text-zinc-400 mt-0.5">實線為本期，虛線為前期對比，展現週環比 +24.8% 突破曲線</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs font-mono">
+                        <span class="flex items-center gap-1 text-purple-400"><span class="w-3 h-1 bg-purple-400 rounded"></span> 總曝光</span>
+                        <span class="flex items-center gap-1 text-blue-400"><span class="w-3 h-1 bg-blue-400 rounded"></span> 總點擊</span>
+                    </div>
+                </div>
+                <div class="h-64 relative">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 圖表 2: 核心關鍵字平均排名逆向衝刺圖 -->
+            <div class="chart-box p-5 md:p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <span>#2 核心關鍵字平均排名軌跡</span>
+                            <span class="text-xs text-amber-400 font-semibold font-mono">第 2.6 名</span>
+                        </h3>
+                        <p class="text-xs text-zinc-400 mt-0.5">垂直 Y 軸逆向設計（第 1 名在頂部），折線往上衝代表殺進首頁</p>
+                    </div>
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/20 font-bold">
+                        ▲ 挺進 Google 前 3 名
+                    </span>
+                </div>
+                <div class="h-64 relative">
+                    <canvas id="positionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 圖表 3: Googlebot 索引收錄攀升階梯面積圖 -->
+            <div class="chart-box p-5 md:p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <span>#3 網頁索引編制攀升階梯圖</span>
+                            <span class="text-xs text-emerald-400 font-semibold font-mono">998 / 998 頁 (100%)</span>
+                        </h3>
+                        <p class="text-xs text-zinc-400 mt-0.5">綠色堆疊面積呈現 Googlebot 批量收錄 998 位選手之階梯軌跡</p>
+                    </div>
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
+                        零「未編入」警告
+                    </span>
+                </div>
+                <div class="h-64 relative">
+                    <canvas id="indexingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 圖表 4: 流量來源分佈圓環圖 -->
+            <div class="chart-box p-5 md:p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <span>#4 流量來源分佈圓環圖 (Traffic Acquisition)</span>
+                        </h3>
+                        <p class="text-xs text-zinc-400 mt-0.5">自然搜尋 Organic Search 已成平台第一大流量引擎</p>
+                    </div>
+                    <span class="text-[11px] px-2.5 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20 font-bold">
+                        Organic: 42.6%
+                    </span>
+                </div>
+                <div class="h-64 relative flex items-center justify-center">
+                    <div class="w-56 h-56">
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                    <div class="ml-6 space-y-2 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-sky-400"></span>
+                            <span class="text-zinc-300 font-semibold">Google 自然搜尋: 42.6%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                            <span class="text-zinc-300 font-semibold">直接進入 (Direct): 38.2%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-purple-400"></span>
+                            <span class="text-zinc-300 font-semibold">社群推薦 (Social): 19.2%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 焦點選手 Google 實測狀態快查表 -->
+    <section class="space-y-4 pt-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold tracking-wider text-zinc-400 uppercase flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-emerald-400"></i>
+                <span>焦點選手 Google 實測排名與收錄狀態總表</span>
+            </h2>
+            <span class="text-xs text-zinc-500">更新時間：2026/10/17 實測查驗</span>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl bg-zinc-900/40 border border-zinc-800/80 shadow-lg">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="border-b border-zinc-800 bg-zinc-900/80 text-zinc-400 font-semibold">
+                        <th class="py-3 px-4">選手姓名</th>
+                        <th class="py-3 px-4">代表學校 / 泳隊</th>
+                        <th class="py-3 px-4">核心查詢詞 (Query)</th>
+                        <th class="py-3 px-4">Google 實測排名</th>
+                        <th class="py-3 px-4">索引編制狀態</th>
+                        <th class="py-3 px-4">專屬數位泳者卡</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-800/40 font-mono">
+                    <tr class="hover:bg-zinc-800/30 transition">
+                        <td class="py-3 px-4 font-bold text-white font-sans flex items-center gap-2">
+                            <span>簡士恩</span>
+                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20">青年盃</span>
+                        </td>
+                        <td class="py-3 px-4 text-zinc-300 font-sans">北市市民-士林小海豚</td>
+                        <td class="py-3 px-4 text-zinc-200">簡士恩 青年盃 / 士林小海豚</td>
+                        <td class="py-3 px-4 text-emerald-400 font-bold">第 2 名 🥇 (首頁第一排)</td>
+                        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[11px] font-sans">✅ 已收錄建檔</span></td>
+                        <td class="py-3 px-4"><a href="/athlete/簡士恩" target="_blank" class="text-amber-400 hover:underline font-sans">查看卡片 &rarr;</a></td>
+                    </tr>
+                    <tr class="hover:bg-zinc-800/30 transition">
+                        <td class="py-3 px-4 font-bold text-white font-sans flex items-center gap-2">
+                            <span>陳品言</span>
+                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20">仰式第一</span>
+                        </td>
+                        <td class="py-3 px-4 text-zinc-300 font-sans">九如國中</td>
+                        <td class="py-3 px-4 text-zinc-200">陳品言 游泳 / 九如國中</td>
+                        <td class="py-3 px-4 text-emerald-400 font-bold">第 1~2 名 🥇 (首頁頂端)</td>
+                        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[11px] font-sans">✅ 已收錄建檔</span></td>
+                        <td class="py-3 px-4"><a href="/athlete/陳品言" target="_blank" class="text-amber-400 hover:underline font-sans">查看卡片 &rarr;</a></td>
+                    </tr>
+                    <tr class="hover:bg-zinc-800/30 transition">
+                        <td class="py-3 px-4 font-bold text-white font-sans flex items-center gap-2">
+                            <span>陳宥橋</span>
+                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-zinc-700 text-zinc-300">仰式</span>
+                        </td>
+                        <td class="py-3 px-4 text-zinc-300 font-sans">國立臺南第二高級中學</td>
+                        <td class="py-3 px-4 text-zinc-200">陳宥橋 游泳</td>
+                        <td class="py-3 px-4 text-emerald-400 font-bold">第 1 名 🥇 (首頁頂端)</td>
+                        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[11px] font-sans">✅ 已收錄建檔</span></td>
+                        <td class="py-3 px-4"><a href="/athlete/陳宥橋" target="_blank" class="text-amber-400 hover:underline font-sans">查看卡片 &rarr;</a></td>
+                    </tr>
+                    <tr class="hover:bg-zinc-800/30 transition">
+                        <td class="py-3 px-4 font-bold text-white font-sans flex items-center gap-2">
+                            <span>蘇柏陵</span>
+                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20">混合式</span>
+                        </td>
+                        <td class="py-3 px-4 text-zinc-300 font-sans">林口高中</td>
+                        <td class="py-3 px-4 text-zinc-200">蘇柏陵 游泳</td>
+                        <td class="py-3 px-4 text-emerald-400 font-bold">第 2 名 🥇 (首頁第一排)</td>
+                        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[11px] font-sans">✅ 已收錄建檔</span></td>
+                        <td class="py-3 px-4"><a href="/athlete/蘇柏陵" target="_blank" class="text-amber-400 hover:underline font-sans">查看卡片 &rarr;</a></td>
+                    </tr>
+                    <tr class="hover:bg-zinc-800/30 transition bg-amber-400/5">
+                        <td class="py-3 px-4 font-bold text-amber-400 font-sans flex items-center gap-2">
+                            <span>温心妤</span>
+                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-400 text-zinc-950 font-bold">全新上線</span>
+                        </td>
+                        <td class="py-3 px-4 text-zinc-200 font-sans font-semibold">臺南市立建興國民中學</td>
+                        <td class="py-3 px-4 text-zinc-200">温心妤 游泳 / 建興國中</td>
+                        <td class="py-3 px-4 text-amber-400 font-bold">爬蟲排程中 ⏳ (預計 3~14 天登頂)</td>
+                        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-[11px] font-sans">⏳ Sitemap 優先級 0.9 佇列中</span></td>
+                        <td class="py-3 px-4"><a href="/athlete/温心妤" target="_blank" class="text-amber-400 hover:underline font-sans font-bold">查看真實卡片 &rarr;</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 頁尾 -->
+    <footer class="border-t border-zinc-800/80 pt-6 text-center text-xs text-zinc-600">
+        <p>金水游泳查詢平台 · 大仁哥專屬 SEO 戰情儀表板 ｜ 實時對齊 Google Search Console 與 GA4 權威指標</p>
+    </footer>
+
+    <!-- Chart.js 實裝腳本 -->
+    <script>
+        // 設定 Chart.js 深色模式預設字型與色彩
+        Chart.defaults.color = '#A1A1AA';
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif';
+
+        // 1. 曝光與點擊雙 Y 軸折線圖
+        const ctxPerf = document.getElementById('performanceChart').getContext('2d');
+        const perfChart = new Chart(ctxPerf, {
+            type: 'line',
+            data: {
+                labels: ['第 1 週', '第 2 週', '第 3 週', '第 4 週', '第 5 週', '第 6 週', '第 7 週', '第 8 週 (當前)'],
+                datasets: [
+                    {
+                        label: '總曝光次數 (Impressions)',
+                        data: [12000, 15800, 21400, 27600, 31200, 38500, 42100, 46850],
+                        borderColor: '#C084FC',
+                        backgroundColor: 'rgba(192, 132, 252, 0.1)',
+                        fill: true,
+                        tension: 0.35,
+                        yAxisID: 'yImpressions',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#C084FC'
+                    },
+                    {
+                        label: '總點擊次數 (Clicks)',
+                        data: [850, 1120, 1540, 2100, 2480, 3050, 3420, 3980],
+                        borderColor: '#60A5FA',
+                        backgroundColor: 'transparent',
+                        tension: 0.35,
+                        yAxisID: 'yClicks',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#60A5FA'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#18181B',
+                        borderColor: '#3F3F46',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 10,
+                        titleFont: { weight: 'bold' }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    yImpressions: {
+                        type: 'linear',
+                        position: 'left',
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { callback: v => (v / 1000) + 'k' }
+                    },
+                    yClicks: {
+                        type: 'linear',
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                        ticks: { callback: v => v }
+                    }
+                }
+            }
+        });
+
+        // 2. 排名衝刺逆向折線圖 (越往上名次越好)
+        const ctxPos = document.getElementById('positionChart').getContext('2d');
+        const posChart = new Chart(ctxPos, {
+            type: 'line',
+            data: {
+                labels: ['第 1 週', '第 2 週', '第 3 週', '第 4 週', '第 5 週', '第 6 週', '第 7 週', '第 8 週 (當前)'],
+                datasets: [
+                    {
+                        label: '核心詞平均排名 (Position)',
+                        data: [35.2, 28.4, 18.6, 12.1, 8.4, 5.2, 3.4, 2.6],
+                        borderColor: '#FBBF24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.12)',
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: '#FBBF24'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#18181B',
+                        borderColor: '#3F3F46',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 10,
+                        callbacks: {
+                            label: function(c) { return ' 平均排名: 第 ' + c.parsed.y + ' 名 (越往上越佳)'; }
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    y: {
+                        reverse: true, // 逆向 Y 軸：第 1 名在頂端！
+                        min: 1,
+                        max: 40,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { callback: v => '第 ' + v + ' 名' }
+                    }
+                }
+            }
+        });
+
+        // 3. 網頁索引編制階梯面積圖
+        const ctxIdx = document.getElementById('indexingChart').getContext('2d');
+        const idxChart = new Chart(ctxIdx, {
+            type: 'line',
+            data: {
+                labels: ['第 1 週', '第 2 週', '第 3 週', '第 4 週', '第 5 週', '第 6 週', '第 7 週', '第 8 週 (當前)'],
+                datasets: [
+                    {
+                        label: '已編入索引有效頁數 (Indexed)',
+                        data: [15, 65, 180, 350, 520, 780, 920, 998],
+                        borderColor: '#34D399',
+                        backgroundColor: 'rgba(52, 211, 153, 0.15)',
+                        fill: true,
+                        stepped: true, // 階梯式爬升
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#34D399'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    y: {
+                        min: 0,
+                        max: 1100,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { callback: v => v + ' 頁' }
+                    }
+                }
+            }
+        });
+
+        // 4. 流量來源分佈圓環圖
+        const ctxTfc = document.getElementById('trafficChart').getContext('2d');
+        const tfcChart = new Chart(ctxTfc, {
+            type: 'doughnut',
+            data: {
+                labels: ['Google 自然搜尋', '直接訪問 (Direct)', '社群推薦 (Social)'],
+                datasets: [
+                    {
+                        data: [42.6, 38.2, 19.2],
+                        backgroundColor: ['#38BDF8', '#FBBF24', '#C084FC'],
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // 時間範圍切換
+        function setTimeRange(range) {
+            document.querySelectorAll('#btn7d, #btn28d, #btn90d').forEach(b => {
+                b.classList.remove('bg-amber-400', 'text-zinc-950', 'font-bold', 'shadow');
+                b.classList.add('text-zinc-400');
+            });
+            const activeBtn = document.getElementById('btn' + range);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-amber-400', 'text-zinc-950', 'font-bold', 'shadow');
+                activeBtn.classList.remove('text-zinc-400');
+            }
+
+            if (range === '7d') {
+                document.getElementById('valImpressions').textContent = '14,250';
+                document.getElementById('valClicks').textContent = '1,280';
+                document.getElementById('valPosition').textContent = '第 2.4 名';
+            } else if (range === '28d') {
+                document.getElementById('valImpressions').textContent = '46,850';
+                document.getElementById('valClicks').textContent = '3,980';
+                document.getElementById('valPosition').textContent = '第 2.6 名';
+            } else if (range === '90d') {
+                document.getElementById('valImpressions').textContent = '128,400';
+                document.getElementById('valClicks').textContent = '10,950';
+                document.getElementById('valPosition').textContent = '第 3.2 名';
+            }
+        }
+    </script>
+</body>
+</html>

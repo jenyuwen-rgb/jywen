@@ -297,7 +297,7 @@
                 <span style="color:#8E8E93;">一位泳者父親的池畔筆記｜全台泳者永久免費查閱</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName">台中市議長盃游泳錦標賽 (2026-10-02)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName">全國北區B(2)游泳錦標賽 (2026-10-17)</span>
             </span>
             <span class="marquee-item">
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
@@ -306,7 +306,7 @@
                 <span style="color:#8E8E93;">一位泳者父親的池畔筆記｜全台泳者永久免費查閱</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName_dup">台中市議長盃游泳錦標賽 (2026-10-02)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName_dup">全國北區B(2)游泳錦標賽 (2026-10-17)</span>
             </span>
         </div>
     </div>
@@ -4155,7 +4155,16 @@
         }
         checkUrlAutoSearch();
 
-        function toggleHistory() { let h = JSON.parse(localStorage.getItem('swim_h')||"[]"), html = `<div id="histModal" style="position:fixed; top:65px; left:50%; transform:translateX(-50%); width:calc(100% - 32px); max-width:860px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000; box-shadow:0 8px 32px rgba(0,0,0,0.6); box-sizing:border-box;"><div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;"><span style="color:#D4AF37; font-weight:bold;">歷史紀錄</span><span onclick="document.getElementById('histModal').remove()" style="color:#8E8E93; cursor:pointer;">關閉</span></div>`; h.forEach(n => html += `<div style="display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;"><span onclick="selectHist('${n}')" style="flex:1; cursor:pointer; color:#FFF;">${n}</span><span onclick="deleteHistory('${n}')" style="cursor:pointer;">🗑️</span></div>`); document.body.insertAdjacentHTML('beforeend', html+'</div>'); }
+        function toggleHistory() {
+            let h = JSON.parse(localStorage.getItem('swim_h')||"[]");
+            let html = `<div id="histModal" style="position:fixed; top:65px; left:50%; transform:translateX(-50%); width:calc(100% - 32px); max-width:860px; max-height:400px; overflow-y:auto; background:#1C1C1E; border:1px solid #333; border-radius:12px; padding:12px; z-index:1000; box-shadow:0 8px 32px rgba(0,0,0,0.6); box-sizing:border-box;"><div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:0.5px solid #444; padding-bottom:10px;"><span style="color:#D4AF37; font-weight:bold;">歷史紀錄</span><span onclick="document.getElementById('histModal').remove()" style="color:#8E8E93; cursor:pointer;">關閉</span></div>`;
+            h.forEach(n => {
+                const safeText = escapeHtml(String(n));
+                const safeParam = encodeURIComponent(String(n));
+                html += `<div style="display:flex; justify-content:space-between; padding:12px 5px; border-bottom:0.5px solid #222;"><span onclick="selectHist(decodeURIComponent('${safeParam}'))" style="flex:1; cursor:pointer; color:#FFF;">${safeText}</span><span onclick="deleteHistory(decodeURIComponent('${safeParam}'))" style="cursor:pointer;">🗑️</span></div>`;
+            });
+            document.body.insertAdjacentHTML('beforeend', html+'</div>');
+        }
         function selectHist(n) { document.getElementById('searchInput').value = n; if(document.getElementById('histModal')) document.getElementById('histModal').remove(); doSearch(); }
         function deleteHistory(n) { let h = JSON.parse(localStorage.getItem('swim_h')||"[]").filter(x => x!==n); localStorage.setItem('swim_h', JSON.stringify(h)); if(document.getElementById('histModal')) document.getElementById('histModal').remove(); toggleHistory(); }
         function saveHistory(n) { if(!n) return; let h = JSON.parse(localStorage.getItem('swim_h')||"[]"); h = [n, ...h.filter(x => x !== n)].slice(0,30); localStorage.setItem('swim_h', JSON.stringify(h)); }
@@ -5479,6 +5488,13 @@
                         if (banner) banner.style.display = 'block';
                     }, 2500);
                 }
+            }
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js').catch(err => {
+                        console.warn('[SW] Registration failed:', err);
+                    });
+                });
             }
         });
     </script>
