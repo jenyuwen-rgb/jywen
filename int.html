@@ -21,8 +21,21 @@
             --primary-light: #F3D078;
         }
 
-        .hidden {
-            display: none !important;
+        @media (min-width: 768px) {
+            #desktopTableContainer {
+                display: block !important;
+            }
+            #mobileTerminalFeed {
+                display: none !important;
+            }
+        }
+        @media (max-width: 767px) {
+            #desktopTableContainer {
+                display: none !important;
+            }
+            #mobileTerminalFeed {
+                display: block !important;
+            }
         }
 
         body {
@@ -5399,7 +5412,7 @@
                         </div>
 
                         <!-- 💻 電腦端高清表格 (預設隱藏 IP，閱讀視覺降噪) -->
-                        <div class="hidden md:block overflow-x-auto">
+                        <div id="desktopTableContainer" class="hidden md:block overflow-x-auto">
                             <table class="w-full text-left text-xs font-mono">
                                 <thead class="bg-zinc-900/90 text-zinc-400 border-b border-zinc-800 sticky top-0 backdrop-blur-md">
                                     <tr>
