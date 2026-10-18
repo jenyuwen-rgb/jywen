@@ -1,12 +1,12 @@
 {
-  "version": 1792288991,
-  "version_code": "v2026.10.18.1003-b1792288991",
+  "version": 1792360987,
+  "version_code": "v2026.10.19.0603-b1792360987",
   "total_buckets": 256,
-  "total_swimmers": 31225,
-  "total_records": 848397,
+  "total_swimmers": 31239,
+  "total_records": 851369,
   "latest_race": "全國北區B(2)游泳錦標賽",
-  "latest_date": "20261017",
-  "total_size_mb": 19.6,
-  "avg_bucket_size_kb": 78.39,
-  "generated_at": "2026-10-18 10:03:11"
+  "latest_date": "20261018",
+  "total_size_mb": 20.7,
+  "avg_bucket_size_kb": 82.78,
+  "generated_at": "2026-10-19 06:03:07"
 }
