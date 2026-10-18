@@ -805,6 +805,330 @@
             background: rgba(255, 255, 255, 0.02);
         }
 
+    
+        /* ==================================================== */
+        /* 🗓️ 大仁哥認可之經典 macOS Cyber Dark 月曆樣式 */
+        /* ==================================================== */
+        .mac-calendar-container {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .mac-calendar-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mac-calendar-card {
+            background-color: #111215;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .mac-month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.15rem;
+        }
+
+        .mac-month-nav-btn {
+            background: #1c1c1e;
+            border: 1px solid #2c2c2e;
+            color: #a1a1aa;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.15rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .mac-month-nav-btn:hover {
+            color: #ffffff;
+            border-color: #3b82f6;
+            background: #252528;
+        }
+
+        .mac-month-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mac-today-btn {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #f87171;
+            padding: 3px 9px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mac-today-btn:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .mac-weekdays-row {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            color: #71717a;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .mac-days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            row-gap: 5px;
+        }
+
+        .mac-day-cell {
+            min-height: 85px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            position: relative;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            padding: 4px 5px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.015);
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 640px) {
+            .mac-calendar-card {
+                padding: 0.85rem 0.65rem !important;
+            }
+            .mac-day-cell {
+                min-height: 52px !important;
+                padding: 2px 2px !important;
+                border-radius: 6px !important;
+            }
+            .mac-day-num {
+                width: 17px !important;
+                height: 17px !important;
+                font-size: 0.72rem !important;
+            }
+            .mac-day-badge {
+                font-size: 0.55rem !important;
+                padding: 0.5px 3px !important;
+            }
+            .mac-event-chip {
+                font-size: 0.58rem !important;
+                padding: 1px 2px !important;
+                line-height: 1.15 !important;
+                margin-top: 1px !important;
+            }
+            .mac-event-more {
+                font-size: 0.52rem !important;
+            }
+            .mac-month-header {
+                margin-bottom: 0.75rem !important;
+            }
+            .mac-weekdays-row {
+                font-size: 0.75rem !important;
+                margin-bottom: 0.35rem !important;
+                padding-bottom: 0.3rem !important;
+            }
+            .mac-detail-card {
+                padding: 1rem 0.85rem !important;
+            }
+        }
+
+        .mac-day-cell:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .mac-day-cell.other-month {
+            color: #3f3f46;
+            opacity: 0.35;
+            background: transparent;
+        }
+
+        .mac-day-cell.curr-month {
+            color: #ffffff;
+        }
+
+        .mac-day-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 2px;
+        }
+
+        .mac-day-num {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            border-radius: 50%;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .mac-day-cell.is-today .mac-day-num {
+            background-color: #ef4444;
+            color: #ffffff !important;
+            font-weight: 800;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+
+        .mac-day-cell.is-selected {
+            background-color: rgba(245, 158, 11, 0.12);
+            border: 1.5px solid rgba(245, 158, 11, 0.85);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+        }
+
+        .mac-day-badge {
+            font-size: 0.6rem;
+            color: #a1a1aa;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 1px 4px;
+            border-radius: 5px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .mac-day-events {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .mac-event-chip {
+            font-size: 0.65rem;
+            padding: 1.5px 3.5px;
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+            line-height: 1.25;
+            font-weight: 500;
+            box-sizing: border-box;
+            transition: filter 0.15s ease;
+        }
+
+        .mac-chip-math { background: rgba(245, 158, 11, 0.18); border-left: 2px solid #f59e0b; color: #fbbf24; }
+        .mac-chip-bio { background: rgba(16, 185, 129, 0.18); border-left: 2px solid #10b981; color: #34d399; }
+        .mac-chip-chinese { background: rgba(244, 63, 94, 0.18); border-left: 2px solid #f43f5e; color: #fb7185; }
+        .mac-chip-eng { background: rgba(59, 130, 246, 0.18); border-left: 2px solid #3b82f6; color: #60a5fa; }
+        .mac-chip-soc { background: rgba(139, 92, 246, 0.18); border-left: 2px solid #8b5cf6; color: #c4b5fd; }
+        .mac-chip-rest { background: rgba(168, 85, 247, 0.15); border-left: 2px solid #a855f7; color: #e9d5ff; }
+        .mac-chip-exam { background: rgba(239, 68, 68, 0.25); border-left: 2px solid #ef4444; color: #fca5a5; font-weight: 700; }
+
+        .mac-event-more {
+            font-size: 0.58rem;
+            color: #71717a;
+            text-align: right;
+            padding: 0 1px;
+            line-height: 1;
+            font-weight: 600;
+        }
+
+        .mac-calendar-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mac-detail-card {
+            background-color: #111215;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+        }
+
+        .mac-detail-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mac-detail-date-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mac-event-badge {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .mac-events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 520px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .mac-event-item-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 3.5px solid #f59e0b;
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            transition: transform 0.2s, border-color 0.2s, background 0.2s;
+        }
+
+        .mac-event-item-card:hover {
+            transform: translateX(3px);
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.04);
+        }
+
     </style>
 </head>
 <body>
@@ -958,34 +1282,65 @@
         <!-- 視圖 1: 30天全科排程日曆 (Timeline View) -->
         <div id="view-timeline" class="tab-content">
             
-            <!-- 30 天排程週過濾器膠囊 (Week Filter Bar) -->
-            <div class="week-filter-bar no-print">
-                <button type="button" class="week-pill active" onclick="filterScheduleWeek('all')">🌟 全量 30 天</button>
-                <button type="button" class="week-pill" onclick="filterScheduleWeek(1)">🌱 第 1 週 (10/19~10/25)</button>
-                <button type="button" class="week-pill" onclick="filterScheduleWeek(2)">🔥 第 2 週 (10/26~11/01)</button>
-                <button type="button" class="week-pill" onclick="filterScheduleWeek(3)">⚡ 第 3 週 (11/02~11/08)</button>
-                <button type="button" class="week-pill" onclick="filterScheduleWeek(4)">🎯 第 4 週 (11/09~11/17 封關)</button>
-            </div>
-
             <!-- 學習策略與時間指引提示 -->
-            <div style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-                <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1 1 500px;">
-                    <i class="fa-solid fa-clock-rotate-left" style="color: #60a5fa; font-size: 1.5rem;"></i>
-                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
-                        <strong style="color: var(--text-primary);">智能時間容量排程機制：</strong>
-                        點擊每一天卡片右上角的「<span style="color:#60a5fa; font-weight:600;"><i class="fa-regular fa-clock"></i> 時段標籤</span>」，即可自訂 Ariel 當天幾點到幾點有空讀書！系統會<strong>自動依據每天的空檔時數容量</strong>，將要讀的章節精準填入，遇到有事情或沒空的日期自動避開！
+            <div style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 1rem; padding: 0.85rem 1.15rem; margin-bottom: 1.15rem; display: flex; align-items: center; justify-content: space-between; gap: 0.85rem; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fa-solid fa-calendar-check" style="color: #60a5fa; font-size: 1.35rem;"></i>
+                    <div style="font-size: 0.82rem; color: var(--text-secondary);">
+                        <strong style="color: var(--text-primary);">Ariel 段考行事曆：</strong>
+                        點擊下方月曆中任何日期，即可在右側查看該日讀書科目、章節與建議時段！點擊時段可直接調整空檔時間。
                     </div>
                 </div>
                 <div class="no-print">
-                    <button onclick="openBatchTimeModal()" class="tab-btn" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.8rem; padding: 0.45rem 0.85rem;">
-                        <i class="fa-solid fa-sliders"></i> 批次設定平日/週末時段
+                    <button onclick="openBatchTimeModal()" class="tab-btn" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                        <i class="fa-solid fa-sliders"></i> 批次設定平日/週末
                     </button>
                 </div>
             </div>
 
-            <!-- 四大週次甘特排程卡片 -->
-            <div id="weeklyScheduleContainer" style="display: flex; flex-direction: column; gap: 1.5rem;">
-                <!-- JS 動態生成 4 週完整排程 -->
+            <!-- 🗓️ 大仁哥認可之經典 macOS 雙欄行事曆 -->
+            <div class="mac-calendar-container">
+                <!-- 左側：月曆卡片 (42格) -->
+                <div class="mac-calendar-card">
+                    <!-- 月份導覽列 -->
+                    <div class="mac-month-header">
+                        <button class="mac-month-nav-btn" onclick="prevStudyMonth()" title="上個月">‹</button>
+                        <div class="mac-month-title">
+                            <span id="studyMonthLabel">2026年10月</span>
+                            <button class="mac-today-btn" onclick="jumpStudyToday()">今天</button>
+                        </div>
+                        <button class="mac-month-nav-btn" onclick="nextStudyMonth()" title="下個月">›</button>
+                    </div>
+
+                    <!-- 星期標頭 -->
+                    <div class="mac-weekdays-row">
+                        <div>日</div>
+                        <div>一</div>
+                        <div>二</div>
+                        <div>三</div>
+                        <div>四</div>
+                        <div>五</div>
+                        <div>六</div>
+                    </div>
+
+                    <!-- 42 格日期網格 -->
+                    <div id="studyDaysGrid" class="mac-days-grid">
+                        <!-- 由 JS 動態生成 -->
+                    </div>
+                </div>
+
+                <!-- 右側 / 手機下方：當日讀書詳情卡片 -->
+                <div class="mac-calendar-sidebar">
+                    <div class="mac-detail-card">
+                        <div class="mac-detail-header">
+                            <h3 id="studyDetailDateTitle" class="mac-detail-date-title">🗓️ 2026年10月18日 (週日)</h3>
+                            <span id="studyDetailCountBadge" class="mac-event-badge">2 門考科</span>
+                        </div>
+                        <div id="studyDetailEventsList" class="mac-events-list">
+                            <!-- 由 JS 動態填入 -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -1765,6 +2120,274 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             activeCalendar = calendar;
         }
 
+        
+        // ==========================================
+        // 🗓️ 經典 macOS 行事曆控制器 (Ariel Study Calendar)
+        // ==========================================
+        let studyCalYear = 2026;
+        let studyCalMonth = 9; // 0-based: 9 = 10月, 10 = 11月
+        let studySelectedDate = new Date("2026-10-18T00:00:00");
+
+        function getStudyEventChipClass(subId) {
+            if (subId.includes("math")) return "mac-chip-math";
+            if (subId.includes("bio")) return "mac-chip-bio";
+            if (subId.includes("chinese")) return "mac-chip-chinese";
+            if (subId.includes("eng")) return "mac-chip-eng";
+            if (subId.includes("history") || subId.includes("geo") || subId.includes("civics")) return "mac-chip-soc";
+            return "mac-chip-math";
+        }
+
+        function renderStudyCalendar() {
+            const labelEl = document.getElementById("studyMonthLabel");
+            const gridEl = document.getElementById("studyDaysGrid");
+            if (!labelEl || !gridEl) return;
+
+            labelEl.textContent = `${studyCalYear}年${studyCalMonth + 1}月`;
+
+            // 當月第一天是星期幾
+            const firstDay = new Date(studyCalYear, studyCalMonth, 1).getDay();
+            // 當月有幾天
+            const daysInMonth = new Date(studyCalYear, studyCalMonth + 1, 0).getDate();
+            // 上個月有幾天
+            const daysInPrevMonth = new Date(studyCalYear, studyCalMonth, 0).getDate();
+
+            const today = new Date();
+            const todayY = today.getFullYear();
+            const todayM = today.getMonth();
+            const todayD = today.getDate();
+
+            const selY = studySelectedDate.getFullYear();
+            const selM = studySelectedDate.getMonth();
+            const selD = studySelectedDate.getDate();
+
+            let gridHtml = "";
+
+            // 42 格填充
+            for (let i = 0; i < 42; i++) {
+                let cellYear = studyCalYear;
+                let cellMonth = studyCalMonth;
+                let cellDay;
+                let isOther = false;
+
+                if (i < firstDay) {
+                    // 上個月
+                    cellDay = daysInPrevMonth - firstDay + i + 1;
+                    cellMonth--;
+                    if (cellMonth < 0) { cellMonth = 11; cellYear--; }
+                    isOther = true;
+                } else if (i >= firstDay + daysInMonth) {
+                    // 下個月
+                    cellDay = i - (firstDay + daysInMonth) + 1;
+                    cellMonth++;
+                    if (cellMonth > 11) { cellMonth = 0; cellYear++; }
+                    isOther = true;
+                } else {
+                    // 當月
+                    cellDay = i - firstDay + 1;
+                }
+
+                const dObj = new Date(cellYear, cellMonth, cellDay);
+                const dateStr = `${cellYear}-${String(cellMonth + 1).padStart(2, '0')}-${String(cellDay).padStart(2, '0')}`;
+
+                const isToday = (cellYear === todayY && cellMonth === todayM && cellDay === todayD);
+                const isSelected = (cellYear === selY && cellMonth === selM && cellDay === selD);
+
+                let classes = `mac-day-cell ${isOther ? 'other-month' : 'curr-month'}`;
+                if (isToday) classes += " is-today";
+                if (isSelected) classes += " is-selected";
+
+                // 取得當天的排程資料
+                const dayPlan = activeCalendar.find(p => p.date === dateStr);
+                let eventsHtml = "";
+                let countBadge = "";
+
+                if (dateStr === "2026-11-17") {
+                    // 封關日
+                    eventsHtml += `<div class="mac-event-chip mac-chip-national" style="border-left: 2.5px solid #10b981; color: #34d399;">🎯 考前封關</div>`;
+                } else if (dateStr === "2026-11-24" || dateStr === "2026-11-25") {
+                    // 段考日
+                    eventsHtml += `<div class="mac-event-chip mac-chip-exam">💯 段考決戰</div>`;
+                } else if (dayPlan) {
+                    const items = dayPlan.items || [];
+                    const timeSlot = dayPlan.timeSlot;
+
+                    if (timeSlot && (timeSlot.isOff || timeSlot.minutes <= 0)) {
+                        eventsHtml += `<div class="mac-event-chip mac-chip-rest">🏖️ 休息</div>`;
+                    } else if (items.length > 0) {
+                        countBadge = `<span class="mac-day-badge">${items.length}</span>`;
+                        const maxDisplay = 2;
+                        const displayed = items.slice(0, maxDisplay);
+                        const remaining = items.length - maxDisplay;
+
+                        eventsHtml = `<div class="mac-day-events">` + displayed.map(it => {
+                            const chipClass = getStudyEventChipClass(it.sub);
+                            const shortTitle = it.title.replace(/^[^ -]+ - /, "");
+                            return `<div class="mac-event-chip ${chipClass}" title="${it.title}">${shortTitle}</div>`;
+                        }).join("");
+
+                        if (remaining > 0) {
+                            eventsHtml += `<div class="mac-event-more">+${remaining} 更多</div>`;
+                        }
+                        eventsHtml += `</div>`;
+                    }
+                }
+
+                gridHtml += `
+                    <div class="${classes}" onclick="selectStudyDate(${cellYear}, ${cellMonth}, ${cellDay})">
+                        <div class="mac-day-top">
+                            <span class="mac-day-num">${cellDay}</span>
+                            ${countBadge}
+                        </div>
+                        ${eventsHtml}
+                    </div>
+                `;
+            }
+
+            gridEl.innerHTML = gridHtml;
+            renderStudyDateDetails(studySelectedDate);
+        }
+
+        function selectStudyDate(y, m, d) {
+            studySelectedDate = new Date(y, m, d);
+            if (m !== studyCalMonth || y !== studyCalYear) {
+                studyCalYear = y;
+                studyCalMonth = m;
+            }
+            renderStudyCalendar();
+        }
+
+        function prevStudyMonth() {
+            studyCalMonth--;
+            if (studyCalMonth < 0) { studyCalMonth = 11; studyCalYear--; }
+            renderStudyCalendar();
+        }
+
+        function nextStudyMonth() {
+            studyCalMonth++;
+            if (studyCalMonth > 11) { studyCalMonth = 0; studyCalYear++; }
+            renderStudyCalendar();
+        }
+
+        function jumpStudyToday() {
+            const now = new Date();
+            studyCalYear = now.getFullYear();
+            studyCalMonth = now.getMonth();
+            studySelectedDate = new Date();
+            renderStudyCalendar();
+        }
+
+        function renderStudyDateDetails(selDate) {
+            const dateTitle = document.getElementById("studyDetailDateTitle");
+            const countBadge = document.getElementById("studyDetailCountBadge");
+            const listEl = document.getElementById("studyDetailEventsList");
+            if (!dateTitle || !countBadge || !listEl) return;
+
+            const weekdays = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
+            const y = selDate.getFullYear();
+            const m = selDate.getMonth() + 1;
+            const d = selDate.getDate();
+            const w = weekdays[selDate.getDay()];
+            const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+            dateTitle.innerHTML = `<span>🗓️</span> ${y}年${m}月${d}日 (${w})`;
+
+            const dayPlan = activeCalendar.find(p => p.date === dateStr);
+            const isWeekend = (selDate.getDay() === 0 || selDate.getDay() === 6);
+            const slot = dayPlan ? dayPlan.timeSlot : getDayTimeSlot(dateStr, isWeekend);
+
+            let html = "";
+
+            // 時段區塊
+            const slotBadgeText = slot.isOff ? "今日休息日 (0h)" : `${slot.start} ~ ${slot.end} (${(slot.minutes / 60).toFixed(1)}h)`;
+            html += `
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">今日讀書時段規劃</div>
+                        <div style="font-size: 0.95rem; font-weight: 700; color: ${slot.isOff ? '#a78bfa' : '#34d399'};">
+                            ⏰ ${slotBadgeText}
+                        </div>
+                    </div>
+                    <button onclick="openDayTimeModal('${dateStr}')" class="tab-btn" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.78rem; padding: 0.35rem 0.75rem;">
+                        <i class="fa-solid fa-pen"></i> 調整時段
+                    </button>
+                </div>
+            `;
+
+            // 判斷是否為里程碑特殊日
+            if (dateStr === "2026-11-17") {
+                html += `
+                    <div class="mac-event-item-card" style="border-left-color: #10b981; background: rgba(16, 185, 129, 0.08);">
+                        <h4 class="mac-event-item-name" style="color: #34d399;">🎯 考前一週封關日（第一輪全科徹底唸完）</h4>
+                        <div class="mac-event-item-meta">
+                            <span>📅 大仁哥戰略節點</span>
+                            <span>🛡️ 提早 7 天刷題封神</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.4rem;">
+                            恭喜 Ariel！今天之前已將國英數自社全科課本重點徹底清零！接下來 7 天專注歷屆段考考古題與錯題本封神！
+                        </p>
+                    </div>
+                `;
+            } else if (dateStr === "2026-11-24" || dateStr === "2026-11-25") {
+                html += `
+                    <div class="mac-event-item-card" style="border-left-color: #ef4444; background: rgba(239, 68, 68, 0.08);">
+                        <h4 class="mac-event-item-name" style="color: #f87171;">💯 建興國中 115學年度第二次段考正式決戰</h4>
+                        <div class="mac-event-item-meta">
+                            <span>📅 考場決戰日</span>
+                            <span>🏛️ 臺南市立建興國民中學</span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.4rem;">
+                            帶著這一個月的紮實累積與錯題精華，沉著冷靜作答，細心驗算，拿下最佳成績！
+                        </p>
+                    </div>
+                `;
+            }
+
+            // 任務清單
+            if (dayPlan && dayPlan.items && dayPlan.items.length > 0) {
+                countBadge.textContent = `${dayPlan.items.length} 門任務`;
+                dayPlan.items.forEach(item => {
+                    const isDone = completedTasks.has(item.taskId);
+                    const subMeta = currentSubjects.find(s => s.id === item.sub) || { name: "全科", color: "#f59e0b" };
+                    html += `
+                        <div class="mac-event-item-card" style="border-left-color: ${subMeta.color};">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <h4 class="mac-event-item-name" style="${isDone ? 'text-decoration: line-through; color: var(--text-muted);' : ''}">
+                                    🏆 ${item.title}
+                                </h4>
+                                <button onclick="toggleTask('${item.taskId}'); renderStudyDateDetails(studySelectedDate);" class="badge ${isDone ? 'badge-green' : 'badge-gold'}" style="cursor: pointer; border: 1px solid var(--border-subtle); background: transparent;">
+                                    ${isDone ? '<i class="fa-solid fa-check"></i> 已完成' : '<i class="fa-regular fa-circle"></i> 標記完成'}
+                                </button>
+                            </div>
+                            <div class="mac-event-item-meta">
+                                <span>⏰ 建議 ${item.dur}</span>
+                                <span>📚 ${subMeta.book || '指定教材'}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else if (slot.isOff) {
+                countBadge.textContent = "0 門 (休息)";
+                html += `
+                    <div style="text-align: center; padding: 2rem 1rem; color: var(--text-muted);">
+                        <i class="fa-solid fa-mug-hot" style="font-size: 2rem; color: #a855f7; margin-bottom: 0.5rem;"></i>
+                        <p style="font-weight: 600; color: var(--text-primary);">今日設定為休息日</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.25rem;">好好的休息或專心游泳訓練！隨時可點上方按鈕調整時段。</p>
+                    </div>
+                `;
+            } else {
+                countBadge.textContent = "自由複習";
+                html += `
+                    <div style="text-align: center; padding: 2rem 1rem; color: var(--text-muted);">
+                        <i class="fa-solid fa-feather" style="font-size: 2rem; color: #60a5fa; margin-bottom: 0.5rem;"></i>
+                        <p style="font-weight: 600; color: var(--text-primary);">今日無排定新單元</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.25rem;">可自由回顧錯題本，或進行考前重點章節掃描。</p>
+                    </div>
+                `;
+            }
+
+            listEl.innerHTML = html;
+        }
+
         // ==========================================
         // 4. 頁面初始化
         // ==========================================
@@ -1774,7 +2397,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             updateCountdowns();
             renderOverallProgress();
             renderTodayTasks();
-            renderWeeklySchedule();
+            renderWeeklySchedule(); renderStudyCalendar();
             renderSubjectCards();
             renderSprintSchedule();
             renderMistakes();
@@ -1828,7 +2451,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(Array.from(completedTasks)));
             renderOverallProgress();
             renderTodayTasks();
-            renderWeeklySchedule();
+            renderWeeklySchedule(); renderStudyCalendar();
             renderSubjectCards();
         }
 
@@ -1908,6 +2531,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
         // ==========================================
         function renderWeeklySchedule() {
             const container = document.getElementById("weeklyScheduleContainer");
+            if (!container) return;
             container.innerHTML = "";
 
             for (let w = 1; w <= 4; w++) {
@@ -2256,7 +2880,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             buildDynamicCalendar();
             renderOverallProgress();
             renderTodayTasks();
-            renderWeeklySchedule();
+            renderWeeklySchedule(); renderStudyCalendar();
             triggerConfetti();
 
             alert(`✅ ${editingDate} 讀書時段已設定為 ${sVal}~${eVal} (${(mins/60).toFixed(1)}h)！\n課表內容已依據可用時間重新分配平衡完畢。`);
@@ -2304,7 +2928,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             buildDynamicCalendar();
             renderOverallProgress();
             renderTodayTasks();
-            renderWeeklySchedule();
+            renderWeeklySchedule(); renderStudyCalendar();
             triggerConfetti();
 
             alert(`✅ 30 天每日時段已批次套用！\n平日：${wStart}~${wEnd} (${(wMins/60).toFixed(1)}h)\n週末：${weStart}~${weEnd} (${(weMins/60).toFixed(1)}h)\n課表已根據時間全面重新動態分配！`);
@@ -2420,7 +3044,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             buildDynamicCalendar();
             renderOverallProgress();
             renderTodayTasks();
-            renderWeeklySchedule();
+            renderWeeklySchedule(); renderStudyCalendar();
             renderSubjectCards();
             populateMistakeSubjectDropdown();
             triggerConfetti();
@@ -2502,7 +3126,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                 buildDynamicCalendar();
                 renderOverallProgress();
                 renderTodayTasks();
-                renderWeeklySchedule();
+                renderWeeklySchedule(); renderStudyCalendar();
                 renderSubjectCards();
                 renderVisualEditor();
                 populateMistakeSubjectDropdown();
@@ -2530,7 +3154,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                 buildDynamicCalendar();
                 renderOverallProgress();
                 renderTodayTasks();
-                renderWeeklySchedule();
+                renderWeeklySchedule(); renderStudyCalendar();
                 renderSubjectCards();
                 renderVisualEditor();
                 populateMistakeSubjectDropdown();
@@ -3495,7 +4119,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             buildDynamicCalendar();
             renderOverallProgress();
             renderTodayTasks();
-            renderWeeklySchedule();
+            renderWeeklySchedule(); renderStudyCalendar();
             renderSubjectCards();
             populateMistakeSubjectDropdown();
             triggerConfetti();
