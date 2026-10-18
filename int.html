@@ -893,6 +893,10 @@
             overflow: hidden;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             user-select: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 140px;
         }
         .war-room-kpi-card:hover {
             border-color: rgba(243, 208, 120, 0.6) !important;
@@ -1351,10 +1355,10 @@
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 pt-6 space-y-6">
+    <main class="max-w-6xl mx-auto px-3 sm:px-4 pt-6 space-y-6">
 
-        <!-- 戰情室 Hero：2x2 Cyber KPI 矩陣 (Master Grid - Pure Minimalist) -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 mb-2.5">
+        <!-- 戰情室 Hero：5 顆 Cyber KPI 矩陣 (Master Grid - Pure Minimalist) -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3.5 mb-2.5">
             <!-- KPI 1: 雙軌守恆 -->
             <div id="card-kpi-db" class="war-room-kpi-card" onclick="openDrawer('drawer-db-sync')">
                 <div class="flex items-center justify-between">
@@ -1364,7 +1368,7 @@
                     </span>
                 </div>
                 <div class="my-auto py-0.5">
-                    <div id="hudDbStatus" class="kpi-num leading-tight text-white font-mono font-extrabold text-[20px] sm:text-[24px]">845,388 <span class="text-[12px] font-normal text-amber-400">筆</span></div>
+                    <div id="hudDbStatus" class="kpi-num leading-tight text-white font-mono font-extrabold text-[19px] sm:text-[22px]">845,388 <span class="text-[12px] font-normal text-amber-400">筆</span></div>
                     <div class="text-[10px] text-zinc-400 font-mono mt-0.5">主庫正式成績 · 0 差額</div>
                 </div>
                 <div class="space-y-0.5 text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
@@ -1441,7 +1445,7 @@
                     </span>
                 </div>
                 <div class="my-auto py-0.5">
-                    <div id="hudGcpStatus" class="kpi-num leading-tight text-emerald-400 font-mono font-bold text-[18px] sm:text-[22px]">每日 06:00</div>
+                    <div id="hudGcpStatus" class="kpi-num leading-tight text-emerald-400 font-mono font-bold text-[18px] sm:text-[21px]">每日 06:00</div>
                     <div class="text-[10px] text-zinc-400 font-mono mt-0.5">7 協會全自動定時巡檢</div>
                 </div>
                 <div class="space-y-1 text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
@@ -1461,6 +1465,30 @@
                     </div>
                 </div>
                 <div id="gcpAlertTag" class="hidden mt-1 px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40 text-[9px] font-bold font-mono animate-pulse inline-block">CRITICAL 異常</div>
+            </div>
+
+            <!-- KPI 5: 📸 Mark 秩序冊 (大仁哥專屬新增) -->
+            <div id="card-kpi-orderbook" class="war-room-kpi-card col-span-2 sm:col-span-1" onclick="openOrderbookMarker()">
+                <div class="flex items-center justify-between">
+                    <span class="kpi-title"><i class="fa-solid fa-highlighter text-amber-400 text-[11px]"></i> Mark 秩序冊</span>
+                    <span id="hudOrderbookBadge" class="badge-calm-gold">
+                        <span class="neon-dot gold"></span>3色標記
+                    </span>
+                </div>
+                <div class="my-auto py-0.5">
+                    <div id="hudOrderbookStatus" class="kpi-num gold-gradient-text truncate leading-tight text-[18px] sm:text-[21px]">160 位選手</div>
+                    <div id="hudOrderbookSub" class="text-[10px] text-zinc-400 font-mono mt-0.5">步達黃 · 拍照粉 · 特殊綠</div>
+                </div>
+                <div class="space-y-0.5 text-[10px] text-zinc-500 font-mono border-t border-zinc-800/60 pt-1.5">
+                    <div class="flex items-center justify-between text-amber-400 font-bold">
+                        <span class="truncate">⚡ PDF 智慧螢光</span>
+                        <span class="shrink-0 ml-1 text-emerald-400 font-extrabold">1 鍵標記</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[9px] text-zinc-400">
+                        <span class="truncate text-zinc-400">📄 支援最新秩序冊</span>
+                        <span class="text-zinc-500 shrink-0 ml-1">點擊啟動 →</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -4055,6 +4083,8 @@
             
             const total = buddaArr.length + photoArr.length + specialArr.length;
             if (badgeTotal) badgeTotal.innerText = `${total} 人就緒`;
+            const hudOrderbook = document.getElementById('hudOrderbookStatus');
+            if (hudOrderbook) hudOrderbook.innerHTML = `${total} <span class="text-[12px] font-normal text-amber-400">位選手</span>`;
         }
 
         async function saveOrderbookConfigUI() {
