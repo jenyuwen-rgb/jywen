@@ -1953,6 +1953,13 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             }
         }
 
+        function getLocalDateStr(dateObj = new Date()) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
         function buildDynamicCalendar() {
             const startDate = new Date("2026-10-19T00:00:00");
             const daysCount = 30;
@@ -1987,7 +1994,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             for (let i = 0; i < daysCount; i++) {
                 const cur = new Date(startDate);
                 cur.setDate(startDate.getDate() + i);
-                const dateStr = cur.toISOString().split("T")[0];
+                const dateStr = getLocalDateStr(cur);
                 const dayOfWeek = cur.getDay();
                 const dayName = daysArr[dayOfWeek];
                 const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
@@ -2485,7 +2492,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
         // 5. 今日任務渲染 (Today's Focus)
         // ==========================================
         function renderTodayTasks() {
-            const todayStr = new Date().toISOString().split("T")[0];
+            const todayStr = getLocalDateStr(new Date());
             const dateObj = new Date();
             const daysArr = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
             const dayName = daysArr[dateObj.getDay()];
@@ -2887,7 +2894,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                 for (let i = 0; i < 30; i++) {
                     const c = new Date(startDate);
                     c.setDate(startDate.getDate() + i);
-                    const dStr = c.toISOString().split("T")[0];
+                    const dStr = getLocalDateStr(c);
                     const isWk = (c.getDay() === 0 || c.getDay() === 6);
 
                     if (applyWeekdays && !isWk) {
@@ -2939,7 +2946,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             for (let i = 0; i < 30; i++) {
                 const c = new Date(startDate);
                 c.setDate(startDate.getDate() + i);
-                const dStr = c.toISOString().split("T")[0];
+                const dStr = getLocalDateStr(c);
                 const isWk = (c.getDay() === 0 || c.getDay() === 6);
 
                 if (!isWk) {
