@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Arial 建興國中段考衝刺戰情室 ｜ 115學年度 國一專屬排程系統</title>
+    <meta name="description" content="專為台南市立建興國中國一（七年級）Arial 量身打造的段考倒數與學科智能排程戰情室。落實『段考前一週全科精讀完畢，最後一週專心刷題與錯題封神』的頂級學霸學習心法。">
+    <meta name="theme-color" content="#09090b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <!-- FontAwesome 6 (cdnjs whitelisted in CSP) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #09090b;
+            --bg-surface: #121217;
+            --bg-surface-elevated: #181820;
+            --bg-surface-hover: #22222d;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-strong: rgba(255, 255, 255, 0.16);
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --brand-primary: #3b82f6;
+            --brand-gold: #f59e0b;
+            --brand-emerald: #10b981;
+            --brand-purple: #8b5cf6;
+            --brand-rose: #f43f5e;
+            --accent-glow: rgba(59, 130, 246, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Noto Sans TC", "Inter", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            line-height: 1.5;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        /* 頂部極簡高斯模糊玻璃導航 */
+        .glass-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(9, 9, 11, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+        }
+
+        /* 徽章與標籤 */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.2rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-gold { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+        /* 卡片系統 */
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            border-color: var(--border-strong);
+            background: var(--bg-surface-elevated);
+        }
+
+        .card-glow {
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 30px -10px var(--accent-glow);
+        }
+
+        /* 倒數計時大數字 */
+        .countdown-num {
+            font-family: 'JetBrains Mono', -apple-system, monospace;
+            font-size: 2.75rem;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 標籤頁籤切換按鈕 */
+        .tab-btn {
+            padding: 0.65rem 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .tab-btn.active {
+            color: #ffffff;
+            background: var(--bg-surface-elevated);
+            border-color: var(--border-strong);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 勾選清單項目 */
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.85rem;
+            padding: 0.9rem 1rem;
+            border-radius: 0.85rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 0.6rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--border-strong);
+        }
+        .task-item.completed {
+            background: rgba(16, 185, 129, 0.06);
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .checkbox-custom {
+            width: 1.35rem;
+            height: 1.35rem;
+            border-radius: 0.375rem;
+            border: 2px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+        .task-item.completed .checkbox-custom {
+            background: var(--brand-emerald);
+            border-color: var(--brand-emerald);
+            color: #ffffff;
+        }
+
+        /* 科目色彩系統 */
+        .color-chinese { border-left: 4px solid #f43f5e !important; }
+        .color-english { border-left: 4px solid #3b82f6 !important; }
+        .color-math    { border-left: 4px solid #f59e0b !important; }
+        .color-bio     { border-left: 4px solid #10b981 !important; }
+        .color-history { border-left: 4px solid #8b5cf6 !important; }
+        .color-geo     { border-left: 4px solid #06b6d4 !important; }
+        .color-civics  { border-left: 4px solid #ec4899 !important; }
+
+        /* 進度條 */
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+        }
+
+        /* 慶祝彩色粒子 (Canvas) */
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* 友善列印樣式 */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+            }
+            .glass-header, .no-print, .tab-buttons, #confettiCanvas {
+                display: none !important;
+            }
+            .card {
+                border: 1px solid #ddd !important;
+                background: #fff !important;
+                color: #000 !important;
+                page-break-inside: avoid;
+                margin-bottom: 1rem !important;
+            }
+            .text-primary, .countdown-num {
+                color: #000 !important;
+                -webkit-text-fill-color: #000 !important;
+            }
+            .text-secondary, .text-muted {
+                color: #555 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 慶祝特效畫布 -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- 頂部頂級導航 -->
+    <header class="glass-header">
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 4rem;">
+            <div style="display: flex; align-items: center; gap: 0.85rem;">
+                <div style="width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; background: linear-gradient(135deg, #1e3a8a, #3b82f6); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.15rem; color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);">
+                    興
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <h1 style="font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em;">Arial 建興國中段考衝刺戰情室</h1>
+                        <span class="badge badge-gold"><i class="fa-solid fa-crown" style="font-size: 0.65rem;"></i> 國一 · 7年級專屬</span>
+                    </div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: -2px;">臺南市立建興國民中學 115學年度上學期 · 提早一週封關精讀法</p>
+                </div>
+            </div>
+
+            <!-- 右側功能捷徑 -->
+            <div style="display: flex; align-items: center; gap: 0.6rem;" class="no-print">
+                <button onclick="window.print()" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid var(--border-subtle);">
+                    <i class="fa-solid fa-print"></i> 列印書桌課表
+                </button>
+                <button onclick="openConfigModal()" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid var(--border-subtle);">
+                    <i class="fa-solid fa-sliders"></i> 自訂時數
+                </button>
+                <a href="/" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; text-decoration: none;">
+                    <i class="fa-solid fa-arrow-left"></i> 回首頁
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 1.5rem;">
+
+        <!-- 英雄橫幅與核心戰略雙倒數 -->
+        <section class="card card-glow" style="margin-bottom: 1.5rem; background: linear-gradient(160deg, #12121c 0%, #0a0a0f 100%); border: 1px solid rgba(59, 130, 246, 0.25);">
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1.5rem;">
+                
+                <!-- 左側戰略目標標語 -->
+                <div style="flex: 1 1 360px;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;">
+                        <span class="badge badge-blue"><i class="fa-solid fa-compass"></i> 大仁哥學霸戰略</span>
+                        <span class="badge badge-green"><i class="fa-solid fa-shield-halved"></i> 考前一週完全唸完</span>
+                    </div>
+                    <h2 style="font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25;">
+                        段考倒數與 7 大考科智能精讀分配
+                    </h2>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem; max-width: 600px;">
+                        距離建興國中<strong>第二次段考 (11/24 ~ 11/25)</strong> 還有倒數時間。落實<strong>「段考前一週 (11/17) 徹底唸完第一輪」</strong>，最後 7 天專注歷屆段考試題刷題與錯題封神！
+                    </p>
+
+                    <!-- 全科進度條 -->
+                    <div style="margin-top: 1.25rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
+                            <span style="color: var(--text-secondary); font-weight: 600;">第一輪全科精讀完成度</span>
+                            <span id="overallProgressText" style="font-weight: 700; color: #34d399;">0% (0/42 單元)</span>
+                        </div>
+                        <div class="progress-track">
+                            <div id="overallProgressBar" class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側雙倒數計時看板 -->
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    
+                    <!-- 倒數 1: 考前一週封關日 (11/17) -->
+                    <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 1rem; padding: 1.15rem 1.4rem; min-width: 170px; text-align: center;">
+                        <div style="font-size: 0.75rem; font-weight: 700; color: #34d399; letter-spacing: 0.05em; text-transform: uppercase;">
+                            <i class="fa-solid fa-flag-checkered"></i> 考前一週封關日
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">2026/11/17 (二)</div>
+                        <div class="countdown-num" id="daysToFinish" style="color: #34d399; -webkit-text-fill-color: #34d399;">--</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">天後全科必須念完</div>
+                    </div>
+
+                    <!-- 倒數 2: 第二次段考決戰日 (11/24) -->
+                    <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 1rem; padding: 1.15rem 1.4rem; min-width: 170px; text-align: center;">
+                        <div style="font-size: 0.75rem; font-weight: 700; color: #60a5fa; letter-spacing: 0.05em; text-transform: uppercase;">
+                            <i class="fa-solid fa-bullseye"></i> 第二次段考決戰
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">2026/11/24 (二)</div>
+                        <div class="countdown-num" id="daysToExam">--</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">天後正式上考場</div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 今日焦點任務看板 (Today's Focus) -->
+        <section class="card" style="margin-bottom: 1.5rem; border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, var(--bg-surface) 100%);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <span style="width: 2rem; height: 2rem; border-radius: 0.5rem; background: rgba(245, 158, 11, 0.2); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                        <i class="fa-solid fa-bolt"></i>
+                    </span>
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700;">Arial 今日專屬衝刺任務 (Today's Focus)</h3>
+                        <p id="todayDateLabel" style="font-size: 0.75rem; color: var(--text-secondary);">載入中...</p>
+                    </div>
+                </div>
+                <div id="todayStatusBadge">
+                    <span class="badge badge-gold"><i class="fa-solid fa-hourglass-half"></i> 今日進度待執行</span>
+                </div>
+            </div>
+
+            <!-- 今日任務項目清單 (JS 動態注入) -->
+            <div id="todayTaskList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.85rem;">
+                <!-- 動態注入 -->
+            </div>
+        </section>
+
+        <!-- 導航切換按鈕區 -->
+        <div class="tab-buttons no-print" style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; overflow-x: auto; padding-bottom: 0.5rem;">
+            <button class="tab-btn active" onclick="switchTab('timeline')">
+                <i class="fa-solid fa-calendar-days"></i> 30天全科排程日曆 (10/19 ~ 11/17)
+            </button>
+            <button class="tab-btn" onclick="switchTab('subjects')">
+                <i class="fa-solid fa-book-bookmark"></i> 7大考科範圍與避坑秘笈
+            </button>
+            <button class="tab-btn" onclick="switchTab('sprint')">
+                <i class="fa-solid fa-fire"></i> 考前黃金一週刷題庫 (11/17 ~ 11/23)
+            </button>
+            <button class="tab-btn" onclick="switchTab('mistakes')">
+                <i class="fa-solid fa-book-skull"></i> Arial 錯題收集簿 (<span id="mistakeCount">0</span>)
+            </button>
+        </div>
+
+        <!-- 視圖 1: 30天全科排程日曆 (Timeline View) -->
+        <div id="view-timeline" class="tab-content">
+            
+            <!-- 學習策略與時間指引提示 -->
+            <div style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <i class="fa-solid fa-lightbulb" style="color: #60a5fa; font-size: 1.5rem;"></i>
+                <div style="flex: 1; font-size: 0.85rem; color: var(--text-secondary);">
+                    <strong style="color: var(--text-primary);">科學交錯學習法則：</strong>
+                    平日每晚分配約 2 小時（<span style="color:#60a5fa; font-weight:600;">1 核心主科 70 分鐘</span> + <span style="color:#34d399; font-weight:600;">1 記憶副科 40 分鐘</span> + 10 分鐘錯題整理）；週末集中攻克大章節與實驗題。左右腦輪流切換，效率最高且不易疲倦！
+                </div>
+            </div>
+
+            <!-- 四大週次甘特排程卡片 -->
+            <div id="weeklyScheduleContainer" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- JS 動態生成 4 週完整排程 -->
+            </div>
+
+        </div>
+
+        <!-- 視圖 2: 7大考科範圍與避坑秘笈 (Subjects View) -->
+        <div id="view-subjects" class="tab-content" style="display: none;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.25rem;">
+                
+                <!-- 1. 國文 (康軒版) -->
+                <div class="card color-chinese">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <h4 style="font-size: 1.15rem; font-weight: 700; color: #f43f5e;">國文</h4>
+                                <span class="badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e;">康軒版</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">建議投入總時數：14 小時 (佔比 17.5%)</div>
+                        </div>
+                        <span class="badge badge-purple">文言名篇 + 修辭成語</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+                        <strong>【段考範圍】：</strong> 第 4 課《兒時記趣》（沈復）、第 5 課《吃冰的滋味》（古蒙仁）、第 6 課《論語選》（孔子）、自學二《音樂家與職籃巨星》、語文常識（二）標點符號與語法修辭。
+                    </div>
+                    <div style="background: rgba(244, 63, 94, 0.06); border-radius: 0.75rem; padding: 0.75rem; font-size: 0.8rem; border: 1px dashed rgba(244, 63, 94, 0.3); margin-bottom: 0.85rem;">
+                        <strong style="color: #f43f5e;"><i class="fa-solid fa-triangle-exclamation"></i> 建興名師必考避坑點：</strong>
+                        <ul style="padding-left: 1.2rem; margin-top: 0.25rem; line-height: 1.4;">
+                            <li>文言虛詞「之」字詞性辨析（如「昂首觀之」為代名詞；「物外之趣」為助詞「的」；「送孟浩然之廣陵」為動詞「前往」）。</li>
+                            <li>修辭判別：借代（如「白衣天使」借代護士）、倒裝句還原（如「徐噴以煙」→「以煙徐噴之」）。</li>
+                        </ul>
+                    </div>
+                    <div id="subject-tasks-chinese"></div>
+                </div>
+
+                <!-- 2. 英語 (翰林版) -->
+                <div class="card color-english">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <h4 style="font-size: 1.15rem; font-weight: 700; color: #3b82f6;">英語</h4>
+                                <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">翰林版</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">建議投入總時數：12 小時 (佔比 15%)</div>
+                        </div>
+                        <span class="badge badge-blue">進行式 + 祈使句</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+                        <strong>【段考範圍】：</strong> Unit 3 (現在進行式 be + V-ing)、Unit 4 (祈使句 / There is/are / 地點介系詞)、Review 2、隨堂英檢閱讀篇章、常考單字 150 字。
+                    </div>
+                    <div style="background: rgba(59, 130, 246, 0.06); border-radius: 0.75rem; padding: 0.75rem; font-size: 0.8rem; border: 1px dashed rgba(59, 130, 246, 0.3); margin-bottom: 0.85rem;">
+                        <strong style="color: #60a5fa;"><i class="fa-solid fa-triangle-exclamation"></i> 建興名師必考避坑點：</strong>
+                        <ul style="padding-left: 1.2rem; margin-top: 0.25rem; line-height: 1.4;">
+                            <li>進行式動詞變化特殊規則（如 run → running, die → dying, make → making）。</li>
+                            <li>There is / There are 與 have/has 絕對不能混用（There is a cat in the room，不可寫 There have a cat）。</li>
+                        </ul>
+                    </div>
+                    <div id="subject-tasks-english"></div>
+                </div>
+
+                <!-- 3. 數學 (康軒版) 【拉分關鍵王】 -->
+                <div class="card color-math">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <h4 style="font-size: 1.15rem; font-weight: 700; color: #f59e0b;">數學</h4>
+                                <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">康軒版</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">建議投入總時數：24 小時 (佔比 30% · 最核心)</div>
+                        </div>
+                        <span class="badge badge-gold">分數運算 + 因數倍數</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+                        <strong>【段考範圍】：</strong> 第二章 分數的運算（2-1 質因數分解與 GCD/LCM、標準分解式；2-2 分數加減與負分數；2-3 分數乘除與倒數；2-4 指數律與科學記號）。
+                    </div>
+                    <div style="background: rgba(245, 158, 11, 0.06); border-radius: 0.75rem; padding: 0.75rem; font-size: 0.8rem; border: 1px dashed rgba(245, 158, 11, 0.3); margin-bottom: 0.85rem;">
+                        <strong style="color: #fbbf24;"><i class="fa-solid fa-triangle-exclamation"></i> 建興名師必考避坑點：</strong>
+                        <ul style="padding-left: 1.2rem; margin-top: 0.25rem; line-height: 1.4;">
+                            <li>負數指數運算：\((-2)^4 = 16\) 與 \(-2^4 = -16\) 的括號陷阱！</li>
+                            <li>分數除法必須化為乘上倒數，正負號運算前先通分，繁分數化簡先處理內項乘積與外項乘積。</li>
+                            <li>互質定義：兩數的最大公因數為 1（不代表兩數本身都要是質數，例如 8 和 9 互質）。</li>
+                        </ul>
+                    </div>
+                    <div id="subject-tasks-math"></div>
+                </div>
+
+                <!-- 4. 生物 (翰林版) 【實驗圖表重鎮】 -->
+                <div class="card color-bio">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <h4 style="font-size: 1.15rem; font-weight: 700; color: #10b981;">生物</h4>
+                                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">翰林版</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">建議投入總時數：18 小時 (佔比 22.5%)</div>
+                        </div>
+                        <span class="badge badge-green">營養消化 + 循環運輸</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+                        <strong>【段考範圍】：</strong> 第 3 章 生物體的營養（酵素特性、光合作用光反應與碳反應、消化管與消化液）；第 4 章 生物體的運輸（植物維管束與蒸散作用、心臟構造與體循環/肺循環、淋巴免疫）。
+                    </div>
+                    <div style="background: rgba(16, 185, 129, 0.06); border-radius: 0.75rem; padding: 0.75rem; font-size: 0.8rem; border: 1px dashed rgba(16, 185, 129, 0.3); margin-bottom: 0.85rem;">
+                        <strong style="color: #34d399;"><i class="fa-solid fa-triangle-exclamation"></i> 建興名師必考避坑點：</strong>
+                        <ul style="padding-left: 1.2rem; margin-top: 0.25rem; line-height: 1.4;">
+                            <li>光合作用實驗：酒精隔水加熱脫去葉綠素，葉片變黃白後，滴加碘液檢驗澱粉呈現「藍黑色」。</li>
+                            <li>心臟血液流向：左心室肌肉最厚（將血液打入主動脈流向全身）；體循環為「左心室→主動脈→微血管→上下大靜脈→右心房」。</li>
+                        </ul>
+                    </div>
+                    <div id="subject-tasks-bio"></div>
+                </div>
+
+                <!-- 5. 歷史 (翰林版) -->
+                <div class="card color-history">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <h4 style="font-size: 1.15rem; font-weight: 700; color: #8b5cf6;">歷史</h4>
+                                <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa;">翰林版</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">建議投入總時數：10 小時 (佔比 12.5%)</div>
+                        </div>
+                        <span class="badge badge-purple">荷西鄭氏 + 清領前期</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+                        <strong>【段考範圍】：</strong> 第 3 章 荷西時期與鄭氏時期的臺灣（大航海時代、熱蘭遮城/普羅民遮城、鄭經陳永華諮議參軍、屯田制）；第 4 章 清領前期政治與社會（渡臺禁令、劃界封山、三年一小反五年一大反）。
+                    </div>
+                    <div style="background: rgba(139, 92, 246, 0.06); border-radius: 0.75rem; padding: 0.75rem; font-size: 0.8rem; border: 1px dashed rgba(139, 92, 246, 0.3); margin-bottom: 0.85rem;">
+                        <strong style="color: #a78bfa;"><i class="fa-solid fa-triangle-exclamation"></i> 建興名師必考避坑點：</strong>
+                        <ul style="padding-left: 1.2rem; margin-top: 0.25rem; line-height: 1.4;">
+                            <li>城池對照：荷蘭在南部築熱蘭遮城（安平古堡）、普羅民遮城（赤嵌樓）；西班牙在北部築聖多明哥城（紅毛城原址）。</li>
+                            <li>渡臺禁令三原則：渡臺需官府許可證照、不得攜帶家眷、粵東潮州惠州人民不得渡臺（導致清初臺灣男多女少與羅漢腳社會現象）。</li>
+                        </ul>
+                    </div>
+                    <div id="subject-tasks-history"></div>
+                </div>
+
+                <!-- 6. 地理 (翰林版) -->
+                <div class="card color-geo">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <h4 style="font-size: 1.15rem; font-weight: 700; color: #06b6d4;">地理</h4>
+                                <span class="badge" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee;">翰林版</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">建議投入總時數：10 小時 (佔比 12.5%)</div>
+                        </div>
+                        <span class="badge" style="background: rgba(6, 182, 212, 0.15); color: #22d3ee;">臺灣氣候 + 水資源</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+                        <strong>【段考範圍】：</strong> 第 3 章 臺灣的氣候（氣溫與降水要素、季風效應、地形雨、寒流梅雨颱風等氣候災害）；第 4 章 臺灣的水資源與生態（河川短小流急荒溪型、水庫優養化、地下水超抽地層下陷）。
+                    </div>
+                    <div style="background: rgba(6, 182, 212, 0.06); border-radius: 0.75rem; padding: 0.75rem; font-size: 0.8rem; border: 1px dashed rgba(6, 182, 212, 0.3); margin-bottom: 0.85rem;">
+                        <strong style="color: #22d3ee;"><i class="fa-solid fa-triangle-exclamation"></i> 建興名師必考避坑點：</strong>
+                        <ul style="padding-left: 1.2rem; margin-top: 0.25rem; line-height: 1.4;">
+                            <li>氣候圖判讀：北部基隆全年有雨（冬有東北季風迎風面、夏有西南季風與颱風）；南部夏雨冬乾（冬季位在背風面雨量稀少）。</li>
+                            <li>臺灣主要分水嶺為「中央山脈」，河川因地勢坡度陡峭呈現「短小流急、含沙量高、豐枯水期水位懸殊」。</li>
+                        </ul>
+                    </div>
+                    <div id="subject-tasks-geo"></div>
+                </div>
+
+                <!-- 7. 公民 (翰林版) -->
+                <div class="card color-civics">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <h4 style="font-size: 1.15rem; font-weight: 700; color: #ec4899;">公民</h4>
+                                <span class="badge" style="background: rgba(236, 72, 153, 0.15); color: #f472b6;">翰林版</span>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">建議投入總時數：8 小時 (佔比 10%)</div>
+                        </div>
+                        <span class="badge" style="background: rgba(236, 72, 153, 0.15); color: #f472b6;">家庭型態 + 親屬法律</span>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.85rem;">
+                        <strong>【段考範圍】：</strong> 第 3 章 家庭的意義與型態（家庭五大功能、多元家庭型態、血親與姻親計算）；第 4 章 家庭衝突與法律保障（親權、扶養義務、家庭暴力防治法三種保護令）。
+                    </div>
+                    <div style="background: rgba(236, 72, 153, 0.06); border-radius: 0.75rem; padding: 0.75rem; font-size: 0.8rem; border: 1px dashed rgba(236, 72, 153, 0.3); margin-bottom: 0.85rem;">
+                        <strong style="color: #f472b6;"><i class="fa-solid fa-triangle-exclamation"></i> 建興名師必考避坑點：</strong>
+                        <ul style="padding-left: 1.2rem; margin-top: 0.25rem; line-height: 1.4;">
+                            <li>親屬親等大魔王：「血親的配偶的血親」（例如親家公親家母、妯娌的兄弟姊妹）在法律上<strong>不是親屬</strong>！「配偶的血親的配偶」才是姻親！</li>
+                            <li>保護令種類：緊急保護令（警察/檢察官向法院聲請，4小時內核發）、暫時保護令（急迫危險由被害人或檢警聲請）、通常保護令（經法院完整審理開庭後核發）。</li>
+                        </ul>
+                    </div>
+                    <div id="subject-tasks-civics"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 視圖 3: 考前黃金一週刷題庫 (Sprint View) -->
+        <div id="view-sprint" class="tab-content" style="display: none;">
+            <div class="card" style="border-color: rgba(245, 158, 11, 0.4); background: linear-gradient(170deg, rgba(245, 158, 11, 0.06) 0%, var(--bg-surface) 100%); margin-bottom: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <div style="width: 2.25rem; height: 2.25rem; border-radius: 0.5rem; background: #f59e0b; color: #000; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; font-weight: 800;">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 800;">考前黃金 7 天「封神刷題衝刺法」 (11/17 ~ 11/23)</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">提早一週唸完所有課本與習題後，最後一週絕不再重頭讀書，專攻實戰考古題與錯題殲滅！</p>
+                    </div>
+                </div>
+
+                <!-- 7 天專屬任務清單 -->
+                <div id="sprintDaysList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <!-- JS 動態產生 7 天衝刺項目 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 視圖 4: 錯題收集簿 (Mistakes View) -->
+        <div id="view-mistakes" class="tab-content" style="display: none;">
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700;"><i class="fa-solid fa-fire-flame-curved" style="color: #f43f5e;"></i> Arial 專屬錯題殲滅本</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">大仁哥心法：段考能拿幾分，取決於這本錯題本清了多少！考前只看自己曾經錯過的陷阱。</p>
+                    </div>
+                    <button onclick="openAddMistakeModal()" class="tab-btn" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; border-color: rgba(244, 63, 94, 0.3);">
+                        <i class="fa-solid fa-plus"></i> 新增錯題筆記
+                    </button>
+                </div>
+
+                <!-- 錯題清單 -->
+                <div id="mistakesContainer">
+                    <!-- 動態渲染 -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 彈出視窗 1: 自訂時間與排程分配器 -->
+    <div id="configModal" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 1.25rem;">
+        <div class="card" style="max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; border-color: var(--border-strong);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.15rem; font-weight: 700;"><i class="fa-solid fa-sliders"></i> Arial 學習時數調節器</h3>
+                <button onclick="closeConfigModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer;">&times;</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.85rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.35rem;">平日（週一至週五）每晚可專注讀書時間：</label>
+                    <select id="cfgWeekdayHours" style="width: 100%; padding: 0.6rem; border-radius: 0.5rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: var(--text-primary);">
+                        <option value="1.5">1.5 小時 (輕量適應)</option>
+                        <option value="2.0" selected>2.0 小時 (標準學霸推薦節奏)</option>
+                        <option value="2.5">2.5 小時 (深度扎實衝刺)</option>
+                        <option value="3.0">3.0 小時 (高強度攻頂)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.35rem;">週末（週六、週日）每日專注讀書時間：</label>
+                    <select id="cfgWeekendHours" style="width: 100%; padding: 0.6rem; border-radius: 0.5rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: var(--text-primary);">
+                        <option value="3.5">3.5 小時 (上午 1.5h + 下午 2h)</option>
+                        <option value="4.5" selected>4.5 小時 (上午 2h + 下午 2.5h 標準推薦)</option>
+                        <option value="5.5">5.5 小時 (全天大章節全真精攻)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.35rem;">科目權重偏好（哪科需要多花心思）：</label>
+                    <select id="cfgFocusSubject" style="width: 100%; padding: 0.6rem; border-radius: 0.5rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: var(--text-primary);">
+                        <option value="math" selected>數學 (拉分王，需手算大量素養題)</option>
+                        <option value="bio">生物 (圖表實驗多，需手繪概念圖)</option>
+                        <option value="chinese">國文 (文言文文意與字音字形)</option>
+                        <option value="balanced">均衡分配 (標準黃金比例)</option>
+                    </select>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.03); padding: 0.85rem; border-radius: 0.5rem; border: 1px solid var(--border-subtle); margin-top: 0.5rem;">
+                    <div style="font-weight: 600; margin-bottom: 0.35rem;">資料備份與還原：</div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="exportData()" class="tab-btn" style="flex: 1; padding: 0.4rem; font-size: 0.75rem; border: 1px solid var(--border-subtle);">
+                            <i class="fa-solid fa-download"></i> 導出打卡進度
+                        </button>
+                        <button onclick="importDataPrompt()" class="tab-btn" style="flex: 1; padding: 0.4rem; font-size: 0.75rem; border: 1px solid var(--border-subtle);">
+                            <i class="fa-solid fa-upload"></i> 匯入備份
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.25rem;">
+                <button onclick="closeConfigModal()" class="tab-btn" style="border: 1px solid var(--border-subtle);">取消</button>
+                <button onclick="saveAndRebalance()" class="tab-btn" style="background: var(--brand-primary); color: #fff;">儲存並重新平衡課表</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 彈出視窗 2: 新增錯題筆記 -->
+    <div id="addMistakeModal" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 1.25rem;">
+        <div class="card" style="max-width: 500px; width: 100%; border-color: var(--border-strong);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.15rem; font-weight: 700;"><i class="fa-solid fa-plus-circle" style="color: #f43f5e;"></i> 新增錯題筆記</h3>
+                <button onclick="closeAddMistakeModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer;">&times;</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.85rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.25rem;">所屬考科：</label>
+                    <select id="mistakeSubject" style="width: 100%; padding: 0.6rem; border-radius: 0.5rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: var(--text-primary);">
+                        <option value="數學">數學 (康軒)</option>
+                        <option value="生物">生物 (翰林)</option>
+                        <option value="國文">國文 (康軒)</option>
+                        <option value="英語">英語 (翰林)</option>
+                        <option value="歷史">歷史 (翰林)</option>
+                        <option value="地理">地理 (翰林)</option>
+                        <option value="公民">公民 (翰林)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.25rem;">題目出處或章節（如：習作 2-2 第 5 題、建興 114 考古題）：</label>
+                    <input type="text" id="mistakeSource" placeholder="例如：數學講義 P.42 繁分數計算第 3 題" style="width: 100%; padding: 0.6rem; border-radius: 0.5rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: var(--text-primary);">
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.25rem;">當時為什麼做錯（錯誤盲點）：</label>
+                    <textarea id="mistakeReason" rows="2" placeholder="例如：忘記負負得正，括號外面有負號直接去括號導致變號錯誤！" style="width: 100%; padding: 0.6rem; border-radius: 0.5rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: inherit;"></textarea>
+                </div>
+
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.25rem;">正確觀念 / 解題口訣：</label>
+                    <textarea id="mistakeSolution" rows="2" placeholder="例如：去括號前先確認括號前正負，遇到減法全部轉加法相反數！" style="width: 100%; padding: 0.6rem; border-radius: 0.5rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: inherit;"></textarea>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.25rem;">
+                <button onclick="closeAddMistakeModal()" class="tab-btn" style="border: 1px solid var(--border-subtle);">取消</button>
+                <button onclick="saveMistake()" class="tab-btn" style="background: #f43f5e; color: #fff;">儲存進錯題本</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 腳本主邏輯 -->
+    <script>
+        // ==========================================
+        // 1. 建興國中段考關鍵時間與考科資料
+        // ==========================================
+        const EXAM_DATE = new Date("2026-11-24T08:00:00"); // 第二次段考日 (11/24)
+        const FINISH_DATE = new Date("2026-11-17T23:59:59"); // 考前一週封關日 (11/17)
+        const TODAY = new Date(); // 當前真實日期
+
+        // 七大學科章節任務庫
+        const SUBJECT_DATA = {
+            chinese: {
+                name: "國文",
+                book: "康軒版",
+                color: "#f43f5e",
+                tasks: [
+                    { id: "c1", title: "第 4 課《兒時記趣》課文精讀、形音義熟背與沈復生平", minutes: 90 },
+                    { id: "c2", title: "第 4 課文言虛詞「之」與倒裝句型專項演練", minutes: 60 },
+                    { id: "c3", title: "第 5 課《吃冰的滋味》摹寫與映襯修辭、作家古蒙仁風格", minutes: 90 },
+                    { id: "c4", title: "第 6 課《論語選》經典章句翻譯、孔子為學與修身精神", minutes: 120 },
+                    { id: "c5", title: "自學二《音樂家與職籃巨星》閱讀素養題解析", minutes: 60 },
+                    { id: "c6", title: "語文常識（二）標點符號用法與借代、譬喻修辭大會考", minutes: 90 }
+                ]
+            },
+            english: {
+                name: "英語",
+                book: "翰林版",
+                color: "#3b82f6",
+                tasks: [
+                    { id: "e1", title: "Unit 3 現在進行式 (be + V-ing) 規則與問句造句", minutes: 90 },
+                    { id: "e2", title: "Unit 4 祈使句、地點介系詞 (between, next to, opposite)", minutes: 90 },
+                    { id: "e3", title: "Unit 4 There is / There are 存在句與單複數名詞分辨", minutes: 75 },
+                    { id: "e4", title: "Review 2 綜合閱讀測驗與課外雜誌指定篇章精讀", minutes: 90 },
+                    { id: "e5", title: "全範圍 150 單字拼寫與聽力連音辨析訓練", minutes: 60 }
+                ]
+            },
+            math: {
+                name: "數學",
+                book: "康軒版",
+                color: "#f59e0b",
+                tasks: [
+                    { id: "m1", title: "2-1 質因數分解、標準分解式與質數合數判別", minutes: 120 },
+                    { id: "m2", title: "2-1 最大公因數 (GCD) 與最小公倍數 (LCM) 應用題", minutes: 120 },
+                    { id: "m3", title: "2-2 分數加減法運算、正負分數通分與相反數變號", minutes: 150 },
+                    { id: "m4", title: "2-3 分數乘除法運算、倒數性質與繁分數極速化簡", minutes: 150 },
+                    { id: "m5", title: "2-3 負數的奇偶次方指數規律與括號正負陷阱", minutes: 90 },
+                    { id: "m6", title: "2-4 指數律性質運算與科學記號素養題深度突破", minutes: 120 }
+                ]
+            },
+            bio: {
+                name: "生物",
+                book: "翰林版",
+                color: "#10b981",
+                tasks: [
+                    { id: "b1", title: "3-1 養分能量檢驗：本氏液與碘液水浴加熱變色實驗", minutes: 90 },
+                    { id: "b2", title: "3-2 酵素受質專一性、最適溫度與 pH 值活性曲線圖", minutes: 90 },
+                    { id: "b3", title: "3-3 植物光合作用：光反應與碳反應全圖、酒精脫色實驗", minutes: 120 },
+                    { id: "b4", title: "3-4 人體消化系統：消化管順序、肝膽胰酵素與酸鹼環境", minutes: 120 },
+                    { id: "b5", title: "4-1 植物水分養分運輸：木質部運水蒸散、韌皮部運糖", minutes: 90 },
+                    { id: "b6", title: "4-2 人體循環系統：心臟四腔室、瓣膜、體循環與肺循環", minutes: 120 },
+                    { id: "b7", title: "4-3 淋巴循環系統、淋巴結過濾與人體白血球免疫", minutes: 75 }
+                ]
+            },
+            history: {
+                name: "歷史",
+                book: "翰林版",
+                color: "#8b5cf6",
+                tasks: [
+                    { id: "h1", title: "第 3 章 荷西時期：大航海時代、熱蘭遮城與普羅民遮城", minutes: 90 },
+                    { id: "h2", title: "第 3 章 鄭氏治臺：陳永華建孔廟、諮議參軍與屯田政策", minutes: 90 },
+                    { id: "h3", title: "第 4 章 清領前期：渡臺三禁政策、消極統治與羅漢腳", minutes: 90 },
+                    { id: "h4", title: "第 4 章 劃界封山土牛溝與朱一貴、林爽文歷史民變", minutes: 90 }
+                ]
+            },
+            geo: {
+                name: "地理",
+                book: "翰林版",
+                color: "#06b6d4",
+                tasks: [
+                    { id: "g1", title: "第 3 章 臺灣氣候要素：氣溫分布與等溫線隨地形彎曲", minutes: 90 },
+                    { id: "g2", title: "第 3 章 降水時空分布：基隆多雨 vs 南部夏雨冬乾成因", minutes: 90 },
+                    { id: "g3", title: "第 3 章 臺灣氣候災害：颱風、梅雨、寒流與焚風效應", minutes: 75 },
+                    { id: "g4", title: "第 4 章 臺灣水資源：河川短小流急、荒溪型河川與地層下陷", minutes: 90 }
+                ]
+            },
+            civics: {
+                name: "公民",
+                book: "翰林版",
+                color: "#ec4899",
+                tasks: [
+                    { id: "v1", title: "第 3 章 家庭五大功能與現代多元家庭型態 (折衷/重組)", minutes: 75 },
+                    { id: "v2", title: "第 3 章 親屬關係大魔王：血親、配偶、姻親親等算法", minutes: 90 },
+                    { id: "v3", title: "第 4 章 家庭衝突與親權、扶養義務之法律規定", minutes: 75 },
+                    { id: "v4", title: "第 4 章 家庭暴力防治法：緊急/暫時/通常保護令核發比較", minutes: 90 }
+                ]
+            }
+        };
+
+        // 30 天科學滾動日程表 (10/19 ~ 11/17)
+        // 每日精心配置 1 主科 + 1 副科，避免同類型疲勞
+        const CALENDAR_PLAN = [
+            // Week 1 (10/19 ~ 10/25) 【基底奠定】
+            { date: "2026-10-19", day: "週一", week: 1, type: "weekday", focus: "數學 + 國文", items: [{ sub: "math", taskId: "m1", title: "數學 2-1 質因數分解與標準分解式", dur: "70m" }, { sub: "chinese", taskId: "c1", title: "國文 L4《兒時記趣》字詞文意精讀", dur: "40m" }] },
+            { date: "2026-10-20", day: "週二", week: 1, type: "weekday", focus: "生物 + 英文", items: [{ sub: "bio", taskId: "b1", title: "生物 3-1 本氏液與碘液水浴加熱實驗", dur: "70m" }, { sub: "english", taskId: "e1", title: "英文 U3 現在進行式問答造句", dur: "40m" }] },
+            { date: "2026-10-21", day: "週三", week: 1, type: "weekday", focus: "數學 + 歷史", items: [{ sub: "math", taskId: "m2", title: "數學 2-1 GCD 與 LCM 質因數分解實戰", dur: "70m" }, { sub: "history", taskId: "h1", title: "歷史 Ch3 荷西時期國際競爭與城池", dur: "40m" }] },
+            { date: "2026-10-22", day: "週四", week: 1, type: "weekday", focus: "生物 + 地理", items: [{ sub: "bio", taskId: "b2", title: "生物 3-2 酵素受質專一性與 pH 曲線", dur: "70m" }, { sub: "geo", taskId: "g1", title: "地理 Ch3 氣候要素與等溫線判讀", dur: "40m" }] },
+            { date: "2026-10-23", day: "週五", week: 1, type: "weekday", focus: "國文 + 公民", items: [{ sub: "chinese", taskId: "c2", title: "國文 L4「之」字詞性與倒裝修辭", dur: "70m" }, { sub: "civics", taskId: "v1", title: "公民 Ch3 家庭功能與多元家庭型態", dur: "40m" }] },
+            { date: "2026-10-24", day: "週六", week: 1, type: "weekend", focus: "週末大單元攻堅", items: [{ sub: "math", taskId: "m2", title: "數學 2-1 因數倍數素養大題精練", dur: "130m" }, { sub: "bio", taskId: "b3", title: "生物 3-3 植物光合作用兩階段實驗全解析", dur: "110m" }] },
+            { date: "2026-10-25", day: "週日", week: 1, type: "weekend", focus: "綜合複習與掃盲", items: [{ sub: "english", taskId: "e1", title: "英文 U3 閱讀克漏字與單字", dur: "100m" }, { sub: "history", taskId: "h2", title: "歷史 Ch3 鄭氏陳永華治臺屯田政策", dur: "80m" }, { sub: "math", taskId: "m1", title: "第 1 週全科錯題本首輪訂正", dur: "60m" }] },
+
+            // Week 2 (10/26 ~ 11/01) 【深度推展】
+            { date: "2026-10-26", day: "週一", week: 2, type: "weekday", focus: "數學 + 國文", items: [{ sub: "math", taskId: "m3", title: "數學 2-2 分數加減與負分數通分運算", dur: "70m" }, { sub: "chinese", taskId: "c3", title: "國文 L5《吃冰的滋味》修辭賞析", dur: "40m" }] },
+            { date: "2026-10-27", day: "週二", week: 2, type: "weekday", focus: "生物 + 英文", items: [{ sub: "bio", taskId: "b4", title: "生物 3-4 人體消化系統與消化液酸鹼", dur: "70m" }, { sub: "english", taskId: "e2", title: "英文 U4 地點介系詞與祈使句", dur: "40m" }] },
+            { date: "2026-10-28", day: "週三", week: 2, type: "weekday", focus: "數學 + 地理", items: [{ sub: "math", taskId: "m3", title: "數學 2-2 繁分數運算與相反數變號", dur: "70m" }, { sub: "geo", taskId: "g2", title: "地理 Ch3 降水時空分布與季風效應", dur: "40m" }] },
+            { date: "2026-10-29", day: "週四", week: 2, type: "weekday", focus: "歷史 + 國文", items: [{ sub: "history", taskId: "h3", title: "歷史 Ch4 清領前期渡臺禁令與消極治理", dur: "70m" }, { sub: "chinese", taskId: "c4", title: "國文 L6《論語選》第一章孔子名言", dur: "40m" }] },
+            { date: "2026-10-30", day: "週五", week: 2, type: "weekday", focus: "公民 + 英文", items: [{ sub: "civics", taskId: "v2", title: "公民 Ch3 親屬血緣姻親計算原則", dur: "70m" }, { sub: "english", taskId: "e3", title: "英文 U4 There is / There are 專項練習", dur: "40m" }] },
+            { date: "2026-10-31", day: "週六", week: 2, type: "weekend", focus: "週末大單元攻堅", items: [{ sub: "math", taskId: "m3", title: "數學 2-2 分數加減素養文字應用題", dur: "130m" }, { sub: "bio", taskId: "b4", title: "生物 Ch3 營養全章跨章整合試卷", dur: "110m" }] },
+            { date: "2026-11-01", day: "週日", week: 2, type: "weekend", focus: "綜合複習與掃盲", items: [{ sub: "chinese", taskId: "c4", title: "國文 L6《論語選》經典翻譯精默", dur: "100m" }, { sub: "geo", taskId: "g3", title: "地理 Ch3 氣候圖表判讀與氣候災害", dur: "80m" }, { sub: "bio", taskId: "b4", title: "第 2 週生物與數學難題錯題清消", dur: "60m" }] },
+
+            // Week 3 (11/02 ~ 11/08) 【跨科整合】
+            { date: "2026-11-02", day: "週一", week: 3, type: "weekday", focus: "數學 + 國文", items: [{ sub: "math", taskId: "m4", title: "數學 2-3 分數乘除運算與倒數求值", dur: "70m" }, { sub: "chinese", taskId: "c5", title: "國文 自學二《音樂家與職籃巨星》", dur: "40m" }] },
+            { date: "2026-11-03", day: "週二", week: 3, type: "weekday", focus: "生物 + 英文", items: [{ sub: "bio", taskId: "b5", title: "生物 4-1 植物蒸散作用與維管束運輸", dur: "70m" }, { sub: "english", taskId: "e4", title: "英文 Review 2 整合克漏字", dur: "40m" }] },
+            { date: "2026-11-04", day: "週三", week: 3, type: "weekday", focus: "數學 + 歷史", items: [{ sub: "math", taskId: "m5", title: "數學 2-3 負數乘除與指數奇偶變化規律", dur: "70m" }, { sub: "history", taskId: "h4", title: "歷史 Ch4 劃界封山與朱一貴林爽文民變", dur: "40m" }] },
+            { date: "2026-11-05", day: "週四", week: 3, type: "weekday", focus: "生物 + 地理", items: [{ sub: "bio", taskId: "b6", title: "生物 4-2 人體心臟瓣膜與心房心室構造", dur: "70m" }, { sub: "geo", taskId: "g4", title: "地理 Ch4 臺灣河川短小流急特徵", dur: "40m" }] },
+            { date: "2026-11-06", day: "週五", week: 3, type: "weekday", focus: "公民 + 國文", items: [{ sub: "civics", taskId: "v3", title: "公民 Ch4 家庭暴力防治法三種保護令", dur: "70m" }, { sub: "chinese", taskId: "c6", title: "國文 語文常識標點符號與修辭借代", dur: "40m" }] },
+            { date: "2026-11-07", day: "週六", week: 3, type: "weekend", focus: "週末大單元攻堅", items: [{ sub: "math", taskId: "m4", title: "數學 2-3 分數四則混合運算滿貫突破", dur: "130m" }, { sub: "bio", taskId: "b6", title: "生物 4-2 體循環與肺循環路徑全圖繪製", dur: "110m" }] },
+            { date: "2026-11-08", day: "週日", week: 3, type: "weekend", focus: "綜合複習與掃盲", items: [{ sub: "english", taskId: "e5", title: "英文 全範圍 150 單字聽寫閃測", dur: "90m" }, { sub: "civics", taskId: "v4", title: "公民 Ch4 保護令聲請資格與流程案例", dur: "80m" }, { sub: "math", taskId: "m4", title: "第 3 週錯題與四則運算盲點修復", dur: "70m" }] },
+
+            // Week 4 (11/09 ~ 11/17) 【收尾封關！考前一週全部唸完】
+            { date: "2026-11-09", day: "週一", week: 4, type: "weekday", focus: "數學 + 國文", items: [{ sub: "math", taskId: "m6", title: "數學 2-4 指數律性質運算與素養應用", dur: "70m" }, { sub: "chinese", taskId: "c1", title: "國文 全範圍字音字形地毯式默寫", dur: "40m" }] },
+            { date: "2026-11-10", day: "週二", week: 4, type: "weekday", focus: "生物 + 英文", items: [{ sub: "bio", taskId: "b7", title: "生物 4-3 淋巴循環系統與免疫細胞防線", dur: "70m" }, { sub: "english", taskId: "e4", title: "英文 課外閱讀雜誌篇章速讀技巧", dur: "40m" }] },
+            { date: "2026-11-11", day: "週三", week: 4, type: "weekday", focus: "數學 + 地理", items: [{ sub: "math", taskId: "m6", title: "數學 2-4 科學記號進階加減乘除", dur: "70m" }, { sub: "geo", taskId: "g4", title: "地理 Ch4 水庫調節與地層下陷環境題", dur: "40m" }] },
+            { date: "2026-11-12", day: "週四", week: 4, type: "weekday", focus: "歷史 + 公民", items: [{ sub: "history", taskId: "h4", title: "歷史 Ch3~4 荷西鄭氏清領時間線大串連", dur: "70m" }, { sub: "civics", taskId: "v2", title: "公民 Ch3~4 親屬法條與家庭暴力案例", dur: "40m" }] },
+            { date: "2026-11-13", day: "週五", week: 4, type: "weekday", focus: "數學 + 生物", items: [{ sub: "math", taskId: "m6", title: "數學 第二章全章實力總驗收測驗", dur: "70m" }, { sub: "bio", taskId: "b6", title: "生物 第 3~4 章核心概念心智圖總檢視", dur: "40m" }] },
+            { date: "2026-11-14", day: "週六", week: 4, type: "weekend", focus: "主科總驗收封關", items: [{ sub: "math", taskId: "m5", title: "國英數三科第一輪習題最後掃盲", dur: "130m" }, { sub: "chinese", taskId: "c6", title: "國文 成語典故與論語名句最後默寫", dur: "110m" }] },
+            { date: "2026-11-15", day: "週日", week: 4, type: "weekend", focus: "自然社會總封關", items: [{ sub: "bio", taskId: "b7", title: "生物第3~4章實驗題全真手寫驗收", dur: "120m" }, { sub: "history", taskId: "h3", title: "社會三科地歷公第一輪全科通關檢驗", dur: "120m" }] },
+            { date: "2026-11-16", day: "週一", week: 4, type: "weekday", focus: "全科大封關日", items: [{ sub: "math", taskId: "m1", title: "【大仁哥封關日】所有課本習題徹底清零！", dur: "60m" }, { sub: "bio", taskId: "b1", title: "七大考科第一輪精讀 100% 圓滿達成！", dur: "50m" }] },
+            { date: "2026-11-17", day: "週二", week: 4, type: "weekday", focus: "第一輪截稿結算", items: [{ sub: "chinese", taskId: "c1", title: "檢視進度條達 100%，準備邁入考前衝刺週！", dur: "60m" }] }
+        ];
+
+        // 考前黃金 7 天衝刺排程 (11/17 ~ 11/23)
+        const SPRINT_PLAN = [
+            { day: "Day -7", date: "2026-11-17 (二)", title: "國文歷屆試題全真模考 + 標註紅星錯題", desc: "做近兩年建興段考國文卷，嚴格計時 45 分鐘，重點抓出文言文與字詞盲點。", icon: "fa-book" },
+            { day: "Day -6", date: "2026-11-18 (三)", title: "數學歷屆段考實戰 2 回 + 繁分數計算極速驗算", desc: "專注突破素養文字題，親手重算標準分解式與 GCD/LCM 大題。", icon: "fa-calculator" },
+            { day: "Day -5", date: "2026-11-19 (四)", title: "生物實驗題與心臟循環專題模考 + 英文克漏字", desc: "專攻光合作用脫色實驗題型、心臟血液流動箭頭圖，英文速讀 2 篇。", icon: "fa-dna" },
+            { day: "Day -4", date: "2026-11-20 (五)", title: "社會合科（歷史/地理/公民）歷屆段考題庫大掃描", desc: "歷史時間線因果、地理氣候圖表判讀、公民親屬親等地雷題一次打通。", icon: "fa-landmark" },
+            { day: "Day -3", date: "2026-11-21 (六)", title: "【全真模考 Day 1】比照建興正式段考第一天時程", desc: "按段考當天作息與時間模擬第一天考科，訓練專注力與作答配速。", icon: "fa-stopwatch" },
+            { day: "Day -2", date: "2026-11-22 (日)", title: "【全真模考 Day 2】+ 【Arial 錯題本全量清零】", desc: "只讀這一個月記錄在錯題本上的所有題目，直到每一題都能一眼說出正解！", icon: "fa-fire-burner" },
+            { day: "Day -1", date: "2026-11-23 (一)", title: "【考前收心安神夜】快速瀏覽心智圖，早睡養足精氣神！", desc: "晚上 10 點前就寢，不熬夜、不喝刺激飲品，準備好文具，自信迎戰！", icon: "fa-bed" }
+        ];
+
+        // ==========================================
+        // 2. 本地儲存與狀態管理
+        // ==========================================
+        const STORAGE_KEY_TASKS = "arial_study_completed_tasks_v1";
+        const STORAGE_KEY_MISTAKES = "arial_study_mistakes_v1";
+        const STORAGE_KEY_CONFIG = "arial_study_config_v1";
+
+        let completedTasks = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY_TASKS) || "[]"));
+        let mistakes = JSON.parse(localStorage.getItem(STORAGE_KEY_MISTAKES) || "[]");
+        let appConfig = JSON.parse(localStorage.getItem(STORAGE_KEY_CONFIG) || JSON.stringify({
+            weekdayHours: 2.0,
+            weekendHours: 4.5,
+            focusSubject: "math"
+        }));
+
+        // ==========================================
+        // 3. 頁面初始化與倒數更新
+        // ==========================================
+        function initApp() {
+            updateCountdowns();
+            renderOverallProgress();
+            renderTodayTasks();
+            renderWeeklySchedule();
+            renderSubjectTabs();
+            renderSprintSchedule();
+            renderMistakes();
+
+            // 每秒微調倒數
+            setInterval(updateCountdowns, 60000);
+        }
+
+        function updateCountdowns() {
+            const now = new Date();
+
+            // 1. 考前一週封關倒數 (11/17)
+            const diffFinish = FINISH_DATE - now;
+            const daysFinish = Math.max(0, Math.ceil(diffFinish / (1000 * 60 * 60 * 24)));
+            document.getElementById("daysToFinish").innerText = daysFinish;
+
+            // 2. 正式段考決戰倒數 (11/24)
+            const diffExam = EXAM_DATE - now;
+            const daysExam = Math.max(0, Math.ceil(diffExam / (1000 * 60 * 60 * 24)));
+            document.getElementById("daysToExam").innerText = daysExam;
+        }
+
+        // ==========================================
+        // 4. 全科總進度計算與慶祝
+        // ==========================================
+        function getAllTotalTasksCount() {
+            let total = 0;
+            Object.values(SUBJECT_DATA).forEach(s => total += s.tasks.length);
+            return total;
+        }
+
+        function renderOverallProgress() {
+            const total = getAllTotalTasksCount();
+            const done = completedTasks.size;
+            const pct = Math.min(100, Math.round((done / total) * 100));
+
+            document.getElementById("overallProgressText").innerText = `${pct}% (${done}/${total} 單元)`;
+            document.getElementById("overallProgressBar").style.width = `${pct}%`;
+
+            if (pct === 100) {
+                triggerConfetti();
+            }
+        }
+
+        function toggleTask(taskId) {
+            if (completedTasks.has(taskId)) {
+                completedTasks.delete(taskId);
+            } else {
+                completedTasks.add(taskId);
+                triggerConfetti();
+            }
+            localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(Array.from(completedTasks)));
+            renderOverallProgress();
+            renderTodayTasks();
+            renderWeeklySchedule();
+            renderSubjectTabs();
+        }
+
+        // ==========================================
+        // 5. 今日焦點任務 (Today's Focus)
+        // ==========================================
+        function renderTodayTasks() {
+            const todayStr = new Date().toISOString().split("T")[0];
+            const dateObj = new Date();
+            const daysArr = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
+            const dayName = daysArr[dateObj.getDay()];
+
+            document.getElementById("todayDateLabel").innerText = `${todayStr} (${dayName}) · 專屬課表排程`;
+
+            // 在 CALENDAR_PLAN 尋找今日，若今天早於 10/19 則預設展示第 1 天 (10/19)
+            let planToday = CALENDAR_PLAN.find(p => p.date === todayStr);
+            if (!planToday) {
+                planToday = CALENDAR_PLAN[0]; // 預設第 1 天
+            }
+
+            const container = document.getElementById("todayTaskList");
+            container.innerHTML = "";
+
+            let allTodayDone = true;
+
+            planToday.items.forEach(item => {
+                const isDone = completedTasks.has(item.taskId);
+                if (!isDone) allTodayDone = false;
+                const subMeta = SUBJECT_DATA[item.sub] || { name: "學科", color: "#3b82f6" };
+
+                const el = document.createElement("div");
+                el.className = `task-item ${isDone ? 'completed' : ''}`;
+                el.onclick = () => toggleTask(item.taskId);
+                el.innerHTML = `
+                    <div class="checkbox-custom">
+                        ${isDone ? '<i class="fa-solid fa-check" style="font-size: 0.8rem;"></i>' : ''}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.2rem;">
+                            <span class="badge" style="background: rgba(255,255,255,0.08); color: ${subMeta.color}; border: 1px solid ${subMeta.color}40;">
+                                ${subMeta.name}
+                            </span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> 建議 ${item.dur}</span>
+                        </div>
+                        <div class="task-title" style="font-size: 0.95rem; font-weight: 600;">
+                            ${item.title}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+
+            // 更新今日狀態徽章
+            const badgeEl = document.getElementById("todayStatusBadge");
+            if (allTodayDone && planToday.items.length > 0) {
+                badgeEl.innerHTML = `<span class="badge badge-green"><i class="fa-solid fa-circle-check"></i> 今日任務全部達標！太棒了 Arial！</span>`;
+            } else {
+                badgeEl.innerHTML = `<span class="badge badge-gold"><i class="fa-solid fa-hourglass-half"></i> 今日進度待執行</span>`;
+            }
+        }
+
+        // ==========================================
+        // 6. 30天全科排程日曆 (Timeline)
+        // ==========================================
+        function renderWeeklySchedule() {
+            const container = document.getElementById("weeklyScheduleContainer");
+            container.innerHTML = "";
+
+            // 分週 (Week 1 ~ Week 4)
+            for (let w = 1; w <= 4; w++) {
+                const weekPlans = CALENDAR_PLAN.filter(p => p.week === w);
+                if (weekPlans.length === 0) continue;
+
+                let weekTitle = "";
+                let weekSubtitle = "";
+                if (w === 1) { weekTitle = "第 1 週 (10/19 ~ 10/25) · 基底奠定週"; weekSubtitle = "主攻：數學質因數分解 + 國文兒時記趣 + 生物光合作用實驗"; }
+                if (w === 2) { weekTitle = "第 2 週 (10/26 ~ 11/01) · 觀念深化週"; weekSubtitle = "主攻：數學分數加減繁分數 + 國文論語名篇 + 生物消化系統"; }
+                if (w === 3) { weekTitle = "第 3 週 (11/02 ~ 11/08) · 跨科整合週"; weekSubtitle = "主攻：數學指數奇偶律 + 生物心臟體循環全圖 + 公民親屬計算"; }
+                if (w === 4) { weekTitle = "第 4 週 (11/09 ~ 11/17) · 收尾封關週"; weekSubtitle = "大仁哥戰略：全科課本習題徹底清零，考前一週 100% 唸完！"; }
+
+                const card = document.createElement("div");
+                card.className = "card";
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+                        <div>
+                            <h4 style="font-size: 1.15rem; font-weight: 700;">${weekTitle}</h4>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary);">${weekSubtitle}</p>
+                        </div>
+                        <span class="badge ${w === 4 ? 'badge-green' : 'badge-blue'}">${w === 4 ? '🎯 封關週' : `第 ${w} 階段`}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.85rem;">
+                        ${weekPlans.map(dayPlan => {
+                            const isWeekend = dayPlan.type === "weekend";
+                            const itemsHtml = dayPlan.items.map(item => {
+                                const isDone = completedTasks.has(item.taskId);
+                                const subMeta = SUBJECT_DATA[item.sub] || { name: "學科", color: "#3b82f6" };
+                                return `
+                                    <div class="task-item ${isDone ? 'completed' : ''}" onclick="toggleTask('${item.taskId}')" style="padding: 0.6rem 0.75rem; margin-bottom: 0.35rem;">
+                                        <div class="checkbox-custom" style="width: 1.15rem; height: 1.15rem;">
+                                            ${isDone ? '<i class="fa-solid fa-check" style="font-size: 0.65rem;"></i>' : ''}
+                                        </div>
+                                        <div style="flex: 1; font-size: 0.85rem;">
+                                            <div style="display:flex; align-items:center; gap:0.3rem;">
+                                                <span style="font-size: 0.7rem; font-weight:700; color:${subMeta.color};">[${subMeta.name}]</span>
+                                                <span class="task-title" style="font-weight: 500;">${item.title}</span>
+                                            </div>
+                                            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 1px;">建議 ${item.dur}</div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join("");
+
+                            return `
+                                <div style="background: ${isWeekend ? 'rgba(59, 130, 246, 0.04)' : 'rgba(255, 255, 255, 0.02)'}; border: 1px solid ${isWeekend ? 'rgba(59, 130, 246, 0.2)' : 'var(--border-subtle)'}; border-radius: 0.75rem; padding: 0.85rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                                        <span style="font-weight: 700; font-size: 0.9rem; color: ${isWeekend ? '#60a5fa' : 'var(--text-primary)'};">
+                                            ${dayPlan.date.substring(5)} (${dayPlan.day})
+                                        </span>
+                                        <span class="badge" style="font-size: 0.7rem; background: rgba(255,255,255,0.06);">${dayPlan.focus}</span>
+                                    </div>
+                                    <div>${itemsHtml}</div>
+                                </div>
+                            `;
+                        }).join("")}
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        // ==========================================
+        // 7. 七大考科範圍與避坑清單
+        // ==========================================
+        function renderSubjectTabs() {
+            Object.keys(SUBJECT_DATA).forEach(subKey => {
+                const container = document.getElementById(`subject-tasks-${subKey}`);
+                if (!container) return;
+                const sub = SUBJECT_DATA[subKey];
+
+                container.innerHTML = sub.tasks.map(t => {
+                    const isDone = completedTasks.has(t.id);
+                    return `
+                        <div class="task-item ${isDone ? 'completed' : ''}" onclick="toggleTask('${t.id}')">
+                            <div class="checkbox-custom">
+                                ${isDone ? '<i class="fa-solid fa-check" style="font-size: 0.8rem;"></i>' : ''}
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="task-title" style="font-size: 0.9rem; font-weight: 600;">${t.title}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">預計精讀時數：${t.minutes} 分鐘</div>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+            });
+        }
+
+        // ==========================================
+        // 8. 考前黃金 7 天衝刺排程
+        // ==========================================
+        function renderSprintSchedule() {
+            const container = document.getElementById("sprintDaysList");
+            container.innerHTML = SPRINT_PLAN.map((item, idx) => {
+                return `
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: 0.85rem;">
+                        <div style="width: 2.5rem; height: 2.5rem; border-radius: 0.6rem; background: rgba(245, 158, 11, 0.15); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0;">
+                            <i class="fa-solid ${item.icon}"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <span class="badge badge-gold">${item.day}</span>
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">${item.date}</span>
+                                <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary);">${item.title}</h4>
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.35rem;">${item.desc}</p>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        // ==========================================
+        // 9. 錯題收集簿
+        // ==========================================
+        function renderMistakes() {
+            const countEl = document.getElementById("mistakeCount");
+            countEl.innerText = mistakes.length;
+
+            const container = document.getElementById("mistakesContainer");
+            if (mistakes.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+                        <i class="fa-regular fa-clipboard" style="font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.5;"></i>
+                        <p style="font-size: 0.9rem;">目前錯題本空空如也！做習題或模考時，隨時點擊右上角「新增錯題筆記」記錄陷阱。</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = mistakes.map((m, idx) => {
+                return `
+                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: 0.85rem; padding: 1rem; margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="badge badge-blue">${m.subject}</span>
+                                <strong style="font-size: 0.95rem;">${m.source}</strong>
+                            </div>
+                            <button onclick="deleteMistake(${idx})" style="background: none; border: none; color: #ef4444; font-size: 0.8rem; cursor: pointer;">
+                                <i class="fa-solid fa-trash"></i> 刪除
+                            </button>
+                        </div>
+                        <div style="font-size: 0.85rem; color: #f87171; margin-bottom: 0.35rem;">
+                            <i class="fa-solid fa-circle-xmark"></i> <strong>錯誤原因：</strong> ${m.reason}
+                        </div>
+                        <div style="font-size: 0.85rem; color: #34d399;">
+                            <i class="fa-solid fa-circle-check"></i> <strong>正確思路：</strong> ${m.solution}
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function saveMistake() {
+            const sub = document.getElementById("mistakeSubject").value;
+            const src = document.getElementById("mistakeSource").value.trim();
+            const rsn = document.getElementById("mistakeReason").value.trim();
+            const sol = document.getElementById("mistakeSolution").value.trim();
+
+            if (!src || !rsn || !sol) {
+                alert("請完整填寫題目出處、做錯原因與正確思路！");
+                return;
+            }
+
+            mistakes.unshift({
+                subject: sub,
+                source: src,
+                reason: rsn,
+                solution: sol,
+                created: new Date().toISOString()
+            });
+
+            localStorage.setItem(STORAGE_KEY_MISTAKES, JSON.stringify(mistakes));
+            closeAddMistakeModal();
+            renderMistakes();
+        }
+
+        function deleteMistake(index) {
+            if (confirm("確定這題已經徹底搞懂並從錯題本移除了嗎？")) {
+                mistakes.splice(index, 1);
+                localStorage.setItem(STORAGE_KEY_MISTAKES, JSON.stringify(mistakes));
+                renderMistakes();
+            }
+        }
+
+        // ==========================================
+        // 10. 切換 Tab 視圖
+        // ==========================================
+        function switchTab(tabName) {
+            document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach(content => content.style.display = "none");
+
+            const activeBtn = Array.from(document.querySelectorAll(".tab-btn")).find(b => b.getAttribute("onclick") && b.getAttribute("onclick").includes(tabName));
+            if (activeBtn) activeBtn.classList.add("active");
+
+            const activeContent = document.getElementById(`view-${tabName}`);
+            if (activeContent) activeContent.style.display = "block";
+        }
+
+        // 彈出視窗開關
+        function openConfigModal() { document.getElementById("configModal").style.display = "flex"; }
+        function closeConfigModal() { document.getElementById("configModal").style.display = "none"; }
+        function openAddMistakeModal() {
+            document.getElementById("mistakeSource").value = "";
+            document.getElementById("mistakeReason").value = "";
+            document.getElementById("mistakeSolution").value = "";
+            document.getElementById("addMistakeModal").style.display = "flex";
+        }
+        function closeAddMistakeModal() { document.getElementById("addMistakeModal").style.display = "none"; }
+
+        function saveAndRebalance() {
+            appConfig.weekdayHours = parseFloat(document.getElementById("cfgWeekdayHours").value);
+            appConfig.weekendHours = parseFloat(document.getElementById("cfgWeekendHours").value);
+            appConfig.focusSubject = document.getElementById("cfgFocusSubject").value;
+
+            localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(appConfig));
+            closeConfigModal();
+            alert("✅ 排程時數已重新配置！課表已平衡完畢。");
+            renderWeeklySchedule();
+            renderTodayTasks();
+        }
+
+        // 備份與還原
+        function exportData() {
+            const backup = {
+                completedTasks: Array.from(completedTasks),
+                mistakes: mistakes,
+                config: appConfig,
+                timestamp: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Arial_建興國一段考衝刺進度備份_${new Date().toISOString().split("T")[0]}.json`;
+            a.click();
+        }
+
+        function importDataPrompt() {
+            const input = prompt("請貼上匯出的 JSON 備份字串：");
+            if (!input) return;
+            try {
+                const data = JSON.parse(input);
+                if (data.completedTasks) {
+                    completedTasks = new Set(data.completedTasks);
+                    localStorage.setItem(STORAGE_KEY_TASKS, JSON.stringify(Array.from(completedTasks)));
+                }
+                if (data.mistakes) {
+                    mistakes = data.mistakes;
+                    localStorage.setItem(STORAGE_KEY_MISTAKES, JSON.stringify(mistakes));
+                }
+                if (data.config) {
+                    appConfig = data.config;
+                    localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(appConfig));
+                }
+                alert("✅ 備份資料已成功匯入！");
+                location.reload();
+            } catch (e) {
+                alert("❌ JSON 格式解析失敗，請確認內容無誤。");
+            }
+        }
+
+        // ==========================================
+        // 11. 彩色彩帶特效 (Canvas Confetti)
+        // ==========================================
+        function triggerConfetti() {
+            const canvas = document.getElementById("confettiCanvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ["#3b82f6", "#10b981", "#f59e0b", "#f43f5e", "#8b5cf6", "#ec4899", "#ffffff"];
+
+            for (let i = 0; i < 70; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height * 0.4,
+                    r: Math.random() * 5 + 3,
+                    d: Math.random() * 70,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    tilt: Math.floor(Math.random() * 10) - 10,
+                    tiltAngleIncremental: (Math.random() * 0.07) + 0.05,
+                    tiltAngle: 0,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.5) * 12 - 4
+                });
+            }
+
+            let animationFrame;
+            let count = 0;
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                count++;
+
+                particles.forEach(p => {
+                    p.tiltAngle += p.tiltAngleIncremental;
+                    p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2 + p.vy * 0.5;
+                    p.x += Math.sin(p.d) * 2 + p.vx * 0.5;
+                    p.tilt = Math.sin(p.tiltAngle - (count / 3)) * 15;
+
+                    ctx.beginPath();
+                    ctx.lineWidth = p.r;
+                    ctx.strokeStyle = p.color;
+                    ctx.moveTo(p.x + p.tilt + (p.r / 2), p.y);
+                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + (p.r / 2));
+                    ctx.stroke();
+                });
+
+                if (count < 90) {
+                    animationFrame = requestAnimationFrame(draw);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    cancelAnimationFrame(animationFrame);
+                }
+            }
+            draw();
+        }
+
+        // 啟動頁面
+        window.addEventListener("DOMContentLoaded", initApp);
+    </script>
+</body>
+</html>
