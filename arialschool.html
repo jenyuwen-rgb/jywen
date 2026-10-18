@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Arial 建興國中段考衝刺戰情室 ｜ 115學年度 國一專屬排程系統</title>
-    <meta name="description" content="專為台南市立建興國中國一（七年級）Arial 量身打造的段考倒數與學科智能排程戰情室。落實『段考前一週全科精讀完畢，最後一週專心刷題與錯題封神』。支援自訂每天讀書空檔時間與智慧容量動態分配。">
+    <title>Ariel 建興國中段考衝刺戰情室 ｜ 115學年度 國一專屬排程系統</title>
+    <meta name="description" content="專為台南市立建興國中國一（七年級）Ariel 量身打造的段考倒數與學科智能排程戰情室。落實『段考前一週全科精讀完畢，最後一週專心刷題與錯題封神』。支援自訂每天讀書空檔時間與智慧容量動態分配。">
     <meta name="theme-color" content="#09090b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -307,6 +307,232 @@
                 color: #555 !important;
             }
         }
+    
+        /* ==================================================== */
+        /* iOS 原生 3D 滾輪時間選擇器樣式 (iOS Tumbler Wheel Roller) */
+        /* ==================================================== */
+        .ios-picker-wrapper {
+            background: #0d0f14;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 1.25rem;
+            padding: 1rem;
+            user-select: none;
+            -webkit-user-select: none;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+        }
+        .ios-time-tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0.75rem;
+            padding: 4px;
+            gap: 4px;
+            margin-bottom: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .ios-time-tab {
+            flex: 1;
+            padding: 0.55rem 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.55rem;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        .ios-time-tab.active {
+            background: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.4);
+            font-weight: 700;
+        }
+        .ios-roller-container {
+            position: relative;
+            height: 190px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            overflow: hidden;
+            perspective: 1200px;
+        }
+        .ios-roller-lens {
+            position: absolute;
+            top: 50%;
+            left: 8%;
+            right: 8%;
+            height: 44px;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.06);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.22);
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.22);
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .ios-roller-mask {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, 
+                #0d0f14 0%, 
+                rgba(13, 15, 20, 0.7) 22%, 
+                transparent 40%, 
+                transparent 60%, 
+                rgba(13, 15, 20, 0.7) 78%, 
+                #0d0f14 100%);
+            pointer-events: none;
+            z-index: 3;
+        }
+        .ios-wheel-column {
+            height: 190px;
+            width: 76px;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding-top: 73px; /* (190 - 44)/2 */
+            padding-bottom: 73px;
+            z-index: 1;
+            -webkit-overflow-scrolling: touch;
+        }
+        .ios-wheel-column::-webkit-scrollbar {
+            display: none;
+        }
+        .ios-wheel-item {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            font-weight: 600;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            color: rgba(255, 255, 255, 0.28);
+            scroll-snap-align: center;
+            cursor: pointer;
+            transition: color 0.15s ease, transform 0.15s ease;
+        }
+        .ios-wheel-item.active {
+            color: #ffffff;
+            font-weight: 700;
+            transform: scale(1.18);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+        }
+        .ios-wheel-colon {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 44px;
+            z-index: 2;
+        }
+
+        /* ==================================================== */
+        /* 互動方塊選科系統樣式 (Interactive Tile Selector) */
+        /* ==================================================== */
+        .tile-picker-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-subtle);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        .tile-selector-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 0.5rem;
+        }
+        .tile-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.85rem;
+            padding: 0.7rem 1.1rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .tile-btn:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.07);
+            transform: translateY(-1px);
+        }
+        .tile-btn.active {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+            color: #60a5fa;
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+        }
+        .tile-btn.active-emerald {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: #10b981;
+            color: #34d399;
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+        }
+        .tile-btn.active-gold {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: #f59e0b;
+            color: #fbbf24;
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+        }
+        .chapter-tiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 0.85rem;
+            margin-top: 1rem;
+        }
+        .chapter-tile {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.85rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            min-height: 105px;
+        }
+        .chapter-tile:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .chapter-tile.selected {
+            background: rgba(16, 185, 129, 0.08);
+            border: 2px solid #10b981;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+        }
+        .chapter-tile-check {
+            width: 1.35rem;
+            height: 1.35rem;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        .chapter-tile.selected .chapter-tile-check {
+            background: #10b981;
+            border-color: #10b981;
+            color: #ffffff;
+        }
+
     </style>
 </head>
 <body>
@@ -323,7 +549,7 @@
                 </div>
                 <div>
                     <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <h1 style="font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em;">Arial 建興國中段考衝刺戰情室</h1>
+                        <h1 style="font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em;">Ariel 建興國中段考衝刺戰情室</h1>
                         <span class="badge badge-gold"><i class="fa-solid fa-crown" style="font-size: 0.65rem;"></i> 國一 · 7年級專屬</span>
                     </div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: -2px;">臺南市立建興國民中學 115學年度上學期 · 提早一週封關精讀法</p>
@@ -416,7 +642,7 @@
                     </span>
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-                            <h3 style="font-size: 1.15rem; font-weight: 700;">Arial 今日專屬衝刺任務 (Today's Focus)</h3>
+                            <h3 style="font-size: 1.15rem; font-weight: 700;">Ariel 今日專屬衝刺任務 (Today's Focus)</h3>
                             <span id="todaySlotBadge" class="badge badge-blue" style="cursor: pointer;" onclick="openTodayTimeModal()">
                                 <i class="fa-regular fa-clock"></i> 今日讀書時段設定
                             </span>
@@ -450,7 +676,7 @@
                 <i class="fa-solid fa-fire"></i> 考前黃金一週刷題庫 (11/17 ~ 11/23)
             </button>
             <button class="tab-btn" onclick="switchTab('mistakes')">
-                <i class="fa-solid fa-book-skull"></i> Arial 錯題收集簿 (<span id="mistakeCount">0</span>)
+                <i class="fa-solid fa-book-skull"></i> Ariel 錯題收集簿 (<span id="mistakeCount">0</span>)
             </button>
         </div>
 
@@ -463,7 +689,7 @@
                     <i class="fa-solid fa-clock-rotate-left" style="color: #60a5fa; font-size: 1.5rem;"></i>
                     <div style="font-size: 0.85rem; color: var(--text-secondary);">
                         <strong style="color: var(--text-primary);">智能時間容量排程機制：</strong>
-                        點擊每一天卡片右上角的「<span style="color:#60a5fa; font-weight:600;"><i class="fa-regular fa-clock"></i> 時段標籤</span>」，即可自訂 Arial 當天幾點到幾點有空讀書！系統會<strong>自動依據每天的空檔時數容量</strong>，將要讀的章節精準填入，遇到有事情或沒空的日期自動避開！
+                        點擊每一天卡片右上角的「<span style="color:#60a5fa; font-weight:600;"><i class="fa-regular fa-clock"></i> 時段標籤</span>」，即可自訂 Ariel 當天幾點到幾點有空讀書！系統會<strong>自動依據每天的空檔時數容量</strong>，將要讀的章節精準填入，遇到有事情或沒空的日期自動避開！
                     </div>
                 </div>
                 <div class="no-print">
@@ -505,32 +731,140 @@
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
                             <span style="width: 2.25rem; height: 2.25rem; border-radius: 0.5rem; background: rgba(59, 130, 246, 0.2); color: #60a5fa; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
-                                <i class="fa-solid fa-file-import"></i>
+                                <i class="fa-solid fa-shapes"></i>
                             </span>
-                            <h3 style="font-size: 1.35rem; font-weight: 800;">自行匯入與自訂考科分配中心</h3>
+                            <h3 style="font-size: 1.35rem; font-weight: 800;">自訂考科與章節範圍中心</h3>
                         </div>
-                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.4rem; max-width: 800px;">
-                            大仁哥可以直接在下方貼上學校最新的段考科目、教科書版本、時數佔比、範圍與避坑點（支援表格複製貼上、Tab 分隔或自訂條列文字），系統會<strong>智慧自動解析</strong>，並<strong>自動依據 Arial 每日設定的空檔時段，智慧重新平衡 30 天每日課表</strong>！
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.4rem; max-width: 850px;">
+                            大仁哥可直接使用<strong>「方塊點選模式」</strong>自由選擇年級、教科書版本、學科與第幾章節，或使用<strong>「批次貼上模式」</strong>貼上學校表格。系統會<strong>自動依據 Ariel 每日空檔時間容量，動態平衡 30 天每日課表</strong>！
                         </p>
                     </div>
 
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button onclick="loadTemplateData()" class="tab-btn" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3);">
-                            <i class="fa-solid fa-rotate-left"></i> 載入建興國一黃金範本
+                    <!-- 模式切換按鈕組 -->
+                    <div style="display: flex; gap: 0.4rem; background: rgba(255, 255, 255, 0.04); padding: 4px; border-radius: 0.75rem; border: 1px solid var(--border-subtle);">
+                        <button id="btnModeTiles" onclick="switchImportMode('tiles')" class="tab-btn active" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;">
+                            <i class="fa-solid fa-border-all"></i> 🔲 方塊點選模式 (推薦)
                         </button>
-                        <button onclick="clearImportText()" class="tab-btn" style="border-color: var(--border-subtle);">
-                            <i class="fa-solid fa-eraser"></i> 清空輸入框
+                        <button id="btnModePaste" onclick="switchImportMode('paste')" class="tab-btn" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;">
+                            <i class="fa-solid fa-paste"></i> 📋 批次文字/表格貼上
                         </button>
                     </div>
                 </div>
 
-                <!-- 快速批次文字貼上區域 -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem;">
+                <!-- 模式 A: 互動方塊點選模式 (Interactive Tile Selector) -->
+                <div id="containerModeTiles">
+                    
+                    <!-- 步驟 1: 選擇年級方塊 -->
+                    <div class="tile-picker-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="font-size: 0.85rem; font-weight: 700; color: #fbbf24; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-graduation-cap"></i> 步驟 1 · 選擇就讀年級：
+                            </label>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Ariel 目前就讀國一</span>
+                        </div>
+                        <div class="tile-selector-group" id="gradeTileGroup">
+                            <button type="button" class="tile-btn active-gold" id="btnGrade7" onclick="selectTileGrade('7')">
+                                <i class="fa-solid fa-crown" style="color: #fbbf24;"></i> 國一 (7年級)
+                            </button>
+                            <button type="button" class="tile-btn" id="btnGrade8" onclick="selectTileGrade('8')">
+                                <i class="fa-solid fa-user-graduate"></i> 國二 (8年級)
+                            </button>
+                            <button type="button" class="tile-btn" id="btnGrade9" onclick="selectTileGrade('9')">
+                                <i class="fa-solid fa-fire-flame-curved"></i> 國三 (9年級·會考衝刺)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 步驟 2: 選擇學科方塊 -->
+                    <div class="tile-picker-card">
+                        <label style="font-size: 0.85rem; font-weight: 700; color: #60a5fa; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem;">
+                            <i class="fa-solid fa-book"></i> 步驟 2 · 選擇準備考科：
+                        </label>
+                        <div class="tile-selector-group" id="subjectTileGroup">
+                            <!-- JS 動態生成 7 大學科方塊 -->
+                        </div>
+                    </div>
+
+                    <!-- 步驟 3: 選擇教科書版本方塊 -->
+                    <div class="tile-picker-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="font-size: 0.85rem; font-weight: 700; color: #a78bfa; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-swatchbook"></i> 步驟 3 · 選擇教科書版本：
+                            </label>
+                            <span id="schoolAdoptedHint" style="font-size: 0.75rem; color: #34d399;">建興國中各科推薦版本</span>
+                        </div>
+                        <div class="tile-selector-group" id="publisherTileGroup">
+                            <!-- JS 動態生成 康軒 / 翰林 / 南一 方塊 -->
+                        </div>
+                    </div>
+
+                    <!-- 步驟 4: 章節方塊矩陣 (Chapter Tiles Matrix) -->
+                    <div class="tile-picker-card" style="border-color: rgba(16, 185, 129, 0.35);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                            <div>
+                                <h4 id="currentCurriculumHeading" style="font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span>數學 · 康軒版</span>
+                                    <span class="badge badge-gold" id="chapterCountBadge">已選 4 章</span>
+                                </h4>
+                                <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                                    點擊方塊即可<strong>「選入」</strong>或<strong>「取消」</strong>本次段考準備範圍；綠色高亮代表已排入課表。
+                                </p>
+                            </div>
+
+                            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                                <button type="button" class="tab-btn" onclick="applyExamScopePreset('exam2')" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                                    <i class="fa-solid fa-bolt"></i> ⚡ 推薦第2次段考範圍
+                                </button>
+                                <button type="button" class="tab-btn" onclick="applyExamScopePreset('all')" style="border-color: var(--border-subtle); font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                                    <i class="fa-solid fa-check-double"></i> 全選
+                                </button>
+                                <button type="button" class="tab-btn" onclick="applyExamScopePreset('clear')" style="border-color: var(--border-subtle); font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                                    <i class="fa-solid fa-xmark"></i> 清空
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 章節方塊列表 -->
+                        <div class="chapter-tiles-grid" id="chapterTilesContainer">
+                            <!-- JS 動態生成章節方塊 -->
+                        </div>
+                    </div>
+
+                    <!-- 全科選定章節總覽與確認按鈕 (Summary & Action Bar) -->
+                    <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%); border: 1.5px solid rgba(16, 185, 129, 0.4); border-radius: 1.25rem; padding: 1.25rem; margin-top: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h4 style="font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-list-check" style="color: #34d399;"></i>
+                                    <span>目前已選考科範圍總計：</span>
+                                </h4>
+                                <div id="selectedScopeSummaryText" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.35rem;">
+                                    7 門考科 · 共 35 個章節 · 建議總時數約 80 小時
+                                </div>
+                            </div>
+
+                            <button onclick="saveTilesToStudyPlan()" class="tab-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 0.85rem 2rem; font-size: 1.05rem; font-weight: 800; border: none; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); cursor: pointer; border-radius: 0.85rem;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> 🚀 確認儲存！注入 Ariel 衝刺課表
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 模式 B: 批次貼上文字或表格內容 (Textarea Paste Mode) -->
+                <div id="containerModePaste" style="display: none;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <label style="font-weight: 700; font-size: 0.9rem; color: #60a5fa;">
                             <i class="fa-solid fa-paste"></i> 批次貼上文字或表格內容：
                         </label>
-                        <span style="font-size: 0.75rem; color: var(--text-muted);">支援 Tab 分隔、Markdown 表格或自訂條列</span>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button onclick="loadTemplateData()" class="tab-btn" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); font-size: 0.8rem; padding: 0.35rem 0.75rem;">
+                                <i class="fa-solid fa-rotate-left"></i> 載入建興國一黃金範本
+                            </button>
+                            <button onclick="clearImportText()" class="tab-btn" style="border-color: var(--border-subtle); font-size: 0.8rem; padding: 0.35rem 0.75rem;">
+                                <i class="fa-solid fa-eraser"></i> 清空
+                            </button>
+                        </div>
                     </div>
 
                     <textarea id="importRawText" class="custom-textarea" rows="9" placeholder="請將科目表格內容直接貼在此處，例如：
@@ -546,28 +880,27 @@
                             <i class="fa-solid fa-wand-magic-sparkles"></i> ⚡ 智慧解析並套用至排程
                         </button>
                     </div>
-                </div>
 
-                <!-- 視覺化自訂編輯清單 (Live Editor) -->
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                        <div>
-                            <h4 style="font-size: 1.1rem; font-weight: 700;">當前考科視覺化編輯器 (共 <span id="editorSubjectCount">7</span> 科)</h4>
-                            <p style="font-size: 0.75rem; color: var(--text-secondary);">可在下方直接微調任何一科的章節行數、版本或避坑點，也可以隨時新增或刪除科目。</p>
+                    <!-- 視覺化自訂編輯清單 (Live Editor) -->
+                    <div style="margin-top: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                            <div>
+                                <h4 style="font-size: 1.1rem; font-weight: 700;">自訂科目手動調整 (共 <span id="editorSubjectCount">7</span> 科)</h4>
+                            </div>
+                            <button onclick="addNewCustomSubject()" class="tab-btn" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                                <i class="fa-solid fa-plus"></i> ➕ 新增自訂考科
+                            </button>
                         </div>
-                        <button onclick="addNewCustomSubject()" class="tab-btn" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
-                            <i class="fa-solid fa-plus"></i> ➕ 新增自訂考科 / 項目
-                        </button>
-                    </div>
 
-                    <div id="visualEditorList" style="display: flex; flex-direction: column; gap: 1rem;">
-                        <!-- JS 動態生成可編輯表單 -->
-                    </div>
+                        <div id="visualEditorList" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- JS 動態生成可編輯表單 -->
+                        </div>
 
-                    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
-                        <button onclick="saveVisualEditorAndRebalance()" class="tab-btn" style="background: var(--brand-emerald); color: #fff; padding: 0.75rem 2rem; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);">
-                            <i class="fa-solid fa-floppy-disk"></i> 💾 儲存並重新生成 30 天每日課表
-                        </button>
+                        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.25rem;">
+                            <button onclick="saveVisualEditorAndRebalance()" class="tab-btn" style="background: var(--brand-emerald); color: #fff; padding: 0.75rem 2rem; font-weight: 700; font-size: 1rem;">
+                                <i class="fa-solid fa-floppy-disk"></i> 💾 儲存並重新生成課表
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -599,7 +932,7 @@
             <div class="card" style="margin-bottom: 1.5rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                     <div>
-                        <h3 style="font-size: 1.15rem; font-weight: 700;"><i class="fa-solid fa-fire-flame-curved" style="color: #f43f5e;"></i> Arial 專屬錯題殲滅本</h3>
+                        <h3 style="font-size: 1.15rem; font-weight: 700;"><i class="fa-solid fa-fire-flame-curved" style="color: #f43f5e;"></i> Ariel 專屬錯題殲滅本</h3>
                         <p style="font-size: 0.8rem; color: var(--text-secondary);">大仁哥心法：段考能拿幾分，取決於這本錯題本清了多少！考前只看自己曾經錯過的陷阱。</p>
                     </div>
                     <button onclick="openAddMistakeModal()" class="tab-btn" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; border-color: rgba(244, 63, 94, 0.3);">
@@ -619,7 +952,7 @@
     <!-- 彈出視窗 1: 單日空檔時段自訂 Modal (Single Day Time Adjuster) -->
     <div id="dayTimeModal" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 1.25rem;">
         <div class="card" style="max-width: 480px; width: 100%; border-color: var(--border-strong);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <span style="width: 2rem; height: 2rem; border-radius: 0.5rem; background: rgba(59, 130, 246, 0.2); color: #60a5fa; display: flex; align-items: center; justify-content: center;">
                         <i class="fa-regular fa-clock"></i>
@@ -632,14 +965,14 @@
                 <button onclick="closeDayTimeModal()" style="background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer;">&times;</button>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.85rem;">
+            <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.85rem;">
                 
                 <!-- 快捷預設時段 (Quick Presets) -->
                 <div>
-                    <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">
+                    <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">
                         ⚡ 快捷點選常用空檔時段：
                     </label>
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.35rem;">
                         <button type="button" class="time-chip" onclick="applyTimePreset('19:00', '21:00')">🏫 平日標準 (19:00~21:00, 2h)</button>
                         <button type="button" class="time-chip" onclick="applyTimePreset('20:00', '22:00')">🌙 晚間黃金 (20:00~22:00, 2h)</button>
                         <button type="button" class="time-chip" onclick="applyTimePreset('20:30', '22:00')">📚 晚自習後 (20:30~22:00, 1.5h)</button>
@@ -650,24 +983,42 @@
                     </div>
                 </div>
 
-                <!-- 精確時間輸入框 (Start ~ End) -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: 0.75rem; padding: 0.85rem;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
-                        <div style="flex: 1;">
-                            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 2px;">開始時間：</label>
-                            <input type="time" id="inputStartTime" onchange="calculateModalDuration()" class="custom-input" style="font-size: 1rem; font-weight: 600;">
+                <!-- iOS 原生 3D 滾輪時間選擇器 (iOS Wheel Roller) -->
+                <div class="ios-picker-wrapper">
+                    <!-- 切換 開始時間 / 結束時間 Tabs -->
+                    <div class="ios-time-tabs">
+                        <button type="button" id="tabRollerStart" class="ios-time-tab active" onclick="switchIosTarget('start')">
+                            <i class="fa-regular fa-circle-play"></i> 開始時間：<span id="displayRollerStart">19:00</span>
+                        </button>
+                        <button type="button" id="tabRollerEnd" class="ios-time-tab" onclick="switchIosTarget('end')">
+                            <i class="fa-regular fa-circle-stop"></i> 結束時間：<span id="displayRollerEnd">21:00</span>
+                        </button>
+                    </div>
+
+                    <!-- 滾輪主體容器 (Lens & Mask) -->
+                    <div class="ios-roller-container">
+                        <div class="ios-roller-lens"></div>
+                        <div class="ios-roller-mask"></div>
+
+                        <!-- 小時滾輪 (00 ~ 23) -->
+                        <div class="ios-wheel-column" id="wheelHours" onscroll="handleWheelScroll('wheelHours')">
                         </div>
-                        <span style="font-weight: 700; color: var(--text-muted); margin-top: 1rem;">至</span>
-                        <div style="flex: 1;">
-                            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 2px;">結束時間：</label>
-                            <input type="time" id="inputEndTime" onchange="calculateModalDuration()" class="custom-input" style="font-size: 1rem; font-weight: 600;">
+
+                        <div class="ios-wheel-colon">:</div>
+
+                        <!-- 分鐘滾輪 (00 ~ 59) -->
+                        <div class="ios-wheel-column" id="wheelMinutes" onscroll="handleWheelScroll('wheelMinutes')">
                         </div>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid var(--border-subtle);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
                         <span style="color: var(--text-secondary); font-size: 0.8rem;">當天可用讀書總時長：</span>
                         <span id="labelModalDuration" style="font-weight: 800; font-size: 1rem; color: #34d399;">120 分鐘 (2.0 小時)</span>
                     </div>
+
+                    <!-- 隱藏同步 input -->
+                    <input type="time" id="inputStartTime" value="19:00" style="display: none;">
+                    <input type="time" id="inputEndTime" value="21:00" style="display: none;">
                 </div>
 
                 <!-- 批次套用勾選 -->
@@ -684,7 +1035,7 @@
 
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.25rem;">
+            <div style="display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 1.15rem;">
                 <button onclick="closeDayTimeModal()" class="tab-btn" style="border: 1px solid var(--border-subtle);">取消</button>
                 <button onclick="saveDayTimeSlot()" class="tab-btn" style="background: var(--brand-primary); color: #fff; font-weight: 700;">
                     <i class="fa-solid fa-check"></i> 儲存並重新依時間分配
@@ -913,17 +1264,17 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             { day: "Day -5", date: "2026-11-19 (四)", title: "生物實驗題與心臟循環專題模考 + 英文克漏字", desc: "專攻光合作用脫色實驗題型、心臟血液流動箭頭圖，英文速讀 2 篇。", icon: "fa-dna" },
             { day: "Day -4", date: "2026-11-20 (五)", title: "社會合科（歷史/地理/公民）歷屆段考題庫大掃描", desc: "歷史時間線因果、地理氣候圖表判讀、公民親屬親等地雷題一次打通。", icon: "fa-landmark" },
             { day: "Day -3", date: "2026-11-21 (六)", title: "【全真模考 Day 1】比照建興正式段考第一天時程", desc: "按段考當天作息與時間模擬第一天考科，訓練專注力與作答配速。", icon: "fa-stopwatch" },
-            { day: "Day -2", date: "2026-11-22 (日)", title: "【全真模考 Day 2】+ 【Arial 錯題本全量清零】", desc: "只讀這一個月記錄在錯題本上的所有題目，直到每一題都能一眼說出正解！", icon: "fa-fire-burner" },
+            { day: "Day -2", date: "2026-11-22 (日)", title: "【全真模考 Day 2】+ 【Ariel 錯題本全量清零】", desc: "只讀這一個月記錄在錯題本上的所有題目，直到每一題都能一眼說出正解！", icon: "fa-fire-burner" },
             { day: "Day -1", date: "2026-11-23 (一)", title: "【考前收心安神夜】快速瀏覽心智圖，早睡養足精氣神！", desc: "晚上 10 點前就寢，不熬夜、不喝刺激飲品，準備好文具，自信迎戰！", icon: "fa-bed" }
         ];
 
         // ==========================================
         // 2. 本地儲存金鑰與狀態初始化
         // ==========================================
-        const STORAGE_KEY_SUBJECTS = "arial_custom_subjects_v3";
+        const STORAGE_KEY_SUBJECTS = "ariel_custom_subjects_v3";
         const STORAGE_KEY_TASKS = "arial_study_completed_tasks_v3";
         const STORAGE_KEY_MISTAKES = "arial_study_mistakes_v3";
-        const STORAGE_KEY_TIMESLOTS = "arial_daily_time_slots_v3";
+        const STORAGE_KEY_TIMESLOTS = "ariel_daily_time_slots_v3";
 
         let currentSubjects = [];
         let completedTasks = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY_TASKS) || "[]"));
@@ -1260,7 +1611,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
 
             const badgeEl = document.getElementById("todayStatusBadge");
             if (allTodayDone && planToday.items.length > 0) {
-                badgeEl.innerHTML = `<span class="badge badge-green"><i class="fa-solid fa-circle-check"></i> 今日任務全部達標！太棒了 Arial！</span>`;
+                badgeEl.innerHTML = `<span class="badge badge-green"><i class="fa-solid fa-circle-check"></i> 今日任務全部達標！太棒了 Ariel！</span>`;
             } else {
                 badgeEl.innerHTML = `<span class="badge badge-gold"><i class="fa-solid fa-hourglass-half"></i> 今日進度待執行</span>`;
             }
@@ -1525,7 +1876,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             const slot = getDayTimeSlot(dateStr, isWeekend);
 
             document.getElementById("dayTimeModalTitle").innerText = `設定 ${dateStr.substring(5)} (${daysArr[curDate.getDay()]}) 讀書空檔`;
-            document.getElementById("dayTimeModalSubtitle").innerText = `為 Arial 指定這一天幾點到幾點可用來讀書`;
+            document.getElementById("dayTimeModalSubtitle").innerText = `為 Ariel 指定這一天幾點到幾點可用來讀書`;
 
             document.getElementById("inputStartTime").value = slot.start || "19:00";
             document.getElementById("inputEndTime").value = slot.end || "21:00";
@@ -1986,6 +2337,856 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             }
             draw();
         }
+
+        
+        // ==========================================
+        // 14. 互動方塊選科課綱資料庫 (Tile Curriculum Master Data)
+        // ==========================================
+        const TILE_CURRICULUM = {
+            "7": {
+                "math": {
+                    name: "數學", icon: "fa-calculator", color: "#f59e0b", isCore: true,
+                    defaultBook: "kn",
+                    versions: {
+                        "kn": {
+                            bookName: "康軒版",
+                            chapters: [
+                                { id: "kn_m7_1_1", name: "1-1 正數與負數", hours: 4, isExam2: false, note: "數線與性質符號" },
+                                { id: "kn_m7_1_2", name: "1-2 整數的加減", hours: 5, isExam2: false, note: "絕對值與相反數" },
+                                { id: "kn_m7_1_3", name: "1-3 整數的乘除與四則運算", hours: 5, isExam2: false, note: "先乘除後加減" },
+                                { id: "kn_m7_1_4", name: "1-4 指數律與科學記號", hours: 5, isExam2: false, note: "同底相乘指數相加" },
+                                { id: "kn_m7_2_1", name: "2-1 質因數分解與標準分解式", hours: 6, isExam2: true, note: "★段考二必考·質數篩檢與短除法", pitfall: "互質定義：兩數最大公因數為 1（不需各自為質數，如 8 與 9 互質）。" },
+                                { id: "kn_m7_2_2", name: "2-2 最大公因數與最小公倍數", hours: 6, isExam2: true, note: "★段考二必考·GCD/LCM與應用題", pitfall: "GCD 取共同質因數之最低次方；LCM 取所有質因數之最高次方。" },
+                                { id: "kn_m7_2_3", name: "2-3 分數加減與正負分數通分", hours: 6, isExam2: true, note: "★段考二必考·括號變號與化簡", pitfall: "分數除法變乘倒數，繁分數先通分後化簡。" },
+                                { id: "kn_m7_2_4", name: "2-4 分數乘除、倒數與繁分數", hours: 6, isExam2: true, note: "★段考二必考·指數律與應用題", pitfall: "負數指數括號陷阱：(-2)^4 = 16 與 -2^4 = -16 的正負號區分。" },
+                                { id: "kn_m7_3_1", name: "3-1 以符號代表數與代數式", hours: 4, isExam2: false, note: "未知數文字題列式" },
+                                { id: "kn_m7_3_2", name: "3-2 一元一次方程式解法", hours: 5, isExam2: false, note: "等量公理與移項法則" },
+                                { id: "kn_m7_3_3", name: "3-3 一元一次方程式應用題", hours: 5, isExam2: false, note: "年齡、行程、買賣問題" }
+                            ]
+                        },
+                        "hl": {
+                            bookName: "翰林版",
+                            chapters: [
+                                { id: "hl_m7_1_1", name: "1-1 負數與數線", hours: 4, isExam2: false, note: "正負數與相反數" },
+                                { id: "hl_m7_1_2", name: "1-2 整數的加減運算", hours: 5, isExam2: false, note: "加法交換律與結合律" },
+                                { id: "hl_m7_1_3", name: "1-3 整數的乘除運算", hours: 5, isExam2: false, note: "正負相乘規則" },
+                                { id: "hl_m7_1_4", name: "1-4 指數與科學記號", hours: 5, isExam2: false, note: "指數運算法則" },
+                                { id: "hl_m7_2_1", name: "2-1 因數與倍數", hours: 6, isExam2: true, note: "★段考二必考·質數與合數判別", pitfall: "1 不是質數也不是合數。" },
+                                { id: "hl_m7_2_2", name: "2-2 質因數分解與公因公倍", hours: 6, isExam2: true, note: "★段考二必考·標準分解式求GCD/LCM", pitfall: "兩數相乘 = GCD(a,b) × LCM(a,b)。" },
+                                { id: "hl_m7_2_3", name: "2-3 分數的四則運算", hours: 6, isExam2: true, note: "★段考二必考·異分母通分與負分數", pitfall: "除以分數等於乘上其倒數。" },
+                                { id: "hl_m7_2_4", name: "2-4 指數律化簡與應用題", hours: 6, isExam2: true, note: "★段考二必考·生活科學應用", pitfall: "指數分配律注意 (a+b)^n ≠ a^n + b^n。" },
+                                { id: "hl_m7_3_1", name: "3-1 代數式的化簡", hours: 4, isExam2: false, note: "同類項合併" },
+                                { id: "hl_m7_3_2", name: "3-2 一元一次方程式", hours: 6, isExam2: false, note: "移項求未知數 x" }
+                            ]
+                        },
+                        "ny": {
+                            bookName: "南一版",
+                            chapters: [
+                                { id: "ny_m7_1_1", name: "1-1 數線與絕對值", hours: 4, isExam2: false, note: "距離概念" },
+                                { id: "ny_m7_1_2", name: "1-2 整數四則運算", hours: 6, isExam2: false, note: "加減乘除混合" },
+                                { id: "ny_m7_1_3", name: "1-3 科學記號與次方", hours: 5, isExam2: false, note: "極大與極小數" },
+                                { id: "ny_m7_2_1", name: "2-1 質因數與標準式", hours: 6, isExam2: true, note: "★段考二必考·因數倍數", pitfall: "2 是唯一的偶數質數。" },
+                                { id: "ny_m7_2_2", name: "2-2 公因數與公倍數", hours: 6, isExam2: true, note: "★段考二必考·短除法技巧", pitfall: "三個數求 LCM 短除法只要任兩個有公因數就繼續除。" },
+                                { id: "ny_m7_2_3", name: "2-3 分數運算與倒數", hours: 6, isExam2: true, note: "★段考二必考·正負分數化簡", pitfall: "分子分母同時約分。" },
+                                { id: "ny_m7_2_4", name: "2-4 指數律應用", hours: 6, isExam2: true, note: "★段考二必考·生活素養題", pitfall: "負數平方注意括號位置。" },
+                                { id: "ny_m7_3_1", name: "3-1 一元一次方程式", hours: 6, isExam2: false, note: "應用題列式解題" }
+                            ]
+                        }
+                    }
+                },
+                "science": {
+                    name: "生物", icon: "fa-dna", color: "#10b981", isCore: true,
+                    defaultBook: "hl",
+                    versions: {
+                        "hl": {
+                            bookName: "翰林版",
+                            chapters: [
+                                { id: "hl_b7_1_1", name: "第 1 章 生命探源與細胞構造", hours: 4, isExam2: false, note: "顯微鏡操作與細胞核葉綠體" },
+                                { id: "hl_b7_2_1", name: "第 2 章 物質進出細胞與擴散", hours: 4, isExam2: false, note: "細胞膜、滲透作用與水分進出" },
+                                { id: "hl_b7_3_1", name: "3-1 食物中的養分與能量測定", hours: 4, isExam2: true, note: "★段考二必考·本氏液與碘液實驗", pitfall: "本氏液檢驗糖需隔水加熱，呈色依序藍→綠→黃→橙→紅；碘液檢驗澱粉直接滴加呈黃褐轉藍黑。" },
+                                { id: "hl_b7_3_2", name: "3-2 酵素受質專一性與 pH 曲線", hours: 4, isExam2: true, note: "★段考二必考·溫度與酸鹼活性影響", pitfall: "高溫使酵素永久變性失效；低溫僅降低活性，回溫後可恢復。" },
+                                { id: "hl_b7_3_3", name: "3-3 植物光合作用（光反應/碳反應）", hours: 5, isExam2: true, note: "★段考二必考·葉綠素酒精脫色實驗", pitfall: "酒精易燃必須「隔水加熱」；光反應產生氧氣，碳反應消耗二氧化碳生成葡萄糖。" },
+                                { id: "hl_b7_3_4", name: "3-4 人體消化系統與消化液酸鹼", hours: 5, isExam2: true, note: "★段考二必考·胃酸/膽汁/胰液/腸液", pitfall: "膽汁由「肝臟」製造、「膽囊」儲存，不含消化酵素，僅乳化脂質。" },
+                                { id: "hl_b7_4_1", name: "4-1 植物蒸散作用與維管束運輸", hours: 4, isExam2: true, note: "★段考二必考·木質部輸水韌皮部輸糖", pitfall: "木質部在內側運水由下往上；韌皮部在外側運養分雙向流動。" },
+                                { id: "hl_b7_4_2", name: "4-2 人體血液組成與血管特徵", hours: 4, isExam2: true, note: "★段考二必考·紅血球/白血球/血小板", pitfall: "成熟紅血球與血小板「無細胞核」；動脈彈性最好、靜脈有瓣膜、微血管最窄僅單行排列。" },
+                                { id: "hl_b7_4_3", name: "4-3 心臟構造與體循環肺循環", hours: 5, isExam2: true, note: "★段考二必考·左右心室動脈靜脈流向", pitfall: "左心室肌肉最厚將充氧血打入主動脈；肺動脈流減氧血、肺靜脈流充氧血。" },
+                                { id: "hl_b7_4_4", name: "4-4 淋巴循環與免疫防線", hours: 4, isExam2: true, note: "★段考二必考·淋巴管與淋巴結防禦", pitfall: "組織液滲入淋巴管成為淋巴；淋巴結內白血球過濾吞噬病原體。" },
+                                { id: "hl_b7_5_1", name: "第 5 章 神經系統與內分泌", hours: 5, isExam2: false, note: "反射弧中樞與激素調節" },
+                                { id: "hl_b7_6_1", name: "第 6 章 恆定性與排泄", hours: 5, isExam2: false, note: "血糖、體溫與水分調節" }
+                            ]
+                        },
+                        "kn": {
+                            bookName: "康軒版",
+                            chapters: [
+                                { id: "kn_b7_1_1", name: "第 1 章 生命世界與細胞", hours: 4, isExam2: false, note: "生物圈與細胞構造" },
+                                { id: "kn_b7_2_1", name: "第 2 章 養分進出細胞與酵素", hours: 4, isExam2: false, note: "滲透與酵素作用" },
+                                { id: "kn_b7_3_1", name: "3-1 養分能量與檢驗實驗", hours: 4, isExam2: true, note: "★段考二·本氏液與熱量計算", pitfall: "1g 醣類4大卡，1g 蛋白質4大卡，1g 脂質9大卡。" },
+                                { id: "kn_b7_3_2", name: "3-2 酵素受質活性曲線", hours: 4, isExam2: true, note: "★段考二·唾液澱粉酶實驗", pitfall: "胃蛋白酶最適環境為強酸 (pH 1.5~2)。" },
+                                { id: "kn_b7_3_3", name: "3-3 植物光合作用步驟", hours: 5, isExam2: true, note: "★段考二·脫色與碘液呈色", pitfall: "碳反應不需光照但需要光反應產物 ATP 提供能量。" },
+                                { id: "kn_b7_3_4", name: "3-4 動物消化作用與吸收", hours: 5, isExam2: true, note: "★段考二·小腸絨毛構造", pitfall: "小腸是主要消化與吸收器官；大腸主要吸收水分。" },
+                                { id: "kn_b7_4_1", name: "4-1 植物體內的水分運輸", hours: 4, isExam2: true, note: "★段考二·氣孔開閉與蒸散拉力", pitfall: "保衛細胞吸水膨脹氣孔張開；失水萎縮氣孔關閉。" },
+                                { id: "kn_b7_4_2", name: "4-2 人體循環系統與心臟", hours: 5, isExam2: true, note: "★段考二·房室瓣膜與體肺循環", pitfall: "心房與心室間有房室瓣防止血液逆流。" },
+                                { id: "kn_b7_4_3", name: "4-3 淋巴與人體防線", hours: 4, isExam2: true, note: "★段考二·專一性與非專一性防線", pitfall: "皮膜與黏膜為第一道防線，抗體免疫為第三道專一性防線。" }
+                            ]
+                        },
+                        "ny": {
+                            bookName: "南一版",
+                            chapters: [
+                                { id: "ny_b7_1_1", name: "第 1 章 細胞與顯微鏡", hours: 4, isExam2: false, note: "動植物細胞對比" },
+                                { id: "ny_b7_3_1", name: "3-1 養分測定與酵素作用", hours: 4, isExam2: true, note: "★段考二·試劑實驗", pitfall: "本氏液加熱變色順序必背。" },
+                                { id: "ny_b7_3_2", name: "3-2 植物光合作用與氣孔", hours: 5, isExam2: true, note: "★段考二·光反應碳反應", pitfall: "水分解釋放氧氣。" },
+                                { id: "ny_b7_3_3", name: "3-3 人體消化與吸收", hours: 5, isExam2: true, note: "★段考二·消化道消化腺", pitfall: "小腸絨毛微血管吸收水溶性，乳糜管吸收脂溶性。" },
+                                { id: "ny_b7_4_1", name: "4-1 植物蒸散與輸導組織", hours: 4, isExam2: true, note: "★段考二·形成層形成年輪", pitfall: "草本單子葉維管束散生，雙子葉環狀排列。" },
+                                { id: "ny_b7_4_2", name: "4-2 血液循環與心臟房室", hours: 5, isExam2: true, note: "★段考二·體循環與肺循環", pitfall: "左心室通主動脈，右心室通肺動脈。" }
+                            ]
+                        }
+                    }
+                },
+                "chinese": {
+                    name: "國文", icon: "fa-book-open", color: "#f43f5e", isCore: false,
+                    defaultBook: "kn",
+                    versions: {
+                        "kn": {
+                            bookName: "康軒版",
+                            chapters: [
+                                { id: "kn_c7_1", name: "第 1 課《雅量》（宋晶宜）", hours: 3, isExam2: false, note: "包容尊重與衣料綠豆糕" },
+                                { id: "kn_c7_2", name: "第 2 課《夏夜》（楊喚）", hours: 3, isExam2: false, note: "新詩擬人與富麗童趣" },
+                                { id: "kn_c7_3", name: "第 3 課《做自己的貴人》", hours: 3, isExam2: false, note: "勵志篇章與正向思維" },
+                                { id: "kn_c7_4", name: "第 4 課《兒時記趣》（沈復）", hours: 4, isExam2: true, note: "★段考二·物外之趣與蚊蟲比鶴", pitfall: "文言虛詞「之」詞性必考（代名詞、助詞『的』、動詞『前往』）。" },
+                                { id: "kn_c7_5", name: "第 5 課《吃冰的滋味》（古蒙仁）", hours: 3, isExam2: true, note: "★段考二·童年滋味與借代譬喻", pitfall: "借代判讀：「白衣天使」代護士、「朱門」代富貴人家；觸覺視覺通感。" },
+                                { id: "kn_c7_6", name: "第 6 課《論語選》（孔子）", hours: 4, isExam2: true, note: "★段考二·學而時習之與擇善", pitfall: "倒裝句還原：徐噴以煙→以煙徐噴之；君子坦蕩蕩小人長戚戚對比。" },
+                                { id: "kn_c7_s2", name: "自學二《音樂家與職籃巨星》", hours: 2, isExam2: true, note: "★段考二·馬友友與喬丹專注", pitfall: "論點論據論證三要素；勤奮苦練成就非凡。" },
+                                { id: "kn_c7_u2", name: "語文常識（二）標點與修辭", hours: 3, isExam2: true, note: "★段考二·譬喻倒裝借代轉化", pitfall: "明喻、暗喻、借喻的結構區分；轉化之擬人與擬物。" }
+                            ]
+                        },
+                        "hl": {
+                            bookName: "翰林版",
+                            chapters: [
+                                { id: "hl_c7_1", name: "第 1 課《雅量》", hours: 3, isExam2: false, note: "尊重多元" },
+                                { id: "hl_c7_4", name: "第 4 課《兒時記趣》（沈復）", hours: 4, isExam2: true, note: "★段考二·文言文名篇", pitfall: "「之」字詞性與倒裝句型「徐噴以煙」。" },
+                                { id: "hl_c7_5", name: "第 5 課《吃冰的滋味》", hours: 3, isExam2: true, note: "★段考二·台灣鄉土散文", pitfall: "修辭譬喻與借代。" },
+                                { id: "hl_c7_6", name: "第 6 課《論語選》", hours: 4, isExam2: true, note: "★段考二·經典章句與論道", pitfall: "三人行必有我師焉；學而不思則罔思而不學則殆。" },
+                                { id: "hl_c7_s2", name: "自學二《運動家風度》", hours: 2, isExam2: true, note: "★段考二·君子之爭", pitfall: "服輸精神與超然態度。" },
+                                { id: "hl_c7_u2", name: "語文常識（二）詞性與修辭", hours: 3, isExam2: true, note: "★段考二·實詞虛詞判斷", pitfall: "名詞、動詞、形容詞、副詞與文言虛詞助詞。" }
+                            ]
+                        },
+                        "ny": {
+                            bookName: "南一版",
+                            chapters: [
+                                { id: "ny_c7_1", name: "第 1 課《雅量》", hours: 3, isExam2: false, note: "生活隨筆" },
+                                { id: "ny_c7_4", name: "第 4 課《兒時記趣》", hours: 4, isExam2: true, note: "★段考二·文言散文", pitfall: "之字多義性。" },
+                                { id: "ny_c7_5", name: "第 5 課《論語選》", hours: 4, isExam2: true, note: "★段考二·儒家智慧", pitfall: "仁道與為學修身。" },
+                                { id: "ny_c7_6", name: "第 6 課《吃冰的滋味》", hours: 3, isExam2: true, note: "★段考二·懷舊抒情", pitfall: "借代與感官摹寫。" },
+                                { id: "ny_c7_u2", name: "語文常識（二）修辭", hours: 3, isExam2: true, note: "★段考二·綜合修辭", pitfall: "對偶、映襯、倒裝。" }
+                            ]
+                        }
+                    }
+                },
+                "english": {
+                    name: "英語", icon: "fa-language", color: "#3b82f6", isCore: false,
+                    defaultBook: "hl",
+                    versions: {
+                        "hl": {
+                            bookName: "翰林版",
+                            chapters: [
+                                { id: "hl_e7_u1", name: "Unit 1 Who's That? (be動詞)", hours: 3, isExam2: false, note: "問句與稱謂" },
+                                { id: "hl_e7_u2", name: "Unit 2 Is That Your Pencil? (所有格)", hours: 3, isExam2: false, note: "指示代名詞" },
+                                { id: "hl_e7_u3", name: "Unit 3 What Are You Doing? (現在進行式)", hours: 4, isExam2: true, note: "★段考二·be + V-ing 句型", pitfall: "進行式動詞變化特殊規則：字尾去 e 加 ing (make→making)、重複字尾 (run→running)、ie變y (die→dying)。" },
+                                { id: "hl_e7_u4", name: "Unit 4 Where Is the Cat? (祈使句與介系詞)", hours: 4, isExam2: true, note: "★段考二·between, next to, under", pitfall: "祈使句原形動詞開頭 (Be quiet! Don't run!)；between A and B 介系詞搭配。" },
+                                { id: "hl_e7_rev2", name: "Review 2 綜合閱讀測驗與課外篇章", hours: 3, isExam2: true, note: "★段考二·段考閱讀題庫", pitfall: "There is/are 存在句與 have/has 擁有絕對不可混用（不可寫 There have a book）。" },
+                                { id: "hl_e7_voc", name: "常考核心 150 單字拼寫與聽力連音", hours: 3, isExam2: true, note: "★段考二·聽力測驗與拼字", pitfall: "連音與弱讀現象；注意星期、月份與專有名詞首字大寫。" }
+                            ]
+                        },
+                        "kn": {
+                            bookName: "康軒版",
+                            chapters: [
+                                { id: "kn_e7_u1", name: "Unit 1 Nice to Meet You", hours: 3, isExam2: false, note: "自我介紹" },
+                                { id: "kn_e7_u3", name: "Unit 3 What Are They Doing? (現在進行式)", hours: 4, isExam2: true, note: "★段考二·V-ing 句型", pitfall: "正在進行動作與現在時間副詞 (now, look, listen) 連用。" },
+                                { id: "kn_e7_u4", name: "Unit 4 Where Are You? (地點介系詞)", hours: 4, isExam2: true, note: "★段考二·祈使句", pitfall: "Please 放句首不用逗點，放句尾前須加逗點。" },
+                                { id: "kn_e7_rev2", name: "Review 2 & 核心詞彙精讀", hours: 3, isExam2: true, note: "★段考二·綜合模擬", pitfall: "辨析 There is / There are 與 have / has。" }
+                            ]
+                        },
+                        "ny": {
+                            bookName: "南一版",
+                            chapters: [
+                                { id: "ny_e7_u1", name: "Unit 1 Welcome to Class", hours: 3, isExam2: false, note: "基礎句型" },
+                                { id: "ny_e7_u3", name: "Unit 3 What Is He Doing? (現在進行式)", hours: 4, isExam2: true, note: "★段考二·進行式用法", pitfall: "動詞字尾加 ing 規則。" },
+                                { id: "ny_e7_u4", name: "Unit 4 Is There a Bookstore Here?", hours: 4, isExam2: true, note: "★段考二·存在句與祈使句", pitfall: "問路與方位介系詞。" },
+                                { id: "ny_e7_rev2", name: "Review 2 綜合演練", hours: 3, isExam2: true, note: "★段考二·閱讀與聽力", pitfall: "名詞可數與不可數基本概念。" }
+                            ]
+                        }
+                    }
+                },
+                "history": {
+                    name: "歷史", icon: "fa-landmark-dome", color: "#8b5cf6", isCore: false,
+                    defaultBook: "hl",
+                    versions: {
+                        "hl": {
+                            bookName: "翰林版",
+                            chapters: [
+                                { id: "hl_h7_1", name: "第 1 章 臺灣史前文化與原住民族", hours: 3, isExam2: false, note: "舊石器長濱/新石器圓山十三行" },
+                                { id: "hl_h7_2", name: "第 2 章 大航海時代與各國競逐", hours: 3, isExam2: false, note: "日本海盜、顏思齊鄭芝龍" },
+                                { id: "hl_h7_3", name: "第 3 章 荷西時期與鄭氏治臺", hours: 5, isExam2: true, note: "★段考二·熱蘭遮城/普羅民遮城/屯田制", pitfall: "荷蘭在南部築熱蘭遮城(安平古堡)與普羅民遮城(赤崁樓)；西班牙在北部築聖多明哥城(淡水紅毛城)。陳永華建孔廟為全臺首學。" },
+                                { id: "hl_h7_4", name: "第 4 章 清領前期政治、社會與民變", hours: 5, isExam2: true, note: "★段考二·渡臺三禁/朱一貴/林爽文/羅漢腳", pitfall: "渡臺三禁：須官府許可證照、不得攜眷、粵東人民不得渡臺（導致清初男多女少、無家立錐之羅漢腳充斥引發民變）。" }
+                            ]
+                        },
+                        "kn": {
+                            bookName: "康軒版",
+                            chapters: [
+                                { id: "kn_h7_1", name: "第 1 章 史前文化與原住民族", hours: 3, isExam2: false, note: "南島語系" },
+                                { id: "kn_h7_3", name: "第 3 章 荷西統治與鄭氏政權", hours: 5, isExam2: true, note: "★段考二·反清復明與屯墾政策", pitfall: "鄭成功驅逐荷蘭人；鄭經設承天府與天興萬年二縣。" },
+                                { id: "kn_h7_4", name: "第 4 章 清朝統治初期的臺灣", hours: 5, isExam2: true, note: "★段考二·棄留爭議與施琅上疏", pitfall: "施琅力陳臺灣棄留之戰略重要性；劃界封山防止漢番衝突。" }
+                            ]
+                        },
+                        "ny": {
+                            bookName: "南一版",
+                            chapters: [
+                                { id: "ny_h7_1", name: "第 1 章 史前臺灣原民文化", hours: 3, isExam2: false, note: "文化演進" },
+                                { id: "ny_h7_3", name: "第 3 章 荷西與明鄭時期", hours: 5, isExam2: true, note: "★段考二·治臺策略與海外貿易", pitfall: "轉口貿易中心；鹿皮與蔗糖輸出。" },
+                                { id: "ny_h7_4", name: "第 4 章 清領前期社會民變", hours: 5, isExam2: true, note: "★段考二·械鬥與渡臺禁令", pitfall: "泉漳械鬥、閩粵械鬥起因於爭奪水源與田產。" }
+                            ]
+                        }
+                    }
+                },
+                "geography": {
+                    name: "地理", icon: "fa-earth-americas", color: "#06b6d4", isCore: false,
+                    defaultBook: "hl",
+                    versions: {
+                        "hl": {
+                            bookName: "翰林版",
+                            chapters: [
+                                { id: "hl_g7_1", name: "第 1 章 臺灣的位置與地圖", hours: 3, isExam2: false, note: "經緯度、時區與比例尺" },
+                                { id: "hl_g7_2", name: "第 2 章 臺灣的地形與海岸島嶼", hours: 3, isExam2: false, note: "五大地形、板塊邊界與珊瑚礁島" },
+                                { id: "hl_g7_3", name: "第 3 章 臺灣的氣候特徵與災害", hours: 5, isExam2: true, note: "★段考二·氣溫分布/季風迎風面/降水時空", pitfall: "基隆全年有雨（冬有東北季風迎風面、夏有西南季風與颱風）；南部夏雨冬乾；焚風多發生在臺東（過山沉降增溫減濕）。" },
+                                { id: "hl_g7_4", name: "第 4 章 臺灣的水資源與河川特徵", hours: 5, isExam2: true, note: "★段考二·短小流急荒溪型/水庫/地層下陷", pitfall: "中央山脈為主要分水嶺，河川坡陡流急、含沙量高、枯豐水期懸殊；西南沿海因超抽地下水造成地層下陷與海水倒灌。" }
+                            ]
+                        },
+                        "kn": {
+                            bookName: "康軒版",
+                            chapters: [
+                                { id: "kn_g7_1", name: "第 1 章 位置與地圖要素", hours: 3, isExam2: false, note: "網格座標與方位" },
+                                { id: "kn_g7_3", name: "第 3 章 季風氣候與降雨", hours: 5, isExam2: true, note: "★段考二·迎風背風雨量差異", pitfall: "火燒寮為全臺多雨中心；梅雨與颱風為臺灣主要降雨來源。" },
+                                { id: "kn_g7_4", name: "第 4 章 水文與水資源利用", hours: 5, isExam2: true, note: "★段考二·河川特性與興建水庫", pitfall: "濁水溪為臺灣最長河川；高屏溪為流域面積最大河川。" }
+                            ]
+                        },
+                        "ny": {
+                            bookName: "南一版",
+                            chapters: [
+                                { id: "ny_g7_1", name: "第 1 章 地圖判讀與位置", hours: 3, isExam2: false, note: "經緯度坐標" },
+                                { id: "ny_g7_3", name: "第 3 章 氣候多樣性與災害", hours: 5, isExam2: true, note: "★段考二·雨量氣溫曲線圖", pitfall: "等高線密集坡度陡；冬季寒流來襲農業寒害。" },
+                                { id: "ny_g7_4", name: "第 4 章 河川水利與水資源", hours: 5, isExam2: true, note: "★段考二·荒溪型河川水文", pitfall: "水資源留存不易，需仰賴水庫水利工程調節。" }
+                            ]
+                        }
+                    }
+                },
+                "civics": {
+                    name: "公民", icon: "fa-scale-balanced", color: "#ec4899", isCore: false,
+                    defaultBook: "hl",
+                    versions: {
+                        "hl": {
+                            bookName: "翰林版",
+                            chapters: [
+                                { id: "hl_cv7_1", name: "第 1 章 個人成長與尊嚴", hours: 2, isExam2: false, note: "自我認同與同儕互動" },
+                                { id: "hl_cv7_2", name: "第 2 章 性別平權與多元尊重", hours: 2, isExam2: false, note: "性別刻板印象破除" },
+                                { id: "hl_cv7_3", name: "第 3 章 家庭功能與親屬親等大魔王", hours: 4, isExam2: true, note: "★段考二·家庭五大功能/親等親屬", pitfall: "親屬關係大魔王：「血親的配偶的血親」（如親家公、妯娌的兄弟姊妹）在民法上完全不是親屬！直系血親從己身向上或向下數；旁系血親須數至同源直系血親再往下數。" },
+                                { id: "hl_cv7_4", name: "第 4 章 家庭衝突與親權、家暴防治法", hours: 4, isExam2: true, note: "★段考二·扶養法律義務/三種保護令比較", pitfall: "緊急保護令（檢察官/警察聲請，4小時內核發）；暫時保護令（被害人/檢警聲請，無須開庭審理）；通常保護令（被害人/檢警聲請，須經完整審理開庭）。" }
+                            ]
+                        },
+                        "kn": {
+                            bookName: "康軒版",
+                            chapters: [
+                                { id: "kn_cv7_1", name: "第 1 章 探索自我與生命歷程", hours: 2, isExam2: false, note: "人格發展" },
+                                { id: "kn_cv7_3", name: "第 3 章 家庭型態與親屬倫理", hours: 4, isExam2: true, note: "★段考二·核心/折衷/單親/隔代家庭", pitfall: "折衷家庭（三代同堂含一對已婚夫妻）；親等算法：堂表兄弟姊妹為四親等旁系血親。" },
+                                { id: "kn_cv7_4", name: "第 4 章 家庭法律與保護令機制", hours: 4, isExam2: true, note: "★段考二·親權行使與家暴防護", pitfall: "保護令由「法院」核發，違反保護令為刑事犯罪（處三年以下有期徒刑）。" }
+                            ]
+                        },
+                        "ny": {
+                            bookName: "南一版",
+                            chapters: [
+                                { id: "ny_cv7_1", name: "第 1 章 個體發展與自尊", hours: 2, isExam2: false, note: "自我實現" },
+                                { id: "ny_cv7_3", name: "第 3 章 家庭組織與親屬法規", hours: 4, isExam2: true, note: "★段考二·血親姻親配偶關係", pitfall: "配偶關係因離婚或死亡而消滅；姻親包含血親之配偶、配偶之血親、配偶之血親之配偶。" },
+                                { id: "ny_cv7_4", name: "第 4 章 親權扶養與家暴防制", hours: 4, isExam2: true, note: "★段考二·權利義務與保護令", pitfall: "緊急保護令最速 4 小時；家暴包含身體與精神虐待。" }
+                            ]
+                        }
+                    }
+                }
+            },
+            "8": {
+                "math": { name: "數學", icon: "fa-calculator", color: "#f59e0b", isCore: true, defaultBook: "kn", versions: { "kn": { bookName: "康軒版", chapters: [ { id: "m8_1", name: "乘法公式與多項式", hours: 8, isExam2: false }, { id: "m8_2", name: "二次方根與畢氏定理", hours: 10, isExam2: true, pitfall: "直角三角形斜邊平方等於兩股平方和。" }, { id: "m8_3", name: "因式分解", hours: 10, isExam2: true, pitfall: "十字交乘法符號配對。" }, { id: "m8_4", name: "一元二次方程式", hours: 8, isExam2: false } ] } } },
+                "science": { name: "理化", icon: "fa-atom", color: "#10b981", isCore: true, defaultBook: "hl", versions: { "hl": { bookName: "翰林版", chapters: [ { id: "sc8_1", name: "基本測量與密度", hours: 6, isExam2: false }, { id: "sc8_2", name: "物質的組成與反應", hours: 8, isExam2: true, pitfall: "質量守恆定律與化學計量。" }, { id: "sc8_3", name: "波動與聲音", hours: 8, isExam2: true, pitfall: "波速 = 波長 × 頻率。" }, { id: "sc8_4", name: "光與折射透鏡", hours: 8, isExam2: false } ] } } },
+                "chinese": { name: "國文", icon: "fa-book-open", color: "#f43f5e", isCore: false, defaultBook: "kn", versions: { "kn": { bookName: "康軒版", chapters: [ { id: "c8_1", name: "課文選讀與形音義", hours: 6, isExam2: true }, { id: "c8_2", name: "語法與對偶排比修辭", hours: 6, isExam2: true } ] } } },
+                "english": { name: "英語", icon: "fa-language", color: "#3b82f6", isCore: false, defaultBook: "hl", versions: { "hl": { bookName: "翰林版", chapters: [ { id: "e8_1", name: "過去進行式與過去式", hours: 6, isExam2: true }, { id: "e8_2", name: "原級、比較級與最高級", hours: 6, isExam2: true } ] } } },
+                "history": { name: "歷史", icon: "fa-landmark-dome", color: "#8b5cf6", isCore: false, defaultBook: "hl", versions: { "hl": { bookName: "翰林版", chapters: [ { id: "h8_1", name: "商周秦漢帝國與制度", hours: 5, isExam2: true }, { id: "h8_2", name: "魏晉南北朝民族融合", hours: 5, isExam2: true } ] } } },
+                "geography": { name: "地理", icon: "fa-earth-americas", color: "#06b6d4", isCore: false, defaultBook: "hl", versions: { "hl": { bookName: "翰林版", chapters: [ { id: "g8_1", name: "中國地形與氣候水系", hours: 5, isExam2: true }, { id: "g8_2", name: "三大地理區特色", hours: 5, isExam2: true } ] } } },
+                "civics": { name: "公民", icon: "fa-scale-balanced", color: "#ec4899", isCore: false, defaultBook: "hl", versions: { "hl": { bookName: "翰林版", chapters: [ { id: "cv8_1", name: "憲法與基本權利保障", hours: 4, isExam2: true }, { id: "cv8_2", name: "中央政府組織與職權", hours: 4, isExam2: true } ] } } }
+            },
+            "9": {
+                "math": { name: "數學", icon: "fa-calculator", color: "#f59e0b", isCore: true, defaultBook: "kn", versions: { "kn": { bookName: "康軒版", chapters: [ { id: "m9_1", name: "相似形與縮放", hours: 8, isExam2: true }, { id: "m9_2", name: "圓形性質與圓心角", hours: 10, isExam2: true } ] } } },
+                "science": { name: "自然(理化/地科)", icon: "fa-meteor", color: "#10b981", isCore: true, defaultBook: "hl", versions: { "hl": { bookName: "翰林版", chapters: [ { id: "sc9_1", name: "直線運動與加速度", hours: 8, isExam2: true }, { id: "sc9_2", name: "牛頓三大運動定律", hours: 8, isExam2: true } ] } } },
+                "chinese": { name: "國文", icon: "fa-book-open", color: "#f43f5e", isCore: false, defaultBook: "kn", versions: { "kn": { bookName: "康軒版", chapters: [ { id: "c9_1", name: "古典小說與文言散文", hours: 6, isExam2: true } ] } } },
+                "english": { name: "英語", icon: "fa-language", color: "#3b82f6", isCore: false, defaultBook: "hl", versions: { "hl": { bookName: "翰林版", chapters: [ { id: "e9_1", name: "被動語態與完成式", hours: 6, isExam2: true } ] } } },
+                "history": { name: "歷史", icon: "fa-landmark-dome", color: "#8b5cf6", isCore: false, defaultBook: "hl", versions: { "hl": { bookName: "翰林版", chapters: [ { id: "h9_1", name: "希臘羅馬與中古歐洲", hours: 5, isExam2: true } ] } } },
+                "geography": { name: "地理", icon: "fa-earth-americas", color: "#06b6d4", isCore: false, defaultBook: "hl", versions: { "hl": { bookName: "翰林版", chapters: [ { id: "g9_1", name: "歐洲與北美洲地形氣候", hours: 5, isExam2: true } ] } } },
+                "civics": { name: "公民", icon: "fa-scale-balanced", color: "#ec4899", isCore: false, defaultBook: "hl", versions: { "hl": { bookName: "翰林版", chapters: [ { id: "cv9_1", name: "經濟學基本概念與機會成本", hours: 4, isExam2: true } ] } } }
+            }
+        };
+
+        // 互動方塊選科當前狀態
+        let currentTileGrade = "7";
+        let currentTileSubject = "math";
+        let currentTilePublisher = "kn";
+        let selectedChaptersMap = {}; // key: "7_math_kn" -> Set of chIds
+        let selectedPublisherMap = {}; // key: "7_math" -> "kn"
+
+        // ==========================================
+        // 15. iOS 原生 3D 滾輪時間選擇器控制器 (iOS Wheel Drum Roller)
+        // ==========================================
+        let iosRoller = {
+            target: "start", // 'start' or 'end'
+            startH: 19,
+            startM: 0,
+            endH: 21,
+            endM: 0,
+            initialized: false
+        };
+        let audioCtxInstance = null;
+
+        function playWheelTick() {
+            try {
+                if (!audioCtxInstance) {
+                    audioCtxInstance = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtxInstance.state === 'suspended') {
+                    audioCtxInstance.resume();
+                }
+                const osc = audioCtxInstance.createOscillator();
+                const gain = audioCtxInstance.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(520, audioCtxInstance.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(160, audioCtxInstance.currentTime + 0.015);
+                gain.gain.setValueAtTime(0.035, audioCtxInstance.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtxInstance.currentTime + 0.015);
+                osc.connect(gain);
+                gain.connect(audioCtxInstance.destination);
+                osc.start();
+                osc.stop(audioCtxInstance.currentTime + 0.015);
+            } catch (e) {}
+        }
+
+        function initIosTimePicker() {
+            const hCol = document.getElementById("wheelHours");
+            const mCol = document.getElementById("wheelMinutes");
+            if (!hCol || !mCol) return;
+
+            hCol.innerHTML = "";
+            mCol.innerHTML = "";
+
+            // 00 ~ 23 小時
+            for (let i = 0; i < 24; i++) {
+                const item = document.createElement("div");
+                item.className = "ios-wheel-item";
+                item.innerText = String(i).padStart(2, "0");
+                item.dataset.val = i;
+                item.onclick = () => scrollWheelTo("wheelHours", i);
+                hCol.appendChild(item);
+            }
+
+            // 00 ~ 59 分鐘
+            for (let i = 0; i < 60; i++) {
+                const item = document.createElement("div");
+                item.className = "ios-wheel-item";
+                item.innerText = String(i).padStart(2, "0");
+                item.dataset.val = i;
+                item.onclick = () => scrollWheelTo("wheelMinutes", i);
+                mCol.appendChild(item);
+            }
+
+            iosRoller.initialized = true;
+            syncIosWheelsToState();
+        }
+
+        function switchIosTarget(target) {
+            iosRoller.target = target;
+            const tabStart = document.getElementById("tabRollerStart");
+            const tabEnd = document.getElementById("tabRollerEnd");
+            if (target === "start") {
+                tabStart.classList.add("active");
+                tabEnd.classList.remove("active");
+                scrollWheelTo("wheelHours", iosRoller.startH, false);
+                scrollWheelTo("wheelMinutes", iosRoller.startM, false);
+            } else {
+                tabEnd.classList.add("active");
+                tabStart.classList.remove("active");
+                scrollWheelTo("wheelHours", iosRoller.endH, false);
+                scrollWheelTo("wheelMinutes", iosRoller.endM, false);
+            }
+        }
+
+        function scrollWheelTo(colId, val, smooth = true) {
+            const col = document.getElementById(colId);
+            if (!col) return;
+            const targetY = val * 44;
+            if (smooth) {
+                col.scrollTo({ top: targetY, behavior: 'smooth' });
+            } else {
+                col.scrollTop = targetY;
+            }
+        }
+
+        let scrollDebounceTimer = null;
+        let lastReportedHour = -1;
+        let lastReportedMin = -1;
+
+        function handleWheelScroll(colId) {
+            const col = document.getElementById(colId);
+            if (!col) return;
+            const maxVal = (colId === "wheelHours") ? 23 : 59;
+            const idx = Math.min(maxVal, Math.max(0, Math.round(col.scrollTop / 44)));
+
+            // Update item active class
+            Array.from(col.children).forEach((child, i) => {
+                if (i === idx) {
+                    if (!child.classList.contains("active")) {
+                        child.classList.add("active");
+                        playWheelTick();
+                    }
+                } else {
+                    child.classList.remove("active");
+                }
+            });
+
+            // Update target values
+            if (iosRoller.target === "start") {
+                if (colId === "wheelHours") iosRoller.startH = idx;
+                if (colId === "wheelMinutes") iosRoller.startM = idx;
+            } else {
+                if (colId === "wheelHours") iosRoller.endH = idx;
+                if (colId === "wheelMinutes") iosRoller.endM = idx;
+            }
+
+            clearTimeout(scrollDebounceTimer);
+            scrollDebounceTimer = setTimeout(() => {
+                updateIosTimeDisplays();
+            }, 60);
+        }
+
+        function updateIosTimeDisplays() {
+            const sH = String(iosRoller.startH).padStart(2, "0");
+            const sM = String(iosRoller.startM).padStart(2, "0");
+            const eH = String(iosRoller.endH).padStart(2, "0");
+            const eM = String(iosRoller.endM).padStart(2, "0");
+
+            const sStr = `${sH}:${sM}`;
+            const eStr = `${eH}:${eM}`;
+
+            document.getElementById("displayRollerStart").innerText = sStr;
+            document.getElementById("displayRollerEnd").innerText = eStr;
+
+            document.getElementById("inputStartTime").value = sStr;
+            document.getElementById("inputEndTime").value = eStr;
+
+            calculateModalDuration();
+        }
+
+        function syncIosWheelsToState() {
+            const curH = (iosRoller.target === "start") ? iosRoller.startH : iosRoller.endH;
+            const curM = (iosRoller.target === "start") ? iosRoller.startM : iosRoller.endM;
+            scrollWheelTo("wheelHours", curH, false);
+            scrollWheelTo("wheelMinutes", curM, false);
+            updateIosTimeDisplays();
+        }
+
+        // 快捷套用時段同步 iOS 滾輪
+        const origApplyTimePreset = applyTimePreset;
+        applyTimePreset = function(start, end, isOff = false) {
+            if (origApplyTimePreset) origApplyTimePreset(start, end, isOff);
+
+            const [sH, sM] = start.split(":").map(Number);
+            const [eH, eM] = end.split(":").map(Number);
+
+            iosRoller.startH = sH || 0;
+            iosRoller.startM = sM || 0;
+            iosRoller.endH = eH || 0;
+            iosRoller.endM = eM || 0;
+
+            if (!iosRoller.initialized) {
+                initIosTimePicker();
+            } else {
+                syncIosWheelsToState();
+            }
+        };
+
+        // 打開單日彈出視窗同步 iOS 滾輪
+        const origOpenDayTimeModal = openDayTimeModal;
+        openDayTimeModal = function(dateStr) {
+            if (origOpenDayTimeModal) origOpenDayTimeModal(dateStr);
+            const sVal = document.getElementById("inputStartTime").value || "19:00";
+            const eVal = document.getElementById("inputEndTime").value || "21:00";
+            applyTimePreset(sVal, eVal, false);
+            switchIosTarget("start");
+        };
+
+        // ==========================================
+        // 16. 互動方塊選科系統邏輯 (Interactive Tile Selector Logic)
+        // ==========================================
+        function initTileCurriculumDefaults() {
+            // 預設為國一 7 門科目建立初始選定章節（段考二預設全部勾選）
+            const gData = TILE_CURRICULUM["7"];
+            Object.keys(gData).forEach(subKey => {
+                const subObj = gData[subKey];
+                const defBook = subObj.defaultBook || Object.keys(subObj.versions)[0];
+                selectedPublisherMap[`7_${subKey}`] = defBook;
+
+                const storeKey = `7_${subKey}_${defBook}`;
+                if (!selectedChaptersMap[storeKey]) {
+                    const chs = subObj.versions[defBook].chapters;
+                    const defaultIds = chs.filter(c => c.isExam2).map(c => c.id);
+                    selectedChaptersMap[storeKey] = new Set(defaultIds);
+                }
+            });
+        }
+
+        function switchImportMode(mode) {
+            const btnTiles = document.getElementById("btnModeTiles");
+            const btnPaste = document.getElementById("btnModePaste");
+            const contTiles = document.getElementById("containerModeTiles");
+            const contPaste = document.getElementById("containerModePaste");
+
+            if (mode === "tiles") {
+                btnTiles.classList.add("active");
+                btnPaste.classList.remove("active");
+                contTiles.style.display = "block";
+                contPaste.style.display = "none";
+                renderAllTileComponents();
+            } else {
+                btnPaste.classList.add("active");
+                btnTiles.classList.remove("active");
+                contPaste.style.display = "block";
+                contTiles.style.display = "none";
+            }
+        }
+
+        function selectTileGrade(grade) {
+            currentTileGrade = grade;
+            ["7", "8", "9"].forEach(g => {
+                const btn = document.getElementById(`btnGrade${g}`);
+                if (btn) {
+                    if (g === grade) {
+                        btn.className = "tile-btn active-gold";
+                    } else {
+                        btn.className = "tile-btn";
+                    }
+                }
+            });
+
+            // 調整可用學科
+            const availSubs = Object.keys(TILE_CURRICULUM[grade]);
+            if (!availSubs.includes(currentTileSubject)) {
+                currentTileSubject = availSubs[0];
+            }
+
+            renderSubjectTiles();
+            renderPublisherTiles();
+            renderChapterTiles();
+            updateSelectedScopeSummary();
+        }
+
+        function selectTileSubject(subKey) {
+            currentTileSubject = subKey;
+            renderSubjectTiles();
+
+            // 切換教科書版本
+            const pKey = `7_${subKey}`;
+            const defBook = selectedPublisherMap[pKey] || TILE_CURRICULUM[currentTileGrade][subKey].defaultBook || Object.keys(TILE_CURRICULUM[currentTileGrade][subKey].versions)[0];
+            currentTilePublisher = defBook;
+
+            renderPublisherTiles();
+            renderChapterTiles();
+            updateSelectedScopeSummary();
+        }
+
+        function selectTilePublisher(pubKey) {
+            currentTilePublisher = pubKey;
+            selectedPublisherMap[`${currentTileGrade}_${currentTileSubject}`] = pubKey;
+            renderPublisherTiles();
+            renderChapterTiles();
+            updateSelectedScopeSummary();
+        }
+
+        function renderSubjectTiles() {
+            const container = document.getElementById("subjectTileGroup");
+            if (!container) return;
+            container.innerHTML = "";
+
+            const subs = TILE_CURRICULUM[currentTileGrade];
+            Object.keys(subs).forEach(subKey => {
+                const sub = subs[subKey];
+                const isActive = (subKey === currentTileSubject);
+                const storeKey = `${currentTileGrade}_${subKey}_${selectedPublisherMap[`${currentTileGrade}_${subKey}`] || sub.defaultBook || Object.keys(sub.versions)[0]}`;
+                const selCount = (selectedChaptersMap[storeKey] ? selectedChaptersMap[storeKey].size : 0);
+
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = `tile-btn ${isActive ? 'active' : ''}`;
+                btn.onclick = () => selectTileSubject(subKey);
+                btn.innerHTML = `
+                    <i class="fa-solid ${sub.icon}" style="color: ${sub.color};"></i>
+                    <span>${sub.name}</span>
+                    <span style="font-size: 0.72rem; padding: 2px 6px; border-radius: 9999px; background: rgba(255,255,255,0.08); color: ${selCount > 0 ? '#34d399' : 'var(--text-muted)'}; font-weight: 700;">
+                        ${selCount} 章
+                    </span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function renderPublisherTiles() {
+            const container = document.getElementById("publisherTileGroup");
+            if (!container) return;
+            container.innerHTML = "";
+
+            const versions = TILE_CURRICULUM[currentTileGrade][currentTileSubject].versions;
+            Object.keys(versions).forEach(pubKey => {
+                const ver = versions[pubKey];
+                const isActive = (pubKey === currentTilePublisher);
+                const isRecommended = (currentTileGrade === "7" && ((currentTileSubject === "math" || currentTileSubject === "chinese") && pubKey === "kn") || (currentTileSubject !== "math" && currentTileSubject !== "chinese" && pubKey === "hl"));
+
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = `tile-btn ${isActive ? 'active-emerald' : ''}`;
+                btn.onclick = () => selectTilePublisher(pubKey);
+                btn.innerHTML = `
+                    <i class="fa-solid fa-book-bookmark"></i>
+                    <span>${ver.bookName}</span>
+                    ${isRecommended ? '<span style="font-size: 0.68rem; padding: 1px 5px; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #34d399;">建興推薦</span>' : ''}
+                `;
+                container.appendChild(btn);
+            });
+
+            const hintEl = document.getElementById("schoolAdoptedHint");
+            if (hintEl) {
+                hintEl.innerText = `建興國中推薦版本：${versions[currentTilePublisher]?.bookName || '官方選用'}`;
+            }
+        }
+
+        function renderChapterTiles() {
+            const container = document.getElementById("chapterTilesContainer");
+            if (!container) return;
+            container.innerHTML = "";
+
+            const subMeta = TILE_CURRICULUM[currentTileGrade][currentTileSubject];
+            const verMeta = subMeta.versions[currentTilePublisher];
+            if (!verMeta) return;
+
+            const storeKey = `${currentTileGrade}_${currentTileSubject}_${currentTilePublisher}`;
+            if (!selectedChaptersMap[storeKey]) {
+                selectedChaptersMap[storeKey] = new Set();
+            }
+            const activeSet = selectedChaptersMap[storeKey];
+
+            // 標題更新
+            document.getElementById("currentCurriculumHeading").innerHTML = `
+                <span style="color: ${subMeta.color};"><i class="fa-solid ${subMeta.icon}"></i> ${subMeta.name} · ${verMeta.bookName}</span>
+                <span class="badge ${activeSet.size > 0 ? 'badge-green' : 'badge-gold'}" id="chapterCountBadge">已選 ${activeSet.size} 章</span>
+            `;
+
+            verMeta.chapters.forEach(ch => {
+                const isSelected = activeSet.has(ch.id);
+                const tile = document.createElement("div");
+                tile.className = `chapter-tile ${isSelected ? 'selected' : ''}`;
+                tile.onclick = () => toggleChapterTile(ch.id);
+
+                tile.innerHTML = `
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.45rem;">
+                            <span style="font-size: 0.72rem; padding: 2px 7px; border-radius: 4px; background: rgba(255,255,255,0.06); color: ${ch.isExam2 ? '#fbbf24' : 'var(--text-muted)'}; font-weight: 700;">
+                                ${ch.isExam2 ? '★段考二必考' : '常規章節'}
+                            </span>
+                            <div class="chapter-tile-check">
+                                ${isSelected ? '<i class="fa-solid fa-check"></i>' : ''}
+                            </div>
+                        </div>
+
+                        <div style="font-weight: 700; font-size: 0.95rem; color: #fff; margin-bottom: 0.35rem; line-height: 1.4;">
+                            ${ch.name}
+                        </div>
+
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.4rem;">
+                            <i class="fa-solid fa-tag" style="font-size: 0.7rem; color: ${subMeta.color};"></i> ${ch.note || '核心學習指標'}
+                        </div>
+                    </div>
+
+                    <div>
+                        ${ch.pitfall ? `
+                        <div style="font-size: 0.72rem; color: #f87171; background: rgba(239, 68, 68, 0.08); padding: 4px 6px; border-radius: 4px; border: 1px solid rgba(239, 68, 68, 0.15); margin-top: 0.4rem; line-height: 1.3;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> ${ch.pitfall.substring(0, 32)}...
+                        </div>` : ''}
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.6rem; padding-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.75rem;">
+                            <span style="color: var(--text-muted);"><i class="fa-regular fa-clock"></i> 建議 ${ch.hours} 小時</span>
+                            <span style="font-weight: 700; color: ${isSelected ? '#34d399' : 'var(--text-muted)'};">
+                                ${isSelected ? '已選入課表' : '點擊選入'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(tile);
+            });
+        }
+
+        function toggleChapterTile(chId) {
+            const storeKey = `${currentTileGrade}_${currentTileSubject}_${currentTilePublisher}`;
+            if (!selectedChaptersMap[storeKey]) {
+                selectedChaptersMap[storeKey] = new Set();
+            }
+            const activeSet = selectedChaptersMap[storeKey];
+            if (activeSet.has(chId)) {
+                activeSet.delete(chId);
+            } else {
+                activeSet.add(chId);
+            }
+            playWheelTick();
+            renderChapterTiles();
+            renderSubjectTiles();
+            updateSelectedScopeSummary();
+        }
+
+        function applyExamScopePreset(presetType) {
+            const storeKey = `${currentTileGrade}_${currentTileSubject}_${currentTilePublisher}`;
+            const chs = TILE_CURRICULUM[currentTileGrade][currentTileSubject].versions[currentTilePublisher].chapters;
+            if (!selectedChaptersMap[storeKey]) {
+                selectedChaptersMap[storeKey] = new Set();
+            }
+
+            if (presetType === "exam2") {
+                chs.forEach(c => {
+                    if (c.isExam2) selectedChaptersMap[storeKey].add(c.id);
+                    else selectedChaptersMap[storeKey].delete(c.id);
+                });
+            } else if (presetType === "all") {
+                chs.forEach(c => selectedChaptersMap[storeKey].add(c.id));
+            } else if (presetType === "clear") {
+                selectedChaptersMap[storeKey].clear();
+            }
+
+            playWheelTick();
+            renderChapterTiles();
+            renderSubjectTiles();
+            updateSelectedScopeSummary();
+        }
+
+        function updateSelectedScopeSummary() {
+            const summaryEl = document.getElementById("selectedScopeSummaryText");
+            if (!summaryEl) return;
+
+            let totalSubs = 0;
+            let totalChapters = 0;
+            let totalHours = 0;
+            const subSummaries = [];
+
+            const gData = TILE_CURRICULUM[currentTileGrade];
+            Object.keys(gData).forEach(subKey => {
+                const subObj = gData[subKey];
+                const pubKey = selectedPublisherMap[`${currentTileGrade}_${subKey}`] || subObj.defaultBook || Object.keys(subObj.versions)[0];
+                const storeKey = `${currentTileGrade}_${subKey}_${pubKey}`;
+                const chs = subObj.versions[pubKey].chapters;
+                const activeSet = selectedChaptersMap[storeKey];
+
+                if (activeSet && activeSet.size > 0) {
+                    totalSubs++;
+                    let subH = 0;
+                    chs.forEach(c => {
+                        if (activeSet.has(c.id)) {
+                            totalChapters++;
+                            subH += (c.hours || 4);
+                        }
+                    });
+                    totalHours += subH;
+                    subSummaries.push(`${subObj.name} ${activeSet.size}章 (${subH}h)`);
+                }
+            });
+
+            summaryEl.innerHTML = `
+                <strong>${totalSubs} 門考科 · 共 ${totalChapters} 個章節 · 建議總時數約 ${totalHours} 小時</strong>
+                <div style="margin-top: 0.25rem; font-size: 0.78rem; color: #34d399;">
+                    ${subSummaries.join(" · ") || '尚未選取任何章節'}
+                </div>
+            `;
+        }
+
+        function saveTilesToStudyPlan() {
+            const newSubjects = [];
+            const gData = TILE_CURRICULUM[currentTileGrade];
+
+            Object.keys(gData).forEach(subKey => {
+                const subObj = gData[subKey];
+                const pubKey = selectedPublisherMap[`${currentTileGrade}_${subKey}`] || subObj.defaultBook || Object.keys(subObj.versions)[0];
+                const storeKey = `${currentTileGrade}_${subKey}_${pubKey}`;
+                const verObj = subObj.versions[pubKey];
+                const activeSet = selectedChaptersMap[storeKey];
+
+                if (activeSet && activeSet.size > 0) {
+                    const selectedChs = verObj.chapters.filter(c => activeSet.has(c.id));
+                    let subHours = 0;
+                    const scopeLines = [];
+                    const pitfallLines = [];
+
+                    selectedChs.forEach(c => {
+                        subHours += (c.hours || 4);
+                        scopeLines.push(c.name + (c.note ? `（${c.note}）` : ''));
+                        if (c.pitfall) pitfallLines.push(`• ${c.pitfall}`);
+                    });
+
+                    newSubjects.push({
+                        id: subKey,
+                        name: subObj.name,
+                        book: verObj.bookName,
+                        hoursText: `${subHours} 小時`,
+                        pctText: `${Math.round((subHours / 80) * 100)}%`,
+                        color: subObj.color,
+                        isCore: subObj.isCore,
+                        scope: scopeLines.join("\n"),
+                        pitfalls: pitfallLines.join("\n") || "• 熟讀觀念公式與題型演練"
+                    });
+                }
+            });
+
+            if (newSubjects.length === 0) {
+                alert("⚠️ 請至少選取 1 個章節再儲存課表！");
+                return;
+            }
+
+            currentSubjects = newSubjects;
+            localStorage.setItem(STORAGE_KEY_SUBJECTS, JSON.stringify(currentSubjects));
+
+            buildDynamicCalendar();
+            renderOverallProgress();
+            renderTodayTasks();
+            renderWeeklySchedule();
+            renderSubjectCards();
+            populateMistakeSubjectDropdown();
+            triggerConfetti();
+
+            alert(`🎉 成功儲存！已將選定的 ${newSubjects.length} 門考科與範圍注入 Ariel 衝刺課表！課表已全面依據每日空檔時段動態調度完畢！`);
+            switchTab('timeline');
+        }
+
+        function renderAllTileComponents() {
+            renderSubjectTiles();
+            renderPublisherTiles();
+            renderChapterTiles();
+            updateSelectedScopeSummary();
+        }
+
+        // 擴充 initApp
+        const origInitApp = initApp;
+        initApp = function() {
+            if (origInitApp) origInitApp();
+            initTileCurriculumDefaults();
+            renderAllTileComponents();
+            initIosTimePicker();
+        };
+
 
         window.addEventListener("DOMContentLoaded", initApp);
     </script>

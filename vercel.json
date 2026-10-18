@@ -157,12 +157,20 @@
       "destination": "/int.html"
     },
     {
+      "source": "/arielschool",
+      "destination": "/arielschool.html"
+    },
+    {
+      "source": "/arielschool.html",
+      "destination": "/arielschool.html"
+    },
+    {
       "source": "/arialschool",
-      "destination": "/arialschool.html"
+      "destination": "/arielschool.html"
     },
     {
       "source": "/arialschool.html",
-      "destination": "/arialschool.html"
+      "destination": "/arielschool.html"
     }
   ],
   "functions": {
