@@ -2105,11 +2105,23 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                         dur: "40m"
                     });
                 } else if (dateStr === "2026-11-17") {
-                    dayPlan.focus = "🏁 第一輪 100% 圓滿封關日！";
+                    dayPlan.focus = "🎯 考前一週封關日 · 國文歷屆試題全真模考 + 標註紅星錯題";
+                    dayPlan.items.push({
+                        sub: "chinese",
+                        taskId: "sprint_day7_chinese_mock",
+                        title: "國文 - 歷屆試題全真模考（建興國中近兩年段考卷實戰 · 限時 45 分鐘）",
+                        dur: "45m"
+                    });
+                    dayPlan.items.push({
+                        sub: "chinese",
+                        taskId: "sprint_day7_chinese_stars",
+                        title: "國文 - 標註紅星錯題（精準抓出《兒時記趣/論語選》虛詞「之」、倒裝句與字詞盲點）",
+                        dur: "35m"
+                    });
                     dayPlan.items.push({
                         sub: "all",
                         taskId: "finish_buffer_2",
-                        title: "【考前一週封關日】進度全數達標，邁入最後黃金 7 天刷題！",
+                        title: "【考前一週封關確認】第一輪全科進度 100% 達標，邁入最後黃金 7 天刷題！",
                         dur: "40m"
                     });
                 }
@@ -2202,8 +2214,13 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                 let countBadge = "";
 
                 if (dateStr === "2026-11-17") {
-                    // 封關日
-                    eventsHtml += `<div class="mac-event-chip mac-chip-national" style="border-left: 2.5px solid #10b981; color: #34d399;">🎯 考前封關</div>`;
+                    // 封關日 + 國文全真模考
+                    countBadge = `<span class="mac-day-badge">3</span>`;
+                    eventsHtml += `<div class="mac-day-events">
+                        <div class="mac-event-chip mac-chip-national" style="border-left: 2.5px solid #10b981; color: #34d399;">🎯 考前封關</div>
+                        <div class="mac-event-chip mac-chip-chinese" title="國文歷屆試題全真模考">國文模考+錯題</div>
+                        <div class="mac-event-more">+1 更多</div>
+                    </div>`;
                 } else if (dateStr === "2026-11-24" || dateStr === "2026-11-25") {
                     // 段考日
                     eventsHtml += `<div class="mac-event-chip mac-chip-exam">💯 段考決戰</div>`;
@@ -2317,14 +2334,23 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             if (dateStr === "2026-11-17") {
                 html += `
                     <div class="mac-event-item-card" style="border-left-color: #10b981; background: rgba(16, 185, 129, 0.08);">
-                        <h4 class="mac-event-item-name" style="color: #34d399;">🎯 考前一週封關日（第一輪全科徹底唸完）</h4>
+                        <h4 class="mac-event-item-name" style="color: #34d399;">🎯 考前一週封關日 ＋ 黃金 7 天 Day -7 模考啟動</h4>
                         <div class="mac-event-item-meta">
                             <span>📅 大仁哥戰略節點</span>
                             <span>🛡️ 提早 7 天刷題封神</span>
+                            <span style="color: #f43f5e;"><i class="fa-solid fa-star"></i> 國文模考+紅星錯題</span>
                         </div>
-                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.4rem;">
-                            恭喜 Ariel！今天之前已將國英數自社全科課本重點徹底清零！接下來 7 天專注歷屆段考考古題與錯題本封神！
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.4rem; line-height: 1.4;">
+                            恭喜 Ariel！今天完成第一輪全科精讀封關，即刻啟動「國文歷屆試題全真模考」！
                         </p>
+                        <div style="margin-top: 0.6rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            <a href="https://oldweb.csjh.tn.edu.tw/modules/tad_login/index.php?login&op=tn" target="_blank" class="tab-btn" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.75rem; padding: 0.3rem 0.6rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <i class="fa-solid fa-key"></i> 建興舊校網 OpenID 下載考古題
+                            </a>
+                            <a href="https://drive.google.com/file/d/1zEh7XgPohTCmgIb1UCTF_P6AGkeNL4Ex/view?usp=drive_link" target="_blank" class="tab-btn" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); font-size: 0.75rem; padding: 0.3rem 0.6rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <i class="fa-solid fa-book-open"></i> 學校官方下載步驟教學
+                            </a>
+                        </div>
                     </div>
                 `;
             } else if (dateStr === "2026-11-24" || dateStr === "2026-11-25") {
