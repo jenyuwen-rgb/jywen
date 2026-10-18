@@ -533,6 +533,278 @@
             color: #ffffff;
         }
 
+    
+        /* ==================================================== */
+        /* 📱 蘋果極致極簡 Zen Mobile-First 美學設計規範 */
+        /* ==================================================== */
+        .mobile-only { display: none !important; }
+        .desktop-only { display: flex !important; }
+
+        /* 頂部導航在手機上的極簡優雅收斂 */
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .header-emblem {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 0.65rem;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.05rem;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+            flex-shrink: 0;
+        }
+
+        /* 雙倒數極簡膠囊 (Zen Dual-Countdown) */
+        .zen-countdown-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .zen-count-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 1rem;
+            padding: 0.85rem 1rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .zen-count-card.card-finish {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
+        }
+        .zen-count-card.card-exam {
+            border-color: rgba(59, 130, 246, 0.3);
+            background: linear-gradient(145deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.02) 100%);
+        }
+        .zen-count-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .zen-count-badge.emerald { color: #34d399; }
+        .zen-count-badge.blue { color: #60a5fa; }
+        .zen-count-num-row {
+            display: flex;
+            align-items: baseline;
+            gap: 0.35rem;
+            margin-top: 0.25rem;
+        }
+        .zen-count-big {
+            font-family: 'JetBrains Mono', -apple-system, sans-serif;
+            font-size: 2.35rem;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
+        .zen-count-unit {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* 30 天排程週過濾器膠囊 (Week Filter Bar) */
+        .week-filter-bar {
+            display: flex;
+            gap: 0.45rem;
+            overflow-x: auto;
+            padding-bottom: 0.4rem;
+            margin-bottom: 1rem;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        .week-filter-bar::-webkit-scrollbar { display: none; }
+        .week-pill {
+            padding: 0.4rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .week-pill.active {
+            background: #3b82f6;
+            color: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
+        }
+
+        /* 7 大考科手風琴折疊卡 (Subject Accordion) */
+        .subject-accordion-card {
+            border: 1px solid var(--border-subtle);
+            border-radius: 1rem;
+            background: var(--bg-surface);
+            overflow: hidden;
+            transition: border-color 0.2s ease;
+        }
+        .subject-accordion-card.active {
+            border-color: var(--border-strong);
+        }
+        .subject-header-btn {
+            width: 100%;
+            padding: 1rem 1.15rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            text-align: left;
+        }
+        .subject-accordion-content {
+            padding: 0 1.15rem 1.15rem 1.15rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        /* iOS 原生底部安全區 Tab Bar (Fixed Bottom Navigation) */
+        .ios-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: calc(3.85rem + env(safe-area-inset-bottom, 0px));
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            background: rgba(9, 9, 11, 0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 60;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .ios-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.68rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.35rem 0;
+            transition: color 0.15s ease, transform 0.15s ease;
+            user-select: none;
+        }
+        .ios-nav-item i {
+            font-size: 1.15rem;
+            transition: transform 0.15s ease;
+        }
+        .ios-nav-item.active {
+            color: #60a5fa;
+        }
+        .ios-nav-item.active i {
+            transform: scale(1.15);
+            color: #3b82f6;
+        }
+
+        /* iOS Bottom Sheet 頂部手勢抓柄 (Grab Handle) */
+        .ios-grab-handle {
+            width: 38px;
+            height: 4.5px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 0 auto 0.85rem auto;
+            cursor: pointer;
+        }
+
+        /* 手機直式螢幕專屬斷捨離覆寫 (< 768px) */
+        @media (max-width: 768px) {
+            .mobile-only { display: flex !important; }
+            .desktop-only { display: none !important; }
+
+            body {
+                padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
+            }
+
+            .ios-bottom-nav {
+                display: flex !important;
+            }
+
+            /* 導航列高度緊湊 */
+            .glass-header .container {
+                height: 3.4rem !important;
+                padding: 0 0.85rem !important;
+            }
+
+            .container {
+                padding: 0 0.85rem !important;
+            }
+
+            /* 隱藏桌機大橫幅冗長文字 */
+            .hero-intro-text {
+                display: none !important;
+            }
+
+            /* 桌面 tabs 隱藏，由底部 iOS Tab Bar 接管 */
+            .desktop-tab-buttons {
+                display: none !important;
+            }
+
+            /* 雙倒數卡片緊湊化 */
+            .zen-count-big {
+                font-size: 2.1rem !important;
+            }
+
+            /* 彈出視窗升級為 iOS 原生 Bottom Sheet */
+            .modal-wrapper {
+                align-items: flex-end !important;
+                padding: 0 !important;
+            }
+            .modal-card-sheet {
+                max-width: 100% !important;
+                width: 100% !important;
+                border-radius: 1.5rem 1.5rem 0 0 !important;
+                max-height: 88vh !important;
+                overflow-y: auto !important;
+                padding: 1.25rem 1.25rem calc(1.75rem + env(safe-area-inset-bottom, 0px)) 1.25rem !important;
+                animation: slideUpSheet 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+
+            @keyframes slideUpSheet {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+            }
+
+            /* 章節方塊在手機上全寬 */
+            .chapter-tiles-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+    
+        /* 原生 details 手風琴樣式 */
+        details.subject-details-card summary::-webkit-details-marker { display: none; }
+        details.subject-details-card summary { list-style: none; }
+        details.subject-details-card[open] summary .details-arrow {
+            transform: rotate(180deg);
+            color: #60a5fa !important;
+        }
+        details.subject-details-card summary:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
     </style>
 </head>
 <body>
@@ -542,32 +814,33 @@
 
     <!-- 頂部頂級導航 -->
     <header class="glass-header">
-        <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 4rem;">
-            <div style="display: flex; align-items: center; gap: 0.85rem;">
-                <div style="width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; background: linear-gradient(135deg, #1e3a8a, #3b82f6); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.15rem; color: #fff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);">
-                    興
-                </div>
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 3.8rem;">
+            <div class="header-brand">
+                <div class="header-emblem">興</div>
                 <div>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <h1 style="font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em;">Ariel 建興國中段考衝刺戰情室</h1>
-                        <span class="badge badge-gold"><i class="fa-solid fa-crown" style="font-size: 0.65rem;"></i> 國一 · 7年級專屬</span>
+                    <div style="display: flex; align-items: center; gap: 0.45rem;">
+                        <h1 style="font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em;">Ariel</h1>
+                        <span class="badge badge-gold" style="padding: 0.15rem 0.5rem; font-size: 0.7rem;"><i class="fa-solid fa-crown" style="font-size: 0.6rem;"></i> 建興國中 7 年級</span>
                     </div>
-                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: -2px;">臺南市立建興國民中學 115學年度上學期 · 提早一週封關精讀法</p>
+                    <p style="font-size: 0.72rem; color: var(--text-secondary); margin-top: -2px;">第二次段考衝刺 · 考前一週封關精讀法</p>
                 </div>
             </div>
 
-            <!-- 右側功能捷徑 -->
-            <div style="display: flex; align-items: center; gap: 0.6rem;" class="no-print">
-                <button onclick="switchTab('import')" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.15); color: #60a5fa;">
+            <!-- 右側功能捷徑 (桌面端完整按鈕 / 手機端簡約晶片) -->
+            <div class="no-print" style="display: flex; align-items: center; gap: 0.5rem;">
+                <button onclick="openBatchTimeModal()" class="tab-btn mobile-only" style="padding: 0.4rem 0.75rem; font-size: 0.78rem; border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                    <i class="fa-regular fa-clock"></i> ⏰ 空檔時段
+                </button>
+                <button onclick="switchTab('import')" class="tab-btn desktop-only" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.15); color: #60a5fa;">
                     <i class="fa-solid fa-file-import"></i> 📥 匯入考科分配
                 </button>
-                <button onclick="openBatchTimeModal()" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                <button onclick="openBatchTimeModal()" class="tab-btn desktop-only" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.15); color: #34d399;">
                     <i class="fa-regular fa-clock"></i> ⏰ 設定每天空檔
                 </button>
-                <button onclick="window.print()" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid var(--border-subtle);">
+                <button onclick="window.print()" class="tab-btn desktop-only" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; border: 1px solid var(--border-subtle);">
                     <i class="fa-solid fa-print"></i> 列印課表
                 </button>
-                <a href="/" class="tab-btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; text-decoration: none;">
+                <a href="/" class="tab-btn desktop-only" style="padding: 0.45rem 0.85rem; font-size: 0.8rem; text-decoration: none;">
                     <i class="fa-solid fa-arrow-left"></i> 回首頁
                 </a>
             </div>
@@ -576,93 +849,95 @@
 
     <main class="container" style="margin-top: 1.5rem;">
 
-        <!-- 英雄橫幅與核心戰略雙倒數 -->
-        <section class="card card-glow" style="margin-bottom: 1.5rem; background: linear-gradient(160deg, #12121c 0%, #0a0a0f 100%); border: 1px solid rgba(59, 130, 246, 0.25);">
-            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1.5rem;">
-                
-                <!-- 左側戰略目標標語 -->
-                <div style="flex: 1 1 360px;">
-                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;">
-                        <span class="badge badge-blue"><i class="fa-solid fa-compass"></i> 大仁哥學霸戰略</span>
-                        <span class="badge badge-green"><i class="fa-solid fa-shield-halved"></i> 考前一週完全唸完</span>
-                    </div>
-                    <h2 style="font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25;">
-                        段考倒數與 7 大考科智能精讀分配
-                    </h2>
-                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem; max-width: 600px;">
-                        距離建興國中<strong>第二次段考 (11/24 ~ 11/25)</strong> 還有倒數時間。落實<strong>「段考前一週 (11/17) 徹底唸完第一輪」</strong>，最後 7 天專注歷屆段考試題刷題與錯題封神！
-                    </p>
+        <!-- 英雄橫幅與核心戰略雙倒數 (Zen Dual-Countdown) -->
+        <section class="card card-glow" style="margin-bottom: 1.25rem; background: linear-gradient(160deg, #12121c 0%, #0a0a0f 100%); border: 1px solid rgba(59, 130, 246, 0.25); padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                <div style="display: flex; align-items: center; gap: 0.45rem;">
+                    <span class="badge badge-green" style="font-size: 0.72rem; padding: 0.18rem 0.55rem;"><i class="fa-solid fa-shield-halved"></i> 考前一週完全唸完</span>
+                    <span class="badge badge-blue desktop-only"><i class="fa-solid fa-compass"></i> 大仁哥學霸戰略</span>
+                </div>
+                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">提早 7 天刷題封神</span>
+            </div>
 
-                    <!-- 全科進度條 -->
-                    <div style="margin-top: 1.25rem;">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem;">
-                            <span style="color: var(--text-secondary); font-weight: 600;">第一輪全科精讀完成度</span>
-                            <span id="overallProgressText" style="font-weight: 700; color: #34d399;">0% (0/0 單元)</span>
-                        </div>
-                        <div class="progress-track">
-                            <div id="overallProgressBar" class="progress-fill" style="width: 0%;"></div>
-                        </div>
+            <!-- 桌面端完整標題與簡介 (手機端精簡化) -->
+            <div class="desktop-only" style="margin-bottom: 0.85rem;">
+                <h2 style="font-size: 1.65rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25;">
+                    段考倒數與 7 大考科智能精讀分配
+                </h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.35rem;">
+                    距離建興國中<strong>第二次段考 (11/24 ~ 11/25)</strong> 還有倒數時間。落實<strong>「段考前一週 (11/17) 徹底唸完第一輪」</strong>，最後 7 天專注歷屆段考試題刷題與錯題封神！
+                </p>
+            </div>
+
+            <!-- 雙倒數極簡膠囊 (Zen Dual-Countdown) -->
+            <div class="zen-countdown-container">
+                <!-- 倒數 1: 考前一週封關日 (11/17) -->
+                <div class="zen-count-card card-finish">
+                    <div class="zen-count-badge emerald">
+                        <i class="fa-solid fa-flag-checkered"></i> 考前一週封關 · 11/17 (二)
+                    </div>
+                    <div class="zen-count-num-row">
+                        <span class="zen-count-big" id="daysToFinish" style="color: #34d399;">--</span>
+                        <span class="zen-count-unit">天全科唸完</span>
                     </div>
                 </div>
 
-                <!-- 右側雙倒數計時看板 -->
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    
-                    <!-- 倒數 1: 考前一週封關日 (11/17) -->
-                    <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 1rem; padding: 1.15rem 1.4rem; min-width: 170px; text-align: center;">
-                        <div style="font-size: 0.75rem; font-weight: 700; color: #34d399; letter-spacing: 0.05em; text-transform: uppercase;">
-                            <i class="fa-solid fa-flag-checkered"></i> 考前一週封關日
-                        </div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">2026/11/17 (二)</div>
-                        <div class="countdown-num" id="daysToFinish" style="color: #34d399; -webkit-text-fill-color: #34d399;">--</div>
-                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">天後全科必須念完</div>
+                <!-- 倒數 2: 第二次段考決戰日 (11/24) -->
+                <div class="zen-count-card card-exam">
+                    <div class="zen-count-badge blue">
+                        <i class="fa-solid fa-bullseye"></i> 第 2 次段考 · 11/24 (二)
                     </div>
-
-                    <!-- 倒數 2: 第二次段考決戰日 (11/24) -->
-                    <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 1rem; padding: 1.15rem 1.4rem; min-width: 170px; text-align: center;">
-                        <div style="font-size: 0.75rem; font-weight: 700; color: #60a5fa; letter-spacing: 0.05em; text-transform: uppercase;">
-                            <i class="fa-solid fa-bullseye"></i> 第二次段考決戰
-                        </div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem;">2026/11/24 (二)</div>
-                        <div class="countdown-num" id="daysToExam">--</div>
-                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">天後正式上考場</div>
+                    <div class="zen-count-num-row">
+                        <span class="zen-count-big" id="daysToExam" style="color: #60a5fa;">--</span>
+                        <span class="zen-count-unit">天決戰考場</span>
                     </div>
-
                 </div>
+            </div>
 
+            <!-- 極細呼吸進度條 -->
+            <div style="margin-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem;">
+                    <span style="color: var(--text-secondary); font-weight: 600;">第一輪全科精讀完成度</span>
+                    <span id="overallProgressText" style="font-weight: 700; color: #34d399;">0% (0/0 單元)</span>
+                </div>
+                <div class="progress-track" style="height: 5px;">
+                    <div id="overallProgressBar" class="progress-fill" style="width: 0%;"></div>
+                </div>
             </div>
         </section>
 
-        <!-- 今日焦點任務看板 (Today's Focus) -->
-        <section class="card" style="margin-bottom: 1.5rem; border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, var(--bg-surface) 100%);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.6rem;">
-                    <span style="width: 2rem; height: 2rem; border-radius: 0.5rem; background: rgba(245, 158, 11, 0.2); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
-                        <i class="fa-solid fa-bolt"></i>
-                    </span>
-                    <div>
-                        <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-                            <h3 style="font-size: 1.15rem; font-weight: 700;">Ariel 今日專屬衝刺任務 (Today's Focus)</h3>
-                            <span id="todaySlotBadge" class="badge badge-blue" style="cursor: pointer;" onclick="openTodayTimeModal()">
-                                <i class="fa-regular fa-clock"></i> 今日讀書時段設定
-                            </span>
+        <!-- 視圖 0: 今日專屬衝刺 (Today's Focus View) -->
+        <div id="view-today" class="tab-content">
+            <section class="card" style="margin-bottom: 1.5rem; border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, var(--bg-surface) 100%);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <span style="width: 2rem; height: 2rem; border-radius: 0.5rem; background: rgba(245, 158, 11, 0.2); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                            <i class="fa-solid fa-bolt"></i>
+                        </span>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                                <h3 style="font-size: 1.15rem; font-weight: 700;">Ariel 今日專屬衝刺任務 (Today's Focus)</h3>
+                                <span id="todaySlotBadge" class="badge badge-blue" style="cursor: pointer;" onclick="openTodayTimeModal()">
+                                    <i class="fa-regular fa-clock"></i> 今日讀書時段設定
+                                </span>
+                            </div>
+                            <p id="todayDateLabel" style="font-size: 0.75rem; color: var(--text-secondary);">載入中...</p>
                         </div>
-                        <p id="todayDateLabel" style="font-size: 0.75rem; color: var(--text-secondary);">載入中...</p>
+                    </div>
+                    <div id="todayStatusBadge">
+                        <span class="badge badge-gold"><i class="fa-solid fa-hourglass-half"></i> 今日進度待執行</span>
                     </div>
                 </div>
-                <div id="todayStatusBadge">
-                    <span class="badge badge-gold"><i class="fa-solid fa-hourglass-half"></i> 今日進度待執行</span>
-                </div>
-            </div>
 
-            <!-- 今日任務項目清單 (JS 動態注入) -->
-            <div id="todayTaskList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.85rem;">
-                <!-- 動態注入 -->
-            </div>
-        </section>
+                <!-- 今日任務項目清單 (JS 動態注入) -->
+                <div id="todayTaskList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.85rem;">
+                    <!-- 動態注入 -->
+                </div>
+            </section>
+        </div>
 
         <!-- 導航切換按鈕區 -->
-        <div class="tab-buttons no-print" style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; overflow-x: auto; padding-bottom: 0.5rem;">
+        <div class="tab-buttons desktop-tab-buttons no-print" style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; overflow-x: auto; padding-bottom: 0.5rem;">
             <button class="tab-btn active" onclick="switchTab('timeline')">
                 <i class="fa-solid fa-calendar-days"></i> 30天全科排程日曆 (10/19 ~ 11/17)
             </button>
@@ -683,6 +958,15 @@
         <!-- 視圖 1: 30天全科排程日曆 (Timeline View) -->
         <div id="view-timeline" class="tab-content">
             
+            <!-- 30 天排程週過濾器膠囊 (Week Filter Bar) -->
+            <div class="week-filter-bar no-print">
+                <button type="button" class="week-pill active" onclick="filterScheduleWeek('all')">🌟 全量 30 天</button>
+                <button type="button" class="week-pill" onclick="filterScheduleWeek(1)">🌱 第 1 週 (10/19~10/25)</button>
+                <button type="button" class="week-pill" onclick="filterScheduleWeek(2)">🔥 第 2 週 (10/26~11/01)</button>
+                <button type="button" class="week-pill" onclick="filterScheduleWeek(3)">⚡ 第 3 週 (11/02~11/08)</button>
+                <button type="button" class="week-pill" onclick="filterScheduleWeek(4)">🎯 第 4 週 (11/09~11/17 封關)</button>
+            </div>
+
             <!-- 學習策略與時間指引提示 -->
             <div style="background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
                 <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1 1 500px;">
@@ -741,12 +1025,12 @@
                     </div>
 
                     <!-- 模式切換按鈕組 -->
-                    <div style="display: flex; gap: 0.4rem; background: rgba(255, 255, 255, 0.04); padding: 4px; border-radius: 0.75rem; border: 1px solid var(--border-subtle);">
-                        <button id="btnModeTiles" onclick="switchImportMode('tiles')" class="tab-btn active" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;">
-                            <i class="fa-solid fa-border-all"></i> 🔲 方塊點選模式 (推薦)
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; background: rgba(255, 255, 255, 0.04); padding: 4px; border-radius: 0.75rem; border: 1px solid var(--border-subtle); width: 100%; max-width: 360px;">
+                        <button id="btnModeTiles" onclick="switchImportMode('tiles')" class="tab-btn active" style="flex: 1; font-size: 0.8rem; padding: 0.45rem 0.6rem; justify-content: center;">
+                            <i class="fa-solid fa-border-all"></i> 方塊選科 (推薦)
                         </button>
-                        <button id="btnModePaste" onclick="switchImportMode('paste')" class="tab-btn" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;">
-                            <i class="fa-solid fa-paste"></i> 📋 批次文字/表格貼上
+                        <button id="btnModePaste" onclick="switchImportMode('paste')" class="tab-btn" style="flex: 1; font-size: 0.8rem; padding: 0.45rem 0.6rem; justify-content: center;">
+                            <i class="fa-solid fa-paste"></i> 批次貼上
                         </button>
                     </div>
                 </div>
@@ -950,8 +1234,9 @@
     </main>
 
     <!-- 彈出視窗 1: 單日空檔時段自訂 Modal (Single Day Time Adjuster) -->
-    <div id="dayTimeModal" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 1.25rem;">
-        <div class="card" style="max-width: 480px; width: 100%; border-color: var(--border-strong);">
+    <div id="dayTimeModal" class="modal-wrapper no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(12px); z-index: 100; align-items: center; justify-content: center; padding: 1.25rem;">
+        <div class="card modal-card-sheet" style="max-width: 480px; width: 100%; border-color: var(--border-strong);">
+            <div class="ios-grab-handle mobile-only" onclick="closeDayTimeModal()"></div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <span style="width: 2rem; height: 2rem; border-radius: 0.5rem; background: rgba(59, 130, 246, 0.2); color: #60a5fa; display: flex; align-items: center; justify-content: center;">
@@ -1045,8 +1330,9 @@
     </div>
 
     <!-- 彈出視窗 2: 全局批次時段設定 (Batch Time Modal) -->
-    <div id="batchTimeModal" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 1.25rem;">
-        <div class="card" style="max-width: 520px; width: 100%; border-color: var(--border-strong);">
+    <div id="batchTimeModal" class="modal-wrapper no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(12px); z-index: 100; align-items: center; justify-content: center; padding: 1.25rem;">
+        <div class="card modal-card-sheet" style="max-width: 520px; width: 100%; border-color: var(--border-strong);">
+            <div class="ios-grab-handle mobile-only" onclick="closeBatchTimeModal()"></div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <span style="width: 2rem; height: 2rem; border-radius: 0.5rem; background: rgba(16, 185, 129, 0.2); color: #34d399; display: flex; align-items: center; justify-content: center;">
@@ -2260,15 +2546,62 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
         // ==========================================
         // 12. 視圖切換
         // ==========================================
+        let currentActiveWeek = 'all';
+
+        function filterScheduleWeek(weekNum) {
+            currentActiveWeek = weekNum;
+            document.querySelectorAll('.week-pill').forEach(p => p.classList.remove('active'));
+            const activePill = Array.from(document.querySelectorAll('.week-pill')).find(p => p.getAttribute('onclick') && p.getAttribute('onclick').includes(String(weekNum)));
+            if (activePill) activePill.classList.add('active');
+
+            const weekCards = document.querySelectorAll('#weeklyScheduleContainer .card');
+            weekCards.forEach((card, idx) => {
+                const w = idx + 1;
+                if (weekNum === 'all' || weekNum === w) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
         function switchTab(tabName) {
+            // 同步桌面 Tab Buttons
             document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+            const activeDesktopBtn = Array.from(document.querySelectorAll(".desktop-tab-buttons .tab-btn")).find(b => b.getAttribute("onclick") && b.getAttribute("onclick").includes(tabName));
+            if (activeDesktopBtn) activeDesktopBtn.classList.add("active");
+
+            // 同步 iOS 底部導航欄 Items
+            document.querySelectorAll(".ios-nav-item").forEach(item => item.classList.remove("active"));
+            const navIdMap = {
+                'today': 'iosNavToday',
+                'timeline': 'iosNavTimeline',
+                'import': 'iosNavImport',
+                'subjects': 'iosNavSubjects',
+                'sprint': 'iosNavSprint'
+            };
+            if (navIdMap[tabName]) {
+                const navEl = document.getElementById(navIdMap[tabName]);
+                if (navEl) navEl.classList.add("active");
+            }
+
+            // 控制視圖顯示
             document.querySelectorAll(".tab-content").forEach(content => content.style.display = "none");
 
-            const activeBtn = Array.from(document.querySelectorAll(".tab-btn")).find(b => b.getAttribute("onclick") && b.getAttribute("onclick").includes(tabName));
-            if (activeBtn) activeBtn.classList.add("active");
+            const isMobile = window.innerWidth <= 768;
 
-            const activeContent = document.getElementById(`view-${tabName}`);
-            if (activeContent) activeContent.style.display = "block";
+            if (tabName === 'today') {
+                const todayEl = document.getElementById('view-today');
+                if (todayEl) todayEl.style.display = "block";
+            } else {
+                const activeContent = document.getElementById(`view-${tabName}`);
+                if (activeContent) activeContent.style.display = "block";
+                // 桌面端如果點 timeline，同時保留 today 在上方
+                if (!isMobile && tabName === 'timeline') {
+                    const todayEl = document.getElementById('view-today');
+                    if (todayEl) todayEl.style.display = "block";
+                }
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -3185,10 +3518,40 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
             initTileCurriculumDefaults();
             renderAllTileComponents();
             initIosTimePicker();
-        };
 
+            if (window.innerWidth <= 768) {
+                switchTab('today');
+            } else {
+                switchTab('timeline');
+            }
+        };
 
         window.addEventListener("DOMContentLoaded", initApp);
     </script>
+
+    <!-- 📱 iOS 原生底部安全區 Tab Bar (Fixed Bottom Navigation) -->
+    <nav class="ios-bottom-nav no-print">
+        <div class="ios-nav-item active" id="iosNavToday" onclick="switchTab('today')">
+            <i class="fa-solid fa-bolt"></i>
+            <span>今日專注</span>
+        </div>
+        <div class="ios-nav-item" id="iosNavTimeline" onclick="switchTab('timeline')">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span>30天課表</span>
+        </div>
+        <div class="ios-nav-item" id="iosNavImport" onclick="switchTab('import')">
+            <i class="fa-solid fa-shapes"></i>
+            <span>方塊選科</span>
+        </div>
+        <div class="ios-nav-item" id="iosNavSubjects" onclick="switchTab('subjects')">
+            <i class="fa-solid fa-book-bookmark"></i>
+            <span>避坑秘笈</span>
+        </div>
+        <div class="ios-nav-item" id="iosNavSprint" onclick="switchTab('sprint')">
+            <i class="fa-solid fa-fire"></i>
+            <span>考前衝刺</span>
+        </div>
+    </nav>
+
 </body>
 </html>
