@@ -1178,7 +1178,6 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
                 <div style="display: flex; align-items: center; gap: 0.45rem;">
                     <span class="badge badge-green" style="font-size: 0.72rem; padding: 0.18rem 0.55rem;"><i class="fa-solid fa-shield-halved"></i> 考前一週完全唸完</span>
-                    <span class="badge badge-blue desktop-only"><i class="fa-solid fa-compass"></i> 大仁哥學霸戰略</span>
                 </div>
                 <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">提早 7 天刷題封神</span>
             </div>
@@ -1375,7 +1374,7 @@
                             <h3 style="font-size: 1.35rem; font-weight: 800;">自訂考科與章節範圍中心</h3>
                         </div>
                         <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.4rem; max-width: 850px;">
-                            大仁哥可直接使用<strong>「方塊點選模式」</strong>自由選擇年級、教科書版本、學科與第幾章節，或使用<strong>「批次貼上模式」</strong>貼上學校表格。系統會<strong>自動依據 Ariel 每日空檔時間容量，動態平衡 30 天每日課表</strong>！
+                            可以直接使用<strong>「方塊點選模式」</strong>自由選擇年級、教科書版本、學科與第幾章節，或使用<strong>「批次貼上模式」</strong>貼上學校表格。系統會<strong>自動依據 Ariel 每日空檔時間容量，動態平衡 30 天每日課表</strong>！
                         </p>
                     </div>
 
@@ -1572,7 +1571,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                     <div>
                         <h3 style="font-size: 1.15rem; font-weight: 700;"><i class="fa-solid fa-fire-flame-curved" style="color: #f43f5e;"></i> Ariel 專屬錯題殲滅本</h3>
-                        <p style="font-size: 0.8rem; color: var(--text-secondary);">大仁哥心法：段考能拿幾分，取決於這本錯題本清了多少！考前只看自己曾經錯過的陷阱。</p>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary);">核心心法：段考能拿幾分，取決於這本錯題本清了多少！考前只看自己曾經錯過的陷阱。</p>
                     </div>
                     <button onclick="openAddMistakeModal()" class="tab-btn" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; border-color: rgba(244, 63, 94, 0.3);">
                         <i class="fa-solid fa-plus"></i> 新增錯題筆記
@@ -2104,7 +2103,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
 
                 // 考前最後兩天（11/16, 11/17）加註封關里程碑
                 if (dateStr === "2026-11-16") {
-                    dayPlan.focus = "大仁哥全科封關日前夕";
+                    dayPlan.focus = "全科封關日前夕";
                     dayPlan.items.push({
                         sub: "all",
                         taskId: "finish_buffer_1",
@@ -2343,7 +2342,6 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                     <div class="mac-event-item-card" style="border-left-color: #10b981; background: rgba(16, 185, 129, 0.08);">
                         <h4 class="mac-event-item-name" style="color: #34d399;">🎯 考前一週封關日 ＋ 黃金 7 天 Day -7 模考啟動</h4>
                         <div class="mac-event-item-meta">
-                            <span>📅 大仁哥戰略節點</span>
                             <span>🛡️ 提早 7 天刷題封神</span>
                             <span style="color: #f43f5e;"><i class="fa-solid fa-star"></i> 國文模考+紅星錯題</span>
                         </div>
@@ -2576,7 +2574,7 @@ Review 2 綜合閱讀測驗與課外雜誌篇章
                 if (w === 1) { weekTitle = "第 1 週 (10/19 ~ 10/25) · 基底奠定週"; weekSubtitle = "主攻：核心主科公式理解 + 語文名篇文意 + 實驗現象推導"; }
                 if (w === 2) { weekTitle = "第 2 週 (10/26 ~ 11/01) · 觀念深化週"; weekSubtitle = "主攻：計算進階繁分數 + 語文修辭常識 + 自然社會中段單元"; }
                 if (w === 3) { weekTitle = "第 3 週 (11/02 ~ 11/08) · 跨科整合週"; weekSubtitle = "主攻：跨章節圖表繪製 + 法律親屬計算法則 + 盲點查漏補缺"; }
-                if (w === 4) { weekTitle = "第 4 週 (11/09 ~ 11/17) · 收尾封關週"; weekSubtitle = "大仁哥戰略：全科課本習題徹底清零，考前一週 100% 唸完！"; }
+                if (w === 4) { weekTitle = "第 4 週 (11/09 ~ 11/17) · 收尾封關週"; weekSubtitle = "衝刺戰略：全科課本習題徹底清零，考前一週 100% 唸完！"; }
 
                 const card = document.createElement("div");
                 card.className = "card";
