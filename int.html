@@ -1599,11 +1599,8 @@
             // 🚀 網址深度錨點抽屜自動連動展開
             if (hash === 'cloud' || hash === 'drawer-gcp') {
                 setTimeout(() => openDrawer('drawer-gcp'), 150);
-            } else if (hash === 'orderbook' || hash === 'mark') {
-                setTimeout(() => {
-                    openDrawer('drawer-gcp');
-                    scrollToOrderbookSection();
-                }, 200);
+            } else if (hash === 'orderbook' || hash === 'mark' || hash === 'drawer-orderbook') {
+                setTimeout(() => openDrawer('drawer-orderbook'), 150);
             } else if (hash === 'calendar' || hash === 'drawer-calendar') {
                 setTimeout(() => openDrawer('drawer-calendar'), 150);
             } else if (hash === 'radar' || hash === 'drawer-radar') {
@@ -4160,16 +4157,11 @@
         }
 
         function scrollToOrderbookSection() {
-            toggleAccordionCard('card-cloud-orderbook', true);
-            setTimeout(() => {
-                const el = document.getElementById('card-cloud-orderbook');
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
+            openDrawer('drawer-orderbook');
         }
 
         function openOrderbookMarker() {
-            openDrawer('drawer-gcp');
-            scrollToOrderbookSection();
+            openDrawer('drawer-orderbook');
         }
 
         // 核心標記執行器 (支援地端 Python PyMuPDF 與純前端 PDF.js / PDF-Lib 雙軌自適應)
@@ -5583,7 +5575,7 @@
                     <i class="fa-solid fa-rotate text-sm text-amber-400"></i>
                     <span>重置熔斷 (0/3)</span>
                 </button>
-                <button onclick="scrollToOrderbookSection()" class="p-2.5 rounded-xl bg-gradient-to-br from-amber-950/80 to-orange-950/80 hover:from-amber-900 hover:to-orange-900 border border-amber-500/60 text-amber-300 text-xs font-bold transition flex flex-col items-center gap-1 shadow-sm">
+                <button onclick="openDrawer('drawer-orderbook')" class="p-2.5 rounded-xl bg-gradient-to-br from-amber-950/80 to-orange-950/80 hover:from-amber-900 hover:to-orange-900 border border-amber-500/60 text-amber-300 text-xs font-bold transition flex flex-col items-center gap-1 shadow-sm">
                     <i class="fa-solid fa-highlighter text-sm text-amber-400"></i>
                     <span>📸 Mark 秩序冊</span>
                 </button>
@@ -5715,184 +5707,23 @@
                 </div>
             </div>
 
-                        <!-- 折疊卡片: 📸 秩序冊拍照劃線標記與情蒐中樞 (Mark 秩序冊) -->
-            <div id="card-cloud-orderbook" class="accordion-card open">
-                <div class="accordion-header" onclick="toggleAccordionCard('card-cloud-orderbook')">
-                    <div class="flex items-center gap-2.5">
-                        <span class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xs">
-                            <i class="fa-solid fa-highlighter"></i>
-                        </span>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-bold text-xs sm:text-sm text-zinc-100">📸 秩序冊拍照劃線標記與情蒐中樞 (Mark 秩序冊)</span>
-                                <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono font-bold">READY</span>
-                            </div>
-                            <span class="text-[11px] text-zinc-400 ml-0 hidden sm:inline">三色選手坐標高亮 · 160 位選手名冊 · 1 秒極速產出 _已標記.pdf</span>
+                        <!-- 快捷入口卡片: 📸 秩序冊拍照劃線標記與情蒐中樞 (Mark 秩序冊) -->
+            <div class="p-4 rounded-xl bg-gradient-to-r from-amber-950/40 via-zinc-900/80 to-zinc-900/60 border border-amber-500/30 flex items-center justify-between cursor-pointer hover:border-amber-500/60 transition shadow-sm" onclick="openDrawer('drawer-orderbook')">
+                <div class="flex items-center gap-3">
+                    <span class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-sm">
+                        <i class="fa-solid fa-highlighter"></i>
+                    </span>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-xs sm:text-sm text-zinc-100">📸 秩序冊拍照劃線標記與情蒐中樞 (Mark 秩序冊)</span>
+                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono font-bold">160 人就緒</span>
                         </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span id="orderbookBadge" class="px-2.5 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 font-semibold font-mono flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                            <span id="orderbookTotalBadgeText">160 人就緒</span>
-                        </span>
-                        <i class="fa-solid fa-chevron-down accordion-chevron text-xs"></i>
+                        <p class="text-[11px] text-zinc-400 mt-0.5">3 色選手坐標高亮 · 步達黃 · 拍照粉 · 特殊綠 · 1 秒產出 _已標記.pdf</p>
                     </div>
                 </div>
-                <div class="accordion-content space-y-4">
-                    <!-- 頂部架構說明與雙軌引擎徽章 -->
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
-                        <div>
-                            <h3 class="text-base font-bold text-zinc-100 flex items-center gap-2">
-                                <i class="fa-solid fa-highlighter gold-gradient-icon"></i>
-                                <span class="gold-gradient-text">秩序冊選手拍照劃線標記獨立工具</span>
-                            </h3>
-                            <p class="text-xs text-zinc-400">支援本地 PDF 檔案拖曳與官方最新賽事秩序冊，自動螢光劃線標註步達、拍照與特殊選手！</p>
-                        </div>
-                        <div class="flex items-center gap-2 text-xs font-mono">
-                            <span id="orderbookEngineBadge" class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                <span id="orderbookEngineText">雙軌標記引擎就緒</span>
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- 步驟 1: 選擇秩序冊 PDF 檔案 -->
-                    <div class="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                                <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 text-[10px] flex items-center justify-center font-mono">1</span>
-                                選擇秩序冊 PDF 檔案
-                            </span>
-                            <span id="pdfFileSummaryText" class="text-[11px] text-zinc-400 font-mono">尚未選擇檔案</span>
-                        </div>
-                        <!-- 拖曳或點選區塊 -->
-                        <div id="pdfDropZone" onclick="document.getElementById('orderbookFileInput').click()" class="border-2 border-dashed border-zinc-700 hover:border-amber-500/60 bg-zinc-950/50 hover:bg-amber-950/10 rounded-xl p-4 text-center cursor-pointer transition flex flex-col items-center justify-center gap-1.5">
-                            <input type="file" id="orderbookFileInput" accept=".pdf" style="display: none;" onchange="handleOrderbookFileSelected(this)">
-                            <i class="fa-solid fa-file-pdf text-2xl text-amber-400"></i>
-                            <div class="text-xs text-zinc-200 font-medium">點擊選擇 PDF 檔案，或直接將 PDF 拖曳至此處</div>
-                            <div class="text-[10px] text-zinc-500 font-mono">支援 CTSA、TPESA、NTPC 等全台官方賽事秩序冊 (.pdf)</div>
-                        </div>
-                        <!-- 本地檔案路徑輸入 (Mac 本地專用) -->
-                        <div class="flex gap-2">
-                            <input type="text" id="orderbookPathInput" placeholder="/Users/jywen/Downloads/2026議長盃全國分齡游泳錦標賽.pdf" class="flex-1 bg-zinc-950 border border-zinc-800 text-zinc-200 px-3 py-1.5 rounded-lg text-xs font-mono focus:border-amber-500/60 outline-none">
-                            <button onclick="document.getElementById('orderbookFileInput').click()" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs rounded-lg font-medium transition flex items-center gap-1">
-                                <i class="fa-regular fa-folder-open text-xs"></i> 瀏覽
-                            </button>
-                        </div>
-                        <!-- 官方最新賽事秩序冊快速一鍵晶片 -->
-                        <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                            <span class="text-[10px] text-zinc-500">近期官方賽事：</span>
-                            <button type="button" onclick="loadSampleOrderbook('115新北小學賽')" class="px-2 py-0.5 rounded-full bg-zinc-800/80 hover:bg-amber-500/20 border border-zinc-700 hover:border-amber-500/40 text-[10px] text-zinc-300 transition">
-                                📄 115新北小學賽.pdf
-                            </button>
-                            <button type="button" onclick="loadSampleOrderbook('115全國北區B')" class="px-2 py-0.5 rounded-full bg-zinc-800/80 hover:bg-amber-500/20 border border-zinc-700 hover:border-amber-500/40 text-[10px] text-zinc-300 transition">
-                                📄 115全國北區B.pdf
-                            </button>
-                            <button type="button" onclick="loadSampleOrderbook('115春季分齡')" class="px-2 py-0.5 rounded-full bg-zinc-800/80 hover:bg-amber-500/20 border border-zinc-700 hover:border-amber-500/40 text-[10px] text-zinc-300 transition">
-                                📄 115春季分齡.pdf
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 步驟 2: 編輯高亮選手名單與類別 (三色劃線) -->
-                    <div class="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                                <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 text-[10px] flex items-center justify-center font-mono">2</span>
-                                編輯高亮選手名單與類別 (三色劃線)
-                            </span>
-                            <div class="flex items-center gap-2">
-                                <button onclick="resetOrderbookConfigToDefault()" class="text-[11px] text-zinc-400 hover:text-zinc-200 px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 transition">
-                                    <i class="fa-solid fa-rotate-left text-[10px]"></i> 重置預設
-                                </button>
-                                <button onclick="saveOrderbookConfigUI()" class="text-[11px] font-bold text-zinc-900 px-2.5 py-0.5 rounded bg-emerald-400 hover:bg-emerald-300 transition flex items-center gap-1 shadow-sm">
-                                    <i class="fa-solid fa-floppy-disk text-[10px]"></i> 儲存名單
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- 三組選手名單輸入框 -->
-                        <div class="space-y-2.5">
-                            <!-- 🟡 步達選手 (螢光黃) -->
-                            <div class="p-2.5 rounded-lg bg-zinc-950/70 border border-yellow-500/30">
-                                <div class="flex items-center justify-between mb-1.5">
-                                    <span class="text-xs font-bold text-yellow-400 flex items-center gap-1.5">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)]"></span>
-                                        🟡 步達選手 (螢光黃標記 · RGB 1.0, 1.0, 0.0)
-                                    </span>
-                                    <span id="buddaCount" class="text-[10px] font-mono text-yellow-400 bg-yellow-400/10 px-1.5 py-0.5 rounded border border-yellow-400/20">114 人</span>
-                                </div>
-                                <textarea id="buddaListInput" rows="2" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-xs font-mono text-zinc-200 focus:border-yellow-500/50 outline-none resize-y"></textarea>
-                            </div>
-
-                            <!-- 💗 拍照選手 (粉紅色) -->
-                            <div class="p-2.5 rounded-lg bg-zinc-950/70 border border-rose-500/30">
-                                <div class="flex items-center justify-between mb-1.5">
-                                    <span class="text-xs font-bold text-rose-400 flex items-center gap-1.5">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.6)]"></span>
-                                        💗 拍照選手 (粉紅色標記 · RGB 1.0, 0.4, 0.7)
-                                    </span>
-                                    <span id="photoCount" class="text-[10px] font-mono text-rose-400 bg-rose-400/10 px-1.5 py-0.5 rounded border border-rose-400/20">42 人</span>
-                                </div>
-                                <textarea id="photoListInput" rows="2" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-xs font-mono text-zinc-200 focus:border-rose-500/50 outline-none resize-y"></textarea>
-                            </div>
-
-                            <!-- 🟢 特殊選手 (螢光綠) -->
-                            <div class="p-2.5 rounded-lg bg-zinc-950/70 border border-emerald-500/30">
-                                <div class="flex items-center justify-between mb-1.5">
-                                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
-                                        🟢 特殊選手 (螢光綠標記 · RGB 0.8, 1.0, 0.0)
-                                    </span>
-                                    <span id="specialCount" class="text-[10px] font-mono text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded border border-emerald-400/20">4 人</span>
-                                </div>
-                                <textarea id="specialListInput" rows="1" placeholder="温心妤, 温少宇, Ariel, Oreo" class="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-xs font-mono text-zinc-200 focus:border-emerald-500/50 outline-none resize-y"></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 步驟 3: 執行劃線與狀態/下載 -->
-                    <div class="p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                                <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 text-[10px] flex items-center justify-center font-mono">3</span>
-                                執行劃線標記與成果產出
-                            </span>
-                            <span class="text-[11px] text-zinc-500 font-mono">向量文字坐標定位</span>
-                        </div>
-
-                        <button id="btnStartOrderbookMark" onclick="startOrderbookHighlightProcess()" class="w-full p-3 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:opacity-95 text-white font-bold text-sm shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition cursor-pointer">
-                            <i class="fa-solid fa-highlighter text-base"></i>
-                            <span>⚡ 開始標記秩序冊 (產出 _已標記.pdf)</span>
-                        </button>
-
-                        <!-- 即時進度條與狀態面板 (預設隱藏) -->
-                        <div id="orderbookProcessBox" class="hidden p-3 rounded-xl bg-zinc-950 border border-amber-500/30 space-y-2">
-                            <div class="flex items-center justify-between text-xs font-mono">
-                                <span id="orderbookStatusMsg" class="text-amber-300 font-bold flex items-center gap-1.5">
-                                    <i class="fa-solid fa-spinner fa-spin text-amber-400"></i>
-                                    <span>準備解析秩序冊...</span>
-                                </span>
-                                <span id="orderbookProgressPercent" class="text-zinc-400 font-mono">0%</span>
-                            </div>
-                            <div class="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
-                                <div id="orderbookProgressBar" class="bg-gradient-to-r from-amber-400 to-rose-500 h-full rounded-full transition-all duration-200" style="width: 0%;"></div>
-                            </div>
-                            <div id="orderbookResultDetails" class="text-[11px] text-zinc-400 font-mono"></div>
-
-                            <!-- 完成後的下載/開啟按鈕組 -->
-                            <div id="orderbookDownloadActions" class="hidden pt-2 flex flex-wrap gap-2">
-                                <a id="btnDownloadMarkedPdf" href="#" download="秩序冊_已標記.pdf" class="flex-1 py-2 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow transition">
-                                    <i class="fa-solid fa-file-arrow-down text-sm"></i>
-                                    <span>⬇️ 下載已標記 PDF</span>
-                                </a>
-                                <button id="btnOpenLocalFinder" onclick="openMarkedFileInFinder()" class="py-2 px-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs flex items-center justify-center gap-1.5 transition">
-                                    <i class="fa-regular fa-folder text-sm"></i>
-                                    <span>在下載資料夾中查看</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="flex items-center gap-1.5 text-xs font-bold text-amber-400 shrink-0 ml-2">
+                    <span>前往獨立工作台</span>
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
                 </div>
             </div>
 
@@ -6280,6 +6111,189 @@
                 </div>
                 </div>
             </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 抽屜 5: 📸 秩序冊拍照劃線標記與情蒐中樞 (Mark 秩序冊) -->
+    <div id="drawer-orderbook" class="drawer-panel font-mono">
+        <div class="drawer-drag-handle"></div>
+        <div class="drawer-header">
+            <button onclick="closeDrawer()" class="drawer-back-btn">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+                <span>返回戰情室</span>
+            </button>
+            <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xs">
+                    <i class="fa-solid fa-highlighter"></i>
+                </span>
+                <div>
+                    <h3 class="font-bold text-sm text-zinc-100">秩序冊拍照劃線標記與情蒐中樞</h3>
+                    <p class="text-[10px] text-zinc-400">3 色選手坐標高亮 · 160 位選手名冊 · 1 秒極速產出 _已標記.pdf</p>
+                </div>
+            </div>
+            <button onclick="closeDrawer()" class="drawer-close-btn" title="關閉">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="drawer-body space-y-4">
+            <!-- 頂部架構說明與雙軌引擎徽章 -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                <div>
+                    <h3 class="text-base font-bold text-zinc-100 flex items-center gap-2">
+                        <i class="fa-solid fa-highlighter gold-gradient-icon"></i>
+                        <span class="gold-gradient-text">秩序冊選手拍照劃線標記獨立工具</span>
+                    </h3>
+                    <p class="text-xs text-zinc-400">支援本地 PDF 檔案拖曳與官方最新賽事秩序冊，自動螢光劃線標註步達、拍照與特殊選手！</p>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-mono">
+                    <span id="orderbookEngineBadge" class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="orderbookEngineText">雙軌標記引擎就緒</span>
+                    </span>
+                    <span class="px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/30 font-semibold flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                        <span id="orderbookTotalBadgeText">160 人就緒</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- 步驟 1: 選擇秩序冊 PDF 檔案 -->
+            <div class="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                        <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 text-[10px] flex items-center justify-center font-mono">1</span>
+                        選擇秩序冊 PDF 檔案
+                    </span>
+                    <span id="pdfFileSummaryText" class="text-[11px] text-zinc-400 font-mono">尚未選擇檔案</span>
+                </div>
+                <!-- 拖曳或點選區塊 -->
+                <div id="pdfDropZone" onclick="document.getElementById('orderbookFileInput').click()" class="border-2 border-dashed border-zinc-700 hover:border-amber-500/60 bg-zinc-950/50 hover:bg-amber-950/10 rounded-xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2">
+                    <input type="file" id="orderbookFileInput" accept=".pdf" style="display: none;" onchange="handleOrderbookFileSelected(this)">
+                    <i class="fa-solid fa-file-pdf text-3xl text-amber-400"></i>
+                    <div class="text-sm text-zinc-200 font-medium">點擊選擇 PDF 檔案，或直接將 PDF 拖曳至此處</div>
+                    <div class="text-[11px] text-zinc-500 font-mono">支援 CTSA、TPESA、NTPC 等全台官方賽事秩序冊 (.pdf)</div>
+                </div>
+                <!-- 本地檔案路徑輸入 (Mac 本地專用) -->
+                <div class="flex gap-2">
+                    <input type="text" id="orderbookPathInput" placeholder="/Users/jywen/Downloads/2026議長盃全國分齡游泳錦標賽.pdf" class="flex-1 bg-zinc-950 border border-zinc-800 text-zinc-200 px-3 py-2 rounded-lg text-xs font-mono focus:border-amber-500/60 outline-none">
+                    <button onclick="document.getElementById('orderbookFileInput').click()" class="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs rounded-lg font-medium transition flex items-center gap-1.5">
+                        <i class="fa-regular fa-folder-open text-xs"></i> 瀏覽
+                    </button>
+                </div>
+                <!-- 官方最新賽事秩序冊快速一鍵晶片 -->
+                <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span class="text-[11px] text-zinc-500">近期官方賽事：</span>
+                    <button type="button" onclick="loadSampleOrderbook('115新北小學賽')" class="px-2.5 py-1 rounded-full bg-zinc-800/80 hover:bg-amber-500/20 border border-zinc-700 hover:border-amber-500/40 text-[11px] text-zinc-300 transition">
+                        📄 115新北小學賽.pdf
+                    </button>
+                    <button type="button" onclick="loadSampleOrderbook('115全國北區B')" class="px-2.5 py-1 rounded-full bg-zinc-800/80 hover:bg-amber-500/20 border border-zinc-700 hover:border-amber-500/40 text-[11px] text-zinc-300 transition">
+                        📄 115全國北區B.pdf
+                    </button>
+                    <button type="button" onclick="loadSampleOrderbook('115春季分齡')" class="px-2.5 py-1 rounded-full bg-zinc-800/80 hover:bg-amber-500/20 border border-zinc-700 hover:border-amber-500/40 text-[11px] text-zinc-300 transition">
+                        📄 115春季分齡.pdf
+                    </button>
+                </div>
+            </div>
+
+            <!-- 步驟 2: 編輯高亮選手名單與類別 (三色劃線) -->
+            <div class="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                        <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 text-[10px] flex items-center justify-center font-mono">2</span>
+                        編輯高亮選手名單與類別 (三色劃線)
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="resetOrderbookConfigToDefault()" class="text-xs text-zinc-400 hover:text-zinc-200 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 transition">
+                            <i class="fa-solid fa-rotate-left text-[10px]"></i> 重置預設
+                        </button>
+                        <button onclick="saveOrderbookConfigUI()" class="text-xs font-bold text-zinc-900 px-3 py-1 rounded bg-emerald-400 hover:bg-emerald-300 transition flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-floppy-disk text-[10px]"></i> 儲存名單
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 三組選手名單輸入框 -->
+                <div class="space-y-3">
+                    <!-- 🟡 步達選手 (螢光黃) -->
+                    <div class="p-3 rounded-xl bg-zinc-950/70 border border-yellow-500/30">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-yellow-400 flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)]"></span>
+                                🟡 步達選手 (螢光黃標記 · RGB 1.0, 1.0, 0.0)
+                            </span>
+                            <span id="buddaCount" class="text-[10px] font-mono text-yellow-400 bg-yellow-400/10 px-2 py-0.5 rounded border border-yellow-400/20">114 人</span>
+                        </div>
+                        <textarea id="buddaListInput" rows="3" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs font-mono text-zinc-200 focus:border-yellow-500/50 outline-none resize-y"></textarea>
+                    </div>
+
+                    <!-- 💗 拍照選手 (粉紅色) -->
+                    <div class="p-3 rounded-xl bg-zinc-950/70 border border-rose-500/30">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-rose-400 flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.6)]"></span>
+                                💗 拍照選手 (粉紅色標記 · RGB 1.0, 0.4, 0.7)
+                            </span>
+                            <span id="photoCount" class="text-[10px] font-mono text-rose-400 bg-rose-400/10 px-2 py-0.5 rounded border border-rose-400/20">42 人</span>
+                        </div>
+                        <textarea id="photoListInput" rows="3" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs font-mono text-zinc-200 focus:border-rose-500/50 outline-none resize-y"></textarea>
+                    </div>
+
+                    <!-- 🟢 特殊選手 (螢光綠) -->
+                    <div class="p-3 rounded-xl bg-zinc-950/70 border border-emerald-500/30">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
+                                🟢 特殊選手 (螢光綠標記 · RGB 0.8, 1.0, 0.0)
+                            </span>
+                            <span id="specialCount" class="text-[10px] font-mono text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">4 人</span>
+                        </div>
+                        <textarea id="specialListInput" rows="2" placeholder="温心妤, 温少宇, Ariel, Oreo" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs font-mono text-zinc-200 focus:border-emerald-500/50 outline-none resize-y"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 步驟 3: 執行劃線與狀態/下載 -->
+            <div class="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                        <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 text-[10px] flex items-center justify-center font-mono">3</span>
+                        執行劃線標記與成果產出
+                    </span>
+                    <span class="text-[11px] text-zinc-500 font-mono">向量文字坐標定位</span>
+                </div>
+
+                <button id="btnStartOrderbookMark" onclick="startOrderbookHighlightProcess()" class="w-full p-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:opacity-95 text-white font-bold text-sm shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition cursor-pointer">
+                    <i class="fa-solid fa-highlighter text-base"></i>
+                    <span>⚡ 開始標記秩序冊 (產出 _已標記.pdf)</span>
+                </button>
+
+                <!-- 即時進度條與狀態面板 (預設隱藏) -->
+                <div id="orderbookProcessBox" class="hidden p-4 rounded-xl bg-zinc-950 border border-amber-500/30 space-y-2.5">
+                    <div class="flex items-center justify-between text-xs font-mono">
+                        <span id="orderbookStatusMsg" class="text-amber-300 font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-spinner fa-spin text-amber-400"></i>
+                            <span>準備解析秩序冊...</span>
+                        </span>
+                        <span id="orderbookProgressPercent" class="text-zinc-400 font-mono">0%</span>
+                    </div>
+                    <div class="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
+                        <div id="orderbookProgressBar" class="bg-gradient-to-r from-amber-400 to-rose-500 h-full rounded-full transition-all duration-200" style="width: 0%;"></div>
+                    </div>
+                    <div id="orderbookResultDetails" class="text-[11px] text-zinc-400 font-mono"></div>
+
+                    <!-- 完成後的下載/開啟按鈕組 -->
+                    <div id="orderbookDownloadActions" class="hidden pt-2 flex flex-wrap gap-2">
+                        <a id="btnDownloadMarkedPdf" href="#" download="秩序冊_已標記.pdf" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow transition">
+                            <i class="fa-solid fa-file-arrow-down text-sm"></i>
+                            <span>⬇️ 下載已標記 PDF</span>
+                        </a>
+                        <button id="btnOpenLocalFinder" onclick="openMarkedFileInFinder()" class="py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs flex items-center justify-center gap-1.5 transition">
+                            <i class="fa-regular fa-folder text-sm"></i>
+                            <span>在下載資料夾中查看</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
