@@ -1128,11 +1128,6 @@
         .war-room-kpi-card:active {
             transform: scale(0.97) !important;
         }
-        .war-room-kpi-card.col-span-2 {
-            grid-column: span 2 !important;
-            aspect-ratio: auto !important;
-            min-height: 84px !important;
-        }
         .kpi-num {
             font-size: 19px !important;
             margin: 0 !important;
@@ -1327,6 +1322,7 @@
                 box-shadow: 0 0 20px rgba(245, 158, 11, 0.7), inset 0 0 10px rgba(245, 158, 11, 0.15);
                 border-color: #F59E0B;
             }
+        }
         /* 🔒 專屬門禁 Modal 原生兜底樣式 (防止任何原因導致 Tailwind 腳本失效時裸露) */
         #authGateModal {
             position: fixed !important;
@@ -1620,7 +1616,7 @@
             </div>
 
             <!-- KPI 5: 📸 Mark 秩序冊 (大仁哥專屬新增) -->
-            <div id="card-kpi-orderbook" class="war-room-kpi-card col-span-2" onclick="openOrderbookMarker()">
+            <div id="card-kpi-orderbook" class="war-room-kpi-card" onclick="openOrderbookMarker()">
                 <div class="flex items-center justify-between">
                     <span class="kpi-title"><i class="fa-solid fa-highlighter text-amber-400 text-[11px]"></i> Mark 秩序冊</span>
                     <span id="hudOrderbookBadge" class="badge-calm-gold">
@@ -3693,7 +3689,10 @@
             const statusCap = document.getElementById('authStatusCapsule');
 
             if (token === ADMIN_HASH) {
-                if (modal) modal.classList.add('hidden');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.style.display = 'none';
+                }
                 if (statusCap) {
                     statusCap.classList.remove('hidden');
                     statusCap.classList.add('flex');
@@ -3703,6 +3702,7 @@
             } else {
                 if (modal) {
                     modal.classList.remove('hidden');
+                    modal.style.display = 'flex';
                     setTimeout(() => {
                         const input = document.getElementById('authPasswordInput');
                         if (input) input.focus();
@@ -3742,6 +3742,7 @@
                     modal.style.opacity = '0';
                     setTimeout(() => {
                         modal.classList.add('hidden');
+                        modal.style.display = 'none';
                         modal.style.opacity = '1';
                     }, 250);
                 }
@@ -3789,6 +3790,7 @@
             const modal = document.getElementById('authGateModal');
             if (modal) {
                 modal.classList.remove('hidden');
+                modal.style.display = 'flex';
                 modal.style.opacity = '1';
                 const input = document.getElementById('authPasswordInput');
                 if (input) {
