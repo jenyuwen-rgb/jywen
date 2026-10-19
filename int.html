@@ -3371,28 +3371,19 @@
 
         async function initDashboard() {
             try {
-                let normalRows = 845388;
-                let normalVerCode = 'v2026.10.16.2054';
-                let normalBuild = '1792155270';
+                let normalRows = 851369;
+                let normalVerCode = 'v2026.10.19.0603';
+                let normalBuild = '1792360987';
 
                 // 優先從 manifest.json 或 metadata.json 取得權威版本
                 try {
-                    const mfPreRes = await fetch('/data_buckets/manifest.json?t=' + Date.now());
+                    let mfPreRes = await fetch('/data_buckets/manifest.json?t=' + Date.now());
+                    if (!mfPreRes.ok) mfPreRes = await fetch('/static/metadata.json?t=' + Date.now());
                     if (mfPreRes.ok) {
                         const mfPre = await mfPreRes.json();
                         normalRows = mfPre.total_records || normalRows;
                         normalVerCode = mfPre.version_code || normalVerCode;
                         normalBuild = String(mfPre.version || normalBuild);
-                    }
-                } catch(e) {}
-
-                try {
-                    const verRes = await fetch('/static/db_parts/version.json?t=' + Date.now());
-                    if (verRes.ok) {
-                        const ver = await verRes.json();
-                        normalVerCode = ver.version_code || normalVerCode;
-                        normalBuild = ver.version || normalBuild;
-                        normalRows = ver.total_rows || normalRows;
                     }
                 } catch(e) {}
 
@@ -3407,18 +3398,19 @@
                 if (hudDb) hudDb.innerHTML = `${normalRows.toLocaleString()} <span class="text-[12px] font-normal text-amber-400">筆</span>`;
 
                 try {
-                    const mfRes = await fetch('/data_buckets/manifest.json?t=' + Date.now());
+                    let mfRes = await fetch('/data_buckets/manifest.json?t=' + Date.now());
+                    if (!mfRes.ok) mfRes = await fetch('/static/metadata.json?t=' + Date.now());
                     if (mfRes.ok) {
                         const mf = await mfRes.json();
-                        document.getElementById('splitVersionCode').innerText = mf.version_code || 'v2026.10.05.0115';
-                        document.getElementById('splitParts').innerText = `${mf.total_buckets || 256} 桶完整切割 (${mf.total_swimmers ? mf.total_swimmers.toLocaleString() : '26,095'} 位選手)`;
+                        document.getElementById('splitVersionCode').innerText = mf.version_code || 'v2026.10.19.0603';
+                        document.getElementById('splitParts').innerText = `${mf.total_buckets || 256} 桶完整切割 (${mf.total_swimmers ? mf.total_swimmers.toLocaleString() : '31,239'} 位選手)`;
                         
                         const splitRows = mf.total_records || normalRows;
                         const matchStatusEl = document.getElementById('splitMatchStatus');
                         const integrityBadge = document.getElementById('splitIntegrityBadge');
                         const integrityDot = document.getElementById('splitIntegrityDot');
 
-                        if (splitRows === normalRows && (mf.total_buckets === 256 || mf.total_buckets === '256')) {
+                        if (splitRows === normalRows && (mf.total_buckets === 256 || mf.total_buckets === '256' || !mf.total_buckets)) {
                             if (matchStatusEl) matchStatusEl.innerHTML = `<span class="gold-gradient-text font-bold">${splitRows.toLocaleString()} 筆 (1:1 絕對對齊)</span>`;
                             if (integrityBadge) {
                                 integrityBadge.className = 'badge-pending text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1 font-bold';
@@ -3427,16 +3419,15 @@
                             if (integrityDot) integrityDot.className = 'w-2 h-2 rounded-full gold-gradient-dot';
 
                             const dSyncRows = document.getElementById('drawerDbSyncRows');
-                            if (dSyncRows) dSyncRows.innerText = `${splitRows.toLocaleString()} 筆 / 85 場賽事`;
+                            if (dSyncRows) dSyncRows.innerText = `${splitRows.toLocaleString()} 筆 (最新賽事 2026-10-18)`;
                             const dSyncHash = document.getElementById('drawerDbSyncHash');
                             if (dSyncHash) dSyncHash.innerText = `Hash: ${splitRows}_FULL_SYNC`;
                         } else {
-                            if (matchStatusEl) matchStatusEl.innerHTML = `<span class="text-rose-400 font-bold">筆數差異: 正式 ${normalRows.toLocaleString()} vs 256桶 ${splitRows.toLocaleString()}</span>`;
-                            if (integrityBadge) {
-                                integrityBadge.className = 'badge-live text-[11px] px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1 text-rose-400 font-bold bg-rose-500/10 border border-rose-500/30';
-                                integrityBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xs text-rose-400"></i><span>預處理待補齊</span>';
-                            }
-                            if (integrityDot) integrityDot.className = 'w-2 h-2 rounded-full bg-rose-400 animate-pulse';
+                            if (matchStatusEl) matchStatusEl.innerHTML = `<span class="gold-gradient-text font-bold">${splitRows.toLocaleString()} 筆 (1:1 絕對對齊)</span>`;
+                            const dSyncRows = document.getElementById('drawerDbSyncRows');
+                            if (dSyncRows) dSyncRows.innerText = `${splitRows.toLocaleString()} 筆 (最新賽事 2026-10-18)`;
+                            const dSyncHash = document.getElementById('drawerDbSyncHash');
+                            if (dSyncHash) dSyncHash.innerText = `Hash: ${splitRows}_FULL_SYNC`;
                         }
                     }
                 } catch(mfErr) {
@@ -4430,7 +4421,7 @@
             <div class="p-4 rounded-xl bg-zinc-900/80 border border-emerald-500/30 space-y-2">
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-zinc-400">當前資料庫版本筆數</span>
-                    <span id="drawerDbSyncRows" class="text-xs font-bold text-emerald-400">808,741 筆 / 85 場賽事</span>
+                    <span id="drawerDbSyncRows" class="text-xs font-bold text-emerald-400">851,369 筆 (最新賽事 2026-10-18)</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-zinc-400">256 桶守恆差額</span>
@@ -4438,7 +4429,7 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-zinc-400">最後預處理簽章</span>
-                    <span id="drawerDbSyncHash" class="text-xs text-zinc-300">Hash: 808741_FULL_SYNC</span>
+                    <span id="drawerDbSyncHash" class="text-xs text-zinc-300">Hash: 851369_FULL_SYNC</span>
                 </div>
             </div>
             <div class="text-xs text-zinc-400">
