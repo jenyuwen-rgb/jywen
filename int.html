@@ -3337,14 +3337,15 @@
                             ${snapshots.map((s, idx) => `
                                 <details class="rounded-lg bg-black/40 border border-rose-900/30 p-3 text-xs font-mono">
                                     <summary class="cursor-pointer text-rose-300 font-bold flex items-center justify-between">
-                                        <span>#${idx+1} 【${esc(s.target_org || s.event_name || '未知賽事')}】 ${esc(s.error_type || '解析異常')} (HTTP ${s.http_status || 500})</span>
+                                        <span>#${idx+1} 【${esc(s.org_name || s.target_org || s.event_name || '未知單位')}】 ${esc(s.error_type || '解析異常')} (HTTP ${s.http_status || 500})</span>
                                         <span class="text-[10px] text-zinc-500">點擊展開現場 Raw Data</span>
                                     </summary>
                                     <div class="mt-2.5 pt-2 border-t border-zinc-800 space-y-2 text-[11px]">
+                                        <div><span class="text-zinc-500">受測主辦：</span><span class="text-zinc-300 font-bold">${esc(s.org_name || '未知')}</span> <span class="text-zinc-500 text-[10px]">(${esc(s.timestamp || '')})</span></div>
                                         <div><span class="text-zinc-500">請求網址：</span><a href="${esc(s.url)}" target="_blank" class="text-sky-400 underline">${esc(s.url)}</a></div>
-                                        <div><span class="text-zinc-500">錯誤訊息：</span><span class="text-rose-400">${esc(s.error_message)}</span></div>
-                                        ${s.stack_trace ? `<div><span class="text-zinc-500">Stack Trace：</span><pre class="p-2 bg-zinc-950 rounded text-[10px] text-zinc-400 overflow-x-auto">${esc(s.stack_trace)}</pre></div>` : ''}
-                                        ${s.raw_html_sample ? `<div><span class="text-zinc-500">現場 Response 前 500 字元：</span><pre class="p-2 bg-zinc-950 rounded text-[10px] text-amber-200/80 overflow-x-auto">${esc(s.raw_html_sample)}</pre></div>` : ''}
+                                        <div><span class="text-zinc-500">錯誤訊息：</span><span class="text-rose-400 font-bold">${esc(s.error_message)}</span></div>
+                                        ${(s.traceback || s.stack_trace) ? `<div><span class="text-zinc-500">Stack Trace：</span><pre class="p-2 bg-zinc-950 rounded text-[10px] text-zinc-400 overflow-x-auto whitespace-pre-wrap">${esc(s.traceback || s.stack_trace)}</pre></div>` : ''}
+                                        ${(s.html_snippet || s.raw_html_sample) ? `<div><span class="text-zinc-500">現場 Response 摘要：</span><pre class="p-2 bg-zinc-950 rounded text-[10px] text-amber-200/80 overflow-x-auto max-h-36">${esc((s.html_snippet || s.raw_html_sample).substring(0, 500))}</pre></div>` : ''}
                                     </div>
                                 </details>
                             `).join('')}
