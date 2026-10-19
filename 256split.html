@@ -537,7 +537,9 @@
         async function fetchSwimmerBucketData(name, birth, sex) {
             const cleanName = normalizeName(name);
             if (!cleanName) return { name: '', total: 0, birth_years: [], scores: [], stats: {} };
-            const cacheKey = `${cleanName}_${birth||''}_${sex||''}`;
+            const cleanBirth = (birth !== undefined && birth !== null && String(birth) !== '' && String(birth) !== 'null' && String(birth) !== 'undefined') ? String(birth).replace(/\.0$/, '').trim() : '';
+            const cleanSex = (sex !== undefined && sex !== null && String(sex) !== '' && String(sex) !== 'null' && String(sex) !== 'undefined') ? (String(sex).includes('女') ? '女' : '男') : '';
+            const cacheKey = `${cleanName}_${cleanBirth}_${cleanSex}`;
             if (swimmerDataMemoryCache[cacheKey]) return swimmerDataMemoryCache[cacheKey];
             
             const md5Hex = md5(cleanName);
@@ -575,17 +577,26 @@
                 : (bucketData[cleanName] || { name: cleanName, total: 0, birth_years: [], scores: [], stats: {} });
             
             const records = rawObj.records || rawObj.scores || [];
-            const birth_years = rawObj.birth_years || [...new Set(records.map(r => String(r.出生年 || '').replace(/\.0$/, '').trim()).filter(Boolean))];
+            const birth_years = rawObj.birth_years || [...new Set(records.map(r => String(r.出生年 || '').replace(/\.0$/, '').trim()).filter(Boolean))].sort((a,b)=>b-a);
             const sampleRow = records[0] || {};
             const gender = rawObj.gender || rawObj.性別 || sampleRow.性別 || '男';
             const stats = rawObj.stats || {};
             
+            let filteredRecords = records;
+            if (cleanBirth) {
+                filteredRecords = filteredRecords.filter(r => String(r.出生年 || '').replace(/\.0$/, '').trim() === cleanBirth);
+            }
+            if (cleanSex) {
+                filteredRecords = filteredRecords.filter(r => (r.性別 || '').includes(cleanSex));
+            }
+
             const swimmerObj = {
                 name: cleanName,
-                total: rawObj.total || records.length,
+                total: filteredRecords.length,
+                all_total: rawObj.total || records.length,
                 birth_years: birth_years,
-                scores: records,
-                records: records,
+                scores: filteredRecords,
+                records: filteredRecords,
                 gender: gender,
                 stats: stats
             };
@@ -1271,6 +1282,8 @@
                 const pScores = p.scores || [];
 
                 pScores.forEach(r => {
+                    if (p.birthYear && String(r.出生年 || '').replace(/\.0$/, '').trim() !== String(p.birthYear).replace(/\.0$/, '').trim()) return;
+                    if (p.sex && r.性別 && !r.性別.includes(p.sex)) return;
                     const obj = Object.assign({}, r);
                     obj.totalSec = timeToSec(obj.成績);
                     if (obj.totalSec && !isNaN(obj.totalSec) && obj.totalSec > 0 && !isDQ(obj.備註)) {
@@ -1645,10 +1658,12 @@
                     if (!p.birthYear) return { player: p, points: [] };
                     const sData = await fetchSwimmerBucketData(p.name, p.birthYear, p.sex);
                     const pScores = (sData.scores || []).filter(r => {
+                        if (p.birthYear && String(r.出生年 || '').replace(/\.0$/, '').trim() !== String(p.birthYear).replace(/\.0$/, '').trim()) return false;
+                        if (p.sex && r.性別 && !r.性別.includes(p.sex)) return false;
                         const item = r.項目 || '';
                         const m = item.match(/(\d+)公尺(?![池水])/);
                         return m && String(m[1]) === String(dist) && item.includes(stroke) && !item.includes('接力') && !item.includes('(25m)') && !item.includes('短水道') && !isDQ(r.備註);
-                    }).sort((a, b) => String(a.年份).localeCompare(String(b.年份)));
+                    }).sort((a, b) => String(a.年份).localeCompare(String(a.年份)));
 
                     const pts = pScores.map(v => {
                         const yrStr = String(v.年份 || '');
@@ -1972,6 +1987,8 @@
                 // 256split: 讀取該選手全量歷史成績 (0.001s)
                 const sData = await fetchSwimmerBucketData(p1, p2, p3);
                 const pScores = (sData.scores || []).filter(r => {
+                    if (p2 && p2 !== 'null' && p2 !== 'undefined' && String(r.出生年 || '').replace(/\.0$/, '').trim() !== String(p2).replace(/\.0$/, '').trim()) return false;
+                    if (p3 && p3 !== 'null' && p3 !== 'undefined' && r.性別 && !r.性別.includes(p3)) return false;
                     const item = r.項目 || '';
                     const m = item.match(/(\d+)公尺(?![池水])/);
                     return m && String(m[1]) === String(dist) && item.includes(stroke) && !item.includes('接力') && !item.includes('(25m)') && !item.includes('短水道') && !isDQ(r.備註);
@@ -1997,8 +2014,10 @@
                 const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type: 'line', data: { datasets: [{ data: tD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: optT });
                 const aC = new Chart(document.getElementById(`canvas-a-${id}`), { type: 'line', data: { datasets: [{ data: aD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: optA });
                                 document.getElementById(`st-${id}`).onchange = async (e) => { 
-                    const opponentData = await fetchSwimmerBucketData(e.target.value);
+                    const opponentData = await fetchSwimmerBucketData(e.target.value, p2, p3);
                     const pScores = (opponentData.scores || []).filter(r => {
+                        if (p2 && p2 !== 'null' && p2 !== 'undefined' && String(r.出生年 || '').replace(/\.0$/, '').trim() !== String(p2).replace(/\.0$/, '').trim()) return false;
+                        if (p3 && p3 !== 'null' && p3 !== 'undefined' && r.性別 && !r.性別.includes(p3)) return false;
                         const item = r.項目 || '';
                         const mm = item.match(/(\d+)公尺(?![池水])/);
                         return mm && String(mm[1]) === String(dist) && item.includes(stroke) && !item.includes('接力') && !item.includes('(25m)') && !item.includes('短水道') && !isDQ(r.備註);
@@ -2022,6 +2041,8 @@
                 // 256split: 讀取該選手全量歷史出賽紀錄 (0.001s)
                 const sData = await fetchSwimmerBucketData(p1, p2, p3);
                 const pScores = (sData.scores || []).filter(r => {
+                    if (p2 && p2 !== 'null' && p2 !== 'undefined' && String(r.出生年 || '').replace(/\.0$/, '').trim() !== String(p2).replace(/\.0$/, '').trim()) return false;
+                    if (p3 && p3 !== 'null' && p3 !== 'undefined' && r.性別 && !r.性別.includes(p3)) return false;
                     const item = r.項目 || '';
                     const m = item.match(/(\d+)公尺(?![池水])/);
                     return m && String(m[1]) === String(dist) && item.includes(stroke) && !item.includes('接力') && !item.includes('(25m)') && !item.includes('短水道') && !isDQ(r.備註);
@@ -2060,6 +2081,8 @@
                         // 256split: 讀取該選手在此距離項目下的全量有效歷史歷程 (0.001s)
             const sData = await fetchSwimmerBucketData(playerName, birthYear, sex);
             const pScores = (sData.scores || []).filter(r => {
+                if (birthYear && birthYear !== 'null' && birthYear !== 'undefined' && String(r.出生年 || '').replace(/\.0$/, '').trim() !== String(birthYear).replace(/\.0$/, '').trim()) return false;
+                if (sex && sex !== 'null' && sex !== 'undefined' && r.性別 && !r.性別.includes(sex)) return false;
                 const item = r.項目 || '';
                 const m = item.match(/(\d+)公尺(?![池水])/);
                 return m && String(m[1]) === String(dist) && item.includes(stroke) && !item.includes('接力') && !item.includes('(25m)') && !item.includes('短水道') && !isDQ(r.備註);
