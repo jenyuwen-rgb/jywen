@@ -1,5 +1,5 @@
 // ── 金水 Swimming PWA 輕量防中繼 Service Worker (CWE-668 / ASVS V14.4.1 合規) ──
-const CACHE_NAME = 'swim-pwa-cache-v20261017';
+const CACHE_NAME = 'swim-pwa-cache-v20261019-1255';
 
 // 核心離線離線可用資源清單
 const PRECACHE_ASSETS = [
