@@ -125,6 +125,14 @@
       "destination": "/256split.html"
     },
     {
+      "source": "/query.html",
+      "destination": "/256split.html"
+    },
+    {
+      "source": "/query",
+      "destination": "/256split.html"
+    },
+    {
       "source": "/athlete/:name",
       "destination": "/api/athlete_seo.py?name=:name"
     },
