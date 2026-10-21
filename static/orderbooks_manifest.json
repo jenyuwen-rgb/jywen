@@ -1,0 +1,90 @@
+{
+  "updated_at": "2026-10-21 23:18:08",
+  "total_orderbooks": 6,
+  "supported_orgs": [
+    {
+      "key": "CTSA",
+      "name": "中華民國游泳協會"
+    },
+    {
+      "key": "TAINAN",
+      "name": "台南市游泳委員會"
+    },
+    {
+      "key": "SWIM_KCSAT",
+      "name": "高雄市水上運動協會"
+    },
+    {
+      "key": "KCC",
+      "name": "高雄市游泳委員會"
+    }
+  ],
+  "orderbooks": [
+    {
+      "id": "ctsa-115-north-b",
+      "org_key": "CTSA",
+      "org_name": "中華民國游泳協會",
+      "title": "115年全國北區分齡游泳錦標賽(B練) 官方秩序冊",
+      "meet_date": "2026-10-18",
+      "file_name": "115全國北區B.pdf",
+      "gcs_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/orderbooks/115全國北區B.pdf",
+      "size_mb": 0.35,
+      "status": "READY"
+    },
+    {
+      "id": "tainan-115-school",
+      "org_key": "TAINAN",
+      "org_name": "台南市游泳委員會",
+      "title": "115年臺南市中小學分齡游泳錦標賽 秩序冊",
+      "meet_date": "2026-09-28",
+      "file_name": "115台南中小學賽.pdf",
+      "gcs_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/orderbooks/115台南中小學賽.pdf",
+      "size_mb": 0.14,
+      "status": "READY"
+    },
+    {
+      "id": "kcc-115-speaker",
+      "org_key": "KCC",
+      "org_name": "高雄市游泳委員會",
+      "title": "115年高雄市議長盃分齡游泳錦標賽 秩序冊",
+      "meet_date": "2026-10-02",
+      "file_name": "115高雄市議長盃.pdf",
+      "gcs_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/orderbooks/115高雄市議長盃.pdf",
+      "size_mb": 1.78,
+      "status": "READY"
+    },
+    {
+      "id": "kcsat-115-autumn",
+      "org_key": "SWIM_KCSAT",
+      "org_name": "高雄市水上運動協會",
+      "title": "115年高雄市秋季水上運動分齡游泳公開賽 秩序冊",
+      "meet_date": "2026-09-15",
+      "file_name": "115高雄水上秋季分齡.pdf",
+      "gcs_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/orderbooks/115高雄水上秋季分齡.pdf",
+      "size_mb": 2.11,
+      "status": "READY"
+    },
+    {
+      "id": "tainan-113-mayor",
+      "org_key": "TAINAN",
+      "org_name": "台南市游泳委員會",
+      "title": "113年臺南市市長盃分齡游泳錦標賽 秩序冊",
+      "meet_date": "2026-08-20",
+      "file_name": "113台南市長盃.pdf",
+      "gcs_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/orderbooks/113台南市長盃.pdf",
+      "size_mb": 0.13,
+      "status": "READY"
+    },
+    {
+      "id": "ctsa-115-primary-school",
+      "org_key": "CTSA",
+      "org_name": "中華民國游泳協會",
+      "title": "115年全國小學分齡游泳錦標賽 官方秩序冊",
+      "meet_date": "2026-10-12",
+      "file_name": "115新北小學賽.pdf",
+      "gcs_url": "https://storage.googleapis.com/ctsa-swim-cloud-287296629155/orderbooks/115新北小學賽.pdf",
+      "size_mb": 0.22,
+      "status": "READY"
+    }
+  ]
+}
