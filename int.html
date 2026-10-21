@@ -1495,6 +1495,477 @@
         #authStatusCapsule.flex {
             display: flex !important;
         }
+
+        /* ═════════════════════════════════════════════════════════════ */
+        /* 📸 Orderbook Studio: Apple Cyber-Dark 極簡高科技獨立工作台專用樣式 */
+        /* ═════════════════════════════════════════════════════════════ */
+        .ob-studio-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang TC", "Helvetica Neue", sans-serif;
+            color: #f4f4f5;
+        }
+
+        /* 工作台頂部 HUD 標頭卡片 */
+        .ob-hud-header {
+            background: linear-gradient(135deg, rgba(28, 28, 36, 0.85) 0%, rgba(18, 18, 24, 0.85) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        @media (min-width: 640px) {
+            .ob-hud-header {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .ob-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .ob-title-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(234, 88, 12, 0.15) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fbbf24;
+            font-size: 16px;
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+            flex-shrink: 0;
+        }
+        .ob-title-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.2px;
+        }
+        .ob-subtitle-text {
+            font-size: 11px;
+            color: #a1a1aa;
+            margin-top: 2px;
+        }
+
+        .ob-hud-badges {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .ob-chip-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            border: 1px solid transparent;
+            letter-spacing: 0.2px;
+        }
+        .ob-chip-status.emerald {
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        .ob-chip-status.amber {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        /* 工作台核心面板卡片 */
+        .ob-card {
+            background: rgba(18, 19, 26, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-top: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .ob-step-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ob-step-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #f4f4f5;
+        }
+        .ob-step-num {
+            width: 20px;
+            height: 20px;
+            border-radius: 9999px;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: #fbbf24;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+        }
+
+        /* 檔案拖曳區艙體 (Cyber Dropzone) */
+        .ob-dropzone {
+            border: 1.5px dashed rgba(245, 158, 11, 0.35);
+            background: rgba(10, 11, 16, 0.65);
+            border-radius: 14px;
+            padding: 26px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .ob-dropzone:hover {
+            border-color: rgba(245, 158, 11, 0.85);
+            background: rgba(245, 158, 11, 0.05);
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.18);
+            transform: translateY(-1px);
+        }
+        .ob-dropzone-icon {
+            font-size: 32px;
+            color: #fbbf24;
+            filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.4));
+        }
+        .ob-dropzone-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #f4f4f5;
+        }
+        .ob-dropzone-sub {
+            font-size: 11px;
+            color: #71717a;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+        }
+
+        /* 本地輸入列 (Mac 本地專用) */
+        .ob-input-group {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+        .ob-text-input {
+            flex: 1;
+            background: #090a0f !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #f4f4f5 !important;
+            padding: 9px 12px !important;
+            border-radius: 10px !important;
+            font-size: 12px !important;
+            font-family: ui-monospace, SFMono-Regular, monospace !important;
+            outline: none !important;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .ob-text-input:focus {
+            border-color: rgba(245, 158, 11, 0.6) !important;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
+        }
+        .ob-btn-ghost {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            color: #f4f4f5 !important;
+            padding: 8px 14px !important;
+            border-radius: 10px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            flex-shrink: 0;
+        }
+        .ob-btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.12) !important;
+            border-color: rgba(245, 158, 11, 0.4) !important;
+            color: #ffffff !important;
+        }
+
+        /* 官方賽事快選膠囊晶片群 */
+        .ob-sample-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-top: 4px;
+        }
+        .ob-sample-label {
+            font-size: 11px;
+            color: #71717a;
+            flex-shrink: 0;
+        }
+        .ob-sample-chip {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #d4d4d8 !important;
+            border-radius: 9999px !important;
+            padding: 4px 12px !important;
+            font-size: 11px !important;
+            font-family: ui-monospace, SFMono-Regular, monospace !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            -webkit-appearance: none;
+            appearance: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .ob-sample-chip:hover {
+            background: rgba(245, 158, 11, 0.15) !important;
+            border-color: rgba(245, 158, 11, 0.45) !important;
+            color: #fbbf24 !important;
+            transform: translateY(-1px);
+        }
+
+        /* 三色選手名單黑曜石卡片 (Tri-Color Cyber Pods) */
+        .ob-swimmer-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        @media (min-width: 640px) {
+            .ob-swimmer-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .ob-color-pod {
+            background: #0b0c11;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .ob-color-pod.yellow {
+            border: 1px solid rgba(250, 204, 21, 0.25);
+        }
+        .ob-color-pod.yellow:focus-within {
+            border-color: rgba(250, 204, 21, 0.7);
+            box-shadow: 0 0 16px rgba(250, 204, 21, 0.15);
+        }
+        .ob-color-pod.pink {
+            border: 1px solid rgba(251, 113, 133, 0.25);
+        }
+        .ob-color-pod.pink:focus-within {
+            border-color: rgba(251, 113, 133, 0.7);
+            box-shadow: 0 0 16px rgba(251, 113, 133, 0.15);
+        }
+        .ob-color-pod.green {
+            border: 1px solid rgba(52, 211, 153, 0.25);
+        }
+        .ob-color-pod.green:focus-within {
+            border-color: rgba(52, 211, 153, 0.7);
+            box-shadow: 0 0 16px rgba(52, 211, 153, 0.15);
+        }
+
+        .ob-pod-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ob-pod-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .ob-pod-tag.yellow { color: #fde047; }
+        .ob-pod-tag.pink { color: #fda4af; }
+        .ob-pod-tag.green { color: #6ee7b7; }
+
+        .ob-pod-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 9999px;
+            flex-shrink: 0;
+        }
+        .ob-pod-dot.yellow { background: #facc15; box-shadow: 0 0 8px rgba(250, 204, 21, 0.8); }
+        .ob-pod-dot.pink { background: #fb7185; box-shadow: 0 0 8px rgba(251, 113, 133, 0.8); }
+        .ob-pod-dot.green { background: #34d399; box-shadow: 0 0 8px rgba(52, 211, 153, 0.8); }
+
+        .ob-pod-count {
+            font-size: 10px;
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+        .ob-pod-count.yellow { background: rgba(250, 204, 21, 0.12); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.3); }
+        .ob-pod-count.pink { background: rgba(251, 113, 133, 0.12); color: #fb7185; border: 1px solid rgba(251, 113, 133, 0.3); }
+        .ob-pod-count.green { background: rgba(52, 211, 153, 0.12); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+
+        .ob-textarea {
+            width: 100% !important;
+            background: #06070a !important;
+            border: 1px solid rgba(255, 255, 255, 0.07) !important;
+            border-radius: 8px !important;
+            padding: 8px 10px !important;
+            color: #e4e4e7 !important;
+            font-family: ui-monospace, SFMono-Regular, monospace !important;
+            font-size: 11px !important;
+            line-height: 1.5 !important;
+            resize: vertical !important;
+            min-height: 80px;
+            outline: none !important;
+            -webkit-appearance: none;
+            appearance: none;
+            transition: all 0.2s ease;
+        }
+
+        /* 儲存/重置快捷控制列 */
+        .ob-ctrl-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ob-btn-save {
+            background: #10b981 !important;
+            color: #064e3b !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 6px 12px !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .ob-btn-save:hover {
+            background: #34d399 !important;
+            transform: translateY(-1px);
+        }
+
+        /* 核心 Action 標記按鈕 (Apple Cyber Glow Action) */
+        .ob-action-btn {
+            width: 100% !important;
+            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #e11d48 100%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 14px !important;
+            padding: 14px 20px !important;
+            color: #ffffff !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            box-shadow: 0 10px 24px -4px rgba(234, 88, 12, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .ob-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px -4px rgba(234, 88, 12, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.6) !important;
+            filter: brightness(1.05);
+        }
+        .ob-action-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 成果下載與進度艙 (Laser Progress Pod) */
+        .ob-progress-pod {
+            background: #090a0f;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .ob-progress-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .ob-progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, #f59e0b, #ec4899);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+            transition: width 0.2s ease;
+        }
+
+        .ob-download-grid {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .ob-btn-download {
+            flex: 1;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            color: #ffffff !important;
+            border-radius: 10px !important;
+            padding: 11px 16px !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            text-align: center;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .ob-btn-download:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(16, 185, 129, 0.5);
+            filter: brightness(1.08);
+        }
     
 </style>
 </head>
@@ -6369,22 +6840,24 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="drawer-body space-y-4">
-            <!-- 頂部架構說明與雙軌引擎徽章 -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
-                <div>
-                    <h3 class="text-base font-bold text-zinc-100 flex items-center gap-2">
-                        <i class="fa-solid fa-highlighter gold-gradient-icon"></i>
-                        <span class="gold-gradient-text">秩序冊選手拍照劃線標記獨立工具</span>
-                    </h3>
-                    <p class="text-xs text-zinc-400">支援本地 PDF 檔案拖曳與官方最新賽事秩序冊，自動螢光劃線標註步達、拍照與特殊選手！</p>
+        <div class="drawer-body ob-studio-container">
+            <!-- 頂部 HUD 標頭卡片 -->
+            <div class="ob-hud-header">
+                <div class="ob-title-wrap">
+                    <div class="ob-title-icon">
+                        <i class="fa-solid fa-highlighter"></i>
+                    </div>
+                    <div>
+                        <div class="ob-title-text">秩序冊選手拍照劃線標記獨立工具</div>
+                        <div class="ob-subtitle-text">支援本地 PDF 檔案拖曳與官方最新賽事秩序冊，自動螢光劃線標註步達、拍照與特殊選手！</div>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2 text-xs font-mono">
-                    <span id="orderbookEngineBadge" class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold flex items-center gap-1.5">
+                <div class="ob-hud-badges">
+                    <span id="orderbookEngineBadge" class="ob-chip-status emerald">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         <span id="orderbookEngineText">雙軌標記引擎就緒</span>
                     </span>
-                    <span class="px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/30 font-semibold flex items-center gap-1.5">
+                    <span class="ob-chip-status amber">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
                         <span id="orderbookTotalBadgeText">160 人就緒</span>
                     </span>
@@ -6392,117 +6865,126 @@
             </div>
 
             <!-- 步驟 1: 選擇秩序冊 PDF 檔案 -->
-            <div class="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                        <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 text-[10px] flex items-center justify-center font-mono">1</span>
-                        選擇秩序冊 PDF 檔案
-                    </span>
+            <div class="ob-card">
+                <div class="ob-step-header">
+                    <div class="ob-step-title">
+                        <span class="ob-step-num">1</span>
+                        <span>選擇秩序冊 PDF 檔案</span>
+                    </div>
                     <span id="pdfFileSummaryText" class="text-[11px] text-zinc-400 font-mono">尚未選擇檔案</span>
                 </div>
-                <!-- 拖曳或點選區塊 -->
-                <div id="pdfDropZone" onclick="document.getElementById('orderbookFileInput').click()" class="border-2 border-dashed border-zinc-700 hover:border-amber-500/60 bg-zinc-950/50 hover:bg-amber-950/10 rounded-xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2">
+
+                <!-- 檔案拖曳區艙體 (Cyber Dropzone) -->
+                <div id="pdfDropZone" onclick="document.getElementById('orderbookFileInput').click()" class="ob-dropzone">
                     <input type="file" id="orderbookFileInput" accept=".pdf" style="display: none;" onchange="handleOrderbookFileSelected(this)">
-                    <i class="fa-solid fa-file-pdf text-3xl text-amber-400"></i>
-                    <div class="text-sm text-zinc-200 font-medium">點擊選擇 PDF 檔案，或直接將 PDF 拖曳至此處</div>
-                    <div class="text-[11px] text-zinc-500 font-mono">支援 CTSA、TPESA、NTPC 等全台官方賽事秩序冊 (.pdf)</div>
+                    <i class="fa-solid fa-file-pdf ob-dropzone-icon"></i>
+                    <div class="ob-dropzone-text">點擊選擇 PDF 檔案，或直接將 PDF 拖曳至此處</div>
+                    <div class="ob-dropzone-sub">支援 CTSA、TPESA、NTPC 等全台官方賽事秩序冊 (.pdf)</div>
                 </div>
+
                 <!-- 本地檔案路徑輸入 (Mac 本地專用) -->
-                <div class="flex gap-2">
-                    <input type="text" id="orderbookPathInput" placeholder="/Users/jywen/Downloads/2026議長盃全國分齡游泳錦標賽.pdf" class="flex-1 bg-zinc-950 border border-zinc-800 text-zinc-200 px-3 py-2 rounded-lg text-xs font-mono focus:border-amber-500/60 outline-none">
-                    <button onclick="document.getElementById('orderbookFileInput').click()" class="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs rounded-lg font-medium transition flex items-center gap-1.5">
-                        <i class="fa-regular fa-folder-open text-xs"></i> 瀏覽
+                <div class="ob-input-group">
+                    <input type="text" id="orderbookPathInput" placeholder="/Users/jywen/Downloads/2026議長盃全國分齡游泳錦標賽.pdf" class="ob-text-input">
+                    <button type="button" onclick="document.getElementById('orderbookFileInput').click()" class="ob-btn-ghost">
+                        <i class="fa-regular fa-folder-open text-xs"></i>
+                        <span>瀏覽</span>
                     </button>
                 </div>
+
                 <!-- 官方最新賽事秩序冊快速一鍵晶片 -->
-                <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                    <span class="text-[11px] text-zinc-500">近期官方賽事：</span>
-                    <button type="button" onclick="loadSampleOrderbook('115新北小學賽')" class="px-2.5 py-1 rounded-full bg-zinc-800/80 hover:bg-amber-500/20 border border-zinc-700 hover:border-amber-500/40 text-[11px] text-zinc-300 transition">
+                <div class="ob-sample-row">
+                    <span class="ob-sample-label">近期官方賽事：</span>
+                    <button type="button" onclick="loadSampleOrderbook('115新北小學賽')" class="ob-sample-chip">
                         📄 115新北小學賽.pdf
                     </button>
-                    <button type="button" onclick="loadSampleOrderbook('115全國北區B')" class="px-2.5 py-1 rounded-full bg-zinc-800/80 hover:bg-amber-500/20 border border-zinc-700 hover:border-amber-500/40 text-[11px] text-zinc-300 transition">
+                    <button type="button" onclick="loadSampleOrderbook('115全國北區B')" class="ob-sample-chip">
                         📄 115全國北區B.pdf
                     </button>
-                    <button type="button" onclick="loadSampleOrderbook('115春季分齡')" class="px-2.5 py-1 rounded-full bg-zinc-800/80 hover:bg-amber-500/20 border border-zinc-700 hover:border-amber-500/40 text-[11px] text-zinc-300 transition">
+                    <button type="button" onclick="loadSampleOrderbook('115春季分齡')" class="ob-sample-chip">
                         📄 115春季分齡.pdf
                     </button>
                 </div>
             </div>
 
             <!-- 步驟 2: 編輯高亮選手名單與類別 (三色劃線) -->
-            <div class="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                        <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 text-[10px] flex items-center justify-center font-mono">2</span>
-                        編輯高亮選手名單與類別 (三色劃線)
-                    </span>
-                    <div class="flex items-center gap-2">
-                        <button onclick="resetOrderbookConfigToDefault()" class="text-xs text-zinc-400 hover:text-zinc-200 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 transition">
-                            <i class="fa-solid fa-rotate-left text-[10px]"></i> 重置預設
+            <div class="ob-card">
+                <div class="ob-step-header">
+                    <div class="ob-step-title">
+                        <span class="ob-step-num">2</span>
+                        <span>編輯高亮選手名單與類別 (三色劃線)</span>
+                    </div>
+                    <div class="ob-ctrl-bar">
+                        <button type="button" onclick="resetOrderbookConfigToDefault()" class="ob-btn-ghost text-xs">
+                            <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                            <span>重置預設</span>
                         </button>
-                        <button onclick="saveOrderbookConfigUI()" class="text-xs font-bold text-zinc-900 px-3 py-1 rounded bg-emerald-400 hover:bg-emerald-300 transition flex items-center gap-1 shadow-sm">
-                            <i class="fa-solid fa-floppy-disk text-[10px]"></i> 儲存名單
+                        <button type="button" onclick="saveOrderbookConfigUI()" class="ob-btn-save">
+                            <i class="fa-solid fa-floppy-disk text-[10px]"></i>
+                            <span>儲存名單</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- 三組選手名單輸入框 -->
-                <div class="space-y-3">
+                <!-- 三組選手名單黑曜石卡片 (自適應三欄或堆疊) -->
+                <div class="ob-swimmer-grid">
                     <!-- 🟡 步達選手 (螢光黃) -->
-                    <div class="p-3 rounded-xl bg-zinc-950/70 border border-yellow-500/30">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-xs font-bold text-yellow-400 flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)]"></span>
-                                🟡 步達選手 (螢光黃標記 · RGB 1.0, 1.0, 0.0)
+                    <div class="ob-color-pod yellow">
+                        <div class="ob-pod-header">
+                            <span class="ob-pod-tag yellow">
+                                <span class="ob-pod-dot yellow"></span>
+                                <span>🟡 步達選手</span>
                             </span>
-                            <span id="buddaCount" class="text-[10px] font-mono text-yellow-400 bg-yellow-400/10 px-2 py-0.5 rounded border border-yellow-400/20">114 人</span>
+                            <span id="buddaCount" class="ob-pod-count yellow">114 人</span>
                         </div>
-                        <textarea id="buddaListInput" rows="3" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs font-mono text-zinc-200 focus:border-yellow-500/50 outline-none resize-y"></textarea>
+                        <div class="text-[10px] text-zinc-500 font-mono">螢光黃標記 · RGB (1.0, 1.0, 0.0)</div>
+                        <textarea id="buddaListInput" rows="4" placeholder="請輸入姓名，以逗號或換行分隔" class="ob-textarea"></textarea>
                     </div>
 
                     <!-- 💗 拍照選手 (粉紅色) -->
-                    <div class="p-3 rounded-xl bg-zinc-950/70 border border-rose-500/30">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-xs font-bold text-rose-400 flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.6)]"></span>
-                                💗 拍照選手 (粉紅色標記 · RGB 1.0, 0.4, 0.7)
+                    <div class="ob-color-pod pink">
+                        <div class="ob-pod-header">
+                            <span class="ob-pod-tag pink">
+                                <span class="ob-pod-dot pink"></span>
+                                <span>💗 拍照選手</span>
                             </span>
-                            <span id="photoCount" class="text-[10px] font-mono text-rose-400 bg-rose-400/10 px-2 py-0.5 rounded border border-rose-400/20">42 人</span>
+                            <span id="photoCount" class="ob-pod-count pink">42 人</span>
                         </div>
-                        <textarea id="photoListInput" rows="3" placeholder="請輸入姓名，以逗號或換行分隔" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs font-mono text-zinc-200 focus:border-rose-500/50 outline-none resize-y"></textarea>
+                        <div class="text-[10px] text-zinc-500 font-mono">粉紅標記 · RGB (1.0, 0.4, 0.7)</div>
+                        <textarea id="photoListInput" rows="4" placeholder="請輸入姓名，以逗號或換行分隔" class="ob-textarea"></textarea>
                     </div>
 
                     <!-- 🟢 特殊選手 (螢光綠) -->
-                    <div class="p-3 rounded-xl bg-zinc-950/70 border border-emerald-500/30">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
-                                🟢 特殊選手 (螢光綠標記 · RGB 0.8, 1.0, 0.0)
+                    <div class="ob-color-pod green">
+                        <div class="ob-pod-header">
+                            <span class="ob-pod-tag green">
+                                <span class="ob-pod-dot green"></span>
+                                <span>🟢 特殊選手</span>
                             </span>
-                            <span id="specialCount" class="text-[10px] font-mono text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">4 人</span>
+                            <span id="specialCount" class="ob-pod-count green">4 人</span>
                         </div>
-                        <textarea id="specialListInput" rows="2" placeholder="温心妤, 温少宇, Ariel, Oreo" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-xs font-mono text-zinc-200 focus:border-emerald-500/50 outline-none resize-y"></textarea>
+                        <div class="text-[10px] text-zinc-500 font-mono">螢光綠標記 · RGB (0.8, 1.0, 0.0)</div>
+                        <textarea id="specialListInput" rows="4" placeholder="温心妤, 温少宇, Ariel, Oreo" class="ob-textarea"></textarea>
                     </div>
                 </div>
             </div>
 
-            <!-- 步驟 3: 執行劃線與狀態/下載 -->
-            <div class="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-3">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                        <span class="w-4 h-4 rounded-full bg-amber-400/20 text-amber-300 text-[10px] flex items-center justify-center font-mono">3</span>
-                        執行劃線標記與成果產出
-                    </span>
+            <!-- 步驟 3: 執行劃線與成果產出 -->
+            <div class="ob-card">
+                <div class="ob-step-header">
+                    <div class="ob-step-title">
+                        <span class="ob-step-num">3</span>
+                        <span>執行劃線標記與成果產出</span>
+                    </div>
                     <span class="text-[11px] text-zinc-500 font-mono">向量文字坐標定位</span>
                 </div>
 
-                <button id="btnStartOrderbookMark" onclick="startOrderbookHighlightProcess()" class="w-full p-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:opacity-95 text-white font-bold text-sm shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 transition cursor-pointer">
+                <button id="btnStartOrderbookMark" type="button" onclick="startOrderbookHighlightProcess()" class="ob-action-btn">
                     <i class="fa-solid fa-highlighter text-base"></i>
                     <span>⚡ 開始標記秩序冊 (產出 _已標記.pdf)</span>
                 </button>
 
                 <!-- 即時進度條與狀態面板 (預設隱藏) -->
-                <div id="orderbookProcessBox" class="hidden p-4 rounded-xl bg-zinc-950 border border-amber-500/30 space-y-2.5">
+                <div id="orderbookProcessBox" class="hidden ob-progress-pod">
                     <div class="flex items-center justify-between text-xs font-mono">
                         <span id="orderbookStatusMsg" class="text-amber-300 font-bold flex items-center gap-1.5">
                             <i class="fa-solid fa-spinner fa-spin text-amber-400"></i>
@@ -6510,18 +6992,18 @@
                         </span>
                         <span id="orderbookProgressPercent" class="text-zinc-400 font-mono">0%</span>
                     </div>
-                    <div class="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
-                        <div id="orderbookProgressBar" class="bg-gradient-to-r from-amber-400 to-rose-500 h-full rounded-full transition-all duration-200" style="width: 0%;"></div>
+                    <div class="ob-progress-track">
+                        <div id="orderbookProgressBar" class="ob-progress-fill" style="width: 0%;"></div>
                     </div>
                     <div id="orderbookResultDetails" class="text-[11px] text-zinc-400 font-mono"></div>
 
                     <!-- 完成後的下載/開啟按鈕組 -->
-                    <div id="orderbookDownloadActions" class="hidden pt-2 flex flex-wrap gap-2">
-                        <a id="btnDownloadMarkedPdf" href="#" download="秩序冊_已標記.pdf" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow transition">
+                    <div id="orderbookDownloadActions" class="hidden ob-download-grid pt-2">
+                        <a id="btnDownloadMarkedPdf" href="#" download="秩序冊_已標記.pdf" class="ob-btn-download">
                             <i class="fa-solid fa-file-arrow-down text-sm"></i>
                             <span>⬇️ 下載已標記 PDF</span>
                         </a>
-                        <button id="btnOpenLocalFinder" onclick="openMarkedFileInFinder()" class="py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs flex items-center justify-center gap-1.5 transition">
+                        <button id="btnOpenLocalFinder" type="button" onclick="openMarkedFileInFinder()" class="ob-btn-ghost" style="padding: 11px 16px;">
                             <i class="fa-regular fa-folder text-sm"></i>
                             <span>在下載資料夾中查看</span>
                         </button>
