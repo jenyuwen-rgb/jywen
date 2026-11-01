@@ -180,7 +180,10 @@ def format_card_rank(rank_raw):
 
 
 class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def do_HEAD(self):
+        self.do_GET(head_only=True)
+
+    def do_GET(self, head_only=False):
         # 解析路徑與參數
         full_path = self.headers.get('x-matched-path', '') or self.path
         parsed = urllib.parse.urlparse(full_path)
@@ -196,10 +199,10 @@ class handler(BaseHTTPRequestHandler):
         clean_name = name.replace(" ", "").replace("　", "")
 
         if not clean_name:
-            self.send_response(404)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_response(301)
+            self.send_header('Location', '/')
+            self.send_header('Cache-Control', 'public, max-age=86400')
             self.end_headers()
-            self.wfile.write(b"<h1>404 Not Found - Missing Swimmer Name</h1>")
             return
 
         bucket_idx = get_bucket_index(clean_name)
@@ -221,27 +224,12 @@ class handler(BaseHTTPRequestHandler):
                 pass
 
         if not records:
-            # 查無此選手
-            self.send_response(404)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            # 查無此選手（包含歷史接力字串或過期網址）
+            # 依據 Google SEO 最佳實踐，採用 301 永久重導向回首頁，杜絕 Googlebot 404 警告
+            self.send_response(301)
+            self.send_header('Location', f"/?q={urllib.parse.quote(clean_name)}")
+            self.send_header('Cache-Control', 'public, max-age=86400')
             self.end_headers()
-            not_found_html = f"""<!DOCTYPE html>
-<html lang="zh-TW" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <title>查無選手【{clean_name}】成績｜金水台灣游泳資料庫</title>
-    <meta name="robots" content="noindex, follow">
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col items-center justify-center p-4">
-    <div class="max-w-md text-center space-y-4">
-        <h1 class="text-2xl font-bold text-amber-300">查無選手【{clean_name}】</h1>
-        <p class="text-zinc-400 text-sm">官方資料庫尚未收錄此選手之個人出賽紀錄，或姓名有誤。</p>
-        <a href="/" class="inline-block px-4 py-2 bg-amber-500 text-zinc-950 font-bold rounded-lg">回首頁查詢其他選手</a>
-    </div>
-</body>
-</html>"""
-            self.wfile.write(not_found_html.encode('utf-8'))
             return
 
         # 整理選手資訊
@@ -1228,7 +1216,8 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'text/html; charset=utf-8')
         self.send_header('Cache-Control', 'public, max-age=3600, s-maxage=86400')
         self.end_headers()
-        self.wfile.write(full_html.encode('utf-8'))
+        if not head_only:
+            self.wfile.write(full_html.encode('utf-8'))
 
 if __name__ == '__main__':
     # 本地測試模式

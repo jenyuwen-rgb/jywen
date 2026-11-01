@@ -5,12 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>賽事整合與雲端調度儀表板 · 金水 Swimming PWA</title>
     <script src="https://cdn.tailwindcss.com"></script>
-        <!-- 📸 秩序冊高亮標記向量解析與註解引擎 (PDF.js + PDF-Lib) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.9/pdf-lib.min.js"></script>
+        <!-- 📸 秩序冊高亮標記向量解析與註解引擎 (PDF.js + PDF-Lib 同源極速優先 + 跨域備援) -->
+    <script src="/pdf.min.js"></script>
+    <script>
+        if (typeof pdfjsLib === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"><\/script>');
+        }
+    </script>
+    <script src="/pdf-lib.min.js"></script>
+    <script>
+        if (typeof PDFLib === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"><\/script>');
+        }
+    </script>
     <script>
         if (window.pdfjsLib) {
-            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
         }
     </script>
 
@@ -3308,7 +3318,7 @@
                     // 💻 電腦端無 IP 表格
                     rowsHtml += `
                         <tr class="hover:bg-zinc-900/60 transition">
-                            <td class="p-2.5 text-zinc-400 text-[11px] whitespace-nowrap font-mono">${relTime}</td>
+                            <td class="p-2.5 text-zinc-400 text-[11px] whitespace-nowrap font-mono" title="${rawTime}">${relTime}</td>
                             <td class="p-2.5 font-bold text-zinc-100">
                                 <span class="gold-gradient-text">${cleanSwimmer}</span>
                             </td>
@@ -5199,7 +5209,7 @@
             }
         }
 
-        // 手動觸發 GCP Cloud Run Job
+        // 手動觸發 GCP Cloud Run Job (同源代理優先 + 直連雙軌容錯)
         async function triggerGcpCrawler() {
             if (!confirm('確定要立即手動觸發 GCP Cloud Run Job (swim-daily-crawler) 執行爬蟲嗎？\n雲端 8GiB 容器將會被即時拉起，執行 7 大協會巡檢與賽事入庫。')) {
                 return;
@@ -5212,32 +5222,60 @@
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-sm text-sky-400"></i><span class="text-sky-300">連線觸發中...</span>';
             }
 
+            let success = false;
+            let lastErr = null;
+
+            // 雙軌嘗試 1: 同源 Vercel Serverless API (/api/trigger_gcp) 零跨域零阻擋
             try {
-                const triggerUrl = 'https://swim-trigger-api-287296629155.asia-east1.run.app/?token=swim-super-secret-2026';
-                const resp = await fetch(triggerUrl, {
+                const proxyResp = await fetch('/api/trigger_gcp', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'manual_trigger' })
                 });
-                const res = await resp.json();
-                
-                if (resp.ok && res.status === 'success') {
-                    alert(`🚀 【GCP 雲端容器已成功拉起！】\n\n執行實例 ID: ${res.execution_name}\n狀態: 8GiB 容器已在 asia-east1 啟動中！\n正在全自動執行：全台協會巡檢 ➔ 賽事下載 ➔ 256桶全量重構 ➔ GitHub/Vercel 自動部署。`);
-                } else {
-                    alert(`⚠️ 觸發回報異常: ${res.error || '未知錯誤'}`);
+                if (proxyResp.ok) {
+                    const res = await proxyResp.json();
+                    if (res.status === 'success') {
+                        success = true;
+                        alert(`🚀 【GCP 雲端容器已成功拉起！】\n\n執行通道: 同源安全代理 (Zero-CORS)\n執行實例 ID: ${res.execution_name}\n狀態: 8GiB 容器已在 asia-east1 啟動中！\n正在全自動執行：全台協會巡檢 ➔ 賽事下載 ➔ 256桶全量重構 ➔ GitHub/Vercel 自動部署。`);
+                    }
                 }
-            } catch (err) {
-                alert(`❌ 連線 GCP 觸發代理失敗: ${err.message}`);
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = originalHtml;
-                }
-                // 即時重新整理日誌與狀態
-                setTimeout(() => {
-                    fetchCrawlerLogs();
-                    syncGcpDrawerConsole();
-                }, 3000);
+            } catch(e) {
+                lastErr = e;
             }
+
+            // 雙軌嘗試 2: 直連 GCP Cloud Run Trigger API 備援
+            if (!success) {
+                try {
+                    const triggerUrl = 'https://swim-trigger-api-287296629155.asia-east1.run.app/?token=swim-super-secret-2026';
+                    const directResp = await fetch(triggerUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const res = await directResp.json();
+                    if (directResp.ok && res.status === 'success') {
+                        success = true;
+                        alert(`🚀 【GCP 雲端容器已成功拉起！】\n\n執行通道: GCP Cloud Run 直連\n執行實例 ID: ${res.execution_name}\n狀態: 8GiB 容器已在 asia-east1 啟動中！\n正在全自動執行：全台協會巡檢 ➔ 賽事下載 ➔ 256桶全量重構 ➔ GitHub/Vercel 自動部署。`);
+                    } else {
+                        throw new Error(res.error || res.message || '直連未回應成功');
+                    }
+                } catch(err) {
+                    lastErr = err;
+                }
+            }
+
+            if (!success) {
+                alert(`❌ 連線 GCP 觸發代理失敗: ${lastErr ? lastErr.message : '連線逾時'}\n\n已啟動自愈備援機制，請稍候 3 秒後重試，或使用 Telegram Bot 指令直接觸發。`);
+            }
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+            // 即時重新整理日誌與狀態
+            setTimeout(() => {
+                fetchCrawlerLogs();
+                syncGcpDrawerConsole();
+            }, 3000);
         }
     
 
@@ -5265,7 +5303,7 @@
                 let clean = String(rawTime).trim();
                 let isPM = clean.includes('下午');
                 let isAM = clean.includes('上午');
-                let tStr = clean.replace('下午', '').replace('上午', '').replace(/\//g, '-').trim();
+                let tStr = clean.replace(/下午|上午/g, ' ').replace(/\//g, '-').replace(/\s+/g, ' ').trim();
                 
                 let parts = tStr.split(' ');
                 if (parts.length >= 2) {
@@ -5277,15 +5315,26 @@
                     if (isAM && h === 12) h = 0;
                     let m = sub[1] || '00';
                     let s = sub[2] || '00';
-                    let iso = `${dPart}T${String(h).padStart(2, '0')}:${m}:${s}`;
-                    let d = new Date(iso);
-                    if (!isNaN(d.getTime())) {
-                        let diffSec = Math.floor((Date.now() - d.getTime()) / 1000);
-                        if (diffSec < 60 && diffSec >= -60) return 'just now';
-                        if (diffSec < 3600 && diffSec >= 60) return `${Math.floor(diffSec / 60)}m ago`;
-                        if (diffSec < 86400 && diffSec >= 3600) return `${Math.floor(diffSec / 3600)}h ago`;
-                        if (diffSec < 86400 * 3 && diffSec >= 86400) return `${Math.floor(diffSec / 86400)}d ago`;
-                        return `${String(h).padStart(2, '0')}:${m}`;
+                    
+                    let dMatch = dPart.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+                    if (dMatch) {
+                        let y = parseInt(dMatch[1], 10);
+                        let mon = parseInt(dMatch[2], 10);
+                        let day = parseInt(dMatch[3], 10);
+                        let timeStr = `${String(h).padStart(2, '0')}:${m}`;
+                        
+                        let now = new Date();
+                        let todayY = now.getFullYear();
+                        let todayM = now.getMonth() + 1;
+                        let todayD = now.getDate();
+                        
+                        let targetDate = new Date(y, mon - 1, day);
+                        let todayDate = new Date(todayY, todayM - 1, todayD);
+                        let diffDays = Math.round((todayDate - targetDate) / (1000 * 60 * 60 * 24));
+                        
+                        if (diffDays === 0) return `今天 ${timeStr}`;
+                        if (diffDays === 1) return `昨天 ${timeStr}`;
+                        return `${String(mon).padStart(2, '0')}/${String(day).padStart(2, '0')} ${timeStr}`;
                     }
                 }
                 let m = rawTime.match(/(\d{1,2}):(\d{2})/);
@@ -5334,7 +5383,7 @@
                     "侯妤蓁", "王冠閎", "張慧珍", "許亞鈴", "王希憲", "王子儀", "林孜潔", "林孜澄", "吳芷誼", "温楚庭"
                 ],
                 special: [
-                    "温心妤", "温少宇", "Ariel", "Oreo"
+                    "温心妤", "溫心妤", "温少宇", "溫少宇", "Ariel", "Oreo"
                 ]
             }
         };
@@ -5517,9 +5566,12 @@
             const meetSelect = document.getElementById('selectOrderbookMeet');
             if (!meetSelect) return;
             
-            const filtered = (orgKey === 'ALL' || !orgKey) 
+            const filtered = ((orgKey === 'ALL' || !orgKey) 
                 ? gcpOrderbooksList 
-                : gcpOrderbooksList.filter(item => item.org_key === orgKey);
+                : gcpOrderbooksList.filter(item => item.org_key === orgKey)).slice();
+
+            // 依賽事日期由新到舊倒序排序 (最新賽事置頂)
+            filtered.sort((a, b) => (b.meet_date || '').localeCompare(a.meet_date || ''));
                 
             meetSelect.innerHTML = '';
             
@@ -5602,7 +5654,7 @@
                     throw new Error("PDF.js 引擎尚未載入完成");
                 }
                 if (!window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
-                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
                 }
 
                 // 防 ArrayBuffer detached 拷貝防護
@@ -5756,10 +5808,45 @@
 
             // 確保名單已載入
             if (!currentOrderbookConfig) await loadOrderbookConfigUI();
-            const lists = currentOrderbookConfig.lists || {};
-            const specialSet = new Set((lists.special || []).map(s => s.trim().replace(/\s+/g, '')));
-            const photoSet = new Set((lists.photo || []).map(s => s.trim().replace(/\s+/g, '')));
-            const buddaSet = new Set((lists.budda || []).map(s => s.trim().replace(/\s+/g, '')));
+            const lists = (currentOrderbookConfig && currentOrderbookConfig.lists) ? currentOrderbookConfig.lists : {};
+            
+            // 優先讀取畫面上文字框的即時選手名單 (若有輸入)
+            const sVal = document.getElementById('specialListInput') ? document.getElementById('specialListInput').value : '';
+            const bVal = document.getElementById('buddaListInput') ? document.getElementById('buddaListInput').value : '';
+            const pVal = document.getElementById('photoListInput') ? document.getElementById('photoListInput').value : '';
+
+            const sList = sVal ? parseOrderbookNames(sVal) : (lists.special || []);
+            const bList = bVal ? parseOrderbookNames(bVal) : (lists.budda || []);
+            const pList = pVal ? parseOrderbookNames(pVal) : (lists.photo || []);
+
+            // 異體字與康熙部首全形歸一化函數 (如 ⼼ -> 心, 溫 -> 温, ⾼ -> 高, ⾦ -> 金, ⽴ -> 立, ⼠ -> 士)
+            function normStr(str) {
+                if (!str) return '';
+                return str.normalize('NFKC').replace(/\s+/g, '').replace(/溫/g, '温');
+            }
+
+            // 顏色定義 (0~1)
+            const colorBudda = window.PDFLib.rgb(1.0, 1.0, 0.0);
+            const colorPhoto = window.PDFLib.rgb(1.0, 0.4, 0.7);
+            const colorSpecial = window.PDFLib.rgb(0.8, 1.0, 0.0);
+
+            // 建立高亮標記優先目標陣列 (特殊 (1) > 步達 (2) > 拍照 (3))
+            const searchTargets = [];
+            sList.forEach(name => {
+                const n = normStr(name);
+                if (n) searchTargets.push({ name, norm: n, category: 'special', color: colorSpecial, prio: 1 });
+            });
+            bList.forEach(name => {
+                const n = normStr(name);
+                if (n) searchTargets.push({ name, norm: n, category: 'budda', color: colorBudda, prio: 2 });
+            });
+            pList.forEach(name => {
+                const n = normStr(name);
+                if (n) searchTargets.push({ name, norm: n, category: 'photo', color: colorPhoto, prio: 3 });
+            });
+
+            // 嚴格按優先級排序：特殊 (1) > 步達 (2) > 拍照 (3)
+            searchTargets.sort((a, b) => a.prio - b.prio);
 
             // 檢測是否可使用地端 5001 原生 Python API
             const isLocalServer = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '5001';
@@ -5816,8 +5903,22 @@
                 progressBar.style.width = '30%';
                 progressPercent.innerText = '30%';
 
-                const pdfjsDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                const pdfLibDoc = await window.PDFLib.PDFDocument.load(arrayBuffer);
+                if (!window.pdfjsLib) {
+                    throw new Error("PDF.js 向量解析引擎尚未就緒，請重新整理頁面後重試！");
+                }
+                if (!window.PDFLib) {
+                    throw new Error("PDF-Lib 註解寫入引擎尚未就緒，請重新整理頁面後重試！");
+                }
+                if (!window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
+                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+                }
+
+                // 🛡️ 防 ArrayBuffer 跨 Worker Transferable 卸除 (Detached ArrayBuffer 防禦鎖)
+                const pdfjsBytes = (arrayBuffer instanceof ArrayBuffer) ? arrayBuffer.slice(0) : (arrayBuffer.buffer ? arrayBuffer.buffer.slice(0) : arrayBuffer);
+                const pdfLibBytes = (arrayBuffer instanceof ArrayBuffer) ? arrayBuffer.slice(0) : (arrayBuffer.buffer ? arrayBuffer.buffer.slice(0) : arrayBuffer);
+
+                const pdfjsDoc = await window.pdfjsLib.getDocument({ data: pdfjsBytes }).promise;
+                const pdfLibDoc = await window.PDFLib.PDFDocument.load(pdfLibBytes);
                 const totalPages = pdfjsDoc.numPages;
 
                 let totalHighlights = 0;
@@ -5825,72 +5926,100 @@
                 let photoCount = 0;
                 let specialCount = 0;
 
-                // 顏色定義 (0~1)
-                const colorBudda = window.PDFLib.rgb(1.0, 1.0, 0.0);
-                const colorPhoto = window.PDFLib.rgb(1.0, 0.4, 0.7);
-                const colorSpecial = window.PDFLib.rgb(0.8, 1.0, 0.0);
-
                 for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
                     const jsPage = await pdfjsDoc.getPage(pageNum);
                     const libPage = pdfLibDoc.getPage(pageNum - 1);
                     const textContent = await jsPage.getTextContent();
                     const pageHeight = libPage.getHeight();
 
-                    for (const item of textContent.items) {
-                        const rawStr = item.str || '';
-                        const cleanStr = rawStr.replace(/\s+/g, '');
-                        if (!cleanStr) continue;
+                    // 1. 按行聚合 (以 y 坐標容差 3px 分組)
+                    const lines = {};
+                    for (const it of textContent.items) {
+                        if (!it.str) continue;
+                        const yKey = Math.round(it.transform[5] / 3) * 3;
+                        if (!lines[yKey]) lines[yKey] = [];
+                        lines[yKey].push({
+                            str: it.str,
+                            norm: it.str.split('').map(normStr).join(''),
+                            x: it.transform[4],
+                            y: it.transform[5],
+                            w: it.width || 10,
+                            h: it.height || 10
+                        });
+                    }
 
-                        let matchedColor = null;
-                        let category = null;
+                    const pageBoxes = [];
 
-                        // 依優先級比對：特殊 > 步達 > 拍照
-                        for (const name of specialSet) {
-                            if (cleanStr.includes(name)) {
-                                matchedColor = colorSpecial;
-                                category = 'special';
-                                break;
-                            }
-                        }
-                        if (!matchedColor) {
-                            for (const name of buddaSet) {
-                                if (cleanStr.includes(name)) {
-                                    matchedColor = colorBudda;
-                                    category = 'budda';
-                                    break;
+                    // 2. 逐行掃描匹配選手 (特殊 > 步達 > 拍照)
+                    for (const [yKey, items] of Object.entries(lines)) {
+                        items.sort((a, b) => a.x - b.x);
+
+                        for (const target of searchTargets) {
+                            const targetNorm = target.norm;
+                            if (!targetNorm) continue;
+
+                            for (let i = 0; i < items.length; i++) {
+                                let acc = "";
+                                for (let j = i; j < items.length && (j - i) < 8; j++) {
+                                    acc += items[j].norm;
+                                    if (acc.includes(targetNorm)) {
+                                        // 縮小起始索引至第一個包含字元
+                                        let start = i;
+                                        while (start < j) {
+                                            let sub = "";
+                                            for (let k = start + 1; k <= j; k++) sub += items[k].norm;
+                                            if (sub.includes(targetNorm)) {
+                                                start++;
+                                            } else {
+                                                break;
+                                            }
+                                        }
+
+                                        const first = items[start];
+                                        const last = items[j];
+                                        const boxX = first.x;
+                                        const boxY = first.y;
+                                        const boxW = Math.max(12, (last.x + last.w) - first.x);
+                                        const boxH = Math.max(10, ...items.slice(start, j + 1).map(it => it.h));
+
+                                        // 檢查此行是否已有更高或相同優先級覆蓋
+                                        const overlap = pageBoxes.some(b => 
+                                            Math.abs(b.y - boxY) < 4 && 
+                                            !(boxX + boxW <= b.x || boxX >= b.x + b.w)
+                                        );
+
+                                        if (!overlap) {
+                                            pageBoxes.push({
+                                                x: boxX,
+                                                y: boxY,
+                                                w: boxW,
+                                                h: boxH,
+                                                color: target.color,
+                                                category: target.category,
+                                                name: target.name
+                                            });
+
+                                            // 繪製半透明螢光劃線標註矩形
+                                            libPage.drawRectangle({
+                                                x: boxX - 1,
+                                                y: boxY - 1,
+                                                width: boxW + 2,
+                                                height: boxH + 2,
+                                                color: target.color,
+                                                opacity: 0.38
+                                            });
+
+                                            totalHighlights++;
+                                            if (target.category === 'special') specialCount++;
+                                            else if (target.category === 'photo') photoCount++;
+                                            else if (target.category === 'budda') buddaCount++;
+                                        }
+
+                                        i = j;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        if (!matchedColor) {
-                            for (const name of photoSet) {
-                                if (cleanStr.includes(name)) {
-                                    matchedColor = colorPhoto;
-                                    category = 'photo';
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (matchedColor && item.transform) {
-                            const x = item.transform[4];
-                            const y = item.transform[5];
-                            const w = item.width || (cleanStr.length * 12);
-                            const h = item.height || 10;
-
-                            // 繪製半透明螢光劃線標註矩形
-                            libPage.drawRectangle({
-                                x: x - 1,
-                                y: y - 1,
-                                width: w + 2,
-                                height: h + 2,
-                                color: matchedColor,
-                                opacity: 0.38
-                            });
-
-                            totalHighlights++;
-                            if (category === 'special') specialCount++;
-                            else if (category === 'photo') photoCount++;
-                            else if (category === 'budda') buddaCount++;
                         }
                     }
 

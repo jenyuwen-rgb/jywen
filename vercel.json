@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://swimming-pwa.vercel.app https://storage.googleapis.com https://script.google.com https://api.telegram.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://www.googletagmanager.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://swimming-pwa.vercel.app https://storage.googleapis.com https://script.google.com https://api.telegram.org https://*.run.app https://swim-trigger-api-287296629155.asia-east1.run.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';"
         },
         {
           "key": "Strict-Transport-Security",
@@ -133,6 +133,22 @@
       "destination": "/256split.html"
     },
     {
+      "source": "/athlete",
+      "destination": "/256split.html"
+    },
+    {
+      "source": "/athlete/",
+      "destination": "/256split.html"
+    },
+    {
+      "source": "/athletes",
+      "destination": "/256split.html"
+    },
+    {
+      "source": "/athletes/",
+      "destination": "/256split.html"
+    },
+    {
       "source": "/athlete/:name",
       "destination": "/api/athlete_seo.py?name=:name"
     },
@@ -182,10 +198,6 @@
     }
   ],
   "functions": {
-    "api/query_swimmer.py": {
-      "includeFiles": "data_buckets/**",
-      "excludeFiles": "static/db_parts/**"
-    },
     "api/athlete_seo.py": {
       "includeFiles": "data_buckets/**",
       "excludeFiles": "static/db_parts/**"

@@ -40,15 +40,64 @@
     }
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="/lottie.min.js"></script>
+    <script>
+        if (typeof lottie === 'undefined') {
+            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"><\/script>');
+        }
+    </script>
+    <script src="/chart.min.js"></script>
+    <script src="/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script>
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>');
+            document.write('<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"><\/script>');
+        }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
     <style>
         body { background-color: #000; color: #FFF; font-family: -apple-system, "SF Pro", "SF Mono", monospace; padding-bottom: 200px; }
-        .nav-header { background: #121212; border-bottom: 0.5px solid #333; padding: 12px 8px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; width: 100%; }
-        #searchInput { background: transparent; flex: 1; min-width: 0; outline: none; font-weight: bold; font-size: 18px; color: white; }
+        .nav-header { 
+            background: #1C1C1E !important; 
+            border: 1px solid #38383A !important; 
+            border-radius: 16px !important; 
+            padding: 8px 14px !important; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            position: sticky; 
+            top: 10px; 
+            z-index: 100; 
+            max-width: 860px;
+            margin: 10px auto 16px auto !important;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-sizing: border-box;
+        }
+        @media (max-width: 880px) {
+            .nav-header {
+                margin: 10px 14px 16px 14px !important;
+                width: calc(100% - 28px) !important;
+            }
+        }
+        #searchInput { 
+            background: transparent !important; 
+            border: none !important; 
+            outline: none !important; 
+            color: #FFFFFF !important; 
+            font-size: 16px !important; 
+            font-weight: 500 !important; 
+            flex: 1; 
+            min-width: 0; 
+            padding: 6px 4px !important; 
+            box-shadow: none !important;
+        }
+        #searchInput::placeholder {
+            color: #8E8E93 !important;
+            font-size: 14px !important;
+        }
         .header-title { 
             text-align: center; 
             background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); 
@@ -263,16 +312,20 @@
 </head>
 <body>
     <div id="queryLoader">
-        <div id="lottie-swimmer"></div>
-        <div class="mt-4 text-[#D4AF37] font-bold tracking-widest text-lg">正在全力衝刺中...</div>
+        <div id="lottie-swimmer">
+            <div id="static-swimmer-fallback" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 558 558" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="width: 100%; height: 100%; transform: translate3d(0px, 0px, 0px); content-visibility: visible;"><defs><clipPath id="static_swimmer_clip_2"><rect width="558" height="558" x="0" y="0"></rect></clipPath><clipPath id="static_swimmer_clip_11"><path d="M0,0 L800,0 L800,800 L0,800z"></path></clipPath><clipPath id="static_swimmer_clip_12"><path fill="#ffffff" clip-rule="nonzero" d=" M278.5,304 C278.5,304 269.8739929199219,406.14349365234375 269.8739929199219,406.14349365234375 C269.8739929199219,406.14349365234375 310.3810119628906,403.28399658203125 310.3810119628906,403.28399658203125 C310.3810119628906,403.28399658203125 364.5625,391.9375 364.5625,391.9375 C364.5625,391.9375 425.4429931640625,410.76348876953125 425.4429931640625,410.76348876953125 C425.4429931640625,410.76348876953125 503.9159851074219,388.2724914550781 503.9159851074219,388.2724914550781 C503.9159851074219,388.2724914550781 603.8125,415.5 603.8125,415.5 C603.8125,415.5 532.5,262 532.5,262 C532.5,262 340.6730041503906,245.29299926757812 340.6730041503906,245.29299926757812 C340.6730041503906,245.29299926757812 278.5,304 278.5,304" fill-opacity="1"></path></clipPath></defs><g clip-path="url(#static_swimmer_clip_2)"><g clip-path="url(#static_swimmer_clip_11)" transform="matrix(0.9993908405303955,0.03489949554204941,-0.03489949554204941,0.9993908405303955,-131.79653930664062,-103.71612548828125)" opacity="1" style="display: block;"><g clip-path="url(#static_swimmer_clip_12)"><g transform="matrix(0.9945219159126282,0.10452846437692642,-0.10452846437692642,0.9945219159126282,44.22857666015625,-37.931243896484375)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,453.5870056152344,334.51800537109375)"><path fill="rgb(211,173,53)" fill-opacity="1" d=" M27.51300048828125,15.33899974822998 C19.040000915527344,30.534000396728516 -0.1459999978542328,35.98500061035156 -15.340999603271484,27.511999130249023 C-30.535999298095703,19.041000366210938 -35.98500061035156,-0.1459999978542328 -27.51300048828125,-15.340999603271484 C-19.04199981689453,-30.535999298095703 0.1459999978542328,-35.98500061035156 15.34000015258789,-27.513999938964844 C30.534000396728516,-19.041000366210938 35.98500061035156,0.14499999582767487 27.51300048828125,15.33899974822998z"></path></g></g><g transform="matrix(0.9945219159126282,0.10452846437692642,-0.10452846437692642,0.9945219159126282,44.22857666015625,-37.931243896484375)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,383.3290100097656,402.9530029296875)"><path fill="rgb(211,173,53)" fill-opacity="1" d=" M-48.301998138427734,41.777000427246094 C-48.301998138427734,41.777000427246094 -48.301998138427734,41.777000427246094 -48.301998138427734,41.777000427246094 C-58.417999267578125,30.08099937438965 -57.13800048828125,12.399999618530273 -45.44200134277344,2.2839999198913574 C-45.44200134277344,2.2839999198913574 8.807000160217285,-44.63800048828125 8.807000160217285,-44.63800048828125 C20.503000259399414,-54.75400161743164 38.18600082397461,-53.472999572753906 48.301998138427734,-41.777000427246094 C58.417999267578125,-30.08099937438965 57.137001037597656,-12.39900016784668 45.44200134277344,-2.2829999923706055 C45.44200134277344,-2.2829999923706055 -8.807999610900879,44.63800048828125 -8.807999610900879,44.63800048828125 C-20.503999710083008,54.755001068115234 -38.18600082397461,53.472999572753906 -48.301998138427734,41.777000427246094z"></path></g></g><g transform="matrix(0.9999434947967529,0.010629096068441868,-0.010629096068441868,0.9999434947967529,7.446503639221191,-0.6383113861083984)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,384.7720031738281,352.0299987792969)"><path fill="rgb(211,173,53)" fill-opacity="1" d=" M-47.00199890136719,-21.704999923706055 C-47.00199890136719,-21.704999923706055 -47.00199890136719,-21.704999923706055 -47.00199890136719,-21.704999923706055 C-50.1150016784668,-14.96399974822998 -47.14699935913086,-6.9019999504089355 -40.40599822998047,-3.7890000343322754 C-40.40599822998047,-3.7890000343322754 29.086000442504883,28.301000595092773 29.086000442504883,28.301000595092773 C35.827999114990234,31.413999557495117 43.888999938964844,28.44499969482422 47.00199890136719,21.704999923706055 C50.1150016784668,14.963000297546387 47.14699935913086,6.901000022888184 40.40599822998047,3.7890000343322754 C40.40599822998047,3.7890000343322754 -29.086000442504883,-28.302000045776367 -29.086000442504883,-28.302000045776367 C-35.82699966430664,-31.413999557495117 -43.888999938964844,-28.445999145507812 -47.00199890136719,-21.704999923706055z"></path></g></g><g transform="matrix(0.990838348865509,0.13505345582962036,-0.13505345582962036,0.990838348865509,52.43989562988281,-41.127479553222656)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,328.0429992675781,352.45098876953125)"><path fill="rgb(211,173,53)" fill-opacity="1" d=" M33.20500183105469,-24.26799964904785 C33.20500183105469,-24.26799964904785 33.20500183105469,-24.26799964904785 33.20500183105469,-24.26799964904785 C28.823999404907227,-30.26300048828125 20.333999633789062,-31.582000732421875 14.34000015258789,-27.201000213623047 C14.34000015258789,-27.201000213623047 -30.270000457763672,5.4019999504089355 -30.270000457763672,5.4019999504089355 C-36.26499938964844,9.784000396728516 -37.584999084472656,18.273000717163086 -33.202999114990234,24.26799964904785 C-28.82200050354004,30.261999130249023 -20.33300018310547,31.582000732421875 -14.338000297546387,27.201000213623047 C-14.338000297546387,27.201000213623047 30.270999908447266,-5.4029998779296875 30.270999908447266,-5.4029998779296875 C36.26599884033203,-9.784000396728516 37.58599853515625,-18.273000717163086 33.20500183105469,-24.26799964904785z"></path></g></g><g style="display: none;"><g><path></path></g></g><g style="display: none;"><g><path></path></g></g><g transform="matrix(-0.9853639602661133,-0.1704636961221695,0.1704636961221695,-0.9853639602661133,770.89892578125,803.6334228515625)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,384.7720031738281,352.0299987792969)"><path fill="rgb(211,173,53)" fill-opacity="1" d=" M-47.00199890136719,-21.704999923706055 C-47.00199890136719,-21.704999923706055 -47.00199890136719,-21.704999923706055 -47.00199890136719,-21.704999923706055 C-50.1150016784668,-14.96399974822998 -47.14699935913086,-6.9019999504089355 -40.40599822998047,-3.7890000343322754 C-40.40599822998047,-3.7890000343322754 29.086000442504883,28.301000595092773 29.086000442504883,28.301000595092773 C35.827999114990234,31.413999557495117 43.888999938964844,28.44499969482422 47.00199890136719,21.704999923706055 C50.1150016784668,14.963000297546387 47.14699935913086,6.901000022888184 40.40599822998047,3.7890000343322754 C40.40599822998047,3.7890000343322754 -29.086000442504883,-28.302000045776367 -29.086000442504883,-28.302000045776367 C-35.82699966430664,-31.413999557495117 -43.888999938964844,-28.445999145507812 -47.00199890136719,-21.704999923706055z"></path></g></g><g transform="matrix(-0.6053773164749146,-0.7959386706352234,0.7959386706352234,-0.6053773164749146,427.7440490722656,894.8740844726562)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,328.0429992675781,352.45098876953125)"><path fill="rgb(211,173,53)" fill-opacity="1" d=" M33.20500183105469,-24.26799964904785 C33.20500183105469,-24.26799964904785 33.20500183105469,-24.26799964904785 C33.20500183105469,-24.26799964904785 C28.823999404907227,-30.26300048828125 20.333999633789062,-31.582000732421875 14.34000015258789,-27.201000213623047 C14.34000015258789,-27.201000213623047 -30.270000457763672,5.4019999504089355 -30.270000457763672,5.4019999504089355 C-36.26499938964844,9.784000396728516 -37.584999084472656,18.273000717163086 -33.202999114990234,24.26799964904785 C-28.82200050354004,30.261999130249023 -20.33300018310547,31.582000732421875 -14.338000297546387,27.201000213623047 C-14.338000297546387,27.201000213623047 30.270999908447266,-5.4029998779296875 30.270999908447266,-5.4029998779296875 C36.26599884033203,-9.784000396728516 37.58599853515625,-18.273000717163086 33.20500183105469,-24.26799964904785z"></path></g></g></g></g><g transform="matrix(1,0,0,1,-68,-93)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,351.20770263671875,405.5)"><path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(9,132,255)" stroke-opacity="1" stroke-width="20" d=" M-145.78199768066406,8.97599983215332 C-145.1929931640625,8.991999626159668 -144.5989990234375,9 -144,9 C-116,9 -100,-9 -72,-9 C-44,-9 -28,9 0,9 C27,9 43,-9 71,-9 C98.4010009765625,-9 114.30999755859375,8.23799991607666 141.21800231933594,8.97599983215332"></path></g></g><g transform="matrix(1,0,0,1,-68,-53)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,351.20770263671875,405.5)"><path stroke-linecap="round" stroke-linejoin="round" fill-opacity="0" stroke="rgb(9,132,255)" stroke-opacity="1" stroke-width="20" d=" M-122.3219985961914,5.413000106811523 C-105.84600067138672,0.16300000250339508 -91.97699737548828,-9 -72,-9 C-44,-9 -28,9 0,9 C27,9 43,-9 71,-9 C89.5989990234375,-9 102.90299987792969,-1.0579999685287476 117.94599914550781,4.275000095367432"></path></g></g></g></svg>
+            </div>
+        </div>
+        <div class="mt-4 font-bold tracking-widest text-lg" style="color: #D4AF37 !important; font-weight: 700; letter-spacing: 0.15em; font-size: 1.125rem; margin-top: 1rem; text-shadow: 0 0 12px rgba(212, 175, 55, 0.4);">正在全力衝刺中...</div>
     </div>
 
     <!-- 返回首頁與 PWA 標示 -->
-    <div class="m-3 flex justify-end items-center">
-        <span class="text-xs text-gray-500">PWA Offline Capable</span>
+    <div style="margin: 10px 16px 6px auto; display: flex; justify-content: flex-end; align-items: center; text-align: right; max-width: 860px;">
+        <span style="font-size: 11px; color: #636366; font-weight: 500; letter-spacing: 0.5px;">PWA Offline Capable</span>
     </div>
 
-    <div id="dbLoaderArea" style="display: none !important;" class="m-3 p-6 bg-[#1C1C1E]/80 backdrop-blur-md rounded-xl text-center border border-[#38383A] shadow-sm">
+    <div id="dbLoaderArea" class="m-3 p-6 bg-[#1C1C1E]/80 backdrop-blur-md rounded-xl text-center border border-[#38383A] shadow-sm">
         <input type="file" id="dbFileInput" hidden onchange="handleDBUpload(this.files)">
         <div id="progressContainer" class="mt-2">
             <div id="loaderStatus" class="text-sm text-gray-300 font-medium mb-3">正在與雲端同步資料庫狀態...</div>
@@ -297,7 +350,7 @@
                 <span style="color:#8E8E93;">一位泳者父親的池畔筆記｜全台泳者永久免費查閱</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName">台中市議長盃游泳錦標賽 (2026-10-02)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName">全國北區B(2)游泳錦標賽 (2026-10-18)</span>
             </span>
             <span class="marquee-item">
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
@@ -306,7 +359,7 @@
                 <span style="color:#8E8E93;">一位泳者父親的池畔筆記｜全台泳者永久免費查閱</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName_dup">台中市議長盃游泳錦標賽 (2026-10-02)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName_dup">全國北區B(2)游泳錦標賽 (2026-10-18)</span>
             </span>
         </div>
     </div>
@@ -455,15 +508,66 @@
             });
         }
 
-        if (typeof lottie !== 'undefined' && lottie && typeof lottie.loadAnimation === 'function') {
-            try {
-                swimmerAnim = lottie.loadAnimation({ container: document.getElementById('lottie-swimmer'), renderer: 'svg', loop: true, autoplay: false, animationData: swimmerJSON });
-                if (swimmerAnim && swimmerAnim.addEventListener) {
-                    swimmerAnim.addEventListener('DOMLoaded', () => swimmerAnim.goToAndStop(32, true));
-                }
-            } catch(e) {
-                console.warn('Lottie animation initialization skipped:', e);
+        function showQueryLoader() {
+            const loader = document.getElementById('queryLoader');
+            if (loader) {
+                loader.style.display = 'flex';
+                setTimeout(() => { if (loader) loader.style.opacity = '1'; }, 10);
+                if (window._queryLoaderTimeout) clearTimeout(window._queryLoaderTimeout);
+                window._queryLoaderTimeout = setTimeout(() => {
+                    hideQueryLoader();
+                }, 2500);
             }
+            if (typeof swimmerAnim !== 'undefined' && swimmerAnim) {
+                try {
+                    const fallback = document.getElementById('static-swimmer-fallback');
+                    if (fallback) fallback.remove();
+                    swimmerAnim.playSegments([32, 97], true);
+                } catch(e) {
+                    try { swimmerAnim.play(); } catch(e2) {}
+                }
+            } else if (typeof lottie !== 'undefined' && lottie && typeof swimmerJSON !== 'undefined') {
+                try {
+                    swimmerAnim = lottie.loadAnimation({ container: document.getElementById('lottie-swimmer'), renderer: 'svg', loop: true, autoplay: true, animationData: swimmerJSON });
+                    swimmerAnim.addEventListener('DOMLoaded', () => {
+                        const fallback = document.getElementById('static-swimmer-fallback');
+                        if (fallback) fallback.remove();
+                        swimmerAnim.playSegments([32, 97], true);
+                    });
+                } catch(e) {}
+            }
+        }
+        window.showQueryLoader = showQueryLoader;
+
+        function hideQueryLoader() {
+            if (window._queryLoaderTimeout) {
+                clearTimeout(window._queryLoaderTimeout);
+                window._queryLoaderTimeout = null;
+            }
+            const loader = document.getElementById('queryLoader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    if (loader) loader.style.display = 'none';
+                    if (typeof swimmerAnim !== 'undefined' && swimmerAnim && typeof swimmerAnim.goToAndStop === 'function') {
+                        swimmerAnim.goToAndStop(32, true);
+                    }
+                }, 300);
+            }
+        }
+        window.hideQueryLoader = hideQueryLoader;
+
+        try {
+            if (typeof lottie !== 'undefined' && lottie && typeof lottie.loadAnimation === 'function' && typeof swimmerJSON !== 'undefined') {
+                swimmerAnim = lottie.loadAnimation({ container: document.getElementById('lottie-swimmer'), renderer: 'svg', loop: true, autoplay: false, animationData: swimmerJSON });
+                swimmerAnim.addEventListener('DOMLoaded', () => {
+                    const fallback = document.getElementById('static-swimmer-fallback');
+                    if (fallback) fallback.remove();
+                    swimmerAnim.goToAndStop(32, true);
+                });
+            }
+        } catch(e) {
+            console.warn('Lottie 初始化略過:', e);
         }
 
         let hasLoadedLatestRace = false;
@@ -1654,6 +1758,132 @@
             });
         }
 
+        // ── 純原生 2D Canvas 輕量趨勢圖自愈引擎（零外部 CDN 依賴，100% 離線秒開，杜絕手機黑盒） ──
+        function renderNativeTrendChart(canvasId, mainData, isAgeAxis, opponentData) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || !mainData || mainData.length === 0) return;
+            const parent = canvas.parentElement;
+            const dpr = window.devicePixelRatio || 1;
+            const rect = parent ? parent.getBoundingClientRect() : { width: 340, height: 238 };
+            const w = Math.max(280, rect.width > 20 ? rect.width - 10 : 340);
+            const h = 238;
+            canvas.width = Math.round(w * dpr);
+            canvas.height = Math.round(h * dpr);
+            canvas.style.width = '100%';
+            canvas.style.height = h + 'px';
+            
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            
+            // 極簡 Cyber-Dark 背景
+            ctx.fillStyle = '#09090B';
+            ctx.fillRect(0, 0, w, h);
+            
+            const padL = 58, padR = 18, padT = 22, padB = 38;
+            const plotW = w - padL - padR;
+            const plotH = h - padT - padB;
+            if (plotW <= 10 || plotH <= 10) return;
+            
+            // 統合主選手與對手 Y 軸數值 (秒數)
+            let allY = mainData.map(d => d.y).filter(v => typeof v === 'number' && !isNaN(v) && v > 0);
+            if (opponentData && opponentData.length) {
+                allY = allY.concat(opponentData.map(d => d.y).filter(v => typeof v === 'number' && !isNaN(v) && v > 0));
+            }
+            if (allY.length === 0) return;
+            
+            let minY = Math.min(...allY), maxY = Math.max(...allY);
+            if (minY === maxY) { minY *= 0.95; maxY *= 1.05; }
+            else {
+                const span = maxY - minY;
+                minY = Math.max(0, minY - span * 0.08);
+                maxY = maxY + span * 0.08;
+            }
+            
+            // X 軸時間戳 / 歲數
+            const getXVal = d => isAgeAxis ? (parseFloat(d.age || d.x) || 0) : (d.x instanceof Date ? d.x.getTime() : new Date(d.date8 ? `${String(d.date8).slice(0,4)}-${String(d.date8).slice(4,6)}-${String(d.date8).slice(6,8)}` : d.x).getTime());
+            let allX = mainData.map(getXVal).filter(v => !isNaN(v));
+            if (opponentData && opponentData.length) {
+                allX = allX.concat(opponentData.map(getXVal).filter(v => !isNaN(v)));
+            }
+            let minX = Math.min(...allX), maxX = Math.max(...allX);
+            if (minX === maxX) { minX -= 1; maxX += 1; }
+            
+            // 繪製水平網格線與 Y 軸標籤 (5 條)
+            const gridCount = 5;
+            ctx.lineWidth = 1;
+            ctx.font = '10.5px -apple-system, sans-serif';
+            for (let i = 0; i < gridCount; i++) {
+                const ratio = i / (gridCount - 1);
+                const val = minY + (maxY - minY) * ratio;
+                const y = padT + plotH - (plotH * ratio);
+                ctx.strokeStyle = '#222224';
+                ctx.beginPath();
+                ctx.moveTo(padL, y);
+                ctx.lineTo(w - padR, y);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#A1A1A6';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(formatToXcode(val), padL - 8, y);
+            }
+            
+            // 繪製單組折線圖
+            const drawDataset = (ptsData, strokeColor, isDashed) => {
+                const pts = ptsData.map(d => {
+                    const xv = getXVal(d);
+                    const px = padL + ((xv - minX) / (maxX - minX)) * plotW;
+                    const py = padT + plotH - ((d.y - minY) / (maxY - minY)) * plotH;
+                    return { px, py, raw: d };
+                });
+                
+                ctx.save();
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = 2.2;
+                if (isDashed) ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                pts.forEach((p, idx) => {
+                    if (idx === 0) ctx.moveTo(p.px, p.py);
+                    else ctx.lineTo(p.px, p.py);
+                });
+                ctx.stroke();
+                ctx.restore();
+                
+                pts.forEach(p => {
+                    ctx.fillStyle = strokeColor;
+                    ctx.beginPath();
+                    ctx.arc(p.px, p.py, 3.5, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                return pts;
+            };
+            
+            const mainPts = drawDataset(mainData, '#FFFFFF', false);
+            if (opponentData && opponentData.length) {
+                drawDataset(opponentData, isAgeAxis ? '#FF3B30' : '#0A84FF', true);
+            }
+            
+            // 繪製 X 軸時間/年齡刻度 (4 個)
+            const xSteps = Math.min(4, mainPts.length);
+            ctx.fillStyle = '#A1A1A6';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            for (let i = 0; i < xSteps; i++) {
+                const idx = Math.round(i * (mainPts.length - 1) / (xSteps - 1));
+                const p = mainPts[idx];
+                if (p) {
+                    let lbl = '';
+                    if (isAgeAxis) {
+                        lbl = `${p.raw.age || p.raw.x} 歲`;
+                    } else {
+                        const dStr = String(p.raw.date8 || '');
+                        lbl = dStr.length === 8 ? `${dStr.slice(0,4)}-${dStr.slice(4,6)}` : '';
+                    }
+                    ctx.fillText(lbl, p.px, padT + plotH + 8);
+                }
+            }
+        }
+
         async function toggleD(id, mode, dist, stroke, p1, p2, p3) {
             const p = document.getElementById(`p-${id}`), c = document.getElementById(`c-${id}`);
             if (!p || !c) return;
@@ -1717,17 +1947,37 @@
                 const ttA = { backgroundColor: 'rgba(28,28,30,0.95)', titleFont: {weight:'bold'}, padding:12, displayColors:false, titleColor: (ctx) => ctx.tooltip.dataPoints[0].dataset.borderColor, callbacks: { title: (its) => its[0].raw.date8 ? `${its[0].raw.date8} (${its[0].raw.age || its[0].raw.x} 歲)` : `${its[0].raw.x} 歲`, label: (it) => [`賽事: ${it.raw.meet}`, `年齡: ${it.raw.age || it.raw.x} 歲`, `成績: ${formatToXcode(it.raw.y)}`], labelTextColor: (it) => it.dataset.borderColor } };
                 const optT = { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'time', grid: { color:'#333' }, ticks: { color:'#FFF' } }, y: { ticks: { callback: v => formatToXcode(v), color:'#FFF' }, grid: { color:'#333' } } }, plugins: { legend: { display: false }, tooltip: ttT } };
                 const optA = { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'linear', grid: { color:'#333' }, ticks: { callback: v => `${v} 歲`, color:'#FFF' } }, y: { ticks: { callback: v => formatToXcode(v), color:'#FFF' }, grid: { color:'#333' } } }, plugins: { legend: { display: false }, tooltip: ttA } };
-                const tC = new Chart(document.getElementById(`canvas-t-${id}`), { type: 'line', data: { datasets: [{ data: tD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: optT });
-                const aC = new Chart(document.getElementById(`canvas-a-${id}`), { type: 'line', data: { datasets: [{ data: aD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: optA });
+                let tC = null, aC = null;
+                try {
+                    if (typeof Chart !== 'undefined') {
+                        tC = new Chart(document.getElementById(`canvas-t-${id}`), { type: 'line', data: { datasets: [{ data: tD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: optT });
+                        aC = new Chart(document.getElementById(`canvas-a-${id}`), { type: 'line', data: { datasets: [{ data: aD, borderColor: '#FFF', borderWidth: 2.5, pointBackgroundColor: '#FFF', pointRadius: 4 }] }, options: optA });
+                    } else {
+                        renderNativeTrendChart(`canvas-t-${id}`, tD, false);
+                        renderNativeTrendChart(`canvas-a-${id}`, aD, true);
+                    }
+                } catch(chartErr) {
+                    console.warn('Chart.js 渲染異常，自動切換至純原生 Canvas 自愈引擎:', chartErr);
+                    renderNativeTrendChart(`canvas-t-${id}`, tD, false);
+                    renderNativeTrendChart(`canvas-a-${id}`, aD, true);
+                }
                 document.getElementById(`st-${id}`).onchange = async (e) => { 
                     const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
                     const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺(?![池水])/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
-                    tC.data.datasets[1] = { label: e.target.value, data: mkD(ff), borderColor: '#0A84FF', borderDash: [5,5], pointBackgroundColor: '#0A84FF', pointRadius: 4 }; tC.update(); 
+                    if (tC && tC.data) {
+                        tC.data.datasets[1] = { label: e.target.value, data: mkD(ff), borderColor: '#0A84FF', borderDash: [5,5], pointBackgroundColor: '#0A84FF', pointRadius: 4 }; tC.update(); 
+                    } else {
+                        renderNativeTrendChart(`canvas-t-${id}`, tD, false, mkD(ff));
+                    }
                 };
                 document.getElementById(`sa-${id}`).onchange = async (e) => { 
                     const rO = await remoteQuery(`SELECT 年份, 成績, 賽事名稱, 出生年, 項目, 備註 FROM swimming_scores WHERE 姓名='${e.target.value}' AND 項目 LIKE '%${dist}公尺%${stroke}%' AND ${LC_FILTER} ORDER BY 年份 ASC`); 
                     const ff = rO[0].values.filter(vv => { const mm = vv[4].match(/(\d+)公尺(?![池水])/); return mm && String(mm[1]) === String(dist) && !isDQ(vv[5]); });
-                    aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 }; aC.update(); 
+                    if (aC && aC.data) {
+                        aC.data.datasets[1] = { label: e.target.value, data: mkA(ff), borderColor: '#FF3B30', borderDash: [5,5], pointBackgroundColor: '#FF3B30', pointRadius: 4 }; aC.update(); 
+                    } else {
+                        renderNativeTrendChart(`canvas-a-${id}`, aD, true, mkA(ff));
+                    }
                 };
             } else if (mode === 'matrix') {
                 c.innerHTML = await renderMatrix(dist, stroke, (p3 || p2 || '男'));
@@ -5070,8 +5320,8 @@
     <!-- 頁面最底部狀態欄 (Footer) - 資料庫版本流水號展示 -->
     <footer id="footerDbVersion" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid #38383A; padding: 8px 16px; font-size: 12px; color: #8E8E93; text-align: center; z-index: 99; display: flex; justify-content: space-between; align-items: center; max-width: 100vw; overflow-x: auto; white-space: nowrap; box-shadow: 0 -4px 12px rgba(0,0,0,0.5);">
         <div style="display: flex; align-items: center; gap: 6px;">
-            <span id="footerDbDot" style="display: inline-block; width: 8px; height: 8px; background-color: #30D158; border-radius: 50%;"></span>
-            <span id="footerDbStatus" style="font-weight: 600; color: #8E8E93;">⚡ 極速秒開架構已就緒</span>
+            <span id="footerDbDot" style="display: inline-block; width: 8px; height: 8px; background-color: #8E8E93; border-radius: 50%;"></span>
+            <span id="footerDbStatus" style="font-weight: 600; color: #8E8E93;">資料庫同步載入中...</span>
         </div>
         <div id="footerDbVersionCode" style="font-family: monospace; color: #8E8E93; font-weight: 500; font-size: 13px;">
             🏷️ 資料庫版本流水號: <span id="verCodeSpan">載入中...</span>

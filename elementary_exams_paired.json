@@ -1,0 +1,132 @@
+[
+  {
+    "id": "elem_g3_chinese_kangxuan_113_1_1",
+    "student": "oreo",
+    "school": "文元國小現役選用版",
+    "grade": "3",
+    "gradeName": "小三 (3年級)",
+    "year": "113",
+    "sem": "上",
+    "term": "1",
+    "subject": "國語",
+    "subjectId": "chinese",
+    "edition": "康軒版",
+    "title": "113學年上學期 國小三年級 國語 第一次定期考 (期中)",
+    "displayName": "113-1 國小三年級 國語 第一次定期考 (期中) · 康軒版",
+    "scope": "第 1~5 課、語文天地一 · 生字成語閱讀",
+    "question": {
+      "filename": "113學年上學期 國小三年級 國語 第一次定期考 (期中)_題目卷.pdf",
+      "webPath": "/static/exams/elementary/113_1_1_g3_chinese_kangxuan_q.pdf",
+      "ext": "pdf"
+    },
+    "answer": {
+      "filename": "113學年上學期 國小三年級 國語 第一次定期考 (期中)_解答卷.pdf",
+      "webPath": "/static/exams/elementary/113_1_1_g3_chinese_kangxuan_a.pdf",
+      "ext": "pdf"
+    }
+  },
+  {
+    "id": "elem_g3_math_nani_113_1_1",
+    "student": "oreo",
+    "school": "文元國小現役選用版",
+    "grade": "3",
+    "gradeName": "小三 (3年級)",
+    "year": "113",
+    "sem": "上",
+    "term": "1",
+    "subject": "數學",
+    "subjectId": "math",
+    "edition": "南一版",
+    "title": "113學年上學期 國小三年級 數學 第一次定期考 (期中)",
+    "displayName": "113-1 國小三年級 數學 第一次定期考 (期中) · 南一版",
+    "scope": "第 1~4 單元 · 萬以內數/公釐/圓與角/四位數加減",
+    "question": {
+      "filename": "113學年上學期 國小三年級 數學 第一次定期考 (期中)_題目卷.pdf",
+      "webPath": "/static/exams/elementary/113_1_1_g3_math_nani_q.pdf",
+      "ext": "pdf"
+    },
+    "answer": {
+      "filename": "113學年上學期 國小三年級 數學 第一次定期考 (期中)_解答卷.pdf",
+      "webPath": "/static/exams/elementary/113_1_1_g3_math_nani_a.pdf",
+      "ext": "pdf"
+    }
+  },
+  {
+    "id": "elem_g3_english_hanlin_113_1_1",
+    "student": "oreo",
+    "school": "文元國小現役選用版",
+    "grade": "3",
+    "gradeName": "小三 (3年級)",
+    "year": "113",
+    "sem": "上",
+    "term": "1",
+    "subject": "英語",
+    "subjectId": "english",
+    "edition": "翰林版",
+    "title": "113學年上學期 國小三年級 英語 第一次定期考 (期中)",
+    "displayName": "113-1 國小三年級 英語 第一次定期考 (期中) · Dino 3",
+    "scope": "Unit 1~2, Review 1 · 字母發音與生活會話",
+    "question": {
+      "filename": "113學年上學期 國小三年級 英語 第一次定期考 (期中)_題目卷.pdf",
+      "webPath": "/static/exams/elementary/113_1_1_g3_english_hanlin_q.pdf",
+      "ext": "pdf"
+    },
+    "answer": {
+      "filename": "113學年上學期 國小三年級 英語 第一次定期考 (期中)_解答卷.pdf",
+      "webPath": "/static/exams/elementary/113_1_1_g3_english_hanlin_a.pdf",
+      "ext": "pdf"
+    }
+  },
+  {
+    "id": "elem_g3_nature_kangxuan_113_1_1",
+    "student": "oreo",
+    "school": "文元國小現役選用版",
+    "grade": "3",
+    "gradeName": "小三 (3年級)",
+    "year": "113",
+    "sem": "上",
+    "term": "1",
+    "subject": "自然",
+    "subjectId": "nature",
+    "edition": "康軒版",
+    "title": "113學年上學期 國小三年級 自然 第一次定期考 (期中)",
+    "displayName": "113-1 國小三年級 自然 第一次定期考 (期中) · 康軒版",
+    "scope": "第 1~2 單元 · 植物的身體/神奇磁鐵",
+    "question": {
+      "filename": "113學年上學期 國小三年級 自然 第一次定期考 (期中)_題目卷.pdf",
+      "webPath": "/static/exams/elementary/113_1_1_g3_nature_kangxuan_q.pdf",
+      "ext": "pdf"
+    },
+    "answer": {
+      "filename": "113學年上學期 國小三年級 自然 第一次定期考 (期中)_解答卷.pdf",
+      "webPath": "/static/exams/elementary/113_1_1_g3_nature_kangxuan_a.pdf",
+      "ext": "pdf"
+    }
+  },
+  {
+    "id": "elem_g3_social_hanlin_113_1_1",
+    "student": "oreo",
+    "school": "文元國小現役選用版",
+    "grade": "3",
+    "gradeName": "小三 (3年級)",
+    "year": "113",
+    "sem": "上",
+    "term": "1",
+    "subject": "社會",
+    "subjectId": "social",
+    "edition": "翰林版",
+    "title": "113學年上學期 國小三年級 社會 第一次定期考 (期中)",
+    "displayName": "113-1 國小三年級 社會 第一次定期考 (期中) · 翰林版",
+    "scope": "第 1~3 單元 · 走訪校園/班級自治與規範/社區生活",
+    "question": {
+      "filename": "113學年上學期 國小三年級 社會 第一次定期考 (期中)_題目卷.pdf",
+      "webPath": "/static/exams/elementary/113_1_1_g3_social_hanlin_q.pdf",
+      "ext": "pdf"
+    },
+    "answer": {
+      "filename": "113學年上學期 國小三年級 社會 第一次定期考 (期中)_解答卷.pdf",
+      "webPath": "/static/exams/elementary/113_1_1_g3_social_hanlin_a.pdf",
+      "ext": "pdf"
+    }
+  }
+]
