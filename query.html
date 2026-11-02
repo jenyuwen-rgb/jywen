@@ -350,7 +350,7 @@
                 <span style="color:#8E8E93;">一位泳者父親的池畔筆記｜全台泳者永久免費查閱</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName">全國南區(2)游泳錦標賽 (2026-10-31)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName">全國南區(2)游泳錦標賽 (2026-11-01)</span>
             </span>
             <span class="marquee-item">
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
@@ -359,7 +359,7 @@
                 <span style="color:#8E8E93;">一位泳者父親的池畔筆記｜全台泳者永久免費查閱</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName_dup">全國南區(2)游泳錦標賽 (2026-10-31)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName_dup">全國南區(2)游泳錦標賽 (2026-11-01)</span>
             </span>
         </div>
     </div>
@@ -946,12 +946,28 @@
             const showYears = [];
             for (let i = 0; i < 5; i++) { showYears.push((currentYear - i).toString()); }
             const groups = ["18以上", "高中", "國中", "國小高年級", "國小中年級", "國小低年級"];
-            const allTimeBest = matrix["All-Time"];
+
+            function getCell(row, g) {
+                if (!row) return null;
+                if (row[g]) return row[g];
+                // 雙軌別名映射：教育學制 <-> 泳協歲級
+                if (g === "高中" && row["15~17歲級"]) return row["15~17歲級"];
+                if (g === "國中" && row["13&14歲級"]) return row["13&14歲級"];
+                if (g === "國小高年級" && row["11&12歲級"]) return row["11&12歲級"];
+                if (g === "國小中年級" && row["10及以下"]) return row["10及以下"];
+                if (g === "國小低年級" && row["10及以下"]) return row["10及以下"];
+                if (g === "18以上" && row["18歲以上"]) return row["18歲以上"];
+                return null;
+            }
 
             let colorMap = {}, allNames = new Set();
             ["All-Time", ...showYears].forEach(y => {
                 if (matrix[y]) {
-                    groups.forEach(g => { if (matrix[y][g] && matrix[y][g].n) allNames.add(matrix[y][g].n); });
+                    groups.forEach(g => {
+                        const cell = getCell(matrix[y], g);
+                        const nm = cell ? (cell.n || cell.name) : null;
+                        if (nm && nm !== 'undefined') allNames.add(nm);
+                    });
                 }
             });
 
@@ -964,8 +980,9 @@
             ["All-Time", ...showYears].forEach(y => {
                 h += `<tr><td class="font-bold">${y}</td>`;
                 groups.forEach(g => {
-                    const r = matrix[y] ? matrix[y][g] : null;
-                    h += r ? `<td><b style="color:${colorMap[r.n]}; text-shadow:1px 1px 1px #000;">${r.n}</b><br><small>${formatToXcode(r.sec)}</small></td>` : `<td>-</td>`;
+                    const r = matrix[y] ? getCell(matrix[y], g) : null;
+                    const nm = r ? (r.n || r.name) : null;
+                    h += (r && nm && nm !== 'undefined') ? `<td><b style="color:${colorMap[nm] || '#FFD700'}; text-shadow:1px 1px 1px #000;">${nm}</b><br><small>${formatToXcode(r.sec)}</small></td>` : `<td>-</td>`;
                 });
                 h += `</tr>`;
             });
