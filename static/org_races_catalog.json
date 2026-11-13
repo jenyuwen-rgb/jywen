@@ -114,7 +114,7 @@
         },
         {
           "value": "ctsa_178",
-          "text": "115年全國南區(2)游泳錦標賽 [進行中]",
+          "text": "115年全國南區(2)游泳錦標賽",
           "in_db": true,
           "in_progress": false,
           "start_date": "2026-10-31",
@@ -602,6 +602,13 @@
           "text": "113年臺南市中小學游泳錦標賽",
           "in_db": true,
           "score_count": 1908,
+          "in_progress": false
+        },
+        {
+          "value": "tainan_63",
+          "text": "臺南市116年中等學校聯合運動會",
+          "in_db": false,
+          "score_count": 0,
           "in_progress": false
         }
       ]
