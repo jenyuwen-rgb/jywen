@@ -1,12 +1,12 @@
 {
-  "version": 1794838656,
-  "version_code": "v2026.11.16.2217-b1794838656",
+  "version": 1794866579,
+  "version_code": "v2026.11.17.0602-b1794866579",
   "total_buckets": 256,
   "total_swimmers": 31307,
-  "total_records": 856192,
+  "total_records": 856733,
   "latest_race": "台南市116年中等學校聯合運動會",
-  "latest_date": "20261106",
-  "total_size_mb": 19.8,
-  "avg_bucket_size_kb": 79.21,
-  "generated_at": "2026-11-16 22:17:36"
+  "latest_date": "20261112",
+  "total_size_mb": 20.83,
+  "avg_bucket_size_kb": 83.32,
+  "generated_at": "2026-11-17 06:02:59"
 }
