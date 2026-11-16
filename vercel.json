@@ -200,10 +200,10 @@
   "functions": {
     "api/athlete_seo.py": {
       "includeFiles": "data_buckets/**",
-      "excludeFiles": "static/db_parts/**"
+      "excludeFiles": "{static,athletes}/**"
     },
     "api/*.py": {
-      "excludeFiles": "static/db_parts/**"
+      "excludeFiles": "{static,athletes,data_buckets}/**"
     }
   }
 }
