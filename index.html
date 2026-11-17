@@ -907,14 +907,18 @@
                 rawList = bg[adKey] || bg[rawKey] || [];
                 totalCount = bt[adKey] || bt[rawKey] || rawList.length;
             }
-            const resArray = rawList.map(r => {
+            let prevCs = null, prevTieRank = 0;
+            const resArray = rawList.map((r, i) => {
                 const s = r.sec || timeToSec(r.raw || r.成績);
+                const cs = Math.round((s || 0) * 100);
+                if (cs !== prevCs) { prevCs = cs; prevTieRank = i + 1; }
                 return {
                     name: r.name,
                     birthYear: r.birth || r.birthYear || '',
                     birth: r.birth || r.birthYear || '',
                     raw: formatToXcode(s),
                     sec: s,
+                    tieRank: prevTieRank,
                     wa: r.wa || getWA(parseInt(dist), stroke, r.raw || r.成績, sex),
                     fullDate: r.date || r.fullDate || '',
                     date: r.date || r.fullDate || '',
@@ -1281,11 +1285,13 @@
                             getRankData(dist, stroke, input, pb.出生年, sex, false),
                             getRankData(dist, stroke, input, null, sex, true)
                         ]);
+                        const pbAdYear = String(toAD(pb.出生年 || '') || '');
+                        const isSameSwimmer = (x) => x.name === input && (!pbAdYear || !x.birth || String(toAD(x.birth)) === pbAdYear);
                         if (ageRank === 0) {
                             ageTotalCount = ageRankRes.totalCount || ageRankRes.length;
-                            const ageIdx = ageRankRes.findIndex(x => x.name === input);
+                            const ageIdx = ageRankRes.findIndex(isSameSwimmer);
                             if (ageIdx !== -1) {
-                                ageRank = ageIdx + 1;
+                                ageRank = ageRankRes[ageIdx].tieRank || (ageIdx + 1);
                                 agePR = safePR(ageRank, ageTotalCount);
                             } else if (ageRankRes.length > 0 && ageTotalCount > ageRankRes.length) {
                                 const lastTopSec = ageRankRes[ageRankRes.length - 1].sec;
@@ -1299,9 +1305,9 @@
                         }
                         if (natRank === 0) {
                             natTotalCount = natRankRes.totalCount || natRankRes.length;
-                            const natIdx = natRankRes.findIndex(x => x.name === input);
+                            const natIdx = natRankRes.findIndex(isSameSwimmer);
                             if (natIdx !== -1) {
-                                natRank = natIdx + 1;
+                                natRank = natRankRes[natIdx].tieRank || (natIdx + 1);
                                 natPR = safePR(natRank, natTotalCount);
                             } else if (natRankRes.length > 0 && natTotalCount > natRankRes.length) {
                                 const lastNatSec = natRankRes[natRankRes.length - 1].sec;
@@ -2220,8 +2226,10 @@
                 } else {
                     headerAD = `<div class="rank-header-AD"><span class="nat-rank-center" style="background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; font-size: 18px; display: inline-block;">全國排行 (2025-2026)</span></div>`;
                 }
+                const isSamePerson = (r) => r.name === p1 && (!adYear || !r.birthYear || String(toAD(r.birthYear)) === String(adYear));
+
                 let h = `<div class="data-panel p-3">${headerAD}<div style="overflow-x:auto;"><div style="min-width:610px;">`;
-                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${r.name===p1?'row-gold':''}"><span class="col-rank-fixed">#${i+1}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
+                sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${isSamePerson(r)?'row-gold':''}"><span class="col-rank-fixed">#${r.tieRank || (i+1)}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
                 
                 const adKey = String(toAD(p2));
                 let total = 0, rankNum = 0, pr = "0.0", u = null;
@@ -2231,9 +2239,9 @@
                     total = (rankData && rankData.total_competitors) || sorted.totalCount || sorted.length;
                 }
                 
-                const tIdx = sorted.findIndex(r => r.name === p1);
+                const tIdx = sorted.findIndex(isSamePerson);
                 if (tIdx >= 0) {
-                    rankNum = tIdx + 1;
+                    rankNum = sorted[tIdx].tieRank;
                     u = sorted[tIdx];
                     pr = safePR(rankNum, total);
                 } else if (p1) {
@@ -2242,7 +2250,8 @@
                     const pScores = (sData.scores || []).filter(r => {
                         const item = r.項目 || '';
                         const m = item.match(/(\d+)公尺(?![池水])/);
-                        return m && String(m[1]) === String(dist) && item.includes(stroke) && !item.includes('接力') && !item.includes('(25m)') && !item.includes('短水道') && !isDQ(r.備註);
+                        const matchBirth = !adYear || !r.出生年 || String(toAD(r.出生年)) === String(adYear);
+                        return matchBirth && m && String(m[1]) === String(dist) && item.includes(stroke) && !item.includes('接力') && !item.includes('(25m)') && !item.includes('短水道') && !isDQ(r.備註);
                     }).sort((a, b) => timeToSec(a.成績) - timeToSec(b.成績));
                     
                     if (pScores.length > 0) {
@@ -2256,14 +2265,17 @@
                             meet: best.賽事名稱
                         };
                         if (stats) {
+                            const sObj = (stats.by_sex && stats.by_sex[p3]) ? stats.by_sex[p3] : stats;
                             if (mode === 'rank') {
-                                rankNum = stats.age_rank || 0;
-                                total = stats.age_total || total;
-                                pr = stats.age_pr || safePR(rankNum, total);
+                                const agObj = (sObj.by_birth && adKey && sObj.by_birth[adKey]) ? sObj.by_birth[adKey] : sObj;
+                                rankNum = agObj.age_rank || sObj.age_rank || stats.age_rank || 0;
+                                total = agObj.age_total || sObj.age_total || stats.age_total || total;
+                                pr = agObj.age_pr || safePR(rankNum, total);
                             } else {
-                                rankNum = stats.nat_rank || 0;
-                                total = stats.nat_total || total;
-                                pr = stats.nat_pr || safePR(rankNum, total);
+                                const natObj = (sObj.nat_by_birth && adKey && sObj.nat_by_birth[adKey]) ? sObj.nat_by_birth[adKey] : sObj;
+                                rankNum = natObj.nat_rank || sObj.nat_rank || stats.nat_rank || 0;
+                                total = natObj.nat_total || sObj.nat_total || stats.nat_total || total;
+                                pr = natObj.nat_pr || safePR(rankNum, total);
                             }
                         }
                         // 物理保底：若選手不在前 30 名且 stats 缺失，依 PB 與第 30 名秒數推估名次，絕不顯示 #0
