@@ -43,11 +43,11 @@
         {
           "value": "ctsa_170",
           "text": "115年全國春季游泳錦標賽",
-          "in_db": false,
+          "in_db": true,
           "in_progress": false,
           "start_date": "2026-03-06",
           "end_date": "2026-03-09",
-          "score_count": 0
+          "score_count": 13
         },
         {
           "value": "ctsa_171",
@@ -128,7 +128,7 @@
           "in_progress": true,
           "start_date": "2026-11-19",
           "end_date": "2026-11-23",
-          "score_count": 4095
+          "score_count": 4150
         },
         {
           "value": "ctsa_180",
@@ -398,8 +398,8 @@
         {
           "value": "swim8_27",
           "text": "115年臺中市議長盃游泳錦標賽",
-          "in_db": false,
-          "score_count": 0,
+          "in_db": true,
+          "score_count": 3132,
           "in_progress": false
         },
         {
