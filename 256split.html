@@ -350,7 +350,7 @@
                 <span style="color:#8E8E93;">一位泳者父親的池畔筆記｜全台泳者永久免費查閱</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName">台南市116年中等學校聯合運動會 (2026-11-06)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName">全國冬季短水道游泳錦標賽 (2026-11-20)</span>
             </span>
             <span class="marquee-item">
                 <span style="color:#8E8E93;">台灣游泳成績</span> <span class="marquee-sep" style="color:#52525B; opacity:0.6;">✦</span> <span style="color:#8E8E93;">個人查詢</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">多人比較</span> <span style="color:#3F3F46; margin:0 3px;">/</span> <span style="color:#8E8E93;">得獎分析</span>
@@ -359,7 +359,7 @@
                 <span style="color:#8E8E93;">一位泳者父親的池畔筆記｜全台泳者永久免費查閱</span>
             </span>
             <span class="marquee-item">
-                🏆 資料庫最新賽事：<span id="latestRaceName_dup">台南市116年中等學校聯合運動會 (2026-11-06)</span>
+                🏆 資料庫最新賽事：<span id="latestRaceName_dup">全國冬季短水道游泳錦標賽 (2026-11-20)</span>
             </span>
         </div>
     </div>
@@ -667,7 +667,7 @@
             if (projectRankingMemoryCache[cacheKey]) return projectRankingMemoryCache[cacheKey];
 
             try {
-                const resp = await fetch(encodeURI(`/data_buckets/rankings/rank_${cacheKey}.json`), { cache: 'no-cache' });
+                const resp = await fetch(encodeURI(`/data_buckets/rankings/rank_${cacheKey}.json`));
                 if (resp.ok) {
                     const rData = await resp.json();
                     projectRankingMemoryCache[cacheKey] = rData;
@@ -937,7 +937,7 @@
             
             let rankData = null;
             try {
-                const resp = await fetch(encodeURI(`/data_buckets/rankings/rank_${sCode}_${dist}_${normSex}.json`), { cache: 'no-cache' });
+                const resp = await fetch(encodeURI(`/data_buckets/rankings/rank_${sCode}_${dist}_${normSex}.json`));
                 if (resp.ok) rankData = await resp.json();
             } catch(e) {}
 
@@ -2227,7 +2227,6 @@
                     headerAD = `<div class="rank-header-AD"><span class="nat-rank-center" style="background: linear-gradient(135deg, #ffffff 0%, #f3d078 50%, #d4af37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; font-size: 18px; display: inline-block;">全國排行 (2025-2026)</span></div>`;
                 }
                 const isSamePerson = (r) => r.name === p1 && (!adYear || !r.birthYear || String(toAD(r.birthYear)) === String(adYear));
-
                 let h = `<div class="data-panel p-3">${headerAD}<div style="overflow-x:auto;"><div style="min-width:610px;">`;
                 sorted.slice(0, 30).forEach((r, i) => h += `<div class="list-row ${isSamePerson(r)?'row-gold':''}"><span class="col-rank-fixed">#${r.tieRank || (i+1)}</span><span class="col-birth-fixed">${toAD(r.birthYear)}</span><span class="col-name-fixed">${r.name}</span><span class="col-time-fixed">${r.raw}</span><span class="col-wa-list">WA ${Math.round(r.wa)}</span><span class="col-8code-fixed">${formatDateStr(r.fullDate)}</span><span class="col-meet-fixed">${r.meet}</span></div>`);
                 
@@ -2241,7 +2240,7 @@
                 
                 const tIdx = sorted.findIndex(isSamePerson);
                 if (tIdx >= 0) {
-                    rankNum = sorted[tIdx].tieRank;
+                    rankNum = sorted[tIdx].tieRank || (tIdx + 1);
                     u = sorted[tIdx];
                     pr = safePR(rankNum, total);
                 } else if (p1) {

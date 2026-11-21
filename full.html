@@ -4635,7 +4635,9 @@
                             <p style="font-size:13px; color:#A1A1AA; margin:0;">${step.subtitle}</p>
                         </div>
 
-                        ${step.previewHtml}
+                        <div style="background:#09090B; border:1px solid #38383A; border-radius:12px; overflow:hidden;">
+                            <video id="guideStepVideo" autoplay loop muted playsinline controls preload="auto" src="/static/guide_videos/step${index + 1}.mp4" style="width:100%; display:block; max-height:420px; object-fit:contain; background:#09090B;"></video>
+                        </div>
 
                         <div style="background:rgba(255,255,255,0.03); border:0.5px solid #27272A; border-radius:12px; padding:14px 16px;">
                             <div style="font-size:12px; font-weight:800; color:#D4AF37; margin-bottom:8px;">💡 功能操作與重點說明：</div>
@@ -4647,14 +4649,14 @@
                 `;
                 bodyEl.scrollTop = 0;
 
-                // 清除前一個動畫計時器
+                // 清除前一個動畫計時器並自動播放當前步驟實機影片
                 if (window.guideRosterTimer) {
                     clearInterval(window.guideRosterTimer);
                     window.guideRosterTimer = null;
                 }
-                // 若當前為步驟 03 (同齡排行)，立即啟動真實年次切換動畫
-                if (index === 2) {
-                    initGuideRosterAnimation();
+                const gVid = document.getElementById('guideStepVideo');
+                if (gVid) {
+                    gVid.play().catch(() => {});
                 }
             }
         }
