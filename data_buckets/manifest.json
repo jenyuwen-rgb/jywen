@@ -1,14 +1,12 @@
 {
-  "version": 1795256365,
-  "version_code": "v2026.11.21.1819-b1795256365",
+  "version": 1795298687,
+  "version_code": "v2026.11.22.0604-b1795298687",
   "total_buckets": 256,
-  "total_swimmers": 31130,
-  "total_records": 852067,
-  "latest_race": "全國冬季短水道游泳錦標賽",
-  "latest_date": "20261120",
+  "total_swimmers": 31131,
+  "total_records": 853880,
+  "latest_race": "台南市116年中等學校聯合運動會",
+  "latest_date": "20261106",
   "total_size_mb": 19.67,
   "avg_bucket_size_kb": 78.67,
-  "generated_at": "2026-11-21 18:19:25",
-  "latest_race_name": "全國冬季短水道游泳錦標賽",
-  "latest_race_date": "2026-11-20"
+  "generated_at": "2026-11-22 06:04:47"
 }
