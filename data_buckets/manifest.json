@@ -1,12 +1,12 @@
 {
-  "version": 1795536105,
-  "version_code": "v2026.11.25.0001-b1795536105",
+  "version": 1795566739,
+  "version_code": "v2026.11.25.0832-b1795566739",
   "total_buckets": 256,
   "total_swimmers": 31480,
-  "total_records": 861573,
+  "total_records": 861541,
   "latest_race": "中華泳協排名賽",
   "latest_date": "20261115",
-  "total_size_mb": 19.76,
-  "avg_bucket_size_kb": 79.02,
-  "generated_at": "2026-11-25 00:01:45"
+  "total_size_mb": 19.75,
+  "avg_bucket_size_kb": 79.01,
+  "generated_at": "2026-11-25 08:32:19"
 }
